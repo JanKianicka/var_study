@@ -1,0 +1,5 @@
+and read three numbers of double type: 101.216
+15.6752
+24.98
+c with precision 4: 24.9800
+c with precission 7:                    24.9800000

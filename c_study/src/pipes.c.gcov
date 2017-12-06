@@ -1,0 +1,108 @@
+        -:    0:Source:pipes.c
+        -:    0:Graph:pipes.gcno
+        -:    0:Data:pipes.gcda
+        -:    0:Runs:7
+        -:    0:Programs:1
+        -:    1:#include <stdio.h>
+        -:    2:#include <stdlib.h>
+        -:    3:#include <unistd.h>
+        -:    4:#include <string.h>
+        -:    5:
+        -:    6:#define reading 0
+        -:    7:#define writing 1
+        -:    8:
+        1:    9:main()
+        -:   10:{
+        -:   11:    int num_son,n;
+        -:   12:    int *status;
+        -:   13:    char c;
+        -:   14:
+        -:   15:    /* don't need 4 file descriptors */
+        -:   16:    int pipe_father_son[2],pipe_son_father[2];
+        -:   17:
+        1:   18:    printf("Father: I am the father and my pid is %d \n", getpid());
+        -:   19:
+        -:   20:    /* single pipe() call is enough as file descriptors will be shared by all */
+        1:   21:    pipe(pipe_son_father);
+        1:   22:    pipe(pipe_father_son);
+        -:   23:
+        -:   24:    int i;
+        8:   25:    for(i=0; i<3; i++)
+        -:   26:    {
+        3:   27:        num_son=fork();
+        6:   28:        if(num_son==-1)
+        -:   29:        {
+    #####:   30:            printf("creation error \n");
+    #####:   31:            exit(1);
+        -:   32:        }
+        6:   33:        if(num_son!=0)    //father process
+        -:   34:        {
+        -:   35:            char message[15];
+        -:   36:            int n,num;
+        -:   37:
+        -:   38:            //the father send the son his number
+        3:   39:            num = num_son;
+        -:   40:
+        -:   41:            /* Remove all close() calls as file descriptors are shared by all processes i.e. 1 parent + 3 children */
+        3:   42:            close(pipe_father_son[reading]);
+        3:   43:            n=write(pipe_father_son[writing],&num,sizeof(num));
+        -:   44:
+        -:   45:            //the father receives a message from his son
+        -:   46:            ////close the pipe on write to read in it
+        3:   47:            close(pipe_son_father[writing]);
+        3:   48:            n=read(pipe_son_father[reading],&message,sizeof(message));
+        -:   49:            //printf("Father: i received %s\n",message);
+        -:   50:
+        -:   51:            //the father replies to his son
+        3:   52:            strcpy(message,"you are welcome");
+        3:   53:            n=write(pipe_father_son[writing],&message,sizeof(message));
+        -:   54:
+        -:   55:            //closes the pipes
+        3:   56:            close(pipe_father_son[writing]);
+        3:   57:            close(pipe_son_father[reading]);
+        -:   58:
+        3:   59:            sleep(1);
+        -:   60:
+        -:   61:        }
+        -:   62:        else    //son process
+        -:   63:        {
+        -:   64:            int num_process,num_process_father,num;
+        -:   65:            char message[15];
+        -:   66:
+        3:   67:            num_process=getpid();
+        3:   68:            num_process_father=getppid();
+        -:   69:
+        -:   70:            //the son receives his number from his father
+        3:   71:            close(pipe_father_son[writing]);
+        3:   72:            n=read(pipe_father_son[reading],&num,sizeof(num));
+        3:   73:            printf("Son: %d my pid is %d and i received %d from my father %d \n",i,num_process,num,getppid());
+        -:   74:
+        -:   75:            //the son thanks his father
+        3:   76:            printf("Son (%d) before close pipe_son_father.\n",getpid());
+        3:   77:            close(pipe_son_father[reading]);
+        3:   78:            strcpy(message,"thanks");
+        -:   79:
+        3:   80:            n=write(pipe_son_father[writing],&message,sizeof(message));
+        -:   81:
+        -:   82:            //the son receives the you are welcome message from his father
+        3:   83:            n=read(pipe_father_son[reading],&message,sizeof(message));
+        3:   84:            printf("Son (%d): I received %s\n",getpid(),message);
+        -:   85:
+        -:   86:            //closes the pipes
+        3:   87:            close(pipe_father_son[reading]);
+        3:   88:            close(pipe_son_father[writing]);
+        -:   89:
+        3:   90:            sleep(10);
+        3:   91:            exit(num_son);
+        -:   92:
+        -:   93:        }
+        -:   94:
+        -:   95:    }
+        -:   96:
+        4:   97:    for(i=0; i<3; i++)
+        -:   98:    {
+        3:   99:        wait(&status);
+        3:  100:        printf("Father: my son %d is over\n",i,(int) status/256);
+        3:  101:        sleep(1);
+        -:  102:    }
+        1:  103:}

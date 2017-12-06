@@ -1,0 +1,15 @@
+Makefile
+config.log
+config.status
+*.Po
+*.o
+src/.deps/
+src/Makefile
+src/amqp_listenq
+src/*.o
+src/amqp_sendstring
+src/Makefile.in
+src/tis_poc_sender
+src/tuxshell_poc
+autom4te.cache/
+src/listen_two_queues

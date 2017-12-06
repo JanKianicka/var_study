@@ -1,0 +1,24 @@
+#include <iostream>
+#include <functional>
+
+using namespace std::placeholders;
+
+int add(int i, int j)
+{
+  std::cout << "add: received arguments "<<i<<" and "<<j<<'\n';
+  return i+j;
+}
+
+int main()
+{
+  auto a10 = std::bind(add,10,_1); // new functional a10, which calls add(10,_1)
+  // where _1 is the argument passed to a10
+  auto ab = std::bind(add,'b',_1);
+
+  std::cout << a10(1) << '\n'; // call add(10,1)
+  std::cout << a10(2) << '\n'; // call add(10,2)
+  std::cout << a10(3) << '\n';
+  std::cout << ab(4) << '\n';
+
+}
+

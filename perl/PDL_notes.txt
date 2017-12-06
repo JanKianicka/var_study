@@ -1,0 +1,114 @@
+# Equivalent for python-numpy module for Perl is
+# PDL - Perl Data Language
+# Architecture is simillar like for numpy, C-Perl interface
+# and also performance should be simillar.
+#
+# Interesting reading is:
+# http://www.perlmonks.org/?node_id=891575
+# http://pdl.perl.org/?docs=QuickStart&title=PDL::QuickStart
+#
+# Installation was strightforward (but with one error)
+# But when I have ran cpan PDL second time the compilation
+# continuted. Therefore I would recommend to try followig:
+
+yum install perl-ExtUtils-ParseXS
+cpan PDL
+
+# Here are few basic commands I have tested.
+# If there is time I would have a look on
+# more commands and information from the tutorial.
+
+perldl
+pdl> help
+pdl> foreach ( map{"$_/PDL/HtmlDocs"}@INC ) { p "$_\n" if -d $_ }
+pdl> use PDL;
+pdl> $a = pdl [1..10];
+pdl> print $a
+[1 2 3 4 5 6 7 8 9 10]
+pdl> $b = pdl [[1,2,3],[4,5,6]];
+pdl> print $b
+[
+ [1 2 3]
+ [4 5 6]
+]
+pdl> help $b
+This variable is Double D [3,2]                P            0.05KB
+pdl> $e = zeroes(3,2,4);
+pdl> print $e
+[
+ [
+  [0 0 0]
+  [0 0 0]
+ ]
+ [
+  [0 0 0]
+  [0 0 0]
+ ]
+ [
+  [0 0 0]
+  [0 0 0]
+ ]
+ [
+  [0 0 0]
+  [0 0 0]
+ ]
+]
+pdl> usage zeroes
+pdl> $ee = $e->range([0,1])++
+pdl> print $ee
+[1 1 1 1]
+pdl> print $e
+[
+ [
+  [0 0 0]
+  [1 0 0]
+ ]
+ [
+  [0 0 0]
+  [1 0 0]
+ ]
+ [
+  [0 0 0]
+  [1 0 0]
+ ]
+ [
+  [0 0 0]
+  [1 0 0]
+ ]
+]
+pdl> ? vars
+PDL variables in package main::
+
+Name         Type   Dimension       Flow  State          Mem
+----------------------------------------------------------------
+$a           Double D [10]                 P            0.08KB 
+$b           Double D []                   P            0.01KB 
+$c           Double D [10]                 P            0.08KB 
+$cc          Double D [10]                 P            0.08KB 
+$d             Byte D [10]                 P            0.01KB 
+$e           Double D [3,2,4]              P            0.19KB 
+$ee          Double D [4]                  -            0.00KB 
+$ee_bigger_zero Double D [3,2,4]              P            0.19KB 
+$ee_less_one Double D [3,2,4]              P            0.19KB 
+$f           Double D [2,4]                -            0.00KB 
+$ff          Double D [2,4]                P            0.06KB 
+
+pdl> print $e(0,1,0)
+pdl> usage which
+
+which           Returns indices of non-zero values from a 1-D PDL
+                (Module PDL::Primitive)
+
+  Signature: which(mask(n); indx [o] inds(m))
+pdl> $index = which($e)
+pdl> p $index
+[3 9 15 21]
+pdl> p $e->flat->index($index)
+[1 1 1 1]
+
+# In this case we have verified functional pattern suitable for 
+# much improvement performance of CopeSegData script.
+# By full change of the architecture and design patterns.
+
+
+

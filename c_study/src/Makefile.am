@@ -1,0 +1,26 @@
+bin_PROGRAMS=func_pointers
+func_pointers_SOURCES=func_pointers.c
+bin_PROGRAMS+=hash_test
+hash_test_SOURCES=hash_test.c
+bin_PROGRAMS+=hash_test2
+hash_test2_SOURCES=hash_test2.c
+bin_PROGRAMS+=v_args_test
+v_args_test_SOURCES=v_args_test.c
+bin_PROGRAMS+=mem_error_test
+mem_error_test_SOURCES=mem_error_test.c
+bin_PROGRAMS+=pthreads_example
+pthreads_example_SOURCES=pthreads_example.c
+bin_PROGRAMS+=thread01
+thread01_SOURCES=thread01.c
+bin_PROGRAMS+=fopencookie_ex1
+fopencookie_ex1_SOURCES=fopencookie_ex1.c
+bin_PROGRAMS+=pipes
+pipes_SOURCES=pipes.c
+bin_PROGRAMS+=my_echo
+my_echo_SOURCES=my_echo.c
+bin_PROGRAMS+=execve
+execve_SOURCES=execve.c
+# bin_PROGRAMS+=fopencookie_double_dispatch
+# fopencookie_double_dispatch_SOURCES=fopencookie_double_dispatch.c
+
+SUBDIRS=marsh_book

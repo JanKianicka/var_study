@@ -1,0 +1,6 @@
+include versioneer.py
+include *.txt
+include *.rst
+include tox.ini
+recursive-include smecvps_my *.py *.c *.h *.pxd *.pyx
+recursive-include docs *.rst *.py

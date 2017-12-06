@@ -1,0 +1,12 @@
+gdi_ArrayStructs.h
+gdi_db30_fcns.h
+gdi_db30_macros.h
+gdi_f77.h
+gdi_map.h
+gdi_ora_oci.h
+gdi_ora_oci8.h
+gdi_ora_proC.h
+gdi_proto.h
+gdi_turbo.h
+gdi_utilities.h
+libgdi.h

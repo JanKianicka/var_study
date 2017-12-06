@@ -1,0 +1,1050 @@
+# Listing of files deployed in /dvl/software/shi/bin and in
+# /dvl/software/shi/lib. Automated comparison with content of install
+# repository, branch RHEL6_devlan was conducted. Snapshot of install
+# repository and DVL runtime was done on 26.August 2016.  The first
+# sections contain listing of files present in DVL runtime.  On the
+# bottom there is listing of DVL runtime files not present in the
+# install repository provided with full path.
+
+# Jan Kianicka - 31.8.2016
+
+
+cdtools
+-------
+ executables:
+  __init__.py
+  cd2wng
+  cdDataGen
+  cdcon
+  cdqual
+  cdrecv
+  cdrep
+  cdsend
+  explain
+  initQual.py
+  messageAPI
+  python
+  reports.py
+  start_cdtool
+
+
+garsspectro
+-----------
+ executables:
+  garsspectro
+  plugins
+
+ libraries:
+  libgarsspectro.a
+  libgarsspectro.la
+  libgarsspectro.so
+  libgarsspectro.so.0
+  libgarsspectro.so.0.0.0
+
+gbase
+-----
+ executables:
+  CssTable.py
+  calibration
+  cdoc
+  describeCss
+  ffsql
+  gparse
+  rtdtest
+  testGenList
+  testgODBC
+  wave2odbc
+
+ libraries:
+  libBeam.a
+  libBeam.la
+  libFFDB.a
+  libFFDB.la
+  libFK.a
+  libFK.la
+  libFT.a
+  libFT.la
+  libLP.la
+  libLP.so
+  libLP.so.0
+  libLP.so.0.0.0
+  libascii.a
+  libascii.la
+  libcalib.a
+  libcalib.la
+  libcssio.a
+  libcssio.la
+  libgCDF.a
+  libgCDF.la
+  libgODBC.a
+  libgODBC.la
+  libgamp.a
+  libgamp.la
+  libgcss.a
+  libgcss.la
+  libgdetect.la
+  libgdetect.so
+  libgdetect.so.0
+  libgdetect.so.0.0.0
+  libgdraw.a
+  libgdraw.la
+  libgenlist.a
+  libgenlist.la
+  libgeog.a
+  libgeog.la
+  libgerror.a
+  libgerror.la
+  libgeventquality.a
+  libgeventquality.la
+  libgloc.a
+  libgloc.la
+  libgmethod.a
+  libgmethod.la
+  libgnet.a
+  libgnet.la
+  libgobject.a
+  libgobject.la
+  libgparse.a
+  libgparse.la
+  libgparse.so
+  libgparse.so.0
+  libgparse.so.0.0.0
+  libgqc.a
+  libgqc.la
+  libgqcmask.a
+  libgqcmask.la
+  libgresp.a
+  libgresp.la
+  libgrtd.a
+  libgrtd.la
+  libgse.a
+  libgse.la
+  libgstalta.a
+  libgstalta.la
+  libinterp.la
+  libinterp.so
+  libinterp.so.0
+  libinterp.so.0.0.0
+  libloc.la
+  libloc.so
+  libloc.so.0
+  libloc.so.0.0.0
+  libmagnitude.a
+  libmagnitude.la
+  libmath.a
+  libmath.la
+  libps.a
+  libps.la
+  libqctool.a
+  libqctool.la
+  libsac.a
+  libsac.la
+  libshape.a
+  libshape.la
+  libstandardsensor.a
+  libstandardsensor.la
+  libstanoise.a
+  libstanoise.la
+  libstring.a
+  libstring.la
+  libstring.so
+  libstring.so.0
+  libstring.so.0.0.0
+  libtau.a
+  libtau.la
+  libtime.a
+  libtime.la
+  libtime.so
+  libtime.so.0
+  libtime.so.0.0.0
+  libver.a
+  libver.la
+
+geotool
+-------
+ executables:
+  Makefile.am
+  example1
+  fix_sql_dir
+  gcal
+  gcepstrum
+  gcluster
+  gconvert
+  gcor
+  gdbm
+  geotool
+  gfk
+  gfkmb
+  gft
+  gftrace
+  glc
+  gmap
+  gmccc
+  gobm
+  gorigin
+  gpolar
+  grsp
+  grt
+  gselfscan
+  gspectro
+  gtq
+  gtv
+  plugins
+  seedtocss
+  seedtodb
+  seedtotext
+  test_geotool
+
+ libraries:
+  libcluster.a
+  libcluster.la
+  libcluster.so
+  libcluster.so.0
+  libcluster.so.0.0.0
+  libdrawx.a
+  libdrawx.la
+  libdrawx.so
+  libdrawx.so.0
+  libdrawx.so.0.0.0
+  libgarrival.a
+  libgarrival.la
+  libgarrival.so
+  libgarrival.so.0
+  libgarrival.so.0.0.0
+  libgbeam.a
+  libgbeam.la
+  libgbeam.so
+  libgbeam.so.0
+  libgbeam.so.0.0.0
+  libgbm.a
+  libgbm.la
+  libgbm.so
+  libgbm.so.0
+  libgbm.so.0.0.0
+  libgcal.a
+  libgcal.la
+  libgcal.so
+  libgcal.so.0
+  libgcal.so.0.0.0
+  libgcepstrum.a
+  libgcepstrum.la
+  libgcepstrum.so
+  libgcepstrum.so.0
+  libgcepstrum.so.0.0.0
+  libgcluster.a
+  libgcluster.la
+  libgcluster.so
+  libgcluster.so.0
+  libgcluster.so.0.0.0
+  libgcor.a
+  libgcor.la
+  libgcor.so
+  libgcor.so.0
+  libgcor.so.0.0.0
+  libgdataqc.a
+  libgdataqc.la
+  libgdataqc.so
+  libgdataqc.so.0
+  libgdataqc.so.0.0.0
+  libgdb.a
+  libgdb.la
+  libgdb.so
+  libgdb.so.0
+  libgdb.so.0.0.0
+  libgfk.a
+  libgfk.la
+  libgfk.so
+  libgfk.so.0
+  libgfk.so.0.0.0
+  libgfk3d.a
+  libgfk3d.la
+  libgfk3d.so
+  libgfk3d.so.0
+  libgfk3d.so.0.0.0
+  libgft.a
+  libgft.la
+  libgft.so
+  libgft.so.0
+  libgft.so.0.0.0
+  libgftrace.a
+  libgftrace.la
+  libgftrace.so
+  libgftrace.so.0
+  libgftrace.so.0.0.0
+  libghp.a
+  libghp.la
+  libghp.so
+  libghp.so.0
+  libghp.so.0.0.0
+  libgio.a
+  libgio.la
+  libgio.so
+  libgio.so.0
+  libgio.so.0.0.0
+  libglc.a
+  libglc.la
+  libglc.so
+  libglc.so.0
+  libglc.so.0.0.0
+  libgmap.a
+  libgmap.la
+  libgmap.so
+  libgmap.so.0
+  libgmap.so.0.0.0
+  libgmath.a
+  libgmath.la
+  libgmath.so
+  libgmath.so.0
+  libgmath.so.0.0.0
+  libgmccc.a
+  libgmccc.la
+  libgmccc.so
+  libgmccc.so.0
+  libgmccc.so.0.0.0
+  libgmethod++.a
+  libgmethod++.la
+  libgmethod++.so
+  libgmethod++.so.0
+  libgmethod++.so.0.0.0
+  libgobject++.a
+  libgobject++.la
+  libgobject++.so
+  libgobject++.so.0
+  libgobject++.so.0.0.0
+  libgorigin.a
+  libgorigin.la
+  libgorigin.so
+  libgorigin.so.0
+  libgorigin.so.0.0.0
+  libgplot.a
+  libgplot.la
+  libgplot.so
+  libgplot.so.0
+  libgplot.so.0.0.0
+  libgpm.a
+  libgpm.la
+  libgpm.so
+  libgpm.so.0
+  libgpm.so.0.0.0
+  libgpolar.a
+  libgpolar.la
+  libgpolar.so
+  libgpolar.so.0
+  libgpolar.so.0.0.0
+  libgresp++.a
+  libgresp++.la
+  libgresp++.so
+  libgresp++.so.0
+  libgresp++.so.0.0.0
+  libgrot.a
+  libgrot.la
+  libgrot.so
+  libgrot.so.0
+  libgrot.so.0.0.0
+  libgrsp.a
+  libgrsp.la
+  libgrsp.so
+  libgrsp.so.0
+  libgrsp.so.0.0.0
+  libgrt.a
+  libgrt.la
+  libgrt.so
+  libgrt.so.0
+  libgrt.so.0.0.0
+  libgscript.a
+  libgscript.la
+  libgscript.so
+  libgscript.so.0
+  libgscript.so.0.0.0
+  libgselfscan.a
+  libgselfscan.la
+  libgselfscan.so
+  libgselfscan.so.0
+  libgselfscan.so.0.0.0
+  libgspectro.a
+  libgspectro.la
+  libgspectro.so
+  libgspectro.so.0
+  libgspectro.so.0.0.0
+  libgstlt.a
+  libgstlt.la
+  libgstlt.so
+  libgstlt.so.0
+  libgstlt.so.0.0.0
+  libgtt.a
+  libgtt.la
+  libgtt.so
+  libgtt.so.0
+  libgtt.so.0.0.0
+  libgx++.a
+  libgx++.la
+  libgx++.so
+  libgx++.so.0
+  libgx++.so.0.0.0
+  libidccss.a
+  libidccss.la
+  libidccss.so
+  libidccss.so.0
+  libidccss.so.0.0.0
+  libidcseed.a
+  libidcseed.la
+  libidcseed.so
+  libidcseed.so.0
+  libidcseed.so.0.0.0
+  libmccc.a
+  libmccc.la
+  libmccc.so
+  libmccc.so.0
+  libmccc.so.0.0.0
+  libmotif++.a
+  libmotif++.la
+  libmotif++.so
+  libmotif++.so.0
+  libmotif++.so.0.0.0
+  libwgets.a
+  libwgets.la
+  libwgets.so
+  libwgets.so.0
+  libwgets.so.0.0.0
+
+gpmcc
+-----
+ executables:
+  gpmcc
+  plugins
+
+ libraries:
+  libgpmcc.a
+  libgpmcc.la
+  libgpmcc.so
+  libgpmcc.so.0
+  libgpmcc.so.0.0.0
+
+ibase
+-----
+ executables:
+  ARS
+  Arch_intvl_create
+  Archive
+  AutoDRM
+  BullComp
+  Check_arch
+  Check_arch_consistency
+  Check_later
+  Clean_Tables_and_Mark_State
+  CopyPSFile
+  CreateTMSession
+  DFX
+  EvLoc
+  ExAnComp
+  GA_DBI
+  GAassoc
+  GAconflict
+  GAcons
+  GSEBull
+  HART
+  HASE
+  IADR
+  LPXcompile
+  LPcompile
+  LPdisp3_frq
+  Late_Clean_Tables_and_Mark_State
+  LocSAT
+  Map
+  MessageAlert
+  MessageFTP
+  MessageGet
+  MessageReceive
+  MessageSend
+  MessageShip
+  MessageStore
+  MigrateData
+  Orid_into_Dataready
+  Origin_into_Dataready
+  ParseData
+  ParseSubs
+  Phasor
+  PolariPlot
+  QTrace
+  QTrace_print
+  SLSD
+  Scanner
+  SendMessage
+  SpectraPlot
+  StaPro
+  Sta_into_Dataready
+  SubsProcess
+  SwarmScan.sh
+  SynGen
+  TMbulletin
+  TMmap
+  TMpostreb
+  TMprod
+  TMthreshold
+  UpdateTMSession
+  Upfptable
+  WaveAlert
+  WaveExpert
+  WaveGet_server
+  WorkFlow
+  WorldWindMap
+  XfkDisplay
+  aftershockinfo.sh
+  birdie
+  birdie_tux
+  canary
+  check1
+  colibri
+  db_load
+  dbserver
+  del_archived
+  detplot
+  dispatch
+  dman
+  doday
+  e2h
+  eman
+  evsc_drv
+  fpstacap
+  gdi_gen_Astructs
+  get_db_str
+  gettables
+  h2e
+  hep.io.xdr.jar
+  imspar
+  interval_router
+  ipcwrap
+  isaexec.sh
+  java
+  jd
+  loopuptime
+  makecdf.2562
+  maxpmf
+  mig_bull
+  msg_window
+  nontux
+  nontux_mgr
+  od3
+  operate_admin
+  org.ctbto.idc.HART.jar
+  org.ctbto.idc.IADR.jar
+  org.ctbto.idc.ipc.jar
+  org.ctbto.idc.jtreetable.jar
+  org.ctbto.idc.util.jar
+  org.ctbto.idc.worldwind.jar
+  plotuptime
+  purge
+  qc_conf
+  qc_mask_detection
+  qinfo
+  rdf2cdf
+  recycler_server
+  replotuptime
+  run_archive
+  schedclient
+  schedule_it
+  scheduler
+  segcut
+  segextract
+  tdiff
+  ticron_server
+  tin_server
+  tis_server
+  tiseg_server
+  tm_beambasic
+  tm_globrec
+  tm_stast
+  tmstatus
+  tuxpad
+  tuxshell
+  wreq
+  write_fp
+  wseg
+  wseg_arrival
+  xbirdie
+
+ libraries:
+  libAdsn.a
+  libAt.a
+  libGA.a
+  libHART_compute.so
+  libHART_compute.so.0
+  libHART_compute.so.0.0.0
+  libLP.a
+  libLP.la
+  libLPX.a
+  libLPazimuth.a
+  libNGX.a
+  libNGut.a
+  libSG.a
+  libTMmag.a
+  libWc.a
+  libXbae.a
+  libXcss.a
+  libXfk.a
+  libXgksWidget.a
+  libXmp.a
+  libamp.a
+  libarsdb.a
+  libarshart.a
+  libarsio.a
+  libarsipc.a
+  libatten.a
+  libauth.a
+  libbeam.a
+  libci.a
+  libclips.a
+  libcomplexity.a
+  libconvert.a
+  libctms.a
+  libdacslog.a
+  libdata.a
+  libdataqc.a
+  libdb30qa.a
+  libdbq.a
+  libdetect.a
+  libdfxb.a
+  libdfxdb.a
+  libdfxf.a
+  libdfxuser.a
+  libdfxutil.a
+  libepo.a
+  libevsc.a
+  libfileproduct.a
+  libfilter.a
+  libfk.a
+  libfs.a
+  libgctp.a
+  libgdi.a
+  libgeog.a
+  libgeog.la
+  libgfx.a
+  libgmisc.a
+  libgo.a
+  libgobj.a
+  libgra.a
+  libgsefmt.a
+  libgsewf.a
+  libhae.a
+  libhashtree.a
+  libhydro.a
+  libidcbeamrecipe.a
+  libidclog.a
+  libinterp.a
+  libinterp.la
+  libio.a
+  libipc.a
+  libipcnt.a
+  libjipc.so
+  libjipc.so.0
+  libjipc.so.0.0.0
+  liblfk.a
+  libloc.a
+  libloc.la
+  liblparray.a
+  liblppar.a
+  libmag.a
+  libmagnitude.a
+  libmagnitude.la
+  libmap.a
+  libmapgks.a
+  libmapipc.a
+  libmapobj.a
+  libmaprdbms.a
+  libmeschach.a
+  libmisc.a
+  libmsgipc.a
+  libnbf.a
+  libobj.a
+  libonset.a
+  liboverlay.a
+  libpartcl.so
+  libpartcl.so.0
+  libpartcl.so.0.0.0
+  libpathcor.a
+  libpipeline.a
+  libpmcc.a
+  libpmf.a
+  libpmotion.a
+  libprob.a
+  libprobsyn.a
+  libprojection.a
+  libqc.a
+  libqc.la
+  libqtrace.a
+  librdbms.a
+  librdfio.a
+  libresp.a
+  libresponse.a
+  libs3obj.a
+  libscheme.a
+  libsigpolar.a
+  libspectra.a
+  libsplp.a
+  libsyslog.a
+  libtf.a
+  libthreec.a
+  libtmcf.a
+  libtrans.a
+  libutilc.a
+  libwav.a
+  libwaveformqc.a
+  libwaveformqc.la
+  libwaveformqc.so
+  libwfm.a
+  libwio.a
+  libwreq.a
+  libxdes.a
+  libxgks.a
+
+idcdacs
+-------
+ executables:
+  Beamer_dummy
+  DFX_dummy
+  EvLoc_dummy
+  GA_DBI_dummy
+  GAassoc_dummy
+  GAconf_dummy
+  HASE_dummy
+  Ms_dummy
+  StaPro_dummy
+  TMmap_dummy
+  TMprod_dummy
+  TMthres_dummy
+  WE_dummy
+  WF_QC_dummy
+  consume_tester
+  createQueues.py
+  createSystestVerifyQueue.py
+  dacsctrl
+  db_rabbit
+  destroyQueues.py
+  doday_dummy
+  evsc_dummy
+  execute_tis_simulator_4days.csh
+  insert_now_10minutes_intervals.csh
+  makeSQLInsertIntervalActual.py
+  makeSQLInsertRequestActual.py
+  makeSQLInsertTimestampActual.py
+  makeSQLInsertWfdiscActual.py
+  ol2or_dummy
+  pipeline_aux_test.py
+  pipeline_hase_test.py
+  pipeline_sel_test.py
+  pipeline_test.py
+  qtrace_dummy
+  send_rabbit
+  shiftInsertRequestEntry.py
+  shiftInsertWfdiskEntry.py
+  ticron_rabbit
+  tin_rabbit
+  tis_rabbit
+  tis_simulator
+  tiseg_rabbit
+  tmpr_dummy
+  tortoise
+
+
+qctool
+------
+ executables:
+  GEventQuality
+  GEventQuality_states
+  GPSD_summary
+  GQCMask
+  GQCMask_states
+  GStandardSensor
+  GStationNoise
+  GStationNoise_states
+
+
+sbase
+-----
+ libraries:
+  libconvert.a
+  libfilter.a
+  libgeog.a
+  libgeog.la
+  libhae.a
+  libinterp.a
+  libinterp.la
+  liblp.a
+  libprob.a
+  libsigpolar.a
+  libstanoise.a
+  libstanoise.la
+
+Not found bins/libs in install repository:
+-----------------------------------------
+/dvl/software/shi/rel/bin/GA_DBI_sel0
+/dvl/software/shi/rel/bin/GAassoc_sel0
+/dvl/software/shi/rel/bin/GAconflict_sel0
+/dvl/software/shi/rel/bin/RequestSuccess
+/dvl/software/shi/rel/bin/checkCSSresponse
+/dvl/software/shi/rel/bin/squal
+/dvl/software/shi/rel/bin/tuxshell_rabbit
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/ARS.less_wfdisc
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/ARS.until_20101215T09:40
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/AutoDRM-
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/AutoDRM.old
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/DFX~
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/DFX.CCB-135
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/GSEBull.old
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/example1.until_20110322T15:56
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/MessageAlert.old
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/MessageFTP.old
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/MessageGet.old
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/MessageReceive.old
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/MessageSend.old
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/MessageShip.old
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/ParseData-
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/ParseData.old
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/ParseSubs.old
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/Phasor_20121130
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/RequestSuccess
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/SLSD.old
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/Scanner_20121130
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/StaPro.DVL
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/SubsProcess.old
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/WaveAlert.old
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/WaveGet_server-
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/WaveGet_server.old
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/cd2wng-
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/cdDataGen-
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/cdcon-
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/cdrecv-
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/cdrep-
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/cdsend-
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/db_load.old
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/dbserver-
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/dbserver.old
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/doday.old
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/evsc_drv.old
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/example1-
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/example1.old
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/geotool.until_20101215T09:43
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/explain-
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/fileAPI-
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/fpstacap.old
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/geotool-
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/geotool.old
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/tm_globrec~
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/geotool.until_20110322T15:56
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/interval_router-
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/interval_router.old
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/laszlo_geotool
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/messageAPI-
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/recycler_server-
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/recycler_server.old
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/rtdtest-
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/sampleAPI
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/sampleAPI-
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/scheduler-
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/scheduler.old
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/segextract.old
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/squal
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/ticron_server-
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/ticron_server.old
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/tin_server-
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/tin_server.old
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/tis_server-
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/tis_server.old
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/tiseg_server-
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/tiseg_server.old
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/tm_stast~
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/tuxshell-
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/tuxshell.old
+/dvl/software/shi/rel/bin/Linux-2.6.18-128.el5-x86_64/write_fp.old
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/DFX_20150715
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/GA_DBI_sel0
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/GAassoc_sel0
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/DFX.beforeDCR-2364
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/GAconflict_sel0
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/GAconflict~
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/GAcons_sel0
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/GAmerge
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/GAcons~
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/Map~
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/RequestSuccess
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/checkCSSresponse
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/geotool_before_DCR2157
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/geotool_before_DCR2263
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/geotool~
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/gpmcc_before_DCR2157
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/gpmcc_before_DCR2263
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/qc_mask_detection_20150401
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/squal
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/tuxshell_rabbit
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/dtkgpmcc
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/dtkpmcc
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/qc_mask_detection.beforeDCR-2364
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64_pre_DCR_2066
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64_pre_DCR_2066/DFX~
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64_pre_DCR_2066/GA_DBI_sel0
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64_pre_DCR_2066/GA_DBI~
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64_pre_DCR_2066/GAassoc_sel0
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64_pre_DCR_2066/GAassoc~
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64_pre_DCR_2066/GAconflict_sel0
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64_pre_DCR_2066/GAconflict~
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64_pre_DCR_2066/GAcons_sel0
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64_pre_DCR_2066/Map~
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64_pre_DCR_2066/RequestSuccess
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64_pre_DCR_2066/squal
+/dvl/software/shi/rel/bin/Linux-2.6.32-431.20.3.el6.x86_64-x86_64_pre_DCR_2066/tuxshell_rabbit
+/dvl/software/shi/rel/bin/Linux-x86_64
+/dvl/software/shi/rel/bin/Linux-x86_64/ARS.less_wfdisc
+/dvl/software/shi/rel/bin/Linux-x86_64/ARS.until_20101215T09:40
+/dvl/software/shi/rel/bin/Linux-x86_64/AutoDRM-
+/dvl/software/shi/rel/bin/Linux-x86_64/AutoDRM.old
+/dvl/software/shi/rel/bin/Linux-x86_64/DFX~
+/dvl/software/shi/rel/bin/Linux-x86_64/DFX.CCB-135
+/dvl/software/shi/rel/bin/Linux-x86_64/GSEBull.old
+/dvl/software/shi/rel/bin/Linux-x86_64/example1.until_20110322T15:56
+/dvl/software/shi/rel/bin/Linux-x86_64/MessageAlert.old
+/dvl/software/shi/rel/bin/Linux-x86_64/MessageFTP.old
+/dvl/software/shi/rel/bin/Linux-x86_64/MessageGet.old
+/dvl/software/shi/rel/bin/Linux-x86_64/MessageReceive.old
+/dvl/software/shi/rel/bin/Linux-x86_64/MessageSend.old
+/dvl/software/shi/rel/bin/Linux-x86_64/MessageShip.old
+/dvl/software/shi/rel/bin/Linux-x86_64/ParseData-
+/dvl/software/shi/rel/bin/Linux-x86_64/ParseData.old
+/dvl/software/shi/rel/bin/Linux-x86_64/ParseSubs.old
+/dvl/software/shi/rel/bin/Linux-x86_64/Phasor_20121130
+/dvl/software/shi/rel/bin/Linux-x86_64/RequestSuccess
+/dvl/software/shi/rel/bin/Linux-x86_64/SLSD.old
+/dvl/software/shi/rel/bin/Linux-x86_64/Scanner_20121130
+/dvl/software/shi/rel/bin/Linux-x86_64/StaPro.DVL
+/dvl/software/shi/rel/bin/Linux-x86_64/SubsProcess.old
+/dvl/software/shi/rel/bin/Linux-x86_64/WaveAlert.old
+/dvl/software/shi/rel/bin/Linux-x86_64/WaveGet_server-
+/dvl/software/shi/rel/bin/Linux-x86_64/WaveGet_server.old
+/dvl/software/shi/rel/bin/Linux-x86_64/cd2wng-
+/dvl/software/shi/rel/bin/Linux-x86_64/cdDataGen-
+/dvl/software/shi/rel/bin/Linux-x86_64/cdcon-
+/dvl/software/shi/rel/bin/Linux-x86_64/cdrecv-
+/dvl/software/shi/rel/bin/Linux-x86_64/cdrep-
+/dvl/software/shi/rel/bin/Linux-x86_64/cdsend-
+/dvl/software/shi/rel/bin/Linux-x86_64/db_load.old
+/dvl/software/shi/rel/bin/Linux-x86_64/dbserver-
+/dvl/software/shi/rel/bin/Linux-x86_64/dbserver.old
+/dvl/software/shi/rel/bin/Linux-x86_64/doday.old
+/dvl/software/shi/rel/bin/Linux-x86_64/evsc_drv.old
+/dvl/software/shi/rel/bin/Linux-x86_64/example1-
+/dvl/software/shi/rel/bin/Linux-x86_64/example1.old
+/dvl/software/shi/rel/bin/Linux-x86_64/geotool.until_20101215T09:43
+/dvl/software/shi/rel/bin/Linux-x86_64/explain-
+/dvl/software/shi/rel/bin/Linux-x86_64/fileAPI-
+/dvl/software/shi/rel/bin/Linux-x86_64/fpstacap.old
+/dvl/software/shi/rel/bin/Linux-x86_64/geotool-
+/dvl/software/shi/rel/bin/Linux-x86_64/geotool.old
+/dvl/software/shi/rel/bin/Linux-x86_64/tm_globrec~
+/dvl/software/shi/rel/bin/Linux-x86_64/geotool.until_20110322T15:56
+/dvl/software/shi/rel/bin/Linux-x86_64/interval_router-
+/dvl/software/shi/rel/bin/Linux-x86_64/interval_router.old
+/dvl/software/shi/rel/bin/Linux-x86_64/laszlo_geotool
+/dvl/software/shi/rel/bin/Linux-x86_64/messageAPI-
+/dvl/software/shi/rel/bin/Linux-x86_64/recycler_server-
+/dvl/software/shi/rel/bin/Linux-x86_64/recycler_server.old
+/dvl/software/shi/rel/bin/Linux-x86_64/rtdtest-
+/dvl/software/shi/rel/bin/Linux-x86_64/sampleAPI
+/dvl/software/shi/rel/bin/Linux-x86_64/sampleAPI-
+/dvl/software/shi/rel/bin/Linux-x86_64/scheduler-
+/dvl/software/shi/rel/bin/Linux-x86_64/scheduler.old
+/dvl/software/shi/rel/bin/Linux-x86_64/segextract.old
+/dvl/software/shi/rel/bin/Linux-x86_64/squal
+/dvl/software/shi/rel/bin/Linux-x86_64/ticron_server-
+/dvl/software/shi/rel/bin/Linux-x86_64/ticron_server.old
+/dvl/software/shi/rel/bin/Linux-x86_64/tin_server-
+/dvl/software/shi/rel/bin/Linux-x86_64/tin_server.old
+/dvl/software/shi/rel/bin/Linux-x86_64/tis_server-
+/dvl/software/shi/rel/bin/Linux-x86_64/tis_server.old
+/dvl/software/shi/rel/bin/Linux-x86_64/tiseg_server-
+/dvl/software/shi/rel/bin/Linux-x86_64/tiseg_server.old
+/dvl/software/shi/rel/bin/Linux-x86_64/tm_stast~
+/dvl/software/shi/rel/bin/Linux-x86_64/tuxshell-
+/dvl/software/shi/rel/bin/Linux-x86_64/tuxshell.old
+/dvl/software/shi/rel/bin/Linux-x86_64/write_fp.old
+/dvl/software/shi/rel/bin/Restore-Linux-2.6.32-358.el6.x86_64-x86_64
+/dvl/software/shi/rel/bin/Restore-Linux-2.6.32-358.el6.x86_64-x86_64/RequestSuccess
+/dvl/software/shi/rel/bin/Restore-Linux-2.6.32-358.el6.x86_64-x86_64/squal
+/dvl/software/shi/rel/bin/SunOS-sparc
+/dvl/software/shi/rel/bin/SunOS-sparc/squal
+/dvl/software/shi/rel/bin/GAgrid
+/dvl/software/shi/rel/bin/WorldWindMap.orig
+/dvl/software/shi/rel/bin/Xlogger
+/dvl/software/shi/rel/bin/del_archived.cmss
+/dvl/software/shi/rel/bin/dtkgpmcc
+/dvl/software/shi/rel/bin/execute_tuxshell_instances.csh
+/dvl/software/shi/rel/bin/geotool_ops_wrapper
+/dvl/software/shi/rel/bin/ps_kill_instances.csh
+/dvl/software/shi/rel/bin/runLogger
+/dvl/software/shi/rel/bin/tcvt
+/dvl/software/shi/rel/bin/dtkpmcc
+/dvl/software/shi/rel/lib/Linux-2.6.18-128.el5-x86_64
+/dvl/software/shi/rel/lib/Linux-2.6.18-128.el5-x86_64/backup
+/dvl/software/shi/rel/lib/Linux-2.6.18-128.el5-x86_64/backup/plugins_vobs_20110728.tar.gz
+/dvl/software/shi/rel/lib/Linux-2.6.18-128.el5-x86_64/backup/plugins_20110728.tar.gz
+/dvl/software/shi/rel/lib/Linux-2.6.32-431.20.3.el6.x86_64-x86_64
+/dvl/software/shi/rel/lib/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/sqldrivers
+/dvl/software/shi/rel/lib/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/sqldrivers/libqsqloci.so
+/dvl/software/shi/rel/lib/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/libwaveformqc.so.0
+/dvl/software/shi/rel/lib/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/libwaveformqc.so.2
+/dvl/software/shi/rel/lib/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/libclntsh.so
+/dvl/software/shi/rel/lib/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/libHART_compute.a
+/dvl/software/shi/rel/lib/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/libgdetect.a
+/dvl/software/shi/rel/lib/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/libgra.a.20140723
+/dvl/software/shi/rel/lib/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/libjipc.a
+/dvl/software/shi/rel/lib/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/libpartcl.a
+/dvl/software/shi/rel/lib/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/libqc.a~
+/dvl/software/shi/rel/lib/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/libwaveformqc.a_1
+/dvl/software/shi/rel/lib/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/libwaveformqc.so.0.1.0
+/dvl/software/shi/rel/lib/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/libwaveformqc.so.2.0.0
+/dvl/software/shi/rel/lib/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/libwaveformqc.so.2.0.0_1
+/dvl/software/shi/rel/lib/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/libocci.so
+/dvl/software/shi/rel/lib/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/libwaveformqc.a.beforeDCR-2364
+/dvl/software/shi/rel/lib/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/libQIpsis.so
+/dvl/software/shi/rel/lib/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/libclntsh.so.11.1
+/dvl/software/shi/rel/lib/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/libgeolib_core.so
+/dvl/software/shi/rel/lib/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/libgeolib_log4cplus.so
+/dvl/software/shi/rel/lib/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/libgeolib_utils.so
+/dvl/software/shi/rel/lib/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/libgpmcc-common.so
+/dvl/software/shi/rel/lib/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/libnnz11.so
+/dvl/software/shi/rel/lib/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/libocci.so.11.1
+/dvl/software/shi/rel/lib/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/libociei.so
+/dvl/software/shi/rel/lib/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/libqsqloci.so
+/dvl/software/shi/rel/lib/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/libwaveformqc.la.beforeDCR-2364
+/dvl/software/shi/rel/lib/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/libpmcc-common.so
+/dvl/software/shi/rel/lib/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/libpmcc.so
+/dvl/software/shi/rel/lib/Linux-2.6.32-431.20.3.el6.x86_64-x86_64/libwaveformqc.so.2.0.0.beforeDCR-2364
+/dvl/software/shi/rel/lib/Linux-x86_64
+/dvl/software/shi/rel/lib/Linux-x86_64/backup
+/dvl/software/shi/rel/lib/Linux-x86_64/backup/plugins_vobs_20110728.tar.gz
+/dvl/software/shi/rel/lib/Linux-x86_64/backup/plugins_20110728.tar.gz
+/dvl/software/shi/rel/lib/SunOS-sparc
+/dvl/software/shi/rel/lib/java/backup
+/dvl/software/shi/rel/lib/python/Epoch2HourConvertor
+/dvl/software/shi/rel/lib/python/Epoch2HourConvertor/epoch2hourConvertor.py
+/dvl/software/shi/rel/lib/python/Epoch2HourConvertor/epoch2hourConvertor.pyc
+/dvl/software/shi/rel/lib/python/cdqual/initQual.pyc
+/dvl/software/shi/rel/lib/python/cdqual/reports.pyc
+/dvl/software/shi/rel/lib/python/configurationInit
+/dvl/software/shi/rel/lib/python/configurationInit/Makefile.in
+/dvl/software/shi/rel/lib/python/configurationInit/configLoader.py
+/dvl/software/shi/rel/lib/python/configurationInit/configLoader.pyc
+/dvl/software/shi/rel/lib/python/file_tools
+/dvl/software/shi/rel/lib/python/file_tools/file_tools.py
+/dvl/software/shi/rel/lib/python/file_tools/file_tools.pyc
+/dvl/software/shi/rel/lib/python/loggerConfig
+/dvl/software/shi/rel/lib/python/loggerConfig/loggerConfig.py
+/dvl/software/shi/rel/lib/python/loggerConfig/loggerConfig.pyc
+/dvl/software/shi/rel/lib/python/sql_shifter
+/dvl/software/shi/rel/lib/python/sql_shifter/sql_shifter.py
+/dvl/software/shi/rel/lib/python/sql_shifter/sql_shifter.pyc
+/dvl/software/shi/rel/lib/python/test_tools
+/dvl/software/shi/rel/lib/python/test_tools/test_tools.py
+/dvl/software/shi/rel/lib/python/test_tools/test_tools.pyc
+/dvl/software/shi/rel/lib/python/idcpar.py
+/dvl/software/shi/rel/lib/python/idcpar.pyc

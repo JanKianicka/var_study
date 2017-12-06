@@ -1,0 +1,6 @@
+Child process, standard stdout after dup2 but before execve.
+my_echo message to sterr.
+argv[0]: ./src/my_echo
+argv[1]: hello
+argv[2]: world
+Child log, parent process after execve.

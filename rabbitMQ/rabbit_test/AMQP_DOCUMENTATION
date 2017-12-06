@@ -1,0 +1,20 @@
+amqp_queue_declare()
+
+1. amqp_connection_state_t state, 
+2. amqp_channel_t channel, 
+3. amqp_bytes_t queue, 
+4. amqp_boolean_t passive, 
+5. amqp_boolean_t durable, 
+6. amqp_boolean_t exclusive, 
+7. amqp_boolean_t auto_delete, 
+8. amqp_table_t arguments
+
+amqp_basic_consume()
+1. amqp_connection_state_t state, 
+2. amqp_channel_t channel, 
+3. amqp_bytes_t queue, 
+4. amqp_bytes_t consumer_tag, 
+5. amqp_boolean_t no_local, 
+6. amqp_boolean_t no_ack, 
+7. amqp_boolean_t exclusive, 
+8. amqp_table_t arguments

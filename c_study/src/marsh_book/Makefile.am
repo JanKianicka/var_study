@@ -1,0 +1,6 @@
+bin_PROGRAMS=c_basics
+c_basics_SOURCES=c_basics.c
+bin_PROGRAMS+=conditionals
+conditionals_SOURCES=conditionals.c
+bin_PROGRAMS+=mystery
+mystery_SOURCES=mystery.c

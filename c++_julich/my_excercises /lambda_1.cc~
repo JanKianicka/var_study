@@ -1,0 +1,18 @@
+#include <iostream>
+#include <list>
+#include <algorithm>
+
+int main()
+{
+    std::list<int> l(20,0);
+    for (auto x : l) std::cout << x << " ";
+    std::cout << "\n";
+    
+    int cumul = 0;
+    std::generate(l.begin(),l.end(),[&cumul]{ 
+        return cumul++; 
+    });
+    for (auto x : l) std::cout << x << " ";
+    std::cout << "\n";
+}
+

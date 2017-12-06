@@ -1,0 +1,10 @@
+#!/usr/bin/env python
+
+import sys
+sys.path.insert(1, '/home/local/kianicka/repositories/prj_2013_ctbto_autoshi_testing/kianicka/py_autotools/install/lib/python2.6/site-packages')
+
+from hello.application import Application
+
+if __name__ == "__main__":
+    app = Application()
+    app.run()

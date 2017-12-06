@@ -1,0 +1,3 @@
+# Scheme lessons written by Trigvi - very nice book full of joges.
+
+(define (foo x y) ( + (* a x x) (* b y y) c))

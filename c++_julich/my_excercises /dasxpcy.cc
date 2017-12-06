@@ -1,0 +1,56 @@
+#include <iostream>
+#include <random>
+#include <chrono>
+#include <functional>
+#include <tbb/tbb.h>
+
+void dasxpcy_tbb(double a,const std::vector<double> &x,std::vector<double> & y) {
+  tbb::parallel_for(tbb::blocked_range<size_t>(0,x.size()),
+                    [&x,&y,a](tbb::blocked_range<size_t> r){
+    for (size_t i=r.begin();i!=r.end();++i) {
+      y[i]=a*sin(x[i])+cos(y[i]);
+    }
+  });
+}
+
+void dasxpcy_serial(double a,const std::vector<double> & x, std::vector<double> & y) {
+    for (size_t i=0;i!=x.size();++i) {
+      y[i]=a*sin(x[i])+cos(y[i]);
+    }
+}
+
+int main()
+{
+    const size_t N=500000000;
+    std::mt19937 engine;
+    std::uniform_real_distribution<> dist{0,1};
+    std::vector<double> x(N),y1(N),y2(N);
+    const double a = 0.35;
+    auto gen = std::bind(dist,engine);
+    std::cout << "Filling up input array with random numbers serially\n";
+    auto t0 = std::chrono::high_resolution_clock::now();
+    for (size_t i=0;i<N;++i) x[i]=gen();
+    for (size_t i=0;i<N;++i) y2[i]=y1[i]=gen();
+    auto t1 = std::chrono::high_resolution_clock::now();
+    std::cout << "Filling arrays took : "<< std::chrono::duration<double>(t1-t0).count()<<" seconds\n";
+    std::cout << "Calling daxpy serial now ...\n";
+    t0 = std::chrono::high_resolution_clock::now();
+    //    dasxpcy_serial(a,x,y1);
+    t1 = std::chrono::high_resolution_clock::now();
+    auto tser =std::chrono::duration<double>(t1-t0).count(); 
+    std::cout << "daxpy serial took : "<< tser <<" seconds\n";
+    std::cout << "Calling daxpy tbb now ...\n";
+    t0 = std::chrono::high_resolution_clock::now();
+    dasxpcy_tbb(a,x,y2);
+    t1 = std::chrono::high_resolution_clock::now();
+    auto tpar =std::chrono::duration<double>(t1-t0).count(); 
+    std::cout << "daxpy tbb took : "<< tpar <<" seconds\n";
+    std::cout << "Checking results ...\n";
+    t0 = std::chrono::high_resolution_clock::now();
+    double err=0;
+    for (size_t i=0;i<N;++i) err+=fabs(y1[i]-y2[i]);
+
+    std::cout << "Total error = " << err << '\n';
+    std::cout << "Speed up in TBB version relative to serial version = " << 100*tser/tpar << std::endl;
+}
+

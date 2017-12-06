@@ -1,0 +1,1072 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+{% if report_type == "Reviewed" %}
+  <title>SaunaHtmlRRR</title>
+{% else %}
+  <title>SaunaHtmlARR</title>
+{% endif %}
+
+</head>
+
+<body>
+<script type="text/javascript">
+function show(){
+var oIfr = document.getElementById('mapiframe');
+oIfr.style.display=(oIfr.style.display=='block')?'none':'block';
+}
+</script>
+<style type="text/css">
+  
+  @media all
+  {
+    /* Reset as 
+    html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td
+	{
+	  margin: 0;
+	  padding: 0;
+	  border: 0;
+	  outline: 0;
+	  font-weight: inherit;
+	  font-style: inherit;
+	  font-size: 100%;
+	  font-family: inherit;
+	  vertical-align: baseline;
+    }
+
+    /* remember to define focus styles! */
+    :focus 
+    {
+	   outline: 0;
+    }
+
+    body 
+    {
+	  line-height: 1;
+	  color: black;
+	  background: white;
+    }
+
+    ol,ul 
+    {
+	  list-style: none;
+    }
+
+    /* tables still need 'cellspacing="0"' in the markup */
+    table 
+    {
+	  border-collapse: separate;
+	  border-spacing: 0;
+    }
+
+    caption,th,td 
+    {
+	  text-align: left;
+	  font-weight: normal;
+    }
+
+    blockquote:before,blockquote:after,q:before,q:after 
+    {
+	  content: "";
+    }
+
+    blockquote,q 
+    {
+	  quotes: "" "";
+    }
+    
+    /* ---------------------------- */
+    /* Custom part defined by CTBTO */
+    /* ---------------------------- */
+	table.std2
+    {
+       width: 100%;
+       border: 0;
+       text-align: left;
+       border-collapse: separate;
+       empty-cells: show
+    }
+    
+    table.std1
+    {
+       width: 80%;
+       border: 0;
+       text-align: center;
+       border-collapse: separate;
+       empty-cells: show
+    }
+	
+	table.std3
+    {
+       width: 50%;
+       border: 0;
+       text-align: center;
+       border-collapse: separate;
+       empty-cells: show
+    }
+	
+	table.std4
+    {
+       width: 50%;
+       border: 0;
+       text-align: left;
+       border-collapse: separate;
+       empty-cells: show
+    }
+	
+	.comment
+	{
+		font-family: Courier;
+		font-style: normal;
+		font-size:90%; 
+	}
+	
+	.italobold
+	{
+		font-weight: bold;
+		font-style: italic;
+	}
+	
+	.smallunit
+    {
+        font-style: italic;
+        font-size:55%;
+    }
+	
+	.smallitalo
+	{
+		font-style: italic;
+		font-size:70%; 
+	}
+	
+	.smallmath
+	{
+		font-style: italic;
+		font-size:70%; 
+	}
+    
+    table.calib
+    {
+       width: 100%;
+       border: 0;
+       text-align: center;
+       border-collapse: separate;
+       empty-cells: show 
+    }
+    
+    .rule 
+    {
+      border-top: 2pt solid #000;
+      width: 90%;
+      height: 3pt;
+      text-align: center;
+    }
+	
+	/* --------------------------------- */
+	/* Math part for rendering equations */
+	/* --------------------------------- */
+	
+	/* display equations appear on their own line.  */
+    /* (note: don't use display:block on tables, it screws up NN tables) */
+    span.display_eqn 
+	{ 
+         display: block; 
+    }
+    
+	.fraction, 
+    .display_eqn, 
+    .centered 
+	{ 
+      margin-top:0.5em; 
+      margin-bottom:0.5em; 
+      text-align: center; 
+      vertical-align: middle; 
+    }
+
+    /* inline fraction table  NOT USED??? */
+    table.inline_frac 
+	{ 
+      display:inline; 
+      margin-top:0; 
+      margin-bottom:0;
+      text-align: center; 
+      vertical-align: middle; 
+    }
+
+    /* bigger line-height helps make eqns without ^2 more equal to those with ^2 */
+    .display_eqn, 
+    table.num_eqn 
+	{ 
+      line-height: 2em; 
+    }
+	
+    .fraction 
+	{ 
+      line-height: normal; /* for when fraction is wrapped by num_eqn */
+    }  
+
+    /* numbered equations done with a table */
+    /* width slightly less than 100% because of bugs in IE when alongside an image
+       see dbl_pendulum page. */
+    table.num_eqn 
+	{
+      width:99%;  
+      text-align: center; 
+      vertical-align: middle;
+      margin-top:0.5em; 
+      margin-bottom:0.5em; 
+    }
+
+    /* sup style needed for Opera (why?) */
+    sup 
+	{ 
+      vertical-align: 0.8ex; 
+      font-size:95%; 
+    }
+	
+    sub 
+	{ 
+      vertical-align: -0.6ex; 
+      font-size:75%; 
+    }
+	
+	/* only used by the math part. Do not use it for something else */
+	i
+	{
+	  font-size:75%;
+	  /* smaller text within math expressions */
+	}
+	
+    span.bigg 
+	{ 
+	   font-size:140%; 
+	}  /* for big math symbols */
+
+    span.over 
+	{
+		text-decoration:overline;
+	}  /* for vectors */
+
+    span.nobr 
+	{ 
+	   white-space:nowrap; 
+	}  /* for setting where to break long equations */
+
+    td.upper_line 
+	{ 
+	   border-top:solid 1px black; 
+	} /* for horiz line in fractions */
+	
+	td.eq_centered
+	{
+	   margin-top:0.5em; 
+       margin-bottom:0.5em; 
+       text-align: center; 
+       vertical-align: middle;
+	}
+
+    td.eqn_blank 
+	{ 
+	   text-align:left; width:2em; 
+	} /* for left side of numbered equations */
+	
+    td.eqn_number 
+	{ 
+	   text-align:right; width:2em; 
+	} /* for numbered equations */
+
+    .emphasized 
+	{  
+	   border: solid 2px #f90; 
+	}
+	
+    span.text 
+	{ 
+	  font-size:90%; 
+	}  /* smaller text within math expressions */
+	
+	
+    p.eqn 
+	{
+		text-align:center;  
+        margin-top:0cm; margin-bottom:0cm;
+	}
+	
+    pre.eqn 
+	{
+		font-family:Courier, monospace; font-size:10pt; color:blue; margin-bottom:0.1cm;
+	}
+
+    span.sym 
+	{
+		font-family:Symbol, serif;
+	}
+	
+    span.cursive 
+	{
+		font-family:cursive;
+	}
+	
+	/* ---------------------------------------- */
+	/* End of Math part for rendering equations */
+	/* ---------------------------------------- */
+
+  }
+  
+  /* screen syle */
+  @media screen
+  {
+    /* ---------------------------- */
+    /* Custom part defined by CTBTO */
+    /* ---------------------------- */
+    body 
+    {
+	   background: white;
+	   font-size: 14px;
+	   font-family : verdana,arial,sans-serif;
+	   /*font-family:times new roman, serif;*/
+	   margin-top: 10px;
+	   margin-bottom: 10px;
+	   margin-right: 50px;
+	   margin-left: 50px;
+	   padding: 0; 
+	}
+	
+	/* this is used to make some text dynamically appear on the page when the user hover over the <a>
+	   <span class="metalink"><a class="liketext1" href="#">conc_abs_err<span> = conc_rel_err</span></a></span>
+	   
+	   here conc_rel_err will appear
+	   
+	.metalink a span 
+	{
+       display: none;
+       z-index: 10;
+    }
+    
+    .liketext1
+    {
+      text-decoration: none; font-family : verdana,arial,sans-serif; font-size: 14px; display: block; color: #000;
+    }
+
+    .metalink a:hover > span 
+    {
+      display: inline;
+      z-index: 10;
+    }
+    */
+    
+    .liketext
+    {
+      text-decoration: none; font-family : verdana,arial,sans-serif; font-size: 14px; display: block; color: #000;
+    }
+    
+    /* page break like a rule on screen */
+	.page-break 
+	{
+	  border-top: 2pt solid #000;
+      width: 90%;
+      height: 3pt;
+      text-align: center;
+	}  
+	
+	/* hide button */
+	.hide-button
+	{
+	  z-index:97;
+	  color: white; 
+	  background-color: black;
+	  height:95%;
+	  width:300px; 
+	  font-size: 9px;
+	  font-weight : bold; 
+	}
+
+	h1
+	{
+	  font-size : 24px;
+	  text-align: center;
+	  margin-top: 8px;
+	  margin-bottom: 8px;
+	}
+	
+	h2
+	{
+	  font-size : 17px;
+	  padding: 0;
+	  margin-top: 8px;
+	  margin-bottom: 8px;
+	  margin-right: 0px;
+	  margin-left: 0px;
+	}
+	
+	h3
+	{
+	  font-size : 16px;
+	  padding: 0;
+	  margin-top: 8px;
+	  margin-bottom: 8px;
+	}
+	
+	h4
+	{
+	  font-size   : 14px;
+	  font-weight : bold;
+	  font-style  : italic;
+	  padding: 0;
+	  margin-top: 8px;
+	  margin-bottom: 8px;
+ 	}
+
+    hr 
+    { 
+       color: #f00;
+       background-color: #000;
+       height: 3px;
+       width: 90%;
+       text-align: center;
+    } 
+    
+    p       
+ 	{ 
+ 	  font-size:14px; 
+ 	  margin:0 0 12px 0; 
+ 	} 
+ 	
+ 	.preview
+ 	{
+ 	  font-style  : italic;
+ 	  font-size   : 12px;
+ 	}
+ 	
+ 	.coord
+ 	{
+ 	  font-size   : 12px; 
+ 	} 
+	
+	
+    th
+    {
+	   font-size   : 14px;
+	   font-weight : bold;
+	   text-align  : left;
+	}
+    
+    td 
+    {
+	   font-size: 14px;
+	   text-align: left;
+	}
+    
+    th.centre 
+    {
+	   font-size   : 14px;
+	   font-weight : bold;
+	   text-align  : justify;
+	}
+    
+    td.centre 
+    {
+	   font-size: 14px;
+	   text-align: justify;
+	}
+  }
+  
+  /* printer style */
+  @media print
+  {
+    /* ---------------------------- */
+    /* Custom part defined by CTBTO */
+    /* ---------------------------- */
+    body 
+    {
+	   background: white;
+	   font-size: 8pt;
+	   font-family : verdana,arial,sans-serif;
+	   /*font-family:times new roman, serif;*/
+	   margin-top: 10pt;
+	   margin-bottom: 10pt;
+	   margin-right: 10pt;
+	   margin-left: 10pt;
+	   padding: 0; 
+	}
+	
+	h1
+	{
+	  font-size : 20pt;
+	  margin-top: 4pt;
+	  margin-bottom: 4pt;
+	  padding: 0;
+	}
+	
+	h2
+	{
+	  font-size : 14pt;
+	  margin-top: 4pt;
+	  margin-bottom: 4pt;
+	  padding: 0;
+	}
+	
+	h3
+	{
+	  font-size : 12pt;
+	  margin-top: 4pt;
+	  margin-bottom: 4pt;
+	  padding: 0;
+	}
+	
+	h4
+	{
+	  font-size   : 8pt;
+	  font-weight : bold;
+	  font-style  : italic;
+	  margin-top: 4pt;
+	  margin-bottom: 4pt;
+	  padding: 0;
+ 	}
+ 	
+ 	p       
+ 	{ 
+ 	  font-size:8pt; 
+ 	  margin:0 0 10pt 0; 
+ 	}  
+    
+    .rule 
+    {
+      border-top: 2pt solid #000;
+      width: 90%;
+      height: 3pt;
+      text-align: center;
+    } 
+	
+	table.std4
+    {
+       width: 70%;
+       border: 0;
+       text-align: left;
+       border-collapse: separate;
+       empty-cells: show
+    } 
+    
+    th
+    {
+	   font-size   : 8pt;
+	   font-weight : bold;
+	   text-align  : left;
+	}
+    
+    td 
+    {
+	   font-size: 8pt;
+	   text-align: left;
+	}
+    
+    th.centre 
+    {
+	   font-size   : 8pt;
+	   font-weight : bold;
+	   text-align  : justify;
+	}
+    
+    td.centre 
+    {
+	   font-size: 8pt;
+	   text-align: justify;
+	}
+	
+	a
+	{
+      text-decoration: none; font-family : verdana,arial,sans-serif; font-size: 14px; display: block; color: #000;
+    }
+    
+    .coord
+ 	{
+ 	  font-size   : 8pt; 
+ 	  display     : inline;
+ 	} 
+    
+	
+	/* page break */
+	.page-break { display:block; page-break-before:always; }  
+	
+	
+	.preview 
+	{
+	  display:none;
+	}
+  }
+   
+</style>
+<h1 style="text-align:center;">IDC Generated Report
+<br/>{{report_type}} Radionuclide Report
+<br/>Noble Gas Version</h1>
+<p/>
+<p style="text-align:center;">Creation Date: {{creation_date}}
+<br/>Sample Arrival Time: {{arrival_date}}
+<br/>Time difference from receipt of raw data to report creation: {{creation_date_diff}}</p>
+<p/>
+<h2>Sample Information</h2>
+<div class="rule"></div>
+<p/>
+<table class="std2">
+  <tbody>
+    <tr>
+      <td width="15%">Station ID:</td><td width="35%">{{station_code}}</td>
+      <td width="15%">Detector Code:</td><td width="35%">{{detector_code}}</td>
+    </tr>
+    <tr>
+      <td>Authenticated:</td><td>{{authenticated}}</td>
+      <td/><td/>
+    </tr>
+  </tbody>
+</table>
+<p/>
+<table class="std2">
+  <tbody>
+    <tr>
+      <td width="15%">Station Location:</td><td width="85%">{{station_location}}</td>
+    </tr>
+    <tr>
+      <td>Detector Description:</td><td>{{detector_description}}</td>
+    </tr>
+    <tr>
+      <td>System Technology:</td><td>{{system_technology}}</td>
+    </tr>
+  </tbody>
+</table>
+<p/>
+<table class="std2">
+  <tbody>
+    <tr>
+      <td width="15%">Sample Reference ID:</td><td width="35%">{{sample_ref_id}}</td>
+      <td width="15%"/><td width="35%"/>
+    </tr>
+    <tr>
+      <td width="15%">Sample ID:</td><td width="35%">{{sample_id}}</td>
+      <td width="15%"/><td width="35%"/>
+    </tr>
+    <tr>
+      <td>Stable Xe Volume:</td><td>{{xe_vol}} {{xe_vol_unit}}</td>
+      <td>Sample Type:</td><td>Gas</td>
+    </tr>
+  </tbody>
+</table>
+<p/>
+<table class="std2">
+  <tbody>
+    <tr>
+      <td width="15%">Collection Start:</td><td width="35%">{{collection_start}}</td>
+      <td width="15%">Sampling Time:</td><td width="35%">{{sampling_time}}</td>
+    </tr>
+    <tr>
+      <td>Collection Stop:</td><td>{{collection_stop}}</td>
+      <td>Processing Time:</td><td>{{decay_time}}</td>
+    </tr>
+    <tr>
+      <td>Acquisition Start:</td><td>{{acquisition_start}}</td>
+      <td>Acquisition Time:</td><td>{{acquisition_time}}</td>
+    </tr>
+    <tr>
+      <td>Acquisition Stop:</td><td>{{acquisition_stop}}</td>
+      <td/><td/>
+    </tr>
+  </tbody>
+</table>
+<p/>
+{% if report_type == "Reviewed" %}
+  <div>IDC Analysis General Comments:</div>
+  <p/>
+  {%- for comment_line in general_comments -%}
+    <div class="comment">{{comment_line}}</div>
+  {% endfor %}
+  <p/>
+{% endif %}
+<h2>Measurement Categorization</h2>
+<div class="rule"></div>
+<p/>
+<table>
+<tr><td colspan="2">Categorization Legend</td></tr>
+<tr><td>&nbsp;</td><td/></tr>
+<tr><td>Level A&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;</td><td>Clean spectrum - No Xenon is present in the sample.</td></tr>
+<tr><td>Level B&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;</td><td>Xenon detection within the typical range for the station.</td></tr>
+<tr><td>Level C&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;</td><td>Anomalous Xenon detection.</td></tr>
+</table>
+<p/>
+<table>
+<tr><td colspan="4">Isotope category</td></tr>
+<tr><td>Isotope&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>Nuclide detected</td><td>Abnormal_limit <span class="smallitalo">(mBq/m3)</span></td><td>Category</td></tr>
+<tr><td>Xe-131m</td><td>{{xe_131m_detected}}</td><td>{{xe_131m_abn_limit}}</td><td>{{xe_131m_category}}</td></tr>
+<tr><td>Xe-133m</td><td>{{xe_133m_detected}}</td><td>{{xe_133m_abn_limit}}</td><td>{{xe_133m_category}}</td></tr>
+<tr><td>Xe-133</td><td>{{xe_133_detected}}</td><td>{{xe_133_abn_limit}}</td><td>{{xe_133_category}}</td></tr>
+<tr><td>Xe-135</td><td>{{xe_135_detected}}</td><td>{{xe_135_abn_limit}}</td><td>{{xe_135_category}}</td></tr>
+</table>
+
+<p/>
+  <div>Spectrum Category: {{category}}</div>
+<p/>
+<!--
+<h3>Categorization Summary</h3>
+<p/>
+<table class="std2">
+  <tbody>
+    <tr>
+      <th width="14%">Name</th>
+      <th width="14%">Category</th>
+      <th width="72%">Categorization Comment</th>
+    </tr>
+    {% for item in cat_summary %}
+    <tr>
+      <td>{{item.name}}</td>
+      <td>{{item.category}}</td>
+      <td>{{item.comment}}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<p/>
+<h3>Categorization data</h3>
+<p/>
+<table class="std2">
+  <tbody>
+    <tr>
+      <th width="25%">Name</th>
+      <th width="25%">Value</th>
+      <th width="25%">Abnormal Limit</th>
+      <th width="25%">Flag</th>
+    </tr>
+    {% for item in cat_data %}
+    <tr>
+      <td>{{item.name}}</td>
+      <td>{{item.value}} mBq/m3</td>
+      <td>{{item.limit}} mBq/m3</td>
+      <td>{{item.flag}}</td>
+    </tr>
+    {% endfor %}
+    {% for item in cat_data_ratio %}
+    <tr>
+      <td>{{item.name}}</td>
+      <td>{{item.value}} mBq/m3</td>
+      <td>{{item.limit}} mBq/m3</td>
+      <td>{{item.flag}}</td>
+    </tr>
+    {% endfor %}
+    <tr>
+      <td>ATM</td>
+      <td>{{atm}} days</td>
+      <td>N/A</td>
+      <td>N/A</td>
+    </tr>
+  </tbody>
+</table>
+<p/>
+<div>Statistics of {{statistics_no_samples}} samples over the last {{statistics_no_days}} days</div>
+<p/>
+<div>Threshold for abnormal concentration: {{abnormal_threshold}}*spread</div>
+<p/>
+-->
+<h2>Activity Summary and Minimum Detectable Concentration for Xenon Isotopes</h2>
+<div class="rule"></div>
+<p/>
+<div>Radon counts in Xenon sample: {{radon_level_counts}}</div>
+<p/>
+<h3>Xenon isotopes - Analysis Method NCC</h3>
+<p/>
+<table class="std2">
+  <tbody>
+    <tr>
+      <th width="16%">Nuclide</th>
+      <th width="16%">Half-Life</th>
+      <th width="16%">Conc (mBq/m3)</th>
+      <th width="16%">LC</th>
+      <th width="16%">MDC</th>
+      <th width="20%">%RelErr</th>
+    </tr>
+    {% for item in xenon_results %}
+    <tr>
+      <td>{{item.nuclide}}</td>
+      <td>{{item.halflife}}</td>
+      <td>{{item.conc}}</td>
+      <td>{{item.lc}}</td>
+      <td>{{item.mdc}}</td>
+      <td>{{item.relerr}}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<p/>
+<h3>Xenon isotopes - Analysis Method ABGAM2D</h3>
+<p/>
+<table class="std2">
+  <tbody>
+    <tr>
+      <th width="16%">Nuclide</th>
+      <th width="16%">Half-Life</th>
+      <th width="16%">Conc (mBq/m3)</th>
+      <th width="16%">LC</th>
+      <th width="16%">MDC</th>
+      <th width="20%">%RelErr</th>
+    </tr>
+    {% for item in xenon_results_abgam %}
+    <tr>
+      <td>{{item.nuclide}}</td>
+      <td>{{item.halflife}}</td>
+      <td>{{item.conc}}</td>
+      <td>{{item.lc}}</td>
+      <td>{{item.mdc}}</td>
+      <td>{{item.relerr}}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<p/>
+
+<h2>Processing Specific Parameters and Results</h2>
+<div class="rule"></div>
+<p/>
+<h3>Method 1 (Net Count Calculation)</h3>
+<p/>
+<h4> ROI Net Count Results </h4>
+<p/>
+<table class="std2">
+  <tbody>
+    <tr>
+      <th width="6%">ROI</th>
+      <th width="14%">Nuclide</th>
+      <th width="14%">Net Counts</th>
+      <th width="14%">Abs Net Error</th>
+      <th width="14%">LC</th>
+      <th width="14%">Efficiency</th>
+      <th width="22%">Abs Eff Error</th>
+    </tr>
+   {% for r_item in roi_results %}
+    <tr>
+      <td>{{ r_item.roi_number }}</td>
+      <td>{{ r_item.name }}</td>
+      <td>{{ r_item.net_counts }}</td>
+      <td>{{ r_item.net_counts_err }}</td>
+      <td>{{ r_item.lc }}</td>
+      <td>{{ r_item.efficiency }}</td>
+      <td title="Rel Error: {{ r_item.efficiency_rel_error }}%">{{ r_item.efficiency_abs_error }}</td>
+    </tr>
+   {% endfor %}
+  </tbody>
+</table>
+<p/>
+<h4> ROI Limits (channels)</h4>
+<p/>
+<table class="std2">
+  <tbody>
+    <tr>
+      <th width="6%">ROI</th>
+      <th width="20%">BetaLow <span class="smallunit">(channels)</span></th>
+      <th width="20%">BetaHigh <span class="smallunit">(channels)</span></th>
+      <th width="20%">GammaLow <span class="smallunit">(channels)</span></th>
+      <th width="20%">GammaHigh <span class="smallunit">(channels)</span></th>
+    </tr>
+   {% for rb_item in roi_boundaries %}
+    <tr>
+      <td>{{ rb_item.roi_number }}</td>
+      <td>{{ rb_item.betalow }}</td>
+      <td>{{ rb_item.betahigh }}</td>
+      <td>{{ rb_item.gammalow }}</td>
+      <td>{{ rb_item.gammahigh }}</td>
+    </tr>
+   {% endfor %}
+  </tbody>
+</table>
+<p/>
+    /* ABGAM try: */
+<h2>Processing Specific Parameters and Results</h2>
+<div class="rule"></div>
+<p/>
+<h3>Method 2 (Net Count Calculation)</h3>
+<p/>
+<h4> ROI Net Count Results </h4>
+<p/>
+<table class="std2">
+  <tbody>
+    <tr>
+      <th width="6%">ROI</th>
+      <th width="14%">Nuclide</th>
+      <th width="14%">Net Counts</th>
+      <th width="14%">Abs Net Error</th>
+      <th width="14%">LC</th>
+      <th width="14%">Efficiency</th>
+      <th width="22%">Abs Eff Error</th>
+    </tr>
+   {% for r_item in roi_results %}
+    <tr>
+      <td>{{ r_item.roi_number_abgam }}</td>
+      <td>{{ r_item.name }}</td>
+      <td>{{ r_item.net_counts }}</td>
+      <td>{{ r_item.net_counts_err }}</td>
+      <td>{{ r_item.lc }}</td>
+      <td>{{ r_item.efficiency }}</td>
+      <td title="Rel Error: {{ r_item.efficiency_rel_error }}%">{{ r_item.efficiency_abs_error }}</td>
+    </tr>
+   {% endfor %}
+  </tbody>
+</table>
+<p/>
+<h4> ROI Limits (channels)</h4>
+<p/>
+<table class="std2">
+  <tbody>
+    <tr>
+      <th width="6%">ROI</th>
+      <th width="20%">BetaLow <span class="smallunit">(channels)</span></th>
+      <th width="20%">BetaHigh <span class="smallunit">(channels)</span></th>
+      <th width="20%">GammaLow <span class="smallunit">(channels)</span></th>
+      <th width="20%">GammaHigh <span class="smallunit">(channels)</span></th>
+    </tr>
+   {% for rb_item in roi_boundaries %}
+    <tr>
+      <td>{{ rb_item.roi_number }}</td>
+      <td>{{ rb_item.betalow }}</td>
+      <td>{{ rb_item.betahigh }}</td>
+      <td>{{ rb_item.gammalow }}</td>
+      <td>{{ rb_item.gammahigh }}</td>
+    </tr>
+   {% endfor %}
+  </tbody>
+</table>
+<p/>
+
+
+<h2>Processing Parameters</h2>
+<div class="rule"></div>
+<p/>
+<table>
+  <tbody>
+    <tr>
+      <td>Risk level k:</td><td>{{lc_abscissa}}</td>
+    </tr>
+    <tr>
+      <td>Gas background used:</td><td>{{memory_effect}}</td>
+    </tr>
+    <tr>
+      <td>Detector background used:</td><td>{{background_substraction}}</td>
+    </tr>
+    <tr>
+      <td>Interference corrections:</td><td>YES</td>
+    </tr>
+    <tr>
+      <td>Analysis method:</td><td>{{analysis_method}}</td>
+    </tr>
+  </tbody>
+</table>
+<p/>
+<h2>Calibration Parameters</h2>
+<div class="rule"></div>
+<p/>
+<table>
+  <tbody>
+    <tr>
+      <td>Gamma energy calibration updated:</td><td>{{gamma_energy_calibration_updated}}</td>
+    </tr>
+    <tr>
+      <td>Beta energy calibration updated:</td><td>{{beta_energy_calibration_updated}}</td>
+    </tr>
+  </tbody>
+</table>
+<p/>
+
+<h2>Data Timeliness and Availability Flags</h2>
+<div class="rule"></div>
+<p/>
+<table class="std1">
+  <tbody>
+    <tr>
+      <th class="centre">Name</th>
+      <th class="centre">Pass/Fail</th>
+      <th class="centre">Value</th>
+      <th class="centre">Test</th>
+    </tr>
+   {% for flag in timeliness_flags %}
+    <tr>
+      <td class="centre">{{ flag.name}}</td>
+      <td class="centre">{{ flag.result }}</td>
+      <td class="centre">{{ flag.value }}</td>
+      <td class="centre">{{ flag.test }}</td>
+    </tr>
+   {% endfor %}
+  </tbody>
+</table>
+<p/>
+
+<h2>Data Quality Flags</h2>
+<div class="rule"></div>
+<p/>
+<table class="std1">
+  <tbody>
+    <tr>
+      <th class="centre">Name</th>
+      <th class="centre">Pass/Fail</th>
+      <th class="centre">Value</th>
+      <th class="centre">Test</th>
+    </tr>
+   {% for flag in quality_flags %}
+    <tr>
+      <td class="centre">{{ flag.name}}</td>
+      <td class="centre">{{ flag.result }}</td>
+      <td class="centre">{{ flag.value }}</td>
+      <td class="centre">{{ flag.test }}</td>
+    </tr>
+   {% endfor %}
+    <tr>
+      <td class="centre">Xe-133 MDC</td>
+      <td class="centre">{{xe_133_mdc_flag}}</td>
+      <td class="centre">{{xe_133_mdc_value}}</td>
+      <td class="centre">less than 1 mBq/m3</td>
+    </tr>
+  </tbody>
+</table>
+<p/>
+
+<h2>Event Screening Flags</h2>
+<div class="rule"></div>
+<p/>
+<table class="std1">
+  <tbody>
+    <tr>
+      <th class="centre">Name</th>
+      <th class="centre">YES/NO/Value</th>
+    </tr>
+    <tr><td>Xenon Isotopes present in this spectrum</td><td>{{xe_isotopes_present}}</td></tr>
+    <tr><td>Only one Xenon Isotope in spectrum</td><td>{{xe_isotopes_only_one}}</td></tr>
+    <tr><td>Number of days since last Xenon detection</td><td>{{xe_isotopes_last_detection}}</td></tr>
+    <tr><td>2 or more Xenon Isotopes present in this spectrum</td><td>{{xe_isotopes_two_present}}</td></tr>
+    <tr><td>Xe-133 present in spectrum</td><td>{{xe_isotopes_xe_133_present}}</td></tr>
+    <tr><td>Number of times Xe-133 seen in last 365 days</td><td>{{xe_isotopes_seen_times}}</td></tr>
+    <tr><td>Short term flag</td><td>{{short_term_flag}}</td></tr>
+    <tr><td colspan=2>Isotopic ratios:</td></tr>
+    <tr><td>- Xe-133m/131m > 2</td><td>{{xe_133m_131m_flag}}</td></tr>
+    <tr><td>- Xe-135/133 > 5</td><td>{{xe_135_133_flag}}</td></tr>
+    <tr><td>- Xe-133m/133 > 0.3</td><td>{{xe_133m_133_flag}}</td></tr>
+  </tbody>
+</table>
+<p/>
+
+<h2>Calibration Equations</h2>
+<div class="rule"></div>
+<p/>
+{% for calibration in calibrations %}
+        <table class="calib">
+    <tbody>
+     <tr>
+        {% if calibration.model == 'Polynomial' %}
+                <th class='italobold'>{{ calibration.desc }} : C(E)= t0 + t1 E + t2 E<sup>2</sup></th>
+       </tr>
+           {% for c in calibration.coeffs %}
+       <tr>
+        <td><i>{{ c.name }} : {{ c.val }}</i></td>
+       </tr>
+           {% endfor %}
+           {% endif %}
+     </tbody>
+    </table>
+{% endfor %}
+<p/>
+
+</body>
+</html>
