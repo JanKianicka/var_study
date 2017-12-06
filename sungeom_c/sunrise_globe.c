@@ -12,6 +12,7 @@
 #include <math.h>
 #include "sungeom.h"
 #include <pthread.h>
+#include <time.h>
 
 
 typedef struct {
@@ -27,6 +28,11 @@ typedef struct {
      */
     int start_lon_idx;
     int end_lon_idx;
+    int lon_size;
+    int lat_size;
+    int year;
+    int month;
+    int day;
     void *Longitudes;
     void *Latitudes;
     void *Sun_rise_hours;
@@ -41,11 +47,16 @@ inline double to_radians(double degrees){
     return (degrees * M_PI)/180.0;
 }
 
-CONTEXT *initiate_worker(int start_lon_idx, int end_lon_idx, void *Longitudes, void *Latitudes, void *Sun_rise_hours){
+CONTEXT *initiate_worker(int year, int month, int day, int start_lon_idx, int end_lon_idx, int lon_size, int lat_size, void *Longitudes, void *Latitudes, void *Sun_rise_hours){
     CONTEXT *context = malloc(sizeof(CONTEXT));
     
+    context->year  = year;
+    context->month = month;
+    context->day   = day;
     context->start_lon_idx = start_lon_idx;
     context->end_lon_idx   = end_lon_idx;
+    context->lon_size      = lon_size;
+    context->lat_size      = lat_size;
     context->Longitudes    = Longitudes;
     context->Latitudes     = Latitudes;
     context->Sun_rise_hours = Sun_rise_hours;
@@ -53,18 +64,37 @@ CONTEXT *initiate_worker(int start_lon_idx, int end_lon_idx, void *Longitudes, v
 }
 
 void *sunrise_worker(void *context){
-    int ii=0;
+    int i,j;
+    double sunrise_new;
     CONTEXT *context_loc = (CONTEXT *) context;
     int start_lon_idx = context_loc->start_lon_idx;
     int end_lon_idx   = context_loc->end_lon_idx;
-    double (*Longitudes)[(long unsigned int)(ii)];
+    int lon_size      = context_loc->lon_size;
+    int lat_size      = context_loc->lat_size;
+    double (*Latitudes)[(long unsigned int)(lon_size)];
+    double (*Longitudes)[(long unsigned int)(lon_size)];
+    double (*Sun_rise_hours)[(long unsigned int)(lon_size)];
     Longitudes = context_loc->Longitudes;
-
+    Latitudes  = context_loc->Latitudes;
+    Sun_rise_hours = context_loc->Sun_rise_hours;
 
     printf("st, en: %i, %i\n",start_lon_idx, end_lon_idx);
+    printf("%.2f\n",Latitudes[0][start_lon_idx+2]);
     printf("%.2f\n",Longitudes[0][start_lon_idx+2]);
-//    printf("%d\n",Longitudes);*/
-    
+
+    for(i=0;i<lat_size;i++){
+	for(j=start_lon_idx; j<end_lon_idx;j++){
+	    
+	    sunrise_new = calculateSunrise(context_loc->year, context_loc->month, context_loc->day, Latitudes[i][j], Longitudes[i][j], 0, 0);
+/*	    if(Longitudes[i][j] == 1){
+		printf("Lat: %.2f\n",Latitudes[i][j]);
+		printf("sunrise_new: %.3f\n",sunrise_new);
+		}*/
+	    /* Storing into the output memory */
+	    Sun_rise_hours[i][j] = sunrise_new;
+	}
+    }
+    return NULL;
 }
 
 
@@ -72,10 +102,9 @@ int main(int argv, char *argc[])
 {
     int n,m,i,j;
     double i_d, j_d;
-    int jdn;
     n = 180;
     m = 360;
-    double res = 1; /* 0.05; */
+    double res = 0.05; /* 0.05; */
     int nThreads = 3;
     int lat_size, lon_size;
     lat_size = n/res;
@@ -94,6 +123,11 @@ int main(int argv, char *argc[])
     int month = 12;
     int day = 5;
     double sunrise_new;
+
+    /* time measures */
+    clock_t start, end;
+    clock_t start_s, end_s;
+    double cpu_time_used_sing, cpu_time_used_multi ;
     
     printf("lat_size: %i\n",lat_size);
     printf("lon_size: %i\n",lon_size);
@@ -111,22 +145,27 @@ int main(int argv, char *argc[])
 
     /* Calculation of sunrise itself*/
     /* lat_size - runs in latitudes, lon_size - runs in longitudes */
+    start = clock();
     for(i=0;i<lat_size;i++){
 	for(j=0;j<lon_size;j++){
 	    sunrise_new = calculateSunrise(year, month, day, Latitudes[i][j], Longitudes[i][j], 0, 0);
-	    if(Longitudes[i][j] == 0){
+/*	    if(Longitudes[i][j] == 0){
 		printf("Lat: %.2f\n",Latitudes[i][j]);
 		printf("sunrise_new: %.3f\n",sunrise_new);
-	    }
+		}*/
 	    /* Storing into the output memory */
 	    Sun_rise_hours[i][j] = sunrise_new;
+	}
+    }
+    end = clock();
+    cpu_time_used_sing = ((double) (end - start))/ CLOCKS_PER_SEC;
+    
 /*
   Some links collected during this excercise:
   https://stackoverflow.com/questions/7064531/sunrise-sunset-times-in-c
   https://github.com/maoserr/redshiftgui/blob/master/src/solar.c
  */
-	}
-    }
+
 
     /* Using multithreading */
     /* Initialize context */
@@ -136,13 +175,17 @@ int main(int argv, char *argc[])
     int start_lon_idx = 0;
     int end_lon_idx   = 0;
     pthread_t *pthreads = malloc(sizeof(pthread_t)*nThreads);
-    
+    printf("Lat test: %.2f\n",Latitudes[10][10]);
+
+    /* Start of processing */
+    start_s = clock();
+    start_s = time(NULL);
     for(i=0; i<nThreads;i++){
 	end_lon_idx = start_lon_idx + increment;
 	if(end_lon_idx>lon_size)
 	    end_lon_idx = lon_size;
 	printf("end_lon_idx: %i, %i \n",start_lon_idx,end_lon_idx);
-	context_arr[i] = initiate_worker(start_lon_idx, end_lon_idx, Longitudes, Latitudes, Sun_rise_hours);
+	context_arr[i] = initiate_worker(year, month, day, start_lon_idx, end_lon_idx, lon_size, lat_size, Longitudes, Latitudes, Sun_rise_hours);
 	pthread_create(&pthreads[i], NULL, sunrise_worker, (void *) context_arr[i]);
 	start_lon_idx = end_lon_idx + 1;
     }
@@ -150,7 +193,16 @@ int main(int argv, char *argc[])
     for(i=0; i<nThreads;i++){
 	pthread_join(pthreads[i], NULL);
     }
-    
+    /* End of processing */
+    end_s = clock(); /* clock() is measuring processor time, not the execution time */
+    end_s = time(NULL);
+    cpu_time_used_multi = ((double) (end_s - start_s)) / CLOCKS_PER_SEC;
+    cpu_time_used_multi = ((double) (end_s - start_s));
+
+    /* Time measures */
+    printf("Single threaded processing took: %.4f sec \n",cpu_time_used_sing);
+    printf("Multithread threaded processing took: %.4f sec \n",cpu_time_used_multi);
+
     for(i=0; i<nThreads;i++){
 	free(context_arr[i]);
     }
