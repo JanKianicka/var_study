@@ -1,5 +1,9 @@
 package java_study;
 
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 public class StringTest {
 
 	public static void main(String[] args) {
@@ -17,7 +21,42 @@ public class StringTest {
 	                       "variable is %d, and the string " +
 	                       "is %s", 0.025, 7, "StringVar");
 	    System.out.println(fs);
+
+	    String Str = new String("Welcome to Tutorialspoint.com");
+	    System.out.println("Hashcode for Str :" + Str.hashCode() );
 	    
+	    // md5 hash code 
+//		byte[] bytesOfMessage = null;
+//		try {
+//			bytesOfMessage = Str.getBytes();
+//			System.out.println(bytesOfMessage.toString());
+//		} catch (UnsupportedEncodingException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+
+	    MessageDigest md = null;
+		try {
+			md = MessageDigest.getInstance("MD5");
+			
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		 
+		try {
+			String Str2 = new String(Str.getBytes("UTF-8"));
+			System.out.println("Returned Value " + Str2);
+			Str2 = new String(Str.getBytes("ISO-8859-1"));
+			System.out.println("Returned Value " + Str2);
+		} catch (UnsupportedEncodingException e) {
+			System.out.println("Unsupported character set");
+		}
+		
+		/* This is very strange, this md5 hash is always the same even though I change the input string. */
+		/* There must be something puzzling here. */
+	    byte[] thedigest = md.digest(Str.getBytes());
+	    System.out.println(thedigest.toString());
 	    
 		StringBufferTest.run();
 	}
