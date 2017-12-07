@@ -107,19 +107,84 @@ it. Static variables are rarely used other than being declared as
 constants.
 
 Access modifiers:
-
     Visible to the package, the default. No modifiers are needed.
     Visible to the class only (private).
     Visible to the world (public).
     Visible to the package and all subclasses (protected).
 
 Non-access modifiers:
-
     The static modifier for creating class methods and variables.
     The final modifier for finalizing the implementations of classes,
     methods, and variables.
     The abstract modifier for creating abstract classes and methods.
     The synchronized and volatile modifiers, which are used for threads.
 
+Operators:
+    Arithmetic Operators
+    Relational Operators
+    Bitwise Operators
+    Logical Operators
+    Assignment Operators
+    Misc Operators
 
-Ended in https://www.tutorialspoint.com/java/java_basic_operators.htm
+Assume if a = 60 and b = 13; now in binary format they will be as follows:
+a = 0011 1100
+b = 0000 1101
+-----------------
+
+a&b = 0000 1100
+a|b = 0011 1101
+a^b = 0011 0001
+~a  = 1100 0011
+
+
+& (bitwise and) 
+| (bitwise or) 
+^ (bitwise XOR) (Binary XOR Operator copies the bit if it is set in one operand but not both.)
+~ (bitwise compliment)
+<< (left shift)
+>> (right shift)
+>>> (zero fill right shift)
+
+
+&& (logical and)
+|| (logical or)
+! (logical not)
+
+Assignements:
+= 
++= 
+-= 
+*= 
+/= 
+%= 
+<<= 
+>>= 
+&= 
+^= 
+|=
+
+Miscalenous:
+Conditional Operator ( ? : )   variable x = (expression) ? value if true : value if false
+instanceof Operator  ( Object reference variable ) instanceof  (class/interface type)
+
+Precedence of operators (from top to bottom):
+>() [] . (dot operator)
+>++ - - ! ~
+>* / 
+>+ - 
+>>> >>> << 
+>> >= < <= 
+>== !=
+>& 
+>^ 
+>| 
+>&& 
+>|| 
+?: 
+>= += -= *= /= %= >>= <<= &= ^= |=
+
+Loops and decision making was implemented in the java_study package
+
+Ended in https://www.tutorialspoint.com/java/java_numbers.htm
+
