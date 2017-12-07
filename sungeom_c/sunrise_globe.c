@@ -39,6 +39,12 @@ typedef struct {
 
 } CONTEXT;
 
+typedef struct {
+    int year;
+    int month;
+    int day;
+} date_julian;
+
 inline double to_degrees(double radians) {
     return radians * (180.0 / M_PI);
 }
@@ -122,6 +128,10 @@ int main(int argv, char *argc[])
     int year = 2017;
     int month = 12;
     int day = 5;
+    date_julian *date_julian_par = malloc(sizeof(date_julian)*1);
+    date_julian_par->year = year;
+    date_julian_par->month = month;
+    date_julian_par->day = day;
     double sunrise_new;
 
     /* time measures */
@@ -140,6 +150,8 @@ int main(int argv, char *argc[])
 	    loc_longitude = j*res-180.0;
 	    Longitudes[i][j] = loc_longitude;
 	    Latitudes[i][j] = loc_latitude;
+	    /* Actually only here the heap memory was allocated for this array */
+	    Sun_rise_hours[i][j] = 0.0;
 	}
     }
 
@@ -148,7 +160,10 @@ int main(int argv, char *argc[])
     start = clock();
     for(i=0;i<lat_size;i++){
 	for(j=0;j<lon_size;j++){
-	    sunrise_new = calculateSunrise(year, month, day, Latitudes[i][j], Longitudes[i][j], 0, 0);
+//	    sunrise_new = calculateSunrise(year, month, day, Latitudes[i][j], Longitudes[i][j], 0, 0);
+	    /* lets try to use heap instead of stack which looks to be consumed here */
+	    sunrise_new = calculateSunrise(date_julian_par->year, date_julian_par->month, date_julian_par->day, Latitudes[i][j], Longitudes[i][j], 0, 0);
+
 /*	    if(Longitudes[i][j] == 0){
 		printf("Lat: %.2f\n",Latitudes[i][j]);
 		printf("sunrise_new: %.3f\n",sunrise_new);
@@ -209,6 +224,16 @@ int main(int argv, char *argc[])
     
     free(context_arr);
     free(pthreads);
+    
+    /* check printout */
+    for(i=0;i<lat_size;i++){
+	for(j=0;j<lon_size;j++){
+	    if(Longitudes[i][j] == 0){
+		printf("Lat: %.2f\n",Latitudes[i][j]);
+		printf("Sunrise_hour: %.3f\n",Sun_rise_hours[i][j]);
+		}
+	}
+    }
 
 
     free(Longitudes);
