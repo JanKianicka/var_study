@@ -186,5 +186,23 @@ Precedence of operators (from top to bottom):
 
 Loops and decision making was implemented in the java_study package
 
-Ended in https://www.tutorialspoint.com/java/java_numbers.htm
+Numbers:
+Wrapper classes (Integer, Long, Byte, Double, Float, Short) are
+subclasses of the abstract class Number.
+Wrapping and unwrapping is called boxing/unboxing.
+
+The Character class offers a number of useful class (i.e., static)
+methods for manipulating characters.
+
+String class - has eleven constructors for different type of inputs.
+
+Unlike Strings, objects of type StringBuffer and String builder can be
+modified over and over again without leaving behind a lot of new
+unused objects.
+
+It is recommended to use StringBuilder whenever possible because it is
+faster than StringBuffer. However, if the thread safety is necessary,
+the best option is StringBuffer objects.
+
+Ended in https://www.tutorialspoint.com/java/java_strings.htm
 
