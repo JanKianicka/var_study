@@ -96,5 +96,30 @@ Special string characters:
 \ddd 	Octal character (ddd)
 \uxxxx 	Hexadecimal UNICODE character (xxxx)
 
-Ended in https://www.tutorialspoint.com/java/java_variable_types.htm
+Local variables are internally stored in the stack.
+Instance variables - in class but outside methods.  Instance variables
+have default values. For numbers, the default value is 0, for Booleans
+it is false, and for object references it is null.
 
+Statick variables - There would only be one copy of each class
+variable per class, regardless of how many objects are created from
+it. Static variables are rarely used other than being declared as
+constants.
+
+Access modifiers:
+
+    Visible to the package, the default. No modifiers are needed.
+    Visible to the class only (private).
+    Visible to the world (public).
+    Visible to the package and all subclasses (protected).
+
+Non-access modifiers:
+
+    The static modifier for creating class methods and variables.
+    The final modifier for finalizing the implementations of classes,
+    methods, and variables.
+    The abstract modifier for creating abstract classes and methods.
+    The synchronized and volatile modifiers, which are used for threads.
+
+
+Ended in https://www.tutorialspoint.com/java/java_basic_operators.htm
