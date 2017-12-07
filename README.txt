@@ -204,5 +204,16 @@ It is recommended to use StringBuilder whenever possible because it is
 faster than StringBuffer. However, if the thread safety is necessary,
 the best option is StringBuffer objects.
 
-Ended in https://www.tutorialspoint.com/java/java_strings.htm
+The Java array stores a fixed-size sequential collection of elements
+of the same type.
+
+Java provides the Date class available in java.util package, this
+class encapsulates the current date and time.
+Two constructors:
+Date() - current date and time.
+Date(long millisec) - argument that equals the number of milliseconds
+                      that have elapsed since midnight, January 1,
+                      1970.
+
+Ended in https://www.tutorialspoint.com/java/java_date_time.htm.
 
