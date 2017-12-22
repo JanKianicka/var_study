@@ -5,7 +5,7 @@
 
 #  1. Building the program
    gcc -c sungeom.c
-   gcc -lm sunrise_globe.c -o sunrise_globe sungeom.o
+   gcc -lm -lpthread sunrise_globe.c -o sunrise_globe sungeom.o
 
 #  2. Running the program
    ./sunrise_globe
