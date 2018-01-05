@@ -215,5 +215,22 @@ Date(long millisec) - argument that equals the number of milliseconds
                       that have elapsed since midnight, January 1,
                       1970.
 
+
+
+
 Ended in https://www.tutorialspoint.com/java/java_date_time.htm.
+
+Whereas we wanted to implement solar geometry in multithreaded mode:
+We jump here:
+https://www.tutorialspoint.com/java/java_multithreading.htm
+
+We have made basic study, also resolved some issues how to 
+access arrays. Important is, that for proper implementation
+either Runnable or Callable types are important.
+
+
+
+
+
+
 
