@@ -1,0 +1,9 @@
+/cfg/radar/TitanToMapableXml.xslt
+/lib/com/microstepmis/radar/junit/nowcasts/20131105_070644_malta.xml
+/lib/com/microstepmis/radar/junit/nowcasts/20150805_094508_Holesov.xml
+/lib/com/microstepmis/radar2/process/junit/data/20170720_120000_philippines.merged.xml
+/lib/com/microstepmis/radar2/process/junit/data/20180107_005004_philippines.merged.xml
+/lib/com/microstepmis/radar2/process/junit/data/20180107_100004_philippines.merged.precflux.json
+/lib/com/microstepmis/radar2/process/junit/data/20180107_100004_philippines.merged.xml
+/lib/com/microstepmis/radar2/process/junit/data/cfgRunwaySite_in.xml
+/lib/com/microstepmis/radar2/process/junit/data/cfgRunwaySite_out.xml
