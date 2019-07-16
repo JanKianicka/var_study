@@ -12,4 +12,8 @@ Two basic types of shell:
     default prompt.
     	    Subcategories: C shell (csh), TENEX/TOPS C shell (tcsh)
 
+Variabvle names:
+- upper case, must not contain number,!*-
+There are three types of variables: local, environmental, shell
+
 
