@@ -1,0 +1,64 @@
+# Sprint planning with Thomas for incorporation of VDMS system into CATS and COD project
+
+Thomas proposals:
+---
+COD-170 Align and Tailor (if necessary) COD process with Responsible for VDMS
+ (probably make some agreement with Manachem and Edward Wokabi)
+COD-171 Handling of Configuration Changes in VDMS COD
+ (as far as we know configuration changes are really part of the github repository - thus changed with the code
+  what is a very unfortunate and dangerous pattern - proved as bad in mixing of DFX scheme files with app_config before)
+
+COD-175 Organization and Content of Nxus Artifacts for VDMS
+  COD-176 Define List of Files that are Part of VDMS release
+  COD-177 NEXUS directory structure
+  (can be retrieved from installation package directory)
+
+COD-178 Define Target Machines for Test and Deployment of VDMS
+  COD-179 Define, Request and Prepare Target Machine for VDMS Maintainer's Staging Area
+  COD-180 Define, Request and Prepare Target Machine for VDMS Acceptance Test Staging Area
+  COD-181 Define, Request and Prepare Target Machine for Unit Tests
+  COD-182 Define, Request and Prepare Target Machine for Integration/Blackbox Testing
+  (this is part of the CATS infrastructure extension)
+
+COD-172 Prototype Automatic Build of VDMS
+  COD-173 Create Jenkins Job
+  COD-174 Creation of Release Artifacts and Upload to Nexus
+
+COD-183 Define Test Set and Prerequisites for Automated Tests of VDMS
+  COD-184 Define List of Unit Tests
+  COD-185 Define VDMS Components to Start for Unit and Integration Tests
+  COD-186 Define Database Tables abd Content needed for Automated Tests
+  COD-187 Define Database to be used depending on Test Type
+
+COD-188 Prototype Automatic Deployment of VDMS and Configuration Changes
+  COD-189 Deployment to Maintainer Staging Area
+  COD-190 Deployment to Acceptance Test Staging Area
+
+COD-191 Prototype Automatic DCR creation for VDMS testing (Workaround until Jira Process in implemented)
+  COD-192 Document VDMS COD Prototype as Implemented
+
+
+Bridge to my current work what is achievable and having user stories which is possible to estimate.
+
+Stories:
+Meet with Manachem on QA list from documentation - record answers
+Meet with Manachem and attempt to launch VDMS system on dlv018 - second instance
+  record procedure, end points, Oracle schemas  - learing curve also for Peter Polzer in order to support us
+
+Meet with Edward Wokabi - clarify support
+ - we need suport in order to harmonize build and installation procedures, implement CATS build scripts
+   in the VDMS repositories
+ - we potentially need support from him or Cyrille for:
+    - consulting - clarification of questions
+    - fixing of unit tests which as observed were left over not running and not maintained.
+
+Launch command line interface for several representative messages on devlan
+  - request personal and technical user which might be used to run bbox test - for VDMS Devlan appache server
+
+Towards VDMS COD - autmated integration testing -
+  - Create detail architecture desing of CATS VDMS environment - for unit and bbox testing
+    What is needed in CATS and what will be external dependencies
+  
+
+
+

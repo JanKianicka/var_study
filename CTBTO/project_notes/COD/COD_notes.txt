@@ -1,0 +1,62 @@
+# COD notes from different sources from confluence
+
+- read 'Process Overview Desription written by Evangelos
+Nice, but not in all repositories the new approach is followed 
+and creating/removing merged feature branch could be simplified by
+using pipeline which does not allow merge when chosen Jenkins tests fail.
+Detail remarks are recorder in my second notes file:
+ SHI starting_notes.txt
+
+Reading document: Description of the Cdtools Continuous Delivery Prototype as Implemented
+
+Overlay file system - funionfs was chosen:
+FunionFS means an Union filesystem for the FUSE driver.
+This program works only with the Fuse driver which is natively included since the 2.6.14 Linux kernel.
+Above all, what is an Union filesystem?
+It is a method used when one wants to manufacture LiveCD Linux such as Knoppix: support (CDROM) is only a read-only one.
+The operating system, however, needs to write on this filesystem.
+The method consists in superimposing (Union) on the read only filesystem, a small size read-write one.
+This filesystem (often stored in a RAMDISK) contains all the modifications made by OS on the CDROM content.
+This method is often used for of Linux Stored in a PROM or a compressed file like in CRAMFS.
+
+In our case was chosen for overalay of configuration tree.
+
+devlab01:
+There are users auto/cmss which simulates real operational enviroment.
+There is QUANDEF instance of the database.
+Important users:
+/home/misc/
+  auto
+  cats
+  cmss
+
+/home/misc/auto/
+  cleanUpDB
+  compareReports.pl
+  crontab
+  keep_cds_alive
+  run_cdqual
+  start_cdtool
+/home/misc/auto/.odbc.ini
+  [operations]
+  Description             = CDTools snap
+  Driver                  = oracle
+  ServerName              = dba1119.qandef
+
+/home/misc/cmss/
+  deployCdtools.sh
+  rollbackCdtools.sh
+
+/home/misc/cats/ - is empty, basically only .ssh is there
+
+
+Qestions:
+Reading document Description of the Cdtools COD:
+COD_Q1: There is mentioned cleaning crontab running on staging area or accpetance testing area
+on devlab* machines. System should be deployed to devlab01, or devlab03. Cleaning crontab should be owned by the user 'auto' but for cleaning DB is used
+/home/consult/klinkl/cleanUpDB
+I have not found this script on any of the devlab machines.
+Where it resides and where I can have a look on it?
+
+
+Something here.
