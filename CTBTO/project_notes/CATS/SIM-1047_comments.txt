@@ -1,0 +1,487 @@
+# Just backed up the comments from my task
+
+*Progress:*
+ Set up CentoOS 7 from this ISO: _CentOS-7-x86_64-DVD-1810.iso_
+ Installed VBox extensions and basic default compilation tools and kernel-devel packages. These are the versions:
+{noformat}
+CentOS Linux release 7.6.1810 (Core)
+gcc (GCC) 4.8.5 20150623 (Red Hat 4.8.5-36)
+GNU Fortran (GCC) 4.8.5 20150623 (Red Hat 4.8.5-36)
+Python 2.7.5
+{noformat}
+Cats's user ssh key was uploaded to my 'JanKianicka' github account, and cats repository from github is accessed by this key.
+ During installation of IDC baseline using RH 6 script the following issues appeared:
+ - many packages were missing in the yum repository (not found by name)
+ - EPEL 6 was initialized in the script what caused dependency issues, particular e.g.
+{noformat}
+Error: Package: globus-common-18.2-1.el6.x86_64 (epel)
+           Requires: perl(:MODULE_COMPAT_5.10.1)
+ You could try using --skip-broken to work around the problem
+ You could try running: rpm -Va --nofiles --nodigest
+{noformat}
+
+Therefore I have locally modified the script as follows:
+ - turn on skipping of failed statements in the script _set +e_
+ - change EPEL repository from [http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm] to
+ [https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm]
+
+In this case most of the packages were installed, but some were not recognized by name, this is the list:
+{noformat}
+No package apache-jasper available.
+No package axis available.
+No package compat-readline5 available.
+No package ctapi-common available.
+No package eclipse-birt available.
+No package eclipse-callgraph available.
+No package eclipse-cdt available.
+No package eclipse-jdt available.
+No package eclipse-pde available.
+No package eclipse-valgrind available.
+No package gfal available.
+No package gsl-static available.
+No package libNX_Xcomposite available.
+No package libNX_Xdamage available.
+No package libNX_Xdmcp available.
+No package libNX_Xext available.
+No package libNX_Xfixes available.
+No package libNX_Xinerama available.
+No package libNX_Xpm available.
+No package libNX_Xrandr available.
+No package libNX_Xrender available.
+No package libNX_Xtst available.
+No package libssh available.
+No package libXcompext available.
+No package openct available.
+No package openmotif22 available.
+No package perl-Net-SSH2 available.
+No package pilot-link available.
+No package rdesktop available.
+No package root-cintex available.
+No package root-proof-pq2 available.
+No package root-proofd available.
+No package root-rootd available.
+No package ruby-rdoc available.
+No package thunderbird-lightning available.
+No package tsclient available.
+No package gnome-pilot available.
+No package java-1.5.0-gcj-javadoc available.
+No package root-ruby available.
+
+{noformat}
+Then successfully installed Jenkins, made it accessible via 'host only' network to my host machine. These were modifications to firewall:
+{noformat}
+> firewall-cmd --zone=public --add-service=http --permanent
+> firewall-cmd --zone=public --add-service=https --permanent
+> firewall-cmd --zone=public --add-port=8080/tcp --permanent
+> firewall-cmd --reload
+check
+> firewall-cmd --zone=public --list-all
+{noformat}
+Now Jenkins is accessible within machine as [http://localhost:8080|http://localhost:8080/], from outside [http://192.168.56.101:8080/].
+
+Continuing with 'Setting up the master machine', setting up locally on
+ single nod also 'slave machine'.
+ *Question:*
+ If functionality of the CATS on CentOS 7 will prove would we not extend the set up scripts by checks of the release (6,7) and support for both versions?
+
+--------------------
+
+Before setting up local slave machine as a single master/slave nod CATS, we try to build and execute unit tests on the SHI software, particularly:
+cbase, idcmodel, sbase, ibase
+Here is the procedure and issues encountered:
+*cbase*
+{noformat}
+-- during autoreconf
+configure.ac:24: error: possibly undefined macro: AC_ENABLE_SHARED
+and other undefined macros.
+-- missing libtool 
+Fixed by installing libtool package
+{noformat}
+*1. Issue* - for Centos 7 libtool has been extracted as a package and has to be installed separately.
+When executing unit tests:
+{noformat}
+make[2]: Entering directory `/home/cats/local_test/cbase/test/libstdtime'
+/bin/sh: /bin/sh: cannot execute binary file
+make[2]: *** [test_stdtime_asctime.sh.log] Error 126
+make[2]: Leaving directory `/home/cats/local_test/cbase/test/libstdtime'
+make[1]: *** [check-TESTS] Error 2
+make[1]: Leaving directory `/home/cats/local_test/cbase/test/libstdtime'
+make: *** [check-am] Error 2
+
+{noformat}
+*2. Issue* - on Centos 7 in default configuration it is not possible to execute unit tests wrapped by generated sh scripts.
+
+*sbase*
+Successfully built together with idcmodel, but in unit test run, in addition to sh wrapping issue, also compilation error has occurred.
+{noformat}
+/usr/bin/ld: test_stanoise.o: undefined reference to symbol 'floor@@GLIBC_2.2.5'
+/usr/lib64/libm.so.6: error adding symbols: DSO missing from command line
+collect2: error: ld returned 1 exit status
+-- in call of libtool during linking explicit dependency on -lm was missing
+
+{noformat}
+*3. Issue* - on Centos 7 in addition of sh script wrapping issue, there is also linking issue in sbase, missing -lm on proper place
+
+*ibase*
+At first trying without Oracle, whereas we did not set up the oracle client yet.
+The firs issue was missing dependency:
+{noformat}
+  configure: error: NetCDF F77 library not found, please use --with-netcdf=DIR or --without-netcdf
+The discussion is here:
+https://www.unidata.ucar.edu/support/help/MailArchives/netcdf/msg12634.html
+prevoiusly it was part of the standard netcdf package, now have to be installed
+separatelly.
+Pakcages netcdf-fortran, netcdf-fortran-devel.
+{noformat}
+*4. Issue* - another extracted package in course of Centos 7 - netcdf was decomposed.
+
+Then there was issue with GMT headers, in spite they were installed, even pointing _--with-gmt_ to gmt.h directory did not work.
+Trying --without-gmt.
+*5. Issue* - GMT headers are not found by in default build configuration for Centos 7
+{noformat}
+TestqcNetInt.cpp: In member function ‘void TestqcNetInt::getCorrectedData()’:
+TestqcNetInt.cpp:231:36: error: cannot bind ‘ibase::waveformqc::WfdataWrapper {aka std::unique_ptr<libwfm_struct, void (*)(libwfm_struct*)>}’ lvalue to ‘ibase::waveformqc::WfdataWrapper&& {aka std::unique_ptr<libwfm_struct, void (*)(libwfm_struct*)>&&}’
+     cint->setWfdata(stubdata_struct);
+{noformat}
+*6. Issue* - libwaveformqc simply does not build due to compilation error on Centos 7
+Disabling libwaveformqc.
+
+{noformat}
+libseis was not build, with this error:
+---
+01_recave_mod.f95:26.17:
+
+        procedure :: initiate => initiate
+                 1
+Error: Non-polymorphic passed-object dummy argument of 'initiate' at (1)
+01_recave_mod.f95:27.17:
+
+        procedure :: read => read
+                 1
+Error: Non-polymorphic passed-object dummy argument of 'read' at (1)
+01_recave_mod.f95:28.17:
+
+        procedure :: update => update
+                 1
+Error: Non-polymorphic passed-object dummy argument of 'update' at (1)
+01_recave_mod.f95:29.17:
+
+        procedure :: write => write
+                 1
+Error: Non-polymorphic passed-object dummy argument of 'write' at (1)
+make[3]: *** [01_recave_mod.lo] Error 1
+make[3]: Leaving directory `/home/cats/local_test/ibase/libsrc/libseis'
+make[2]: *** [all-recursive] Error 1
+make[2]: Leaving directory `/home/cats/local_test/ibase/libsrc'
+{noformat}
+*7. Issue* - libseis fortran code does not compile on Centos 7
+All repositories were cloned and checked out as GitHUB *master* branch as on 17.4.2019.
+ 
+*This first round of investigation showed we have stepped in into a tricky porting workload, which is beyond the goal of my task, therefore I will not continue on setting up Centos 7 slave nod.*
+The issue will be reported to Thomas Fabian, he might encounter similar during set up of RH 7 slave nod, and to Wolfgang Sommerer because he successfully builds ibase in scope of ENIAB project.
+
+Continuing on setting up Centos 6.10 slave nod, the one which is now officially supported as RedHat 6.10 at IDC.
+
+--------------------------------------
+
+*Building worker node with Centos 6.10*
+
+For initial set up of the linux was used this iso image:
+{noformat}
+CentOS-6.10-x86_64-LiveDVD.iso
+
+These are the versions:
+CentOS release 6.10 (Final)
+gcc (GCC) 4.4.7 20120313 (Red Hat 4.4.7-23)
+Python 2.6.6
+{noformat}
+These are issues from automatic installation encountered during setup following the CATS installation procedure described on github wiki.
+ *Issue 1: Not available packet in IDC baseline list*
+ No package *puppet* available.
+ _the script centos/install-baseline-centos-6.sh should be fixed_
+
+*Issue 2: Installation of java jdk 1.7.0 failed*
+ This is the error and during ibase compilation with java, JDK and JRE of version 1.7.0 proved to be corrupted.
+{noformat}
+Error in PRETRANS scriptlet in rpm package 1:java-1.7.0-openjdk-1.7.0.211-2.6.17.1.el6_10.x86_64
+error: lua script failed: /usr/libexec/copy_jdk_configs.lua:272: attempt to index global 'file' (a nil value)
+---
+And open JDK export links are broken:
+---
+lrwxrwxrwx. 1 root root 46 Apr 17 16:48 /etc/alternatives/java_sdk_1.7.0_exports -> /usr/lib/jvm-exports/java-1.7.0-openjdk.x86_64
+lrwxrwxrwx. 1 root root 46 Apr 17 16:48 /etc/alternatives/java_sdk_exports -> /usr/lib/jvm-exports/java-1.7.0-openjdk.x86_64
+lrwxrwxrwx. 1 root root 46 Apr 17 16:48 /etc/alternatives/java_sdk_openjdk_exports -> /usr/lib/jvm-exports/java-1.7.0-openjdk.x86_64
+{noformat}
+_proposed solution is to install jdk version 1.8.0 which is the official on Devlan at IDC._
+ _this was also done by these commands: yum install java-1.8.0-openjdk, yum install java-1.8.0-openjdk-devel and changing the default .catsrc parameter_
+ _Would be good to extend install-baseline-centos-6.sh such that is possible to easily maintain different java versions and baselines - parameterized with lookup text files_
+
+*Issue 3. Installation of gcov had errors, but quick check of python packages appeared to be installed correctly*
+ This was the error message from the script coverage/install-gcovr.sh:
+{noformat}
+ImportError: No module named sysconfig
+{noformat}
+_I did not yet run the coverage job to verify this installation - shall be verified/proved_
+
+*Issue 4: Strange logic when cloning and checking out GIT LFS repositories*
+ When running blackbox/setup-slave.sh, we ended up with this error:
+{noformat}
+INFO: Unpacking Oracle bundle in /apps/data/oracle.PQuhCd
+
+gzip: stdin: not in gzip format
+tar: Child returned status 1
+tar: Error is not recoverable: exiting now
+{noformat}
+This is simply caused by the attempt to untar file which was not checked out in GIT LFS repository and is therefore only text file containing the reference to the original file. This pattern is present in all three scripts which are handling GIT LFS:
+ blackbox/refresh-data-blackbox.sh
+ blackbox/refresh-data-robot.sh
+ oracle/refresh-data-oracle.sh
+ and are called also by blackbox test runners.
+ This is the pattern:
+{noformat}
+git lfs prune
+git lfs pull
+git clean -d -f -x
+git reset --hard
+git show-ref --head --tags HEAD
+git status
+
+{noformat}
+However, git reset --hard causes the workspace being cleaned out of checked out LFS files. 
+ I have just added to overcome this issue another git lfs pull - as a workaround.
+ In this case my lfs repositories consume this disk space:
+ _28G /apps/data/_
+ which together with untaring and deployment need more than 40 GB for /apps directory. 
+ I had to extend my logical volume, but then information on wiki about Virtual Box setup: [https://github.com/ctbtosa/cats/wiki/VirtualBox-Setup]
+ is missleading - you need at least 80 to 100 GB also for the system it self.
+
+_Solution - is to be investigated why this sequence is everywhere and how it could work before or for blackbox test runners_
+
+*Issue 5. Oracle client 12.2 set up has failed with error*
+ When continuing runnning the script we got the following error:
+{noformat}
+INFO: IPv6 enabled so not fixing ora files
+INFO: fixing *.ora files for Docker container
+sed: can't read /var/tmp/cats/bin/oracle/product/12.2/network/admin/listener.ora: No such file or directory
+
+---
+There are broken links and directory
+/apps/bin/oracle/
+does not exists. This might be related to introduction of Oracle 12.2 client.
+{noformat}
+It appears that including another oracle client was not done fully - commit in master branch of 'cats'repo:
+ _Thomas Fabian: changes for oracle client 12 , 22fe372a_
+ requires yet amendment.
+
+_Fixed by switching back to oracle client 11.2.0 in .catsrc file_
+ _However, we need to have Oracle client 12.2 functional and installed properly_
+
+*Ended up with ibase build and running unit tests only - pending is the overall verification of the node with all types of tests implemented*
+*These issues of setup scripts and packages should be fixed for Centos 6.10 (RedHat 6.10)*
+
+-----------------------------------------------------------------
+
+In course of continuing work on bbox test troubleshooting the following dependency issues and set up issues have occurred. 
+ *Issue 6. generic-build-and-test-launcher.sh make modifications which disallows repeated execution*
+ When trying to execute bbox test runs locally, we have the following error:
+{noformat}
+error: Your local changes to the following files would be overwritten by checkout:
+	libsrc/libidcbeamrecipe/test/Makefile.am
+Please commit your changes or stash them before you switch branches.
+Aborting
+{noformat}
+There are either local modifications during automatic build, or also scripts them self perform patching of files. However, this causes this failure, one has to manually revert these changes, and this also causes that Jenkins jobs have to be configured such that they "Wipe out and force clone" of the repositories. However, in such case it has to clone and build each time all code repositories and does not allow repeated builds - and might be needed just to add e.g. _"git reset --hard"_ before checkout.
+ _Is worthy to be fix by extension of generic-build-and-test-launcher.sh_
+
+*Issue 7. DB_UNIT_TESTS do not run due to missing apache ant*
+ For launching the DB_UNIT_TESTS in libwaveformqcdb and dfx we need to have installed apache-ant-1.9.10 accoridng dot-catsrc file:
+{noformat}
+ANT_HOME /apps/bin/apache-ant-1.9.10/dist
+{noformat}
+However, this installation is not provided by any installation script nor is documented anywhere. Tar ball with the ant is residing here:
+ _cats/docker/apache1.9.10.tar_
+ _Should be at least added to setup slave procedure_
+
+*Issue 8. DB_UNIT_TESTS do not run with Oracle client 11.2.0*
+ The error is as follows:
+{noformat}
+IntegrationTests::fetchFromDb_DefSet1 : error
+IntegrationTests::fetchFromDb_DefSet3 : error
+IntegrationTests::fetchFromDb_DefSet_IDnotfound : error
+...
+IntegrationTests::NetInt_replacement_overlapping_intervalsQSqlQuery::prepare: database not open
+"QODBCResult::exec: No statement handle available"      Error: " [unixODBC][Driver Manager]Can't open lib '/var/tmp/cats/bin/oracle/product/11.2.0/xe/lib/libsqora.so.11.1' : file not found " 
+ : assertion
+{noformat}
+This file exists and is accessible, .odbc* files were updated and DNS set up correctly. Tried with libwaveformqcdb as well as dfx/libqc, verified generated credentials. Evaluation of unit tests and execution of DFX was done, and looks like apache.commons.collections can connect, as well as DFX it self can connect only QODBC of the tests have issue.
+ Support also for provided driver 11.2 should be functional.
+ _However, we will try to correctly install that Oracle driver 12.2, and try once more - see above issue n. 5._
+
+*Issue 9. Dfx build and installation has bug in scheme files - why not to rely on make install?*
+ When troubleshooting DFX as stand alone, I see the bug in prepare-scheme-scripts.sh.
+ in ${WORKSPACE} is missing siod.scm.
+ _blackbox/runner/prepare-scheme-scripts.sh_
+ is trying to install _sciod.scm_ from ARS and it is in shi-automated.
+ _Proposed is to completely remove the scripts and keep just makefiles, there is also comment_
+ _# Should really be be done by makefile._
+ _# See CATS issues #38 and #112_
+ _What are these issues - some of them are on GitHub?_
+
+*Issue 10. generic-builder-and-tester.sh does not support split repositories and github migration*
+ e.g. ibase-widgets is mapped to widgets.
+ Which makes latter 'git clone'to fail.
+ _If the script is obsolete, it should be fully removed and jobs migrated to use the newer version_
+
+*Issue 11. Even though installed all dependencies could not compile dtk-pmcc*
+ We could not compile lattest version of dtk-pmmc with this error and the whole jobs failed.
+ There are very likelly missing dependencies or correct switches in the build scripts.
+{noformat}
+-- Could NOT find cppcheck (missing:  CPPCHECK_EXECUTABLE CPPCHECK_POSSIBLEERROR_ARG CPPCHECK_UNUSEDFUNC_ARG CPPCHECK_STYLE_ARG CPPCHECK_INCLUDEPATH_ARG CPPCHECK_QUIET_ARG) 
+-- Could NOT find vera++ (missing:  VERA++_EXECUTABLE) 
+-- Could NOT find ClangFormat (missing:  CLANGFORMAT_EXECUTABLE) 
+-- Found Geolib module utils [enabled]: /apps/workspace2/dtk-pmcc/dtk-gpmcc/geolib/modules/utils
+-- Found Geolib module core [enabled]: /apps/workspace2/dtk-pmcc/dtk-gpmcc/geolib/modules/core
+-- Found Geolib module log4cplus [enabled]: /apps/workspace2/dtk-pmcc/dtk-gpmcc/geolib/modules/log4cplus
+-- Found Geolib module pmcc [enabled]: /apps/workspace2/dtk-pmcc/dtk-gpmcc/geolib/modules/pmcc
+CMake Error at /usr/share/cmake/Modules/FindPackageHandleStandardArgs.cmake:108 (message):
+  Could NOT find Matio (missing: MATIO_LIBRARY MATIO_INCLUDE_DIR)
+Call Stack (most recent call first):
+  /usr/share/cmake/Modules/FindPackageHandleStandardArgs.cmake:315 (_FPHSA_FAILURE_MESSAGE)
+  cmake/CMakeModules/FindMatio.cmake:33 (find_package_handle_standard_args)
+  cmake/geolib_macros.cmake:258 (FIND_PACKAGE)
+  cmake/geolib_macros.cmake:146 (GEOLIB_ADD_EXTERN_DEPENDENCY)
+  modules/utils/CMakeLists.txt:40 (GEOLIB_PROCESS_EXTERN_DEPENDENCIES)
+
+-- Configuring incomplete, errors occurred!
+See also "/apps/workspace2/dtk-pmcc/dtk-gpmcc/geolib/build/CMakeFiles/CMakeOutput.log".
+See also "/apps/workspace2/dtk-pmcc/dtk-gpmcc/geolib/build/CMakeFiles/CMakeError.log".
++ exit 3
+{noformat}
+*Issue 12: cats already contains ampid overflow fix which failed to be removed*
+ When trying to rerun the _DFX-origamp_ bbox test manually with already set up database,
+ refreshing Oracle procedure ended with this error:
+{noformat}
+SQL> SQL> create or replace type IDC_ID as
+*
+ERROR at line 1:
+ORA-02303: cannot drop or replace a type with type or table dependents
+{noformat}
+This error did not occur in Thomas's environment and might be related to usage of older version of the oracle driver. Anyway, executing of _load-schema.sh_ has resolved the issue of failing job. However, question is whether such extension still allows testing of older version of the ibase software - e.g. operations.
+ In this case yes, whereas we have just extended DB interface, did not change it - lastid table is still there.
+ _Solution - try Oracle 12.2 and verify also operations version. Try to devise approach how to keep backward regression compatibility when DB interface changes._
+
+*Issue 13: Interactive tests are bbox tests*
+ I thought I can run bbox tests and then interactive tests of GUI separately.
+ However, they are all implemented as bbox tests with _./run.sh_ script and whole interactive dependency suit is necessary. There is only option to use regexp to filter out some bbox tests.
+ _My proposal is to think about splitting interactive and bbox tests and be capable to run each separately. Perhaps on different nodes with different setup._
+
+*Issue 15. When trying to build dtk-pmcc with coverage, build script of dtk-pmcc does not launch*
+ In _generic-build-and-test-launcher.sh_ is 'build_type' expected to be always 'CATS' but when turing on RUN_COVERAGE=1 is mapped to CATS_COVERAGE which is invalid parameter for 'build' script of dtk-pmcc. 
+ _Solution is to have closer look on different propagation of parameters to dtk-pmcc build script and fix both scripts generic-build-and-test-launcher.sh as well as build script properly._
+
+-----------------------------------------------------
+
+*Issue 16: Installation procedure is missing details how sikulix should be installed by the wizard (lacks description).*
+Only from Docker file one can understand to install only option/pack 1.
+This should be described and reflected in the installation script.
+
+*Issue 17: Erroneous patching of app_config files by the CATS (simple bug)*
+When running bbox test multiply times we have this wrongly patched files:
+_interactive/analyst_log/analyst_log.par_ - wrong patching of this file:
+{code}al-interval-account=CATS_CATS_CATS_CATS_CATS_CATS_CATS_CATS_CATS_CATS_CATS_CATS_CATS_CATS_CATS_IDCX{code}
+
+Also of this file:
+_DFX/DFX-detection.par_
+{noformat}
++spareid-package=SPARE_ID
++spareid-package=SPARE_ID
++spareid-package=SPARE_ID
++spareid-package=SPARE_ID
+{noformat}
+
+Same issue in rest of DFX par files and in _automatic/maxpmf/maxpmf.par_.
+
+*Issue 18: When switching from coverage to non coverage, the build fail, clean up was needed (proposed improvement)*
+I propose to extend the parameters to run also clean, and distclean if decided.
+This might support faster execution in certain situations. Now backend relies on Jenkins action of wiping out
+source code repositories.
+Also possibility just to build and not to run unit tests would be feasible.
+{noformat}  RUN_UNIT_TESTS=1 RUN_DIST_CLEAN=1 {noformat}
+
+*Issue 19: Interactive tests relies on timeing which might not fit and on screen resolution which might not be the same (design issue)*
+Example was interactive test of analyst_log - end of the log file:
+{noformat}
++ LD_LIBRARY_PATH=/apps/bin/opencv/install/lib
++ /apps/bin/sikulix/runsikulix -r analyst_log.sikuli
+running SikuliX: -Xmx512M -Dfile.encoding=UTF-8 -Dsikuli.FromCommandLine
+-jar /apps/bin/sikulix/sikulix.jar -r analyst_log.sikuli
+[info] runcmd: lsb_release -i -r -s 
+[log] CLICK on L(159,1144)@S(0)[0,0 1920x1200] (638 msec)
+[error] script [ /home/cats/cats/blackbox/tests/shi-interactive/analyst_log/analyst_log.sikuli ] stopped with error in line 4
+[error] FindFailed ( 1530275685180.png: (526x233) in S(0)[0,0 1920x1200] E:Y, T:3.0 )
++ import -compress jpeg -window root analyst_log_after.jpg
++ exit 1
+{noformat}
+Images are stored - but comparission does not work.
+See the image analyst_log_after.jpg which was captured after analyst_log was terminated.
+ !analyst_log_after.jpg|thumbnail! 
+
+*Issue 20: Environment for ARS test was not ready and is not contained in 'cats' repository nor documented anywhere (extend test, plus document)*
+Files .ARSinit and ARS.load contains specific configuration parameters which should be prepared automatically by the test, deployed and after successful run removed.
+I had to copy these files from OPS CATS worker:
+{noformat}
+scp cats@alv200.ctbto.org:/home/misc/cats/.ARSinit ~/
+scp cats@alv200.ctbto.org:/home/misc/cats/ARS.load ~/
+{noformat}
+
+*Issue 21: With ARS interactiove test there was several accumulated problems (fragile not easily portable architecture/design)*
+- sometime IPC connection to nontax does not hold
+- sometimes there is crash in import tool for the screens - segafault 
+- sometimes there is simply crash of ARS it self with abort signal from somewhere
+- ARS is all the time very slow on my machine and not responsive
+- when running it manually, it is not possible to execute the implemented use case
+  (it is not possible to click on the chosen origin and select it)
+
+All these issues might be yet investigated on my local centos 6.10 VM, but might relate to overall system setup.
+If would be worthy to pause these attempts and try to set up interactive tests on devlan VM.
+*This votes in favor of extracting interactive tests from bbox tests and run them separately.*
+
+*Issue 22: Due to slow ARS time delays implemented in the test do not match and catch up*
+With these set of commands it is possible to execute the Sikulix script:
+Enter the commands of run.sh script up to switching to csh and then execute ARS
+In other terminal run sikulix IDE.
+{noformat}
+> export LD_LIBRARY_PATH=$LD_LIBRARY_PATH/apps/bin/opencv/install/lib/
+> /apps/bin/sikulix/runsikulix
+and then open the file.
+{noformat}
+
+However, I did not succeed to execute the use case also because of slow response of ARS and may be other hidden issues.
+
+*Issue 23: It was observed that Sikulix is consuming not a little memory on the worker (to be considered)*
+Other vote to separate interactive tests to a dedicated worker.
+
+In course of these issues I gave up to try to make running interactive tests on my local worker and due to this I do not have running all implemented bbox tests.
+*Repeat conclusion: interactive tests bring their new group of dependencies and issues, therefore I would separate them from bbox tests.*
+------------------
+*Issue 24 Valgrind has fatal failure - bug on Centos. Installation of valgrind-3.15.0 is required from source code*
+ Verify the procedure and document installation in detail into VBoz Centos6.10 part in the CATS documentation - created subtask in CATS fixing tasks to address also this issue.
+Default vagrind terminates with this error:
+{noformat}
+    valgrind: the 'impossible' happened:
+        LibVEX called failure_exit().
+     ==22350==    at 0x38031DA7: report_and_quit (m_libcassert.c:235)
+{noformat}
+Very strange this did not happen on RH 6.10 even though we should have more or less exactly same baseline. There are several discussion and valgrind errors with this error message documented:
+https://valgrind-users.narkive.com/hDRXaZPs/valgrind-and-openanno-error-libvex-called-failure-exit
+https://bugs.launchpad.net/ubuntu/+source/valgrind/+bug/1574437
+https://sourceforge.net/p/valgrind/mailman/message/18710803/
+https://www.raspberrypi.org/forums/viewtopic.php?t=45585
+
+Thomas has recommended to download the latest valgrind-3.15 and compile it from source code.
+Even after this was done our test has failed with error in DFX suppression file.
+This was already known to Thomas who has implemented the fix  - covered by this task - SIM-1122.
+Thomas clone and branch SIM-1122 was verified and finally the valgrind job for DFX-detaction has succeeded.
+----------------------
+
+

@@ -1,0 +1,278 @@
+# Notes for sprint planning for my work
+
+My local development:
+ - configure and verify - ibase blackbox tests for operations and github master versions of ibase - 6h
+ - coverage - 4h
+ - valgring - 6h
+ - interactive tests - 8h
+ - try to reach on Centos7 building of ibase exactly corresponding to to build for NDC-in-th-box -2h
+ 
+ - Configure integration with local jenkins using host only network - 4h
+ - configure in my local Jenkins full ibase jobs for Centos 6.10 node, unit test jobs for local Centos 7.6 node - 4h
+ - export and backup my local master/slave VMs - 1h
+
+ - after fixing of setup scripts, verify it by removing CATS slave node installation and testing of setup-slave.sh
+   and by running of jobs -1d
+
+ - Upgrade Jenkins and install all pluggins to match DEV Jenkins instance -6h
+
+
+Fixing cats:
+  Resolve slave setup issues encountered during my local dev instance setup:
+   - fix install-baseline-centos-6.sh - remove puppet, update java version - 1h
+   - fix install-gcov.sh - 3h
+   - study and fix refresh Git LFS repositories such that is not in conflict with setup and blackbox tests scripts - 3h
+   - fix setup of Oracle 12.2 client and ODBC and QODBC clients - 4h
+   
+Developing cats:
+   - implement backward compatibility for blackbox test with not yet decomposed ibase
+   - verify it on local DEV instance and deploy it to DEV node, and to one OPS node and configure there
+     jobs which will verify the 'operations' version of ibase and its dependencies
+
+Maintain DEV - extend and fix CATS jobs:
+   - request Kainda for 'cats' user access - 1h
+   - remove obsolete ibase jobs from DEV Jenkins - 3h
+   - configure representative ibase jobs with unit/backbox/coverage/valgrind/interactive
+     install missing dependencies - 1d
+   - request two new worker nodes for dev instance - one RH 6.10 and one RH 7 (ask Thomas about the ticket) - 2h
+   - set up RH 6.10 node and run representative jobs there - 1.5d
+   - just attach RH 7 for future setup without CATS slave setup yet - do not port cats setup scripts or perform setup described by Thomas yet - 3h
+
+Maintain Jenkins:
+   - verify DEV and OPS jenkins and create confluence page for administering the Jenkins and its plugins
+   - upgrade DEV and OPS Jenkins such that they exactly corresponds in sense of version and plugins suit
+   - Turn on integration with Jira and configure creating high priority tickets
+     when verification jobs of 'operations' version of the software fails
+
+Cleanup CATS DEV/OPS:
+   - make list of all jobs from OPS with its dependencies and repositories which are used
+     categorize them and try to identify obsolete and not needed jobs
+     (automate this by implementing script which will run through configurations and retrive important parameters)
+   - based on the prevous output verify also all braches in CTBTO cats-data-robot repository
+     indetify obsolete ones and coordinate their removal with Evangelos
+   - Propose new structure and naming convention to reflect - verification of operations, delivering of hotfixes and normal development support,
+     plus introduciton of new systems - namelly VDMS
+
+VDMS - Verification Data Messaging System
+   - Read confluence page and documentation - 1d
+   - Study, build and document Git repositories - 2d
+   - Meet with Edward Wokabi about the Project Status - 4h
+   - Meet with Manachem and collect ideas and problems of VDMS - 6h
+   - Create first architecture desing for the automated testing - 2d
+
+Deap learning outreach
+   - My aim is to prototype a signal processing and analyzing use case in Python on
+     dgxstation using numpy, scipy, and pandas and using multicore processing
+     together with benchmarking the load
+   Subtasks:
+   - find out about availbale python packages and possibility to read waverform data on dgxstation - 6h
+   - implement reading procedures and test them - 6h
+   - implement filtering of data in multicore processing mode - 6h
+   - implement data analyses using pandas in multicore way - 1d
+   - perform benchmarking and wrap up the source code as an blueprint git repository - 1d
+   - prepare presentation - 4h
+   - give presentation on Deep learing session - 1h
+
+
+Current tasks:
+ SIM-1048 Refresh & study DFX for COD purpose
+   Read all CODs confluence documentation and get familiar with technologies - 6h
+   Read DFX documentation - 1d
+   Briefly study the currently implemented components of COD - 6h
+   Meet with PE - Benoit, Evangelos to gain more awareness - 3h
+   Prepare environment for Station Tuning Framework - 4h
+   Study and be capable to use Station Tuning Framework - 6h
+   Survey use case coverage of current DFX bbox tests - 4h
+
+ SIM-1046 Refresh CATS knowledge - 8h
+   Study and document current CATS repositories, particularly 'cats'
+   Have a brief look on 'cats_pipeline' repository and try to execute it
+   
+ SIM-1047 Prepare local CATS development environment
+   - addressed by the first time in this file -
+
+--------------
+Planning is done - Sprint planning meeting took place.
+
+--------
+Sprint planning on 16.5.2019
+
+User Stories:
+1. Cleanup CATS DEV/OPS - Remove workspaces on workers which miss jenkins counterparts
+See SIM-1085 attachment OPS_Jobs_listing_10.5.2019.xls - tab 'ops_workspaces'.
+
+2. Cleanup CATS DEV/OPS - deploy standard reference SHI configuration into the shared location
+Try to tag the mostly used configuration and put git clones on all workers to a shared folder.
+/apps/ops/software/shi/config
+All jobs which uses this reference configuration, reconfigure such, that there is no additional handling
+of four config repositories - app_config, earth_specs, station_specs, system_specs
+this will require:
+- fixing of some bbox test runners to use shared configuration
+- modification configuration of pertaining jobs
+Mostly used configuration is:
+ctbto - app_config.e3d498, ctbto - earth_specs.25ea53, ctbto - station_specs.a6cdf3, ctbto - system_specs.6bf1cf2
+See the listing of jobs in SIM-1085 attachment OPS_Jobs_listing_10.5.2019.xls - tab 'ops_jobs'.
+Test all pertaining jobs.
+
+3. Cleanup CATS DEV/OPS - clean out obsolete repositories from worker's workspaces
+For jobs which were modified in story 2.## make sure that there are no leftover
+clones of config repositories.
+
+4. Cleanup CATS DEV/OPS - configure plugins to keep workspaces clean
+We need automated mechanism to keep worker's workspaces clean and keep only the last execution
+for investigation.
+Study, experiment and configure available Jenkins plugins such, that
+Jenkins does not polute workers anymore.
+I have found this:
+https://blog.clairvoyantsoft.com/jenkins-cleanup-workspace-reduce-disk-usage-18310097d3ef
+https://plugins.jenkins.io/hudson-wsclean-plugin
+https://stackoverflow.com/questions/48094035/configuration-slicing-plugin-to-discard-old-builds-and-artifacts-in-jenkins
+
+5. Cleanup CATS DEV/OPS - establish discarding policy for OPS CATS
+We should have clear discarding policy and any configured job
+must not accumulate builds in master Jenkins workspace without a limit.
+Update all jobs configuration accordingly.
+
+4. Fixing CATS - conduct thouroughful check of parameter mapping of builder scripts - particularly cdtools and dtk-pmcc
+When I ran cdtools build using default configuration it executed DB_UNIT_TESTS which does not
+comply with mapping to ibase repositories.
+When executed generic-builder-and-tester.sh script with RUN_COVERAGE=1 dtk-pmcc build script failed
+with unknown parameter input (mapped to the parameter CATS_COVERAGE which is invalid for dtk-pmcc).
+Please consider potential extension of input parameters to support developers with
+different options directly from Jenkins jobs.
+E.g. I would like to add 
+RUN_UNIT_TESTS=0/1, RUN_DIST_CLEAN=0/1
+
+5. Fixing CATS - investigate ibase/libsrc/libidcbeamrecipe unit test, if they work remove disabling them in the builder script
+As we have agreed would be good to fix libidcbeamrecipe unit tests and remove their
+disabling in generic builder and runner script.
+Please consider my aim to support testing also of testbed and operations versions, therefore
+if issue is still present in operations version of ibase, please design backward compatibility
+that operations version can be stil tested with CATS.
+I see two possibilities:
+- if there is an error in libidcbeamrecipe unit test - we can have it as known error and
+  thread it simillar as the only failure in cbase (in operations) and give threshold to the
+  corresponding jobs
+- to make patching configurable - for operations version enable patching, for master disabling patching
+
+6. Fixing CATS - interactive tests - upgrade ARS test such, that environment is prepared automatically
+.ARSinit, ARS.load contains confguration of the particular ARS environment
+determining for example network, start_time, duration etc.
+We might want to use different configuration for different tests and workers.
+Please upgrade the interactive tests such, that in
+- set-up action deployes ARS environment
+- execute tests
+- after successful run, cleans the environment (removes .ARSinit, ARS.load
+ARS.history)
+Deploy and verify changes on all OPS CATS workers. 
+
+7. Fixing CATS - have a closer look on cdtools unit tests
+Me on my local dev I have the following errors:
+> env `cat ~/workspace1/cdtools_master.env` CHECK_SUPPORTED_VERSION=0 ./generic-builder-and-tester.sh
+executed extended DB_UNIT_TEST which failed in not capable to connect to
+LDAP server residing on olv113.ops.ctbto.org
+> env `cat ~/workspace1/cdtools_master.env` RUN_DB_UNIT_TESTS=0 CHECK_SUPPORTED_VERSION=0 ./generic-builder-and-tester.sh
++ PIDFILE=tmp.cdtest.pidFile
++ echo 30710
++ sleep 2
++ ../src/cdrecv/cdrecv config.test
++ ./cdsend.pl localhost config.test 1 99
++ tee cdtools-results.tap
+# Python sqlite found
+# MD5SUM is md5sum
+# Parameters read from config.test:
+# 	Port 7710, non strict mode, signing of outgoing frames
+# **************************************
+# Testblock 1 [connection request tests]
+# **************************************
+# Send invalid CD1.1 Connection Request Frame (bad CRC)
+# Expected reaction: Frame not signed/invalid CRC warning, receive Connection Response Frame and timeout error
+Can't call method "autoflush" on an undefined value at ./cdsend.pl line 1056.
+# can't connect to CD daemon on localhost:7710
+# *** Error, test 1.1 failed
+---------------------------------
+++ cat tmp.cdtest.pidFile
++ kill -1 30710
++ rm -f tmp.cdtest.pidFile
+./test.sh: line 10: 30710 Hangup                  ../src/cdrecv/cdrecv config.test
+PASS: test.sh
+=============
+1 test passed
+=============
+---
+
+Please verify this behaviour also on your local dev. And if considered worthy,
+would not be bad to be capable to execute:
+- just build+unit tests as for cbase, sbase, ibase
+- DB_UNIT_TESTS with no needed connection to LDAP server
+- the particular extended unit tests which requires LDAP authentification
+
+8. Fixing CATS - fix patching of config repositories to be idempotent
+This fix will be needed to successfully run bbox tests with shared app_config and system_specs.
+I notised the following issues:
+When running bbox test multiply times we have this wrongly patched files:
+_interactive/analyst_log/analyst_log.par_ - wrong patching of this file:
+{code}al-interval-account=CATS_CATS_CATS_CATS_CATS_CATS_CATS_CATS_CATS_CATS_CATS_CATS_CATS_CATS_CATS_IDCX{code}
+
+Also of this file:
+_DFX/DFX-detection.par_
+{noformat}
++spareid-package=SPARE_ID
++spareid-package=SPARE_ID
++spareid-package=SPARE_ID
++spareid-package=SPARE_ID
+{noformat}
+
+Same issue in rest of DFX par files and in _automatic/maxpmf/maxpmf.par_.
+
+7. Cleanup CATS DEV/OPS - consider removing old development Jenkins jobs
+Dear Ilya, in SIM-1085 attachment OPS_Jobs_listing_10.5.2019.xls - tab 'ops_jobs'
+are several jobs which you have used during your development.
+Some of them relate to old SIM-* tasks which were already merged to the master branches
+and therefore the fixes are tested in other github-master related jobs.
+You mentioned, that you might still reference the testing results directly from the OPS Jenkins workspace.
+However, keeping old bbox test jobs in Jenkins occupies quite some disk-space and clutters the configuration
+(several GB on master, and about 12-15 GB as slave worker's workspaces).
+If you would consider taking important results from Jenkins and store them elsewhere in a more structured way, and then completelly clean out old jobs from Jenkins, this would uncluter our CATS confuguration and free diskspace a little.
+Thank you very much
+
+for Ilya
+
+
+New user story for me:
+User-story - Maintain DEV and OPS CATS - prepare extension of infrastructure
+Subtasks:
+- prepare document with esitmates and proposed changes
+- review the requirments with Thomas and finize the document from our side
+- perform review with Ronan and Alexander Sudakov and agree their support
+- deliver requirements to Michaela Lang and Ferreira Lucas
+
+---------------
+# For begining of Jun 2019 - and commence of work also on COD project we yet further decompose some fat user stories
+of previous:
+SIM-1047 - Prepare local CATS development environment
+Into three sub-stories and two of them were just postponed:
+     SIM-1047 - Prepare local CATS development environment - 1 - ibase, coverage, valgrind, dtk-pmcc, mig_bull, geotool, interactive tests
+     SIM-1161 - Prepare local CATS development environment - 2 - Jenkins and local host-only network
+     SIM-1162 - Prepare local CATS development environment - 3 - geotoolqt and ENIAB applications
+
+Created new forseen important stories:
+     SIM-1163 Maintain DEV - upgrade to cover also geotoolqt and other ENIAB applications
+     SIM-1164 Developing CATS - architecture design for supporting ENIAB
+
+On next sprint planning record these user stories for us or Thomas:
+ - Fix CATS - investigate why ARS and analyst_log have failed with missing h2e (me or Thomas)
+ - Fix CATS - document valgrind into a standard cats.wiki and cats.pdf
+ - Fix CATS - document Docker into a standard chapter of cats.wiki and cats.pdf
+ - Fix CATS - would it be possible not to duplicate installation into Docker file but to clone and run shared installation scripts in the docker container? Support for different docker images, remove duplicate ARS.load.
+ - Maintain DEV/OPS - address disk usage issue by thin backup and configure discard more old builds
+   (have the seamless configuration of think backup on both instances if possible)
+ - Maintain DEV/OPS - move cats-worker04 to DEV
+
+VDMS - CATS developoment
+ - VDMS - veirfy Thomas's build of nms_home on my local dev
+ - VDMS - try to set up local runtime environment in CATS and run the nms_queue component therein
+ - VDMS - try to execute one of the unit tests on new-message-subsustem in CATS
+
+
+

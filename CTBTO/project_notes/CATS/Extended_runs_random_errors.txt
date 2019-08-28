@@ -1,0 +1,314 @@
+# There is rather high need to resolve the ranodom failure issues in order to include into
+# the future release also multithreading libloc library.
+# But this library will use LAPAC library for algebra computations and this gives different
+# results (slightly different results).
+# This means it is not safe to have random failures in the bbox tests before we proceed with
+# new SHI release.
+# 10.6.2019 - start of systematic process.
+
+We will record - time of the launch - failure and exact coordinates of the failing record.
+(whether there is not relation to particular data set which might be latter reused).
+
+Original records from the first VBox extended runs:
+---
+However, some tests were already executed and we ca see that the difference is in GA
+/apps/workspace2/cats/blackbox/tests/shi-automatic/GA/output-GA-sel2-20130212-extended.xml
+diff /apps/workspace2/previous_results/GA-sel2-20130212-extended/origin-diff.txt /apps/workspace2/results/GA-sel2-20130212-extended/origin-diff.txt
+128c128
+< 127,ORID,1155,EVID,282,LAT,53.461649,LON,88.232317,DEPTH,0.0,TIME,1360664315.45,JDATE,2013043,NASS,7,NDEF,5,GRN,326,SRN,28,DTYPE,g
+---
+> 127,ORID,1172,EVID,282,LAT,53.461649,LON,88.232317,DEPTH,0.0,TIME,1360664315.45,JDATE,2013043,NASS,7,NDEF,5,GRN,326,SRN,28,DTYPE,g
+ORID has changed. This was mentioned issue by Thomas, and should have been fixed.
+
+# On 20.5.2019 Monday we have another exact extend run, now the results are different:
+/apps/workspace2/cats/blackbox/tests/shi-automatic/GA/output-GA-sel2-20130212-extended.xml
+/apps/workspace2/cats/blackbox/tests/dfx/DFX-evch/output-DFX-evch-seismic-20160106-extended.xml
+/apps/workspace2/cats/blackbox/tests/dfx/DFX-origamp/output-DFX-origamp-seismic-20160106-extended.xml
+evch is present in addition.
+In GA-sel2-20130212-extended - as before only origin id differs (consult with Thomas how it was fixed and
+   why I do not have this fix available).
+DFX-origamp-seismic-20160106-extended
+   amplitude-diff.txt - start_time of one records did not match
+DFX-evch-seismic-20160106-extended
+   complexity-diff.txt - snr for one record differs on sixth place
+
+# On 22.5.2019 we have another run and new differences
+/apps/workspace2/cats/blackbox/tests/shi-automatic/GA/output-GA-sel2-20130212-extended.xml
+/apps/workspace2/cats/blackbox/tests/dfx/DFX-origamp/output-DFX-origamp-seismic-20160106-extended.xml
+/apps/workspace2/cats/blackbox/tests/dfx/DFX-recall/output-DFX-recall-seismic-20160106-extended.xml
+New is recall pipeline difference - DFX-recall again start_time in one of the records slightly differs.
+----
+
+# Run on 10.6.2019
+/apps/workspace2/cats/blackbox/tests/shi-automatic/GA/output-GA-sel2-20130212-extended.xml
+	Origin diff
+	<127,ORID:1155,EVID:282,LAT:53.461649,LON:88.232317,DEPTH:0.0,TIME:1360664315.45,JDATE:2013043,NASS:7,NDEF:5,GRN:326,SRN:28,DTYPE:g
+	>127,ORID:1172,EVID:282,LAT:53.461649,LON:88.232317,DEPTH:0.0,TIME:1360664315.45,JDATE:2013043,NASS:7,NDEF:5,GRN:326,SRN:28,DTYPE:g
+	  only orig differs
+
+	Origerr diff
+	<127,ORID:1155,SXX:351.86166,SYY:210.58791,SZZ:-1.0,STT:10.818603,SXY:160.15235,SXZ:-1.0,SYZ:-1.0,STX:-56.456947,STY:-30.135034,STZ:-1.0,SDOBS:3.5385866,SMAJAX:45.812294,SMINAX:22.100875,STRIKE:56.900191,SDEPTH:-1.0,STIME:5.4145926,CONF:0.9
+	>127,ORID:1172,SXX:351.86174,SYY:210.58796,SZZ:-1.0,STT:10.818605,SXY:160.15238,SXZ:-1.0,SYZ:-1.0,STX:-56.45696,STY:-30.135042,STZ:-1.0,SDOBS:3.5385871,SMAJAX:45.8123,SMINAX:22.100877,STRIKE:56.900191,SDEPTH:-1.0,STIME:5.4145932,CONF:0.9
+	  Orid diff, but also small differences in S?? - elipse values and STIME
+
+	Netmag diff
+	<165,ORID:1155,MAGID:2246,EVID:282,NET:SEISMIC,MAGTYPE:ml,NSTA:1,MAGNITUDE:2.6151964,UNCERTAINTY:-1.0
+	>165,ORID:1172,MAGID:2280,EVID:282,NET:SEISMIC,MAGTYPE:ml,NSTA:1,MAGNITUDE:2.6151964,UNCERTAINTY:-1.0
+	   orid and magid is different
+	Stamag diff
+	380,ORID:1155,ARID:84154249,EVID:282,MAGID:2246,AMPID:1235213128,STA:MKAR,ARID:84154249,PHASE:Pn,DELTA:7.6873822,MAGTYPE:ml,MAGNITUDE:2.6151964,UNCERTAINTY:0.60000002,MAGRES:0.0,MAGDEF:d,MMODEL:mcoefs_def1
+	>380,ORID:1172,ARID:84154249,EVID:282,MAGID:2280,AMPID:1235213128,STA:MKAR,ARID:84154249,PHASE:Pn,DELTA:7.6873824,MAGTYPE:ml,MAGNITUDE:2.6151964,UNCERTAINTY:0.60000002,MAGRES:0.0,MAGDEF:d,MMODEL:mcoefs_def1
+	   orig and magid differs, but also delta - difference on 7th floating digit
+	 Assoc differs in many aspects.
+	   
+	
+/apps/workspace2/cats/blackbox/tests/shi-automatic/GA/output-GA-sel3-20130212-extended.xml
+	Here whole blocks of origids and magids are wrong and appears like it is spoiling the results
+	for origerr and station magnitues. I did not locate any matching records with the same results
+	as was calculated previously.
+	There is high risk that there is not only assigning of ids malfunctional.
+
+/apps/workspace2/cats/blackbox/tests/dfx/DFX-origamp/output-DFX-origamp-seismic-20160106-extended.xml
+	<364,AMPID:411,CHAN:mb_beam,AMP:1.1568891,PER:0.73128891,SNR:-1.0,AMPTIME:1452087121.36,START_TIME:1452087116.41,DURATION:6.0,BANDW:-1.0,AMPTYPE:A5/2-OR,UNITS:-,CLIP:n,INARRIVAL:n
+	>364,AMPID:411,CHAN:mb_beam,AMP:1.1568906,PER:0.73128891,SNR:-1.0,AMPTIME:1452087121.36,START_TIME:1452087116.41,DURATION:6.0,BANDW:-1.0,AMPTYPE:A5/2-OR,UNITS:-,CLIP:n,INARRIVAL:n
+	   Very small AMP difference - sixth digit.
+
+# Next run 13.6.2019
+/apps/workspace2/cats/blackbox/tests/shi-automatic/GA/output-GA-sel2-20130212-extended.xml
+/apps/workspace2/cats/blackbox/tests/shi-automatic/GA/output-GA-sel3-20130212-extended.xml
+/apps/workspace2/cats/blackbox/tests/dfx/DFX-origamp/output-DFX-origamp-seismic-20160106-extended.xml
+
+/apps/workspace2/cats/blackbox/tests/shi-automatic/GA/output-GA-sel2-20130212-extended.xml
+- exactly same result as in previous run on 10.6.2019
+
+
+Results stored into:
+/home/cats/extended_runs_random_errors/10.6.2019/
+├── DFX-origamp
+│   └── report.html
+├── GA
+│   └── report.html
+├── results
+│   ├── GA-sel2-20130212-extended
+│   └── GA-sel3-20130212-extended
+└── targets
+    ├── GA-sel2-20130212-extended
+    └── GA-sel3-20130212-extended
+
+
+# Next run on 16.6.2019
+/apps/workspace2/cats/blackbox/tests/shi-automatic/GA/output-GA-sel2-20130212-extended.xml
+/apps/workspace2/cats/blackbox/tests/shi-automatic/GA/output-GA-sel3-20130212-extended.xml
+/apps/workspace2/cats/blackbox/tests/dfx/DFX-origamp/output-DFX-origamp-seismic-20160106-extended.xml
+/apps/workspace2/cats/blackbox/tests/dfx/DFX-noiseamp/output-DFX-noiseamp-seismic-20160106-extended.xml
+ - DFX origamp is the same again as previous run
+ - GA sel2 too, but GA sel3 differs
+ - yet comparing with previous run sel3 - completelly different, also counts, but comparing to original target was just
+   orids different, and this might have coused different blocks in magnitue and origin, origin error results.
+
+Results stored into:
+/home/cats/extended_runs_random_errors/16.6.2019/
+├── DFX-noiseamp
+│   └── report.html
+├── DFX-origamp
+│   └── report.html
+├── GA
+│   └── report.html
+├── results
+│   ├── DFX-noiseamp-seismic-20160106-extended
+│   ├── DFX-origamp-seismic-20160106-extended
+│   ├── GA-sel2-20130212-extended
+│   └── GA-sel3-20130212-extended
+└── targets
+    ├── DFX-noiseamp-seismic-20160106-extended
+    ├── DFX-origamp-seismic-20160106-extended
+    ├── GA-sel2-20130212-extended
+    └── GA-sel3-20130212-extended
+
+
+# Next run on my laptop VM - 24.6.2019
+/apps/workspace2/cats/blackbox/tests/shi-automatic/GA/output-GA-sel1-20160909-extended.xml
+/apps/workspace2/cats/blackbox/tests/shi-automatic/GA/output-GA-sel3-20160909-extended.xml
+/apps/workspace2/cats/blackbox/tests/shi-automatic/GA/output-GA-sel2-20160909-extended.xml
+/apps/workspace2/cats/blackbox/tests/shi-automatic/GA/output-GA-sel2-20130212-extended.xml
+/apps/workspace2/cats/blackbox/tests/dfx/DFX-origamp/output-DFX-origamp-seismic-20160106-extended.xml
+- in dfx origamp again the same amplitude difference as in all other confirming it is just wrong reference
+- however, GA now completelly broke for data from 20160909 which did not occure before
+  This means very likelly not only sel2, sel3 pipelines for data sample from 20130212 are weak,
+  but also potentially other part of the extended tests.
+  Whereas we do not encounter ant such issues on quick tets, woule be good to
+  have a closer look also on the test design and behaviour with different data samples.
+  Might be issue also in the tests them self.
+
+24.6.2019/
+├── DFX-origamp
+│   └── report.html
+├── GA
+│   └── report.html
+├── results
+│   ├── DFX-origamp-seismic-20160106-extended
+│   ├── GA-sel1-20160909-extended
+│   ├── GA-sel2-20130212-extended
+│   ├── GA-sel2-20160909-extended
+│   └── GA-sel3-20160909-extended
+└── targets
+    ├── DFX-origamp-seismic-20160106-extended
+    ├── GA-sel1-20160909-extended
+    ├── GA-sel2-20130212-extended
+    ├── GA-sel2-20160909-extended
+    └── GA-sel3-20160909-extended
+
+
+# Next run on 28.6.2019 - PC Workstation
+/apps/workspace2/cats/blackbox/tests/shi-automatic/GA/output-GA-sel2-20130212-extended.xml
+/apps/workspace2/cats/blackbox/tests/shi-automatic/GA/output-GA-sel3-20130212-extended.xml
+/apps/workspace2/cats/blackbox/tests/dfx/DFX-origamp/output-DFX-origamp-seismic-20160106-extended.xml
+ - for DFX-origamp we have exactly same results as before - might indicate that we should simply update robot resuts
+ - GA sel2 results in this case differs from expected targets as well from all previous runs (different orids and identifiers)
+ - GA sel3 however differes just slightly mostly in orid and identiers to expected targets and also comparing with
+   previous run. Big difference is comparing to the run 13.6.
+28.6.2019
+├── DFX-origamp
+│   └── report.html
+├── GA
+│   └── report.html
+├── results
+│   ├── DFX-origamp-seismic-20160106-extended
+│   ├── GA-sel2-20130212-extended
+│   └── GA-sel3-20130212-extended
+└── targets
+    ├── DFX-origamp-seismic-20160106-extended
+    ├── GA-sel2-20130212-extended
+    └── GA-sel3-20130212-extended
+
+# Next run on 7.7.2019 - PC Workstation
+/apps/workspace2/cats/blackbox/tests/shi-automatic/GA/output-GA-sel2-20130212-extended.xml
+/apps/workspace2/cats/blackbox/tests/shi-automatic/GA/output-GA-sel3-20130212-extended.xml
+/apps/workspace2/cats/blackbox/tests/dfx/DFX-origamp/output-DFX-origamp-seismic-20160106-extended.xml
+ - for DFX-origamp we have exactly same results as before - might indicate that we should simply update robot resuts
+ - GA sel2 has exactly the same different results as on previous run on 28.6.2019
+ - GA sel3 has exactly the same different results as on previous run on 28.6.2019
+7.7.2019/
+├── DFX-origamp
+│   └── report.html
+├── GA
+│   └── report.html
+├── results
+│   ├── DFX-origamp-seismic-20160106-extended
+│   ├── GA-sel2-20130212-extended
+│   └── GA-sel3-20130212-extended
+└── targets
+    ├── DFX-origamp-seismic-20160106-extended
+    ├── GA-sel2-20130212-extended
+    └── GA-sel3-20130212-extended
+
+# Next run on 8.7.2019 - my laptop
+/apps/workspace2/cats/blackbox/tests/shi-automatic/GA/output-GA-sel2-20130212-extended.xml
+/apps/workspace2/cats/blackbox/tests/dfx/DFX-evch/output-DFX-evch-seismic-20160106-extended.xml
+/apps/workspace2/cats/blackbox/tests/dfx/DFX-origamp/output-DFX-origamp-seismic-20160106-extended.xml
+ - DFX origam is the same as previous run - just again confirms that we have to just update robot results
+ - DFX evch - difference in 'time frequency' ZAVCEP, NAVCEP, EAVCEP in two records - might be related to usage of master branch and ongloing fix in this area (we have to fix the versions)
+ - GA for sel2 20130212 is exactly the same as of previous run but without further failures in GA3 as happened on my
+   laptop run on 24.6.2019
+8.7.2019
+├── DFX-evch
+│   └── report.html
+├── DFX-origamp
+│   └── report.html
+├── GA
+│   └── report.html
+├── results
+│   ├── DFX-evch-seismic-20160106-extended
+│   ├── DFX-origamp-seismic-20160106-extended
+│   └── GA-sel2-20130212-extended
+└── targets
+    ├── DFX-evch-seismic-20160106-extended
+    ├── DFX-origamp-seismic-20160106-extended
+    └── GA-sel2-20130212-extended
+
+
+# Commands for launching the tests
+> export WORKSPACE=/apps/workspace2
+> export CATS_DATA_ROBOT_REPO_COMMITTISH="github-master-reference-extended"
+> ~/cats/oracle/load-schema.sh
+> env `cat ~/workspace1/ibase_master_sharedcfg.env` RUN_DB_UNIT_TESTS=0 RUN_COVERAGE=0 RUN_BLACKBOX_TESTS=1 RUN_EXTENDED_TESTS=1 RUN_BLACKBOX_TESTS_REGEXP="DFX\|db_load\|e2h\|EvLoc\|evsc_drv\|GA\|gettables\|h2e\|HASE\|IDC_Pipeline\|imspar\|maxpmf\|StaPro\|write_fp" CHECK_SUPPORTED_VERSION=0 RUN_BUILD=1 ~/cats/build/generic-build-and-test-launcher.sh
+
+# Commands for investigation
+# find failed tests
+> find /apps/workspace2/cats/blackbox/ -name "*.xml" -exec grep -l 'FAIL' {} \;
+> pushd $WORKSPACE/targets
+> test_4_test='GA-sel2-20130212-extended'
+> test_4_test='GA-sel3-20130212-extended'
+> for f in `ls $test_4_test/`; do echo $f; tkdiff $test_4_test/$f ~/extended_runs_random_errors/10.6.2019/results/$test_4_test/$f; done 
+ Harvesting the results
+> test_date="28.6.2019"
+> mkdir ~/extended_runs_random_errors/$test_date
+> mkdir ~/extended_runs_random_errors/$test_date/results
+> mkdir ~/extended_runs_random_errors/$test_date/targets
+> mkdir ~/extended_runs_random_errors/$test_date/DFX-origamp
+> mkdir ~/extended_runs_random_errors/$test_date/GA
+> cp /apps/workspace2/cats/blackbox/tests/dfx/DFX-origamp/report.html ~/extended_runs_random_errors/$test_date/DFX-origamp
+> cp /apps/workspace2/cats/blackbox/tests/dfx/DFX-noiseamp/report.html ~/extended_runs_random_errors/$test_date/DFX-noiseamp
+> cp /apps/workspace2/cats/blackbox/tests/shi-automatic/GA/report.html ~/extended_runs_random_errors/$test_date/GA
+Results
+> cp -r /apps/workspace2/results/GA-sel2-20130212-extended/ ~/extended_runs_random_errors/$test_date/results/
+> cp -r /apps/workspace2/results/GA-sel3-20130212-extended/ ~/extended_runs_random_errors/$test_date/results/
+> cp -r /apps/workspace2/results/DFX-origamp-seismic-20160106-extended/ ~/extended_runs_random_errors/$test_date/results/
+> cp -r /apps/workspace2/results/DFX-noiseamp-seismic-20160106-extended/ ~/extended_runs_random_errors/$test_date/results/
+Targets
+> cp -r /apps/workspace2/targets/GA-sel2-20130212-extended/ ~/extended_runs_random_errors/$test_date/targets/
+> cp -r /apps/workspace2/targets/GA-sel3-20130212-extended/ ~/extended_runs_random_errors/$test_date/targets/
+> cp -r /apps/workspace2/targets/DFX-origamp-seismic-20160106-extended/ ~/extended_runs_random_errors/$test_date/targets/
+> cp -r /apps/workspace2/targets/DFX-noiseamp-seismic-20160106-extended/ ~/extended_runs_random_errors/$test_date/targets/
+
+cp -r /apps/workspace2/targets/GA-sel1-20160909-extended/ ~/extended_runs_random_errors/$test_date/targets/
+cp -r /apps/workspace2/targets/GA-sel2-20160909-extended/ ~/extended_runs_random_errors/$test_date/targets/
+cp -r /apps/workspace2/targets/GA-sel3-20160909-extended/ ~/extended_runs_random_errors/$test_date/targets/
+cp -r /apps/workspace2/targets/GA-sel2-20130212-extended ~/extended_runs_random_errors/$test_date/targets/
+cp -r /apps/workspace2/targets/DFX-origamp-seismic-20160106-extended ~/extended_runs_random_errors/$test_date/targets/
+
+
+
+# On 27.8.2019 there was really random failure of ordinary monitoring job of DFX
+this means that even quick bbox test might be unreliable - occasionally they fail:
+
+---
+python run-DFX-origamp.py seismic
+0%..17%..33%..50%..67%..83%..done
+[1]    Done                          python run-DFX-origamp.py seismic > DFX-origamp-seismic-20160106-quick.log
++ [[ x == \1\x ]]
++ ROBOT_EXCLUDESTRING='--exclude VALGRIND'
++ rm -f output-DFX-origamp-seismic-20160106-quick.xml
++ /apps/bin/python/bin/pybot --name DFX-origamp-seismic-20160106-quick -o output-DFX-origamp-seismic-20160106-quick.xml -l NONE -r NONE -v DFX_ORIGAMP_SUITE:DFX-origamp-seismic-20160106-quick -v DFX_ORIGAMP_LOG:/apps/data/jenkins/workspace/MON_CATS_githubmaster_shi_ibase_bboxquick_automatic_worker07/cats/blackbox/tests/dfx/DFX-origamp/DFX-origamp-seismic-20160106-quick.log -v DBCONNECT:cats_leb/password@XE --exclude VALGRIND DFX-origamp-seismic.robot
+==============================================================================
+DFX-origamp-seismic-20160106-quick                                            
+==============================================================================
+Amplitude count                                                       | PASS |
+33 as expected
+------------------------------------------------------------------------------
+Amplitude diff                                                        | FAIL |
+*HTML*<pre>&lt;13,AMPID:19,CHAN:mb_beam,AMP:0.11464899,PER:0.4733851,SNR:-1.0,AMPTIME:1452102929.64,START_TIME:1452102925.39,DURATION:6.0,BANDW:-1.0,AMPTYPE:A5/2-OR,UNITS:-,CLIP:n,INARRIVAL:n
+&gt;13,AMPID:19,CHAN:mb_beam,<b>AMP:0.11464887</b>,<b>PER:0.47338514</b>,SNR:-1.0,AMPTIME:1452102929.64,START_TIME:1452102925.39,DURATION:6.0,BANDW:-1.0,AMPTYPE:A5/2-OR,UNITS:-,CLIP:n,INARRIVAL:n</pre>
+------------------------------------------------------------------------------
+Arrival require                                                       | PASS |
+2125 as expected
+------------------------------------------------------------------------------
+Arrival diff                                                          | PASS |
+------------------------------------------------------------------------------
+Origin count                                                          | PASS |
+122 as expected
+------------------------------------------------------------------------------
+Origin diff                                                           | PASS |
+------------------------------------------------------------------------------
+Log errors                                                            | PASS |
+------------------------------------------------------------------------------
+Log severes                                                           | PASS |
+------------------------------------------------------------------------------
+Log fatals                                                            | PASS |
+------------------------------------------------------------------------------
+DFX-origamp-seismic-20160106-quick :: (SHA256 Global Data Rows: ab... | FAIL |
+9 critical tests, 8 passed, 1 failed
+9 tests total, 8 passed, 1 failed
+==============================================================================
+Output:  /apps/data/jenkins/workspace/MON_CATS_githubmaster_shi_ibase_bboxquick_automatic_worker07/cats/blackbox/tests/dfx/DFX-origamp/output-DFX-origamp-seismic-20160106-quick.xml
++ /apps/data/jenkins/workspace/MON_CATS_githubmaster_shi_ibase_bboxquick_automatic_worker07/cats/oracle/removeStoredProcedureLastid.sh cats_leb/password@XE

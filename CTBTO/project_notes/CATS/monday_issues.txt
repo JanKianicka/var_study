@@ -1,0 +1,37 @@
+Fixes to be implemented:
+coverage/install-gcovr.sh
+This was just workaround not to execute the version:
+virtualenv --system-site-packages
+'This can be used if you have control over the global site-packages directory, and you want to depend on the packages there.'
+
+-    if grep -q "6." /etc/redhat-release; then
++    if grep -q "7." /etc/redhat-release; then
+         virtualenv  "${CATS_PYTHON_VIRTUALENV}"
+     else
+To be fully removed this condition, we will have only isolatted python installation without any inheriting 
+from global site packages directory.
+
+oracle/unbundle-oracle.sh
+-    tar -xvzf "${CATS_ORACLE_TARBALL}" -C "${UNPACKDIR}"
++    tar -xhvzf "${CATS_ORACLE_TARBALL}" -C "${UNPACKDIR}"
+
+Add correct handling also of internal links in the tar ball.
+
+And issue with needed git reset --hard when running multiply times.
+Also there is an issue with patching the configuration - point this out too and fix it.
+
+
+olumn 6 peak2tr
+Column 7 peak to trough body wave amplitude
+Column 8 19-MAY-1993:14:34:59
+IMP-00019: row rejected due to ORACLE error 1
+IMP-00003: ORACLE error 1 encountered
+ORA-00001: unique constraint (CATS_IDCX.PK_AMPDESCRIPT) violated
+Column 1 A5/2
+Column 2 .5
+Column 3 5.5
+Column 4 -1
+Column 5 -1
+Column 6 0_2peak
+Column 7 zero to peak  body wave amplitude
+Column 8 18-OCT-1

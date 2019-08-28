@@ -1,0 +1,27 @@
+Ant Plugin
+Blue Ocean
+Build log file size checker
+Cobertura
+CVS
+Docker
+Email Extension
+Green Balls
+JiraTestResultsReporter
+Nexus Artifacts Uploader
+PostBuild Scripts
+Pre SCM Build Step
+Reverse Proxy Auth
+Robot Framework
+Subversion
+TAP
+ThinBackup
+Translation Assistance
+Valgrind
+XUnit
+Xvnc
+
+502 GB disk space, 170 GB free in /apps
+
+2 proc cores
+
+15 GB of memory

@@ -1,0 +1,12 @@
+# Notes and commands to support fixing of the cats - 19.6.2019
+
+# Building and verification of documentation
+> pandoc -r markdown -w html -o Slave-Machine-Setup.html --standalone --ascii Slave-Machine-Setup.md
+> perl -pi -e 'while ( /^.*href=\"(#[A-Z].*?)\".*$/ ) { if ( /^.*href=\"(#[A-Z].*?)\".*$/) { $o = $1; $n = lc $o; $n =~ s/%20/-/g; $_ =~ s/^(.*href=\")($o)(\".*)$/$1$n$3/; } }' Slave-Machine-Setup.html
+> perl -pi -e 's{(<h1)}{<!--NewPage-->\n$1}gi;' -e 's{<img src="([^"]*)" title="([^"]*)" />}{<fig src="$1">\n<caption><div align="center"><i>$2</i></div></caption>\n</fig>}gi;' Slave-Machine-Setup.html
+> html2ps --toc bh --dsc --rcfile ../cats/doc/html2ps.rc --hyphenate --language en --titlepage --colour Slave-Machine-Setup.html > Slave-Machine-Setup.ps
+> perl -pi -e 's{\\240}{\\040}gi;' Slave-Machine-Setup.ps
+> ps2pdf -dPDFSETTINGS=/prepress -sPAPERSIZE=a4 Slave-Machine-Setup.ps Slave-Machine-Setup.pdf
+> evince Slave-Machine-Setup.pdf
+
+

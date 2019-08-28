@@ -1,0 +1,474 @@
+# Preliminary action before we commence maintenance of DEV instance
+- got access by Kainda
+- in cooperation with Kainda cleaned out some disk space
+- listed jobs to be removed
+- configured 'ops_shi_ibase_build_and_unit_tests' running regularly every two hours
+
+# Now we remove obsolete jobs
+1. Create full backup
+
+/apps/data/jenkins/jobs> for job in DEAST-DNORTH-verification
+DNORTH-DEAST-Max-Array-Mismatch blackbox-test-development-workspace
+cbase-devlan-unit ibase-IDC.RELEASE-17.5.1-reference-quick
+ibase-devlan-db-unit ibase-testbed-db-unit issue-107-replication
+issue-114-replication issue100-replication
+job-for-tweaking-diff_fields-robot-reporting seo-test-build
+setup-dummies-issue-replication;
+do
+	echo "Tar $job to ${job}_21.5.2019.tar.gz";
+	tar -czf /apps/data/old_jobs/${job}_21.52019.tar.gz $job;
+done
+2. Remove obsolete jobs
+delete all from the list. Done.
+
+3. Created also new proposed views structure.
+
+4. Cleaning and upgrading 'cats' slave installation.
+- /home/misc/cats
+  du -hc .cache/
+  2.1GB in dirs: gedit  pip  yarn[2GB]
+
+5. Moved everything what looks like old experimental stuff to the directory:
+   /home/misc/cats/old_Alberts_stuff/
+
+6. Install new .catsrc
+ORACLE_PROD product/${ORACLE_VERSION}/xe - setup of the new oracle clients is neccessary
+ CATS_JAVA_HOME /usr/lib/jvm/java-1.8.0 -> ${CATS_BIN}/JAVA_HOME
+cats_rc_init ANT_HOME /apps/bin/apache-ant-1.9.10/dist
+to be installed according new procedure - to be fixed too.
+
+To be changed - CATS_DATA_ROBOT_REPO gitadm@git.ctbto.org:cats-data-robot
+
+7. Verify the changes - try local coverage execution
+> export WORKSPACE=~/workspace_loc
+> env `cat ~/workspace_loc/sbase.env` RUN_BLACKBOX_TESTS=0 RUN_EXTENDED_TESTS=0 RUN_DB_UNIT_TESTS=0 RUN_COVERAGE=1 CHECK_SUPPORTED_VERSION=0 build/generic-builder-and-tester.sh
+SUCCESS
+
+8. Big fight with oracle - I had to remove it fully and reinstall it - the disk was damaged
+and one potential issue was discovered.
+- reported issue with *.ora files patching to Jira.
+  Now it should work.
+
+Lets try DB_UNIT tests:
+> export WORKSPACE=/apps/data/workspace_loc2
+> export CATS_DATA_ROBOT_REPO_COMMITTISH=github-master-reference-quick
+>  ~/cats/oracle/load-schema.sh
+> env `cat /apps/data/workspace_loc2/ibase_master.env` RUN_DB_UNIT_TESTS=1 RUN_COVERAGE=1 RUN_BLACKBOX_TESTS=0 CHECK_SUPPORTED_VERSION=0 ./build/generic-build-and-test-launcher.sh
+> 
+
+Now Blackbox tests for the automatic applications:
+> ~/cats/oracle/load-schema.sh
+> env `cat /apps/data/workspace_loc2/ibase_master.env` RUN_DB_UNIT_TESTS=1 RUN_COVERAGE=1 RUN_BLACKBOX_TESTS=1 RUN_BLACKBOX_TESTS_REGEXP="DFX\|db_load\|e2h\|EvLoc\|evsc_drv\|GA\|gettables\|h2e\|HASE\|IDC_Pipeline\|imspar\|maxpmf\|StaPro\|write_fp" CHECK_SUPPORTED_VERSION=0 ./build/generic-build-and-test-launcher.sh
+> env `cat /apps/data/workspace_loc2/ibase_master.env` RUN_DB_UNIT_TESTS=1 RUN_COVERAGE=1 RUN_BLACKBOX_TESTS=1 RUN_BLACKBOX_TESTS_REGEXP="DFX-detection" CHECK_SUPPORTED_VERSION=0 ./build/generic-build-and-test-launcher.sh
+Looks like it has worked out, only from other tests remained failures in the workpsace directory.
+
+
+We have the error in robot framework processing:
+e.g. in ./cats/blackbox/tests/dfx/DFX-noiseamp/output-DFX-noiseamp-seismic-20160106-quick.xml
+---
+Importing test library 'RoboTest' failed: ImportError: libclntsh.so.11.1: cannot open shared object file: No such file or directory
+---
+we have to reinstall the Robot framework.
+
+9. Switching to shared configuration  - verification what Thomas did in this course
+> echo $CATS_IDC_CONFIG_TARBALL_SHI
+/apps/data/blackbox/shiconfig-app_config-e3d4984-earth_specs-25ea530-station_specs-a6cdf3c-system_specs-6bf1cf2.tar.gz
+> mv /apps/ops/software/shi/config/ /apps/ops/software/shi/config_bak/
+> ./blackbox/blackbox-setup-config.sh
+prepare new configuration without cloning the config repositories
+and test it:
+> env `cat /apps/data/workspace_loc2/ibase_master.env` RUN_DB_UNIT_TESTS=1 RUN_COVERAGE=1 RUN_BLACKBOX_TESTS=1 RUN_BLACKBOX_TESTS_REGEXP="DFX-detection" CHECK_SUPPORTED_VERSION=0 ./build/generic-build-and-test-launcher.sh
+
+
+generic-build-and-test-launcher.sh does not support fress workspace, but relies on Jenkins's clone of cats.
+- this issue should be fixed.
+Only this combination do not work:
+>  env `cat /apps/data/workspace_loc2/ibase_master_sharedcfg.env` RUN_DB_UNIT_TESTS=1 RUN_COVERAGE=1 RUN_BLACKBOX_TESTS=1 RUN_BLACKBOX_TESTS_REGEXP="DFX-detection" CHECK_SUPPORTED_VERSION=0 ./generic-build-and-test-launcher.sh
+
+This input parameters works - means the input check is erroneous.
+> env `cat /apps/data/workspace_loc2/ibase_master_sharedcfg.env` CHECK_SUPPORTED_VERSION=0 ./generic-build-and-test-launcher.sh
+
+
+
+
+
+
+
+
+# Maintenance of Jenkins
+On 28.5.2019 were synchronized jenkins plugins from OPS CATS to DEV CATS instance:
+- Build log file size checker
+- Cobertura
+- CVS
+- Docker
+- Email Extension
+- Nexus Artifacts Uploader
+- Pre SCM Build Step
+- Robot Framework
+- Subversion
+- TAP
+- Translation Assistance
+- Valgrind
+- Xvnc
+
+Synchronized from DEV to OPS
+- Copy Artifacts
+- Delivery Pipeline
+- Environment Injection
+- GitHub Integration
+- Maven Artifacts ChoiceListProvider
+- NodeJS
+- Pipeline Aggregator
+- Pipeline Maven
+- Pipeline: Multibranch with Defaults
+- Publish Over SSH
+- SSH Agent
+- SSH Pipeline Steps
+- SSH
+
+# Upgrade procedure
+> wget http://mirrors.jenkins.io/war-stable/latest/jenkins.war
+# backup
+> cp -r ${CATS_BIN_TOMCAT}/webapps/ROOT/ back/ -v
+> cp ${CATS_BIN_JENKINS} back/ -v
+> cp -r ${CATS_DATA_JENKINS}/users back/ -v
+# deployment
+> ${CATS_ETC_INITD}/tomcat stop
+> cp jenkins.war ${CATS_BIN_JENKINS} -v
+> rm -rf ${CATS_BIN_TOMCAT}/webapps/ROOT/ -v
+> ${CATS_ETC_INITD}/tomcat start
+
+# Verification
+- try to log in
+- check version on web interface and using CLI command line
+> java -jar jenkins-cli.jar -s http://dlv020.idc.ctbto.org:8080/ version
+# veriy authentication
+> java -jar jenkins-cli.jar -s http://dlv020.idc.ctbto.org:8080/ who-am-i --username kianicka --password XXX
+# test e.g. getting simple job configuration
+> java -jar jenkins-cli.jar -s http://dlv020.idc.ctbto.org:8080/ get-job MON_CATS_githubmaster_shi_ibase_bboxquick_DFX_valgrind --username kianicka --password XXX > MON_CATS_githubmaster_shi_ibase_bboxquick_DFX_valgrind.xml
+
+# Downgrade of OPS CATS Jenkins
+> java -jar jenkins-cli.jar -s http://cats.ctbto.org:8080/ version
+> java -jar jenkins-cli.jar -s http://cats.ctbto.org:8080/ who-am-i --username jan.kianicka --password XXX
+> java -jar jenkins-cli.jar -s http://cats.ctbto.org:8080/ get-job MON_CATS_ops_shi_sbase_build_worker06_RH7 --username jan.kianicka --password XXX > MON_CATS_ops_shi_sbase_build_worker06_RH7.xml
+
+# Porting monitoring jobs from DEV to OPS
+> java -jar jenkins-cli.jar -s http://cats.ctbto.org:8080/ create-job MON_CATS_githubmaster_shi_ibase_bboxquick_automatic --username jan.kianicka --password XXX < MON_CATS_githubmaster_shi_ibase_bboxquick_automatic.xml
+> java -jar jenkins-cli.jar -s http://cats.ctbto.org:8080/ create-job MON_CATS_githubmaster_shi_ibase_bboxquick_DFX_valgrind --username jan.kianicka --password XXX < MON_CATS_githubmaster_shi_ibase_bboxquick_DFX_valgrind.xml
+
+# After several weeks of continuous running of MON jobs on OPS as well on DEV instance of CATS
+# we have collection of these random failures.
+
+1. Random failure of libidclog - this happens quite regularly and is known issue, fixed on development version on github
+---
+Running suite(s): libidclog
+./test_liblogout(1179)[log]: log-lines is deprecated and was reinterpreted as log-size=2400
+0%: Checks: 1, Failures: 0, Errors: 1
+test_liblogout.c:78:E:liblogout interface:liblogout_interface:0: (after this point) Received signal 11 (Segmentation fault)
+FAIL: test_liblogout.sh
+---
+
+2. Only on DEV instance random - seldom failure of lininking missing dependency:
+---
+-lssl -llber -lldap <http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/install/cbase/lib/libcancomp.a> <http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/install/cbase/lib/libidcsyslog.a> <http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/ibase/libsrc/libmisc/.libs/libmisc.a> <http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/ibase/libsrc/libevsc/.libs/libevsc.a> <http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/ibase/libsrc/libidclog/.libs/libidclog.a> /usr/lib64/libapr-1.so -lpthread <http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/ibase/libsrc/libgdi/src/.libs/libgdi.a> -lclntsh -ldl <http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/install/sbase/lib/libloc.a> <http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/install/sbase/lib/liblp.a> <http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/install/cbase/lib/libtable.a> <http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/install/sbase/lib/libinterp.a> -lgfortranbegin -lgfortran -lgcov <http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/install/sbase/lib/libgeog.a> <http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/install/idcmodel/lib/libidccss30.a> <http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/install/cbase/lib/libparidc.a> <http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/install/cbase/lib/libaesir.a> <http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/install/cbase/lib/libstdtime.a> -lm -pthread
+/usr/bin/ld: cannot find -lclntsh
+collect2: ld returned 1 exit status
+make[3]: *** [doday] Error 1
+make[3]: Leaving directory `<http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/ibase/src/doday'>
+---
+Looks like issue with the IO to the disk and occasional missing dependency.
+
+3. Only on DEV instance - sudden missing Oracle driver. Realy looks like some evil dwarf is sitting at the background
+and suddenly removes the part of Oracle driver.
+For clues we can see the troubleshooting underwent by Albert:
+---
+http://its.ctbto.org/browse/UL-1034?focusedCommentId=144196&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-144196
+---
+Here is the snipet of log which might reveal this issue:
+---
+gcc -DHAVE_CONFIG_H -I. -I../.. -I<http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/install/cbase/include> -I../../libsrc/libclips -I/var/tmp/cats/bin/oracle/product/12.2/rdbms/public -I/var/tmp/cats/bin/oracle/product/12.2/rdbms/demo -I/var/tmp/cats/bin/oracle/product/12.2/precomp/public -I<http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/install/cbase/include> -I../../libsrc/libgdi/include -I<http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/install/cbase/include> -I<http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/install/sbase/include> -I<http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/install/cbase/include> -I<http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/install/idcmodel/include> -I../../include -I../../libsrc/libipcnt -I<http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/install/cbase/include> -I<http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/install/sbase/include> -I<http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/install/idcmodel/include> -I<http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/install/sbase/include> -I<http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/install/cbase/include> -I<http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/install/idcmodel/include> -I<http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/install/cbase/include> -I<http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/install/sbase/include> -I<http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/install/cbase/include> -I<http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/install/cbase/include> -I<http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/install/cbase/include>    -Wall -Wno-unused-variable -pedantic -ggdb3 -O2 -fno-strict-aliasing -mtune=native --coverage -MT get_regional_prob.o -MD -MP -MF .deps/get_regional_prob.Tpo -c -o get_regional_prob.o get_regional_prob.c
+cc1: error: /var/tmp/cats/bin/oracle/product/12.2/rdbms/public: Not a directory
+cc1: error: /var/tmp/cats/bin/oracle/product/12.2/rdbms/demo: Not a directory
+make[3]: *** [get_regional_prob.o] Error 1
+make[3]: Leaving directory `<http://dlv020.idc.ctbto.org:8080/job/MON_CATS_ops_shi_ibase_build_unit_cov/ws/ibase/src/WaveExpert'>
+make[2]: *** [all-recursive] Error 1
+---
+
+Checking the throughput using dd revealed the disks on our VMs are well perfmoring:
+/dev/mapper/dlv020_worker-apps
+   315G  164G  152G  52% /apps
+[cats@dlv020 dd_test]$ dd if=/dev/zero of=/apps/data/dd_test/test1.img bs=1G count=1 oflag=dsync
+1+0 records in
+1+0 records out
+1073741824 bytes (1.1 GB) copied, 5.04927 s, 213 MB/s
+
+/dev/mapper/dlv020-var
+  1.9G  733M  1.1G  40% /var
+tmppfs     10G  411M  9.6G   5% /tmp
+[cats@dlv020 ~]$ dd if=/dev/zero of=/tmp/dd_test/test1.img  bs=1G count=1 oflag=dsync
+1+0 records in
+1+0 records out
+1073741824 bytes (1.1 GB) copied, 5.71008 s, 188 MB/s
+
+the same action executed on my local DEV machine:
+[Jan@localhost ~]$ dd if=/dev/zero of=/tmp/test1.img bs=1G count=1 oflag=dsync
+1+0 records in
+1+0 records out
+1073741824 bytes (1.1 GB) copied, 53.5286 s, 20.1 MB/s
+which is 10 times slower.
+
+# Adding new plugins - on week in 5-7.6.2019 were added these plugins:
+- Disk Usage
+- CloudBees Disk Usage Simple Plugin
+- Shelve project plugin
+
+
+# On 29.7.2019 - installing new worker for DEV CATS cats-worker07
+Up to now everything went pretty smooth - installed JDK and
+python environment.
+However, installation of interactive testing suit for Sikulix has problems to compile due to
+limited disk space in /tmp.
+/dev/mapper/alv500-tmp          997M   34M  963M   4% /tmp
+
+Resolved by adding symbolic link and modifying the installation script to:
+mkdir /apps/bin/tmp
+ln -s /apps/bin/tmp /tmp/
+and modification of the script like this:
+---
+UNPACKDIR=``mktemp -d --tmpdir -p /tmp/tmp/ opencv.XXXXXX`
+---
+
+
+# On 14.8.2019 after my vacation by Gerhard Spiegl and with Thomas was observed issue with limit of semaphors
+See: http://its.ctbto.org/browse/UL-7653
+
+However, it seems that number of semaphore arrays are the same on all
+workers. So it is present on all machines and might relate to
+problematic status of Oracle XE server.  Let us see where there are no
+errors.
+
+[cats@dlv020 ~]$ cat /etc/sysctl.d/cats-workers.conf
+# adding OracleXE recommended sysctl settings for CATS workers/masters [UL-1251,SD-4306]
+kernel.sem=1024 60000 1024 256
+fs.file-max=6815744
+
+
+Situation of ipcs facilities - semaphore arrays on workers:
+DEV CATS
+---
+cats-worker04(dlv022.idc.ctbto.org.)
+[cats@dlv022 ~]$ ipcs -ls
+
+------ Semaphore Limits --------
+max number of arrays = 256
+max semaphores per array = 1024
+max semaphores system wide = 60000
+max ops per semop call = 1024
+semaphore max value = 32767
+
+[cats@dlv022 ~]$ ipcs -s | awk '/0x/{ print $2 }' |wc -l
+254
+
+cats-worker06 (alv519.ctbto.org)
+---
+-bash-4.2$ ipcs -ls
+
+------ Semaphore Limits --------
+max number of arrays = 256
+max semaphores per array = 1024
+max semaphores system wide = 60000
+max ops per semop call = 1024
+semaphore max value = 32767
+
+-bash-4.2$ ipcs -s | awk '/0x/{ print $2 }' |wc -l
+0
+
+cats-worker07(alv500.ctbto.org.)
+------ Semaphore Limits --------
+max number of arrays = 256
+max semaphores per array = 1024
+max semaphores system wide = 60000
+max ops per semop call = 1024
+semaphore max value = 32767
+
+-bash-4.1$ ipcs -s | awk '/0x/{ print $2 }' |wc -l
+0
+
+OPS CATS - workers -
+--------------------
+cats-worker01(alv200.ctbto.org.)
+[cats@alv200 ~]$ ipcs -ls
+
+------ Semaphore Limits --------
+max number of arrays = 256
+max semaphores per array = 1024
+max semaphores system wide = 60000
+max ops per semop call = 1024
+semaphore max value = 32767
+
+
+[cats@alv200 ~]$ ipcs -s | awk '/0x/{ print $2 }' |wc -l
+254
+
+cats-worker02(alv207.ctbto.org.)
+[cats@alv207 ~]$ ipcs -ls
+
+------ Semaphore Limits --------
+max number of arrays = 256
+max semaphores per array = 1024
+max semaphores system wide = 60000
+max ops per semop call = 1024
+semaphore max value = 32767
+
+[cats@alv207 ~]$ ipcs -s | awk '/0x/{ print $2 }' |wc -l
+254
+
+cats-worker02(tlv112.test.ctbto.org.)
+[cats@tlv112 ~]$ ipcs -ls
+
+------ Semaphore Limits --------
+max number of arrays = 256
+max semaphores per array = 1024
+max semaphores system wide = 60000
+max ops per semop call = 1024
+semaphore max value = 32767
+
+[cats@tlv112 ~]$ ipcs -s | awk '/0x/{ print $2 }' |wc -l
+254
+
+cats-worker03(alv514.ctbto.org.)
+-bash-4.1$ ipcs -ls
+
+------ Semaphore Limits --------
+max number of arrays = 256
+max semaphores per array = 1024
+max semaphores system wide = 60000
+max ops per semop call = 1024
+semaphore max value = 32767
+
+-bash-4.1$ ipcs -s | awk '/0x/{ print $2 }' |wc -l
+254
+
+cats-worker08(alv507.ctbto.org.)
+-bash-4.1$ ipcs -ls
+
+------ Semaphore Limits --------
+max number of arrays = 256
+max semaphores per array = 1024
+max semaphores system wide = 60000
+max ops per semop call = 1024
+semaphore max value = 32767
+
+-bash-4.1$ ipcs -s | awk '/0x/{ print $2 }' |wc -l
+240
+
+Conclusion: All slave installation have problem of consuming semaphor arrays and not releasing them.
+Observation of cats-worker08 revealed that it is not just dtk-pmcc but may be also
+CATS system it self, DB unit tests of libwaveformqc or DFX it self, or Robot framework or some CATS scripts, which do
+not close e.g. connections correctly.
+cats workers cats-worker06 and cats-worker07 have zero semaphore arrays due to
+first is RH7 and we have not SHI software ported yet to RH7 platform and bbox tests are not running there yet,
+cats-worker07 is waiting for slave installation yet (has been removed by downgrade to RH6.10) - will be done in recent days.
+
+libwaveformqc DB unit does not release one semaphore array.
+Black box tests in certain step - shi-automatic suspect GA do not relase one semaphore array.
+Interactive tests have failed but not release was not observed.
+Just unit tests and integration tests of cdtools are healthy.
+Valgrad of DFX looks like do not release one array  -lets see yet.
+---
+Pending is yet dtk-pmcc, mig_bul and then we may try - only one small
+bbox test, e.g. dbload and then DFX and GA in separate just unit and bbox tests.
+
+# we continue on investigation on 21.8.2019 systematically
+Check current status on the master node dlv020:
+ - MON_CATS_githubmaster_shi_cdtools_build_unit_worker07 - cdtools does not caouse consumtion of the semaphore array
+ - MON_CATS_ops_shi_ibase_build_unit_cov_worker07 - neither - we do not have to verify it
+We start with verification on cats-worker07 - we turn off all monitoring jobs and test:
+- cats/oracle/load-schema.sh
+- ${WORKSPACE}/cats/oracle/restore-to-original.sh
+- ${WORKSPACE}/cats/oracle/createStoredProcedureLastid.sh ${CATS_DBCONNECT_IDCX}
+- ${WORKSPACE}/cats/oracle/import-for-test-DFX-detection-${CATS_BLACKBOX_PIPELINE_DAY}.sh
+Then DFX bbox test including robot
+Then excluding robot step - (create special branch for this purpose)
+- then GA only
+- then libwaveformqc DB unit test only - this is just to confirm consumtion that was actually observed
+- then dtk-pmcc only
+- then yet valgrind, interactive and mig_bul test
+
+RESULTS
+cats/oracle/load-schema.sh - has swollowed one semaphore array
+- verified internals
+  - check-oracle.sh - is not the culprit
+  - refresh-data-oracle.sh - is not the culprit
+restore-to-original.sh - OK
+createStoredProcedureLastid.sh - OK
+import-for-test-DFX-detection-${CATS_BLACKBOX_PIPELINE_DAY}.sh - OK
+
+DB_UNIT tests of libwaveformqc - just one semaphore array added - comming from load-schema.sh - OK
+All quick bbox tests - just one semaphore array added - comming from load-schema.sh - OK
+dtk-pmcc - just one semaphore array added - comming from load-schema.sh - OK
+interactive tests - no semaphore array was added - this is suspicious, there must be clean up processes that
+                    closes left over semaphore array from load-schema.sh script - strange - NOT OK
+DFX valgrind - just one semaphore array added - comming from load-schema.sh - OK
+mig_bul - no semaphore array was added - this is suspicious, there must be clean up processes that
+          closes left over semaphore array from load-schema.sh script - strange - NOT OK
+
+Conclusion:
+The verification showed that the not-releaseing semaphore arrays is in
+load_scheme.sh script. However, two jobs - interactive tests, and
+mig_bul are capable to release this allocated semaphore array probably
+by some clean up action.
+So the result is to - fix load_schema.sh to release any allocated ipc
+faclities and to implement robust monitoring tools - <link to
+pertaining SIM tickets>.
+- and create fixing ticket into SIM backlog.
+
+# On 19.8.2019 issue with failing interactive tests on some workers, different JDK
+Relates to not well harmonized path to java and jdk instalation.
+The situation is as following:
+Master node in default instalation determines path to jdk.
+There are several options and workers are installed differently.
+One of the options is to let Jenkins install the default JDK
+automatically into:
+/apps/data/jenkins/tools/hudson.model.JDK/
+
+Default JDK installed by Jenkins is present on all production cats
+nodes.  (Global Tools Configuration and automatic installation there).
+DEV CATS and OPS CATS differs here - on DEV CATS there is no automatic
+installation and moreover it points to a single Java for all
+installations and particularly for Sikulix this missmatch causes the
+test to fail.
+
+I will change to our standard and remove hudson installation from Jenkins
+workers - we want to have java and default java versions
+controlled by Slave installation of cats repository scripts.
+I am going to remove this feature from OPS CATS workers.
+Or having two JDKs - but there is one more difference - JDK installed into /apps/bin/JAVA_HOME
+is not in PATH on OPS CATS but is present in PATH of DEV CATS instance.
+This means thare is yet another missmatch.
+
+I have removed that magical global configuration on cats-worker03
+[cats@tlv112 ~]$ mv ~/.bashrc ~/.bashrc_back
+
+and added on first place standard JDK installation from Oracle.
+Then we will have to port all to OpenJDK but systematically and remove
+this hudson installations.
+We have to decide how to handle this - different versions of JDK and JRE
+on single system - I would like to stay for now
+using JAVA_HOME variable and avoid automatically installed
+versions - this variable can differentiate us the workers.
+Also I will reinstall the newer version on cats-worker08 - backport.
+
+Due to this curcumstance interactive tests and sikulix fails.  On
+cats-worker03 the error is different, there is missing sikulix
+installation on this node.
+
+---
+Checking required system packages
+  wmctrl installed.
+  Missing required system package; xdotool - exiting.
+---
+Yet other system-like dependencies missing.
+
+There is all combination of issues - we have to approach it systematically.
+

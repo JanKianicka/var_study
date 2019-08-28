@@ -1,0 +1,146 @@
+# 6.5.2019
+# Issue with ARS interactive test, when running yet without ARSload, and .ARSinit
+---
+[1] 30673
+sleep 10
+/apps/workspace2/shiscripts/bin/start program=eman
+Couldn't create font value for -*-helvetica-medium-r-normal--10*
+
+Couldn't create font value for -*-helvetica-medium-r-normal--14*
+
+[1]  + Done                          /apps/workspace2/shiscripts/bin/start program=eman > eman.log
+cd ~
+[1] 30759
+/apps/workspace2/install/shi-interactive/bin/ARS agent=1 par=/apps/workspace2/app_config/interactive/ARS/ARS.par
+sleep 10
+Unable to use ":0.1" for Locator display; using default display and shell
+Welcome to SIOD, Scheme In One Defun, Version 2.3
+(C) Copyright 1988, 1989 Paradigm Associates Inc.
+Initializing scheme extensions
+reading file "/apps/workspace2/install/shi-automatic/scheme/intrinsic.scm" ... done.
+reading file "/apps/workspace2/install/shi-automatic/scheme/siod.scm" ... done.
+reading file "/apps/workspace2/install/shi-automatic/scheme/general.scm" ... done.
+reading file "/apps/workspace2/install/shi-automatic/scheme/math.scm" ... done.
+reading file "/apps/workspace2/install/shi-automatic/scheme/libpar.scm" ... done.
+reading file "/apps/workspace2/install/shi-interactive/scheme/ARSdefault.scm" ... done.
+*** unable to find file ".ARSinit" in path "/home/cats" ***
+Connected to IPC message server agent 1 as class ARS
++ import -compress jpeg -window root ARS_before.jpg
+ARS reports FATAL error(Resource temporarily unavailable) in "ARS":Signal 1 - Bail() abort.
+History dumped to ARS.history.
++ LD_LIBRARY_PATH=/apps/bin/opencv/install/lib
++ /apps/bin/sikulix/runsikulix -r ARS.sikuli
+running SikuliX: -Xmx512M -Dfile.encoding=UTF-8 -Dsikuli.FromCommandLine
+-jar /apps/bin/sikulix/sikulix.jar -r ARS.sikuli
+[info] runcmd: lsb_release -i -r -s 
+[log] ( Ctrl )  TYPE "r"
+^R
+^R
+^R
+^R
+^R
+[error] script [ /apps/workspace2/cats/blackbox/tests/shi-interactive/ARS/ARS.sikuli ] stopped with error in line 8
+[error] FindFailed ( 1523521457349.png: (126x34) in S(0)[0,0 1920x1200] E:Y, T:3.0 )
++ import -compress jpeg -window root ARS_after.jpg
++ exit 1
++ rm -fr /tmp/cats.LAW24e
+(python)[cats@localhost build]$ ls
+-----
+
+Valgrind mallafunction:
+---
+(python)[cats@localhost log]$ valgrind /apps/workspace2/install/dfx/bin/DFX sta=H01W1 start-time=1452102900.0 end-time=1452103500.0 par=/apps/workspace2/shiconfig/app_config/DFX/DFX-detection.par
+==22350== Memcheck, a memory error detector
+==22350== Copyright (C) 2002-2012, and GNU GPL'd, by Julian Seward et al.
+==22350== Using Valgrind-3.8.1 and LibVEX; rerun with -h for copyright info
+==22350== Command: /apps/workspace2/install/dfx/bin/DFX sta=H01W1 start-time=1452102900.0 end-time=1452103500.0 par=/apps/workspace2/shiconfig/app_config/DFX/DFX-detection.par
+==22350== 
+
+vex: priv/main_main.c:319 (LibVEX_Translate): Assertion `are_valid_hwcaps(VexArchAMD64, vta->archinfo_host.hwcaps)' failed.
+vex storage: T total 0 bytes allocated
+vex storage: P total 0 bytes allocated
+
+valgrind: the 'impossible' happened:
+   LibVEX called failure_exit().
+==22350==    at 0x38031DA7: report_and_quit (m_libcassert.c:235)
+==22350==    by 0x38031E0E: panic (m_libcassert.c:319)
+==22350==    by 0x38031E68: vgPlain_core_panic_at (m_libcassert.c:324)
+==22350==    by 0x38031E7A: vgPlain_core_panic (m_libcassert.c:329)
+==22350==    by 0x3804D162: failure_exit (m_translate.c:708)
+==22350==    by 0x380D4C48: vex_assert_fail (main_util.c:219)
+==22350==    by 0x380D3019: LibVEX_Translate (main_main.c:319)
+==22350==    by 0x3804AACE: vgPlain_translate (m_translate.c:1559)
+==22350==    by 0x38079DAF: vgPlain_scheduler (scheduler.c:991)
+==22350==    by 0x380A6419: run_a_thread_NORETURN (syswrap-linux.c:103)
+
+sched status:
+  running_tid=1
+
+Thread 1: status = VgTs_Runnable
+==22350==    at 0x3FB4000B30: ??? (in /lib64/ld-2.12.so)
+==22350==    by 0x4: ???
+==22350==    by 0x7FEFFCC92: ???
+==22350==    by 0x7FEFFCCB7: ???
+==22350==    by 0x7FEFFCCC1: ???
+==22350==    by 0x7FEFFCCD9: ???
+==22350==    by 0x7FEFFCCEF: ???
+
+
+Note: see also the FAQ in the source distribution.
+It contains workarounds to several common problems.
+In particular, if Valgrind aborted or crashed after
+identifying problems in your program, there's a good chance
+that fixing those problems will prevent Valgrind aborting or
+crashing, especially if it happened in m_mallocfree.c.
+
+If that doesn't help, please report this bug to: www.valgrind.org
+
+In the bug report, send all the above text, the valgrind
+version, and what OS and version you are using.  Thanks.
+--------------------------
+Compilation errors when building vera++ from source code
+> cd /home/Jan/Software/vera++-1.3.0/build
+---
+[ 26%] Building CXX object src/CMakeFiles/vera.dir/plugins/lua/LuaInterpreter.cpp.o
+In file included from /usr/local/include/luabind/wrapper_base.hpp:31,
+                 from /usr/local/include/luabind/back_reference.hpp:27,
+                 from /usr/local/include/luabind/class.hpp:93,
+                 from /usr/local/include/luabind/luabind.hpp:28,
+                 from /home/Jan/Software/vera++-1.3.0/src/plugins/lua/LuaInterpreter.cpp:27:
+/usr/local/include/luabind/detail/call_member.hpp:319:1: error: missing binary operator before token "("
+In file included from /usr/local/include/luabind/back_reference.hpp:27,
+                 from /usr/local/include/luabind/class.hpp:93,
+                 from /usr/local/include/luabind/luabind.hpp:28,
+                 from /home/Jan/Software/vera++-1.3.0/src/plugins/lua/LuaInterpreter.cpp:27:
+/usr/local/include/luabind/wrapper_base.hpp:92:1: error: missing binary operator before token "("
+In file included from /usr/local/include/luabind/function.hpp:10,
+                 from /usr/local/include/luabind/class.hpp:94,
+                 from /usr/local/include/luabind/luabind.hpp:28,
+                 from /home/Jan/Software/vera++-1.3.0/src/plugins/lua/LuaInterpreter.cpp:27:
+/usr/local/include/luabind/detail/call_function.hpp:326:1: error: missing binary operator before token "("
+In file included from /usr/local/include/luabind/detail/constructor.hpp:12,
+                 from /usr/local/include/luabind/class.hpp:96,
+                 from /usr/local/include/luabind/luabind.hpp:28,
+                 from /home/Jan/Software/vera++-1.3.0/src/plugins/lua/LuaInterpreter.cpp:27:
+/usr/local/include/luabind/wrapper_base.hpp:92:1: error: missing binary operator before token "("
+In file included from /usr/local/include/luabind/class.hpp:107,
+                 from /usr/local/include/luabind/luabind.hpp:28,
+                 from /home/Jan/Software/vera++-1.3.0/src/plugins/lua/LuaInterpreter.cpp:27:
+/usr/local/include/luabind/detail/call_member.hpp:319:1: error: missing binary operator before token "("
+In file included from /usr/local/include/luabind/adopt_policy.hpp:28,
+                 from /home/Jan/Software/vera++-1.3.0/src/plugins/lua/LuaInterpreter.cpp:28:
+/usr/local/include/luabind/wrapper_base.hpp:92:1: error: missing binary operator before token "("
+In file included from /usr/local/include/luabind/adopt_policy.hpp:31,
+                 from /home/Jan/Software/vera++-1.3.0/src/plugins/lua/LuaInterpreter.cpp:28:
+/usr/local/include/luabind/wrapper_base.hpp:92:1: error: missing binary operator before token "("
+make[2]: *** [src/CMakeFiles/vera.dir/plugins/lua/LuaInterpreter.cpp.o] Error 1
+make[1]: *** [src/CMakeFiles/vera.dir/all] Error 2
+make: *** [all] Error 2
+-------------------------------
+
+
+
+
+
+
+

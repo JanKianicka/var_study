@@ -1,0 +1,491 @@
+# Notes from reading the CATS documentation:
+Albert Brouwer's page -very comprehensive:
+http://confluence.ctbto.org/pages/viewpage.action?pageId=56499192&src=contextnavpagetreemode
+Powerpoint presentation:
+http://confluence.ctbto.org/download/attachments/56499192/CATS_Detailed_Nov_2016_v6.pdf?version=1&modificationDate=1515328659126&api=v2
+A lot is in GitHub issues and wiki page - there are more than 100 issues, most of them are closed.
+
+Interesting is also cats/build/generic-build-and-test-launcher.sh with
+its comprehensive header description.
+
+Backups are stored here on the master:
+118G	/apps/scratch/FULL-2019-03-31_03-00/
+118G	total
+
+Meeting with Thomas on 2.4.2019:
+Just a few important notes we were talking about:
+- we have now two instance of CATS, each maintained by different persons - TST/OPS and DEV - Thomas/Kainda
+- we have not also interactive application tested using Sikulix -
+- we have agreed on making me accessible the OPS cats by providing you with my ssh key (Done already - thank you)
+- there are still jobs which produces randomly wrong results, one of them was just ordering on application level
+  revealed during porting to RH 6.10 and there are some more. We will dig into these in near future.
+- Jenkins is not fully integrated into CODs and Jira project to support full workflow
+- Ilia Dricker is working on different memory leaks revealed during system testing.
+- there COD pipeline for CDTools, plugging for nexus did not work, calling of REST api is used instead
+  See the job configuration cdtools-master-db-unit-deploy. 
+- there is also a Docker usage under investigation - have a look on docker-test2 - it is testing already
+  RH 7.5. It is possible to connect via VNC and see the started ARS.
+  (I will like to have a closer look on this work.)
+- there is pending fix for ampid issue already developed and tested by Zuehlke guys (see SIM-681),
+  On quick look I do not see it included into a release DRC nor any DCR has been prepared yet.
+
+
+Recorded answers after meeting with Thomas on 9.4.2019.
+Questions:
+CATS_Q1: what means 'staging pipeline' and what role it has in CATS?
+A_Q1: Staging area is basically the devLAB environment, used for preparing new black-box test or new version of the test.
+      There are for example two devLAB machines - devlab01, devlab02 used for cdtools running in separate environment.
+      Albert Brower was using his 'staging area' to develop new bbox test in:
+      /dvlscratch/SHI/brouwer/run_for_maxpmf/
+
+CATS_Q2: Are there some scheme files in cats repo still?
+A_Q2: Not any more, all scheme files are deployed from ibase so far.
+      There is ongoing effort to split the ibase repository to four repositories, which are already placed on GitHUB:
+      git@github.com:ctbtosa/shi-automatic.git - for automatic tools
+      git@github.com:ctbtosa/shi-interactive.git - for interactive tools
+      git@github.com:ctbtosa/ibase-widgets.git - libraries for interactive applications only
+      git@github.com:ctbtosa/ibase.git - stripped out ibase (probably master branch)
+      git@github.com:ctbtosa/dfx.git - stripped out DFX only
+      Find out if this effort is scheduled and whether it has a DCR already.      
+
+CATS_Q3: Configuring of pipeline which communicate between Jenkins and GitHUB is done by means of 'Blue Ocean' plugin?
+         By what means, how it is possible to integrate without SSL certification and encryption of HTTP protocol?
+         What is the current pipeline say for ibase and how is it configured?
+A_Q3: Blue Ocean on OPS machine is not used, there is just an experimental pipeline for cbase.
+      However, Kainda on DEV machine is using it intenzivelly.
+
+CATS_Q4: I have by chance noticed that generated pdf does not match with GitHub wiki - for example
+         Could not find whole chapter titled "Testing Interactive Applications".
+A_Q4: The cats.pdf was updated by Thomas in the 'cats' repo.
+      There is cats/doc/buil.sh script, which has to be extended in case new chapter on wiki appears.
+
+CATS_Q5: How looks like Jira tickets of CATS - A. when released version fails, B. when developers version fails.
+A_Q5: Publishing of Jira tickets was turned off and there were issues with customized Plugins (Jira-plugin).
+      Automatically generated Jira issue looks like e.g.:
+      http://its.ctbto.org/browse/CATSDEVEL-2266 - from DEV instance - there is only cats hash and basically no information availble
+      http://its.ctbto.org/browse/CATSPROD-298 - from OPS instance where is summary description, but are missing more details
+      of failed test.
+      There is remark by Hemluth, that email notifications is enough and Jira tickets shall be created latter by hand.
+      However, whole this integration is part of the system, and for continuous integration of operation version
+      of the system would be good to have ticket generation automation on place - generating of high priority issues.
+
+
+CATS_Q6: For developers when system black/box tests are running, how are maintained the reference data, eventually 
+         new input data.
+A_Q6: As a reference results any 'commitish' object from the internal ctbto 'cats-data-robot' can be used.
+      Currently there are only a few branches in use, but in repository there is 48 branches.
+      We can consider cleanup and removing some of the branches.
+      For playing arround and development of changes which modifies results is good to use local instance,
+      copy robot data to reference targets and use manuall comparisions. Only after deliver submit DCR to include
+      new version of robot results to the git repository.
+
+CATS_Q7: Have you ever tried to use the cats_pipeline repository, where is described the procedure.
+         Is anyhow addressed this TODO from Albert
+         Consider creating a manageable alternative such as an extension of the Station Tuning framework.
+A_Q7: cats_pipeline repository was not really used - it is supposed to be used for preparing of data for different new bbox tests.
+      Albert have used this pipeline for maxpmf implementation.
+      Otherwise it is possible to get input data directly from dvl system, or from archive from a representative event.
+      Have a look also on Station Tuning Framework implemented yet by Albert. It is available:
+      gitadm@git.ctbto.org:station_tuning
+      It is basically CATS but with normal Oracle database accessed as so called QANDEF snapshot.
+      See readme file.  
+
+CATS_Q8: As I remember, there was such mechanism in Black-box tests, that by each run
+         full Oracle instance was reinstalled - bundled/unbundled - is this still valid, or
+         bundling/unbundling takes place only during installation?
+A_Q8: Yes, by each run the Oracle XE is reinstalled locally.
+
+CATS_Q9: Do you know something about Jenkins jobs ssi-test? It is failing and I do not have permission
+         to see the GitHUB repository ctbtosa/ssi-builder.git
+A_Q9: This job is very likelly obsolete anymore. Thomas will confirm with stackeholders and move it to 'old' tab.
+
+CATS_Q10: There is DFX stand alone repository in GitHUB. It appears as an effort to split the ibase repository
+          vertically - by application. Was this effort finished and we have the DFX application in a separate 
+          repository?
+A_Q10: Yes, the effort of splitting took place - see answer to Q2.
+
+CATS_Q11: How it is with Git LFS repositories.  It looks like Git lfs
+          is not part of the linux baseline, I do not have it available
+          on my linux workstation.
+          On CATS operation machines as user cats I do not have permission to execute git lfs.
+          > [cats@alv207 targets]$ pwd
+          /apps/data/robot/targets
+          [cats@alv207 targets]$ git lfs env
+          fatal: cannot exec 'git-lfs': Permission denied
+          Who and how is actually executing the clones and checkouts - everything is owned by cats user.
+
+          Also looks like repository 'cats-data-robot' was moved from
+          GitHUB to CTBTO git and Git LFS is not use for this repo
+          anymore.
+A_Q11: In order to have available GIT LFS local cats's git has to be used by this means:
+       [cats@alv200 targets]$ source ~/.catsrc
+       (python)[cats@alv200 targets]$ which git
+       /apps/bin/git/bin/git
+
+CATS_Q12: I see that robot results and different workspace artifacts are collected
+          to the master Jenkins machine:
+          /apps/data/jenkins
+          in a directory tree with runs:
+          [cats@tlv109 jenkins]$ ls jobs/ibase-github-zuehlke-devel-cbase/builds/
+          100  102  104  106  108  110  92  94  96  98  lastFailedBuild  lastSuccessfulBuild  lastUnsuccessfulBuild
+          101  103  105  107  109  111  93  95  97  99  lastStableBuild  lastUnstableBuild    legacyIds
+          This single jobs has up to 1.7GB.         
+          The robot results are displayed in the browser:
+          http://cats.ctbto.org:8080/view/Z%C3%BChlke/job/ibase-github-zuehlke-devel-cbase/96/robot/report/report.html
+          but I have to add CSP - content security policy exception.
+          Where there is such vulnerability?
+          It looks there is executed some outer content in Jenkins or is there running some other web server?
+          can not we somehow fix this issue of displaying the results?
+A_Q12: There is set limit for 'thin backups' to only four weeks, and on the master Jenkins machine, there is enough
+       disk space.
+       Might be problem with some slaves. Some of the jobs have now specified nodes where they can run, and
+       this preserves the disk occupation.
+       However, some cleanup would not be bad.
+       Regarding CSP security issue, Thomas has no clue why there is this problem, and does not use Robot results,
+       but works directly with results on the machines.
+
+
+CATS_Q13: How can I download the artifacts from operational Nexus repository:
+          nexus01.test.ctbto.org
+          (I have looked on your COD job - cdtools-master-db-unit-deploy, and there in the execute shell
+           there are stored credentials through which I can access the nexus repository.)
+A_13: Test(dev) nexus repository (which is currently integrated e.g. for cdtools) does not have limited permissions.
+      Now operational Nexus requires authentification for downloading artifacts.
+      TEST(DEV) instance: http://nexus01.test.ctbto.org:8081/
+      OPS: https://nexus.ctbto.org/
+
+CATS_Q14: There is full backup of jenkins workspace by each weekend and deletion done automatically.
+          This is driven by configuration of the Thin backup plugin.
+          I was about to ask some details, if you maintain these backups or if you ever had to recover
+          Jenkins from the backup files.
+A_14: Yes, thin pluging is configured such that holds only last four one-week backups.
+      There was issue during upgrade of Jenkins attempt when some of the resources had to be recovered from backup.
+      Kainda has worked out the procedure for correct upgrade of Jenkins
+
+CATS_Q15: Generated Jira tickets are send to this Jira from the production machine:
+          http://its.ctbto.org/projects/CATSPROD
+          However, browsing the issues, I see some CATSPROD tasks for
+          cdtools - all of them created and put to state resolved.
+          And a lot of bugs all of them also closed. Reporting shows there were no issues created in last months.
+          Is actually this automatic mechanism already used for development/production testing?
+          If possible could you give me some details how and where the publishing is configured in CATS?
+A_15: As replied before, this mechanism is not used nor configured.
+      It is possible to configure publishing and format of the Jira ticket contend by each job of Jenkins 
+      by means of Jira-plugin.
+
+CATS_Q16: The same is valid for 
+          http://its.ctbto.org/projects/CATSDEVEL/
+          when executing report with newly created issues, nothing is open. 
+          Does it work, is it functional? 
+          There is list of open issues, but they are not assigned to anyone and are quite old.
+A_16: As replied before, it is not on place any more.
+
+Inputs for planning:
+1. According Albert's notes, we have two instances of CATS:
+   dev - dlv020 - now responsible for this instance is Kainda Daka.
+   tst,ops - tlv112 - responsible is currently still Thomas Fabian
+
+2. From Albert's documentation there is one big toto - for development of the new tests:
+   Consider creating a manageable alternative such as an extension of the Station Tuning framework.
+
+Farhter set of questions to Thomas:
+CATS_Q17: I see that in operations CATS there are no credentials used to authenticate to GitHUB nor to internatl CTBTO git server.
+          This means that Jenkins is running under user 'cats' which have direct access to these services?
+          In credential part there are several entries for user cats, admin, jenkins, catstest. 
+          How are these used, are they used to communicate with external services like Jira, workers or GitHUB via Https?
+A_17:
+Yes, authentification to CTBTOSA github and CTBTO git server is realized by ssh key on system level.
+jenkins user is used for Nexus, and 'catstest' is used for Jira, which is turned off.
+admin?? 'jenkins' users are many, because we do not know which is the actual one in use.
+There is room for cleanup and improvement here.
+
+CATS_Q18: For development purpose what ssh keys are you using for work with GitHUB and 'cats' user?
+A_18: Yes, we use it like this, there will be issue with cats-data-robot, we will need two keys for authentication.
+
+CATS_Q19: Have you got your RH 7 worker with IDC baseline? Can we get the list of packages from somewhere?
+When running the install baseline script, I have a lot of "No package" of the name available.
+A_19: Yes, the machine was set up with IDC baseline, you can request the list from IDC system administrator.
+Thomas recalls that during set up of his machine, there was issue with only one package which had to be removed 
+from the list - Centos 6.x.
+
+CATS_Q20: I would like to have fully green unit tests, blackbox tests and all tests for 'operations' version of
+SHI software - particularly ibase and its dependencies.
+Could you help me if such job is already configured?
+I see mostly just GitHUB development configurations with 'master' branches and even split ibase repository.
+Plus, do we have tagged configuration versions which can be checked out from ctbto git server?
+Plus which is the right committish of cats-data-robot repo for such verification job?
+A_20: This is an issue - cats development by Thomas and others did not reflect the backward
+compatibility. Regarding cats-data-robot comittish, this corresponds mostly to the branch
+'github-master-reference-quick' but even the reference job on CATS OPS have ended up
+as unstable with failing tests.
+We have decided to implement backward compatibility to be capable to test also
+current 'operations' version of ibase.
+
+
+CATS_Q21: If I want to run black box tests locally from command line
+and want to use my own clones of config repositories, how to do that
+and how it works, could you show me then?
+A_21: Whereas Thomas does not have direct access to CTBTO internal Git,
+he does clones and copies them locally.
+I have switched by local 'cats' user on dev machine to use my own ssh keys and thus
+have access by means of cats automation also to configuration repositories.
+
+CATS_Q22: Question about RH 6.10 and RH 7 workers - what was the approach to specify the baseline.
+I see you have referenced in the ticket SD-5375 ATM server plus there is the small list for support
+of interactive applications:
+"for testing of interactive applications the following packages are installed: epel-release, wmctrl, xdotool, tesseract-devel"
+My impression is that one of the major goals is to support testing for NDC-in-box,
+does this project have some baseline for the Centos 7 VMs?
+Plus, did you have to add some packages for the baseline for normal RH 6.10 workers when they were upgraded?
+A_22: I did not request adding packages after the upgrade to
+6.10. Only for geotoolqt testing I requested additional packages but I
+can not remember exactly if it was before or after upgrading, I
+beleave it was before, I can search the ticket in Jira.  When I
+requested the RH7 VM there was no baseline defined ad therefore it got
+stuck and the VM was not provided because the asked me to define a
+baseline which I can not do. But Martin told me that he got VMs with
+RH 7 and therefore I told Balazs he should do it like he did for
+ATM. I expect that several packages might be missing, but this will
+turn out when the migration work starts.
+For RH 6.10 was requested VNC in addition - for verification of
+interactive tests.
+
+
+CATS_Q23: During troubleshooting of bbox tests on my local dev machine, when I frogot to make reload of oracle scheme, I had this error when running local test DFX-origamp:
+---
+IMP-00015: following statement failed because the object already exists:
+ "CREATE TABLE "AMPID_USED" ("AMPID" NUMBER(10, 0) NOT NULL ENABLE)  PCTFREE "
+ "10 PCTUSED 40 INITRANS 1 MAXTRANS 255 STORAGE(INITIAL 65536 NEXT 1048576 MI"
+ "NEXTENTS 1 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT)              "
+ "      LOGGING NOCOMPRESS"
+Import terminated successfully with warnings.
+
+ SQL> create or replace type IDC_ID as
+*
+ERROR at line 1:
+ORA-02303: cannot drop or replace a type with type or table dependents
+---
+I percive there is implemented the solution for ampid overflow, which is also just pending development.
+Could you give me some more details?
+My concern is how this new feature is implemented and whether we can reliably test the sofware
+which does not implement yet workaround for ampid overflow?
+
+A_23: The stored procedure that is used for that is installed in the
+database before running the test and removed after the test. This is
+done in the run.sh script for each test that uses this method.
+cats/oracle/createStoredProcedureLastid.sh
+cats/oracle/removeStoredProcedureLastid.sh
+Called in these tests:
+blackbox/tests/shi-automatic/maxpmf/run.sh
+blackbox/tests/shi-automatic/IDC_Pipeline/run.sh
+blackbox/tests/dfx/DFX-detection/run.sh
+blackbox/tests/dfx/DFX-noiseamp/run.sh
+blackbox/tests/dfx/DFX-origamp/run.sh
+blackbox/tests/dfx/DFX-evch/run.sh
+blackbox/tests/dfx/DFX-recall/run.sh
+This change is backward compatible with the operations software version,
+bacause there is no modification of DB interface, just extension.
+
+CATS_Q24: When trying to run the bbox tests with the new sofware on Friday, it ended up with
+the failing test:
+/home/cats/workspace1/shiscripts/bin/start program=analyst_log
+/home/cats/workspace1/shiscripts/bin/start: Command not found.
+sleep 10
++ LD_LIBRARY_PATH=/apps/bin/opencv/install/lib
++ /apps/bin/sikulix/runsikulix -r analyst_log.sikuli
+./analyst_log/run.sh: line 69: /apps/bin/sikulix/runsikulix: No such file or directory
++ import -compress jpeg -window root analyst_log_after.jpg
++ exit 1
+
+which means running bbox test impicitelly includes also interactive tests.
+I though it is somehow separated that I should be capable to run just back-end blackbox tests.
+A_24: At first Thomas have thought to separate GUI tests by having
+different bbox tests names - runGUI.sh, but latter decided to
+incorporate them as bbox tests.  Yes, this is correct. The test of
+interactive applications are run by default and part of our continuous
+integration jobs. It sould be described in the documentation how to
+set up Sikulix. If you want to run a subset of the tests you can used
+the RUN_BLACKBOX_TESTS_REGEXP variable.
+
+CATS_Q25: I have executed manually 'ibase-github-master-reference-quick' on OPS CATS instance.
+However, there were several test which have failure - particularly
+DFX-detection-seismic-20160106-quick - which has different number of records in Apma table
+dtk-pmcc - which actually did not produce any output
+You already claim that quick tests should have no failures. What is the correct configration
+of the job to reach such status?
+A_25: DFX-detaction is known issue which was resolved by decision to
+limit number of output arrivals and regenerate the reference in
+'cats-data-robot'repository.  But issue with dtk-pmcc is bigger, it
+just does not work with latest release to github, which is quite big
+release. Many tousands files changed.  Thomas has modified the
+reference job to point to the certain version of dtk-pmcc in past to
+have the green status.
+Thomas reply: As discussed in the standup meetings the difference in
+the Apma table for DFX detection is due to
+https://itscore.ctbto.org/browse/SIM-969 I have to update the target
+results but did not do it yet because the DTk-PMCC tests are not
+working at the moment (after the the latests update of the DTK-pmcc
+code. This is covered by
+https://itscore.ctbto.org/browse/SIM-1064. Unfortunately I don’t see
+how to fix it at the moment. I will probably use an older revision of
+DTK-Pmcc to update the target results.
+
+CATS_Q26: During rebuild I have this issue with latest ibase:
+---
+error: Your local changes to the following files would be overwritten by checkout:
+	libsrc/libidcbeamrecipe/test/Makefile.am
+Please commit your changes or stash them before you switch branches.
+---
+From the makefile was removed TESTS_ENVIRONMENT and TESTS variables.
+How could this be, which process has done it?
+A_26: This is overcame by having in each job wipping of whole code
+repo from the workspace. Would be good to extend the generic builder
+and runer script.
+
+CATS_Q27: I have attempted to run extended tests of libwaveformqc, but have impression it is
+not even supported. Have this error:
+---
+Libwaveformqc_in_DFX_Tests::performqc2_persistqc1_qc_waveforms_allError: Could not find or load main class org.apache.tools.ant.launch.Launcher
+ : assertion
+Libwaveformqc_in_DFX_Tests::performqc2_persistqc1_transaction_rollbackQSqlQuery::prepare: database not open
+"QODBCResult::exec: No statement handle available" 	Error: " [unixODBC][Driver Manager]Can't open lib '/var/tmp/cats/bin/oracle/product/11.2.0/xe/lib/libsqora.so.11.1'
+---
+But can not track correct setup of input configuration into 'make check' command.
+See ibase/README and one also in dfx as I recall.
+---
+$ make check TEST_DB_USER="user" TEST_DB_PWD="pwd"
+
+        optional parameters 
+        - TEST_DB_SID - SID of the database (default="udb")
+        - TEST_DB_DSN - DSN of the database (default="udb")
+A_27: This an observer issue of backward compatibility of the CATS system.
+With client version 12.2 this test works. But it was proved that Oracle 11.2.0
+is not longer functional when running DB_UNIT_TESTS.
+
+CATS_Q28. There is instantly failing unit test in cbase in libstdtime, why it is not fixed and all
+related jobs put to zero failure tolerance?
+Also why there are disabled also tests in ibase/libsrc/libidcbeamrecipe by patching in the generic builder script?
+A_28: libstdtime is fixed in github master. Jobs that use gihub the tolerance should be set to zero.
+For libidcbeamrecipe Thomas is not aware of the reason and whether the issue is still there.
+We should open the ticket to investigate this unit tests.
+
+CATS_Q29: Looks like there is something wrong with the job - cdtools-master-noodbc-unit.
+It was executed on cats-worker06-database-RH7 node, where we know unit test do not run correctly.
+This is obvious also from latest log file.
+However, build is green. And we should exclude RH 7 node from operational use yet.
+A_29: we have fixed this configuration to exlude RH7 node from the list.
+
+CATS_Q30; docker-test2 - is running in the docker container 'docker_slave' which looks lile is
+temporally creating a docker image for example in last ran was called docker_slave-0005byiji4pz2 on docker_slave
+and has created temporal workspace in:
+/apps/data/workdir/workspace/docker-test2
+which I did not found on any of the workers.
+This means the workspace is removed after successfull run? In this case I do not have possibility to return to the
+workspace for investigations.
+How can I found on which physical worker was actually the jobs executed?
+A_30: In general system configuration in Jenkins, there is block:
+Cloud - Docker, which establishes the connection to 192.168.17.2:2375
+which is devlab02.
+There is installed docker and is set up such that 40 GB docker container can run there.
+(This integration should be recorder in the deployment diagram).
+There is also difference that docker runs under user 'jenkins, therefore in order to investigate
+we have to connect to devlab02 as jenkins:
+> ssh jenkins@devlab02
+Listing of current processes:
+> sudo docker ps
+Listing of docker images:
+> sudo docker image ls
+Ours is this one:
+REPOSITORY                                        TAG                 IMAGE ID            CREATED             SIZE
+...
+jenkins-ssh-slave                                 latest              792fe224900b        3 months ago        41.4 GB
+...
+residing on the file system:
+/dev/mapper/alv607-docker                         100G   59G   42G  59% /var/lib/docker
+
+CATS_Q31: Why for some jobs is removed ibase/libsrc/libidclog before SCM runs?
+A_31: There were issues with libidclog - therefore for some jobs it had to be removed due to segfault.
+Instance of two threads were used 30. Then different error was happing - still and error, files with
+invalid names - jenkins was not able to delete such files - this was workaround.
+SIM-1001, SIM-574, SIM-1043, SIM-785.
+This issues are fix in github master. But in operational system the library is prob. not used in the multithreaded environment.
+There is still one issue in the backlog.
+
+CATS_Q32:There is a bit scarry appearing job configured by Wolgang Sommerer -
+niab-config-cats - mixing ctbto-git, github versions and different
+branches of different code and config repositories.
+And moreover implementing various hacks in shell. Switching oracle client versions
+for certain actions.
+Is this how software is delivered to NDCs?
+Why there are such hacks and how can NDCs use two versions of Oracle clients?
+Why there is no strightforwrd dependency - say we deliver 'testbed' or 'operiations' version of the sofware - or some special release clearly tagged?
+A_32: Would be good to let ENIAB jobs to life their own life in the CATS.
+For time being not to fully support in e.g. generic builder script.
+They can decide about versions and branches.
+
+CATS_Q33: For some jobs there is used CTBTO-git version of 'cats' repository instead of
+github version. Why and what is the difference. Should we not always use just Github version?
+A_33: Thomas is keeping internal CTBTO cats repository
+up-to-date. First verifies the changes in cats repo in GitHUB and then
+pushes it to CTBTO internal server. There should be more stable and
+functional version.  Also aspect of automatically triggering by SCM
+change of two many jobs is considered here.
+
+CATS_Q34: In the job 'seiscomp3-github-cats' in additon to supported set of repos 
+also eniab and seiscomp3 repositories are build. Do we have some policy which and
+how new reposities are included into generic-build-and-test-launcher.sh?
+A_34: eniab and seiscomp3 for time beeing will not be covered by the cats build scripts.
+Wolfgnag will have full access and responsibility for this Jenkins job.
+
+CATS_Q35: On master node of OPS CATS there is stored backup of 'old_jobs'
+/apps/data/jenkins/old_jobs comprising 14GB of diskspace.
+Could we do something to gain this disk space?
+Do we need this backup of the old jobs with their builds?
+A_35: Thomas has cleaned this directory a little bit and compressed the jobs workspaces.
+
+CATS_Q36: Why we have in gbase and geotool special 'cats' branch and do not maintain
+GitHUB master branch to be compatible e.g. with master branch in ibase and ibase-widgets?
+TODO here - contact HE regarding these tests he has implemented and also Wolfgang Sommerer why
+we can not keep just master branch.
+A_36: This question remains open - we have to talk about this and tests with Wolfgang.
+
+CATS_Q37: Why for GeotoolQT is used master branch of gbase and for geotool 'cats' branch as mentioned in the previous
+question?
+A_37: Again question to Wolfgang.
+
+
+Requested workers for DEV instance
+RH 6.10 worker node for DEV CATS
+---------------------------------
+Dear System Administrator, dear CTBTO Service Desk,
+I would like to request new worker node for Development instance of Continuous Automated Testing System (CATS) which has now only one shared master/slave worker: dlv020. 
+It should be RedHat 6.10 corresponding to pending RedHat 6 migration with standard IDC baseline installed.
+In addition for interactive applications testing we need:
+epel-release, wmctrl, xdotool, tesseract-devel
+Would be good, if it corresponds to this worker of the OPS CATS instance: dlv022 
+with ~300 GB disk space, 15 GB of memory, 2 proc cores.
+We will need to have technical user 'cats' created and given permission to access this user via SSH key authentication to these persons: Thomas Fabian, Kainda Daka, Jan Kianicka.
+The new machine will be attached as a worker to DEV CATS's Jenkins: http://dlv020.idc.ctbto.org:8080
+If you have any questions, do not hesitate to contact me.
+Thank you very much
+Jan Kianicka
+
+RH 7 worker node for DEV CATS
+-----------------------------
+Dear System Administrators, dear CTBTO Service Desk,
+I would like to request additional worker node for DEV CATS instance with RH 7 operational system.
+This is for future development and supporting in sense of automatic integrated tests for projects NDC-in-the-box and potential deliveries of different IDC software which requires RH 7 version. 
+The machine should correspond to already provided RH 7 worker node, but used in Operational (OPS) CATS: alv519
+~130 GB disk space, 15 GB memory, 2 proc cores
+Regrading installed baseline the new worker should correspond to alv519 plus packages needed for interactive applications testing:
+epel-release, wmctrl, xdotool, tesseract-devel
+We will need to have technical user 'cats' created and given permission to access this user via SSH key authentication to these persons: Thomas Fabian, Kainda Daka, Jan Kianicka.
+The new machine will be attached as a worker to DEV CATS's Jenkins: http://dlv020.idc.ctbto.org:8080
+We need this additional node to conduct offensive experiments on CATS DEV whereas alv519 is attached to OPS CATS (http://cats.ctbto.org:8080) which already provides operational service for development teams and soon for Continuous Delivery project.
+If you have any questions, do not hesitate to contact me.
+Thank you very much
+Jan Kianicka
+
+
+
+
