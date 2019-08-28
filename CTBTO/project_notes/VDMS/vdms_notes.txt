@@ -1,0 +1,1105 @@
+# Verification Data and Products Messaging System (VDMS)
+# Collecting documentation and available information about the system
+# May 2019, June 2019
+
+Plan:
+# Quick collection of information
+# Reading available documentation
+# Study of DVL deployment and experiments
+# Meetings with VDMS people and team members
+
+------------
+# Quick collection of information
+Confluence page and related documents:
+  http://confluence.ctbto.org/display/VDMS/Home
+
+This is interesting:
+http://its.ctbto.org/browse/DCR-3180
+- there are issues to bring VMDS functional on new RH 6.10 - looks like it is blocking the RH 6.10 release.
+
+Orginal ICR with deployemnt notes:
+  http://its.ctbto.org/browse/ICR-762
+
+VDMS repositories:
+  git@github.com:ctbtosa/new-message-subsystem.git
+  vdms-utilities - on our ctboto gitolite server
+  nms_config - on our gitloite server
+  nms-cots - on our gitolite server
+
+new-message-subsystem - characteristics:
+size: 473M
+lines of bash code: 1886
+lines of python code: 154 178
+lines of c-code: 16 294[c], 1557[h]
+
+----------
+# Recordings from documentation and DVL deployment
+1. Deploment details
+
+Software is installed into this path on DVL:
+> /dvl/software/shared/nms
+Environment is sourced from these environment files
+> /dvl/software/shared/nms/nms_home/env/nms_bashrc
+> /dvl/software/shared/nms/nms_home/env/msgsys.env
+credentials and values of important env variables are stored in user 'auto': ~/nms/nms_auto.env
+We do not have access to this file.
+
+msgsys.env contains these blocks:
+     GLOBAL
+     LOG
+     DB
+      SHI OP
+      SHI ARCH
+      mptable
+      RN OP
+      CALIB OP
+      RN ARCH
+      shared
+      Mail adapter
+      Watchdog
+      Prod
+      Subscription
+     Products
+     Subscription
+     Mail box
+     Http Server
+     Wavereader
+     Pyro port
+     Python
+     Oracle
+     Keys
+     Setup and Deploye env var
+     Extra
+     List of application servers
+nms_home/conf/nms_user_services.conf
+contains additonal details for 'watch dog', DB connection, request service, subscription service
+
+Have readonly access to the passwords - we can try to initia the environment:
+/home/misc/auto/nms/nms_auto.env
+
+
+Structure of the deployment in:
+/dvl/software/shared/nms/nms_home
+	|-> bin - binaries and scripts
+	|-> conf - configuration files
+	|-> data - empty
+	|-> env - environment
+	|-> etc - command line client, documentation, templates for data *.tpl - e.g. shi_channel_template.tpl, or shi_sel_bull
+	|-> include/python2.6 - link to python header files
+	|-> lib/python2.6 - contains mixed local and shared installation of python packages
+	|-> logs - empty
+	`-> waveform - empty
+
+WaveReader for retrieving waveform data. After coping nms_auto.env from auto home directory
+successfully executed the following sequence:
+- switch to 'nms' environment:
+> bash
+> source /dvl/software/shared/nms/nms_home/env/nms_bashrc
+> $NMS_THIRD_PARTY/bin/waveReader -p $NMS_THIRD_PARTY/conf/waveReader.par -n u'I18H1:BDF,I18H2:BDF' -b '2015/09/29 06:00:00.000' -e '2015/09/29 08:00:00.000' -f CM6
+- dumped waveform data to stdout
+
+# Database connections
+There are many database end points, let's check some of them.
+
+DVL mapping for 'padd' user - user does not own any tables, seems it is used for accessing the data
+   database: SHI OP
+     $SHI_USER=padd_d_shi
+     $SHI_HOST=extodb.ctbto.org
+     $ORACLE_HOME=/cots/oracle/oracle-11.2.0.3
+       from tnsnames.ora we see: HOST = limbo.ctbto.org, SERVICE_NAME = extodb.ctbto.org
+
+   database: Prod engine - 'padd_eng' user does not contain any tables, all tables are in schema PADD,
+                           however, interesting is that e.g. DB user 'auto' can see different tables in the same
+			   PADD and PADD1 schemas.
+     $NMS_PROD_DB_USER=padd_eng
+     $NMS_PROD_DB_HOST=ptsdev
+       from tnsnames.ora we see: HOST = mycelium.ctbto.org, SERVICE_NAME = ptsdev.ctbto.org
+We will need to make comprehensive map of all DB connection, distinguish read-only, read-write access for VDMS request/subscription part.       
+
+In new-message-subsystem.git we have several DB installation scripts:
+'db_create_oracle.sql' and convenience script is this one:
+./nms_server_dist/bin/update_oracle_db.sh
+
+Looks like VDMS is using something like a local cache.
+Determined by env variable. Random check shows like it is not used very much.
+$NMS_DATA /dvl/msgsys_cache containing this sctructure:
+  attachments
+  compress
+  file_poller_working_dir
+  http_msg
+  ltr
+  nms-unittest
+  nms_acq
+  nms_rewrite_cache
+  nms_te_store
+  nms_vdms_cache
+  nms_wsgi_cache
+  reprocessor_folder
+  reprocessor_working_dir
+  waveform
+5.0 GB of data there.
+
+# Start and stop of the system - procedure is nicelly documented in:
+$NMS_HOME/bin/start_nms.py
+the sequence described by Cyrille:
+  Watching the running system:
+  ----------------------------
+  We have basically three python VDMS services:
+  1. Queue - this has to start - most simple, does not have any DB.
+  2. Mail adapter - mail_adapter - listen to IMAP  - we need to have connected to IMAP, and account there.
+  3. Watch dog which is spwaning production engine server instances.
+  
+  Then we need apache and one standard appache module that is needed to integration with VDMS
+  apache_token_authorization.py
+  apache_token_authorization2.py (this is in the appache configuration)
+  
+  Configuration is in /dvl/software/shared/nms/nms_home/conf/apache_django_service.conf
+
+# For user management, in order to run quieries user has to be registered
+in SSO - there are two SSO infrastructures at IDC - OPS/TST one and DEV (devlan) one.
+I have personal account in OPS/TST and could send requests via CLI.
+And there are shared technical users - pdtest03 and pbtest05.
+
+Second condition is that the user must be registerd in VDMS in PADD.MSG_USER table.
+This is also implemented and done by SSO portal automatically.
+Only then a user can:
+A. - send CLI requests
+B. - email requests and subscriptions.
+
+In the table there is also daily quota by default set to 4GB.
+This can be reset by the script quota_monitoring.py --reset -u <userid>
+
+# Logs
+Start up logs: /dvl/logs/shi/nms/
+Have this structure:
+---
+-rw-rw-r--. 1 auto      auto      19596891 Jun 28 07:54 startup_watch_dog_error.log
+-rw-rw-r--. 1 auto      auto       6911328 Jun 28 07:53 nms_keep_alive.log
+-rw-rw-r--. 1 auto      auto      19158077 Jun 28 07:53 startup_nms_mail_adapter_error.log
+-rw-rw-r--. 1 auto      auto       3911868 Jun 28 07:53 startup_queue_error.log
+-rw-rw-r--. 1 auto      auto             5 Jun 28 07:53 mail_adapter.pid
+-rw-rw-r--. 1 auto      auto             5 Jun 28 07:53 watch_dog.pid
+-rw-rw-r--. 1 auto      auto             5 Jun 28 07:53 queue_server.pid
+-rw-rw-r--. 1 auto      auto             6 Jun 28 07:53 keep_alive_tool.pid
+-rw-rw-r--. 1 auto      auto             0 Jun 28 07:53 startup.log
+-rw-rw-r--. 1 auto      auto           256 May 21 08:19 startup_queue_server_error.log
+-rw-r--r--. 1 auto      auto        101851 Aug 21  2017 monitor_vdms.log
+-rw-r--r--. 1 auto      auto        440247 Aug  8  2017 monitor_acq.log
+-rw-rw-r--. 1 auto      auto       1722436 Mar 15  2017 nms_calibration_sync.log
+-rw-r--r--. 1 nfsnobody nfsnobody    42242 Apr 15  2016 apache_token_authorization.log
+-rw-rw-r--. 1 auto      auto             5 Nov 11  2014 acq_message_processor.pid
+-rw-rw-r--. 1 auto      auto             5 Nov 11  2014 acquisition_receiver_server.pid
+-rw-rw-r--. 1 auto      auto             5 Nov 11  2014 acq_scheduler.pid
+-rw-rw-r--. 1 auto      auto             6 Nov 11  2014 acq_keep_alive_tool.pid
+-rw-rw-r--. 1 auto      auto             5 Nov 11  2014 station_registry.pid
+drwxrwxrwx. 2 auto      auto          4096 Oct 23  2014 nms_rewrite_cache/
+drwxrwxrwx. 2 auto      auto          4096 Oct 23  2014 nms_wsgi_cache/
+drwxr-xr-x. 2 auto      auto          4096 Sep 10  2014 cx_Oracle-5.0.1-py2.6-linux-x86_64.egg-tmp/
+drwxr-xr-x. 3 auto      auto          4096 Aug 26  2014 simplejson-2.1.1-py2.6-linux-x86_64.egg-tmp/
+drwxrwxrwx. 5 auto      auto          4096 Feb 28  2014 apache/
+drwxr-xr-x. 3 auto      auto          4096 Feb 14  2014 M2Crypto-0.21.1-py2.6-linux-x86_64.egg-tmp/
+-rw-rw-r--. 1 auto      auto             0 Dec 12  2013 nms_watch_dog.log
+drwxr-xr-x. 3 auto      auto          4096 Dec  9  2013 SQLAlchemy-0.7.9-py2.6-linux-x86_64.egg-tmp/
+-rw-rw-r--. 1 auto      auto             0 Feb 14  2013 acq_startup.log
+drwxrwsr-x. 2 auto      auto          4096 Dec 14  2012 dvl-nms/
+-rw-r--r--. 1 nfsnobody nfsnobody     3400 Dec 10  2012 apache_nms_prod_error.log
+-rw-r--r--. 1 nfsnobody nfsnobody        0 Dec  6  2012 apache_nms_prod_access.log
+-rw-rw-r--. 1 auto      auto          2907 Nov 19  2012 startup_watch_dog_server_error.log
+drwxr-xr-x. 3 auto      auto          4096 Nov 14  2012 pycrypto-2.1.0-py2.6-linux-x86_64.egg-tmp/
+---
+In the subdirectories are *.so libraries.
+
+cx_Oracle   is a Python extension module that enables access to Oracle Database.
+simplejson  is a simple, fast, complete, correct and extensible JSON <http://json.org> encoder and decoder for Python 2.5+ and Python 3.3+.
+M2Crypto    is the most complete Python wrapper for OpenSSL.
+SQLAlchemy  is the Python SQL toolkit and Object Relational Mapper that gives application developers the full power and flexibility of SQL.
+pycrypto(Python Cryptography Toolkit) is a collection of both secure hash functions (such as SHA256 and RIPEMD160), and various encryption algorithms.
+
+Syslog is configured in nms_config for the core components:
+These are configuration files:
+nms_config/nms/conf/logging_mail_adapter.conf
+nms_config/nms/conf/logging_nms_watch_dog.conf
+nms_config/nms/conf/logging_calibration_sync.conf
+nms_config/nms/conf/logging_user_services.conf
+nms_config/nms/conf/logging_user_services.authorization.conf
+nms_config/nms/conf/logging_nms_management_client.conf
+nms_config/nms/conf/logging_production_engine.conf
+nms_config/nms/conf/logging_nms_queue.conf
+---
+These are output log files:
+/dvl/syslog/2019-07-04/ctbt.msgsys.acq_message_processo
+/dvl/syslog/2019-07-04/ctbt.msgsys.acq_scheduler
+/dvl/syslog/2019-07-04/ctbt.msgsys.acquisition_receiver
+/dvl/syslog/2019-07-04/ctbt.msgsys.mail_adapter
+/dvl/syslog/2019-07-04/ctbt.msgsys.nms_queue
+/dvl/syslog/2019-07-04/ctbt.msgsys.nms_watch_dog
+/dvl/syslog/2019-07-04/ctbt.msgsys.production_engine
+/dvl/syslog/2019-07-04/ctbt.msgsys.station_registry
+
+# Tracer
+It is VDMS common componet which keeps track of events.
+MSG_TRACE_TABLE
+---
+5386466	20	Job 1653560: job status has changed to: RUNNING	1363595	1653560	SUBSCR_DELIVERY	1513121822.65
+5386489	20	job 1653564;priority 2;queued 3.237;processing 15.372;te_data 0.017;te_format 0.0;publish 12.094		1653564	SUBSCR_DELIVERY	1513122137.04
+
+# databases:
+COD-203 - information collected by Evangelos
+
+OPS users from nms_bashrc
+ padd_p_shi - mapped to NMS variables SHI_USER, SEISCOMP_USER, SEISCOMP_ARCH_USER
+ padd_p_pidc - mapped to NMS_WAVE_PIDC_USER, PIDC_STATIC_SCHEMA
+ padd_p_rn - mapped to RN_USER
+ padd_p_wave - mapped to WAVE_USER
+
+Readwrite schema is PADD in ptsprod (Service name).
+
+Readonly schemas and thei mapping to CATS schemas:
+ STATIC - cats_static
+ SEL1 - cats_sel1
+ SEL2 - cats_sel2
+ SEL3 - cats_sel3
+ IDCX - cats_idcx
+ ONNEA - 
+ RMSAUTO - 
+ RMSMAN -
+ LEB - cats_leb
+ PIDC - 
+ PIDC_R3_STATIC -
+ REB - cats_reb
+
+However, random check of CATS schema tables by no means corresponds to full tables in the IDC database.
+We will need to step-wise expand the database to support different scenarios.
+
+Whole schema where tables are created is loeaded in CATS by a single dump file
+and we can not even see what all tables are created.
+${CATS_ORACLE_SCHEMA} - default-schema-20160106.dmp
+Documentaiton how this dump was generated is in cats/oracle/README.
+
+Different connections of devlan VDMS:
+
+Different connections of Edwards dev unit test VDMS:
+
+
+
+
+
+# VDMS request-subscription and partially VDMS acquisition sub-systems - Question Answers list
+---
+VDMS_Q0: Even reading the documentation I did not get high level use cases of whole system and its two core
+         components - VDMS(NMS) request part, VDMS(NMS) acquisition part
+	 can we got through core high level use cases and then point out stanard/custom components
+	 of the VDMS infrastructure.
+
+VDMS_A0: Important is to explain abrevations:
+         NMS - New Message Subsystem
+	 originally comprisinng two independent sub-systems - A. Serving of Requests and Subscriptions,
+	 B. Acquistion sub-system acquiring data from Radionuclide Stations and chosen Rusian Seismic stations,
+	 When NMS was reimplemented in Python its installation part was divided into
+	 two separate installations and renamed to VDMS (NMS should be obsolete in spite is used everywhere in
+	 the code and low level technical documentation).
+	 However, source code is shared and maintained in a single git repository - 'new-message-subsystem'.
+
+         We focus on from now called VDMS-Request/Subscription component
+	 installed into
+	 /$LAN/software/shared/nms/nms_home
+	 in certain level we omitt addressing these two other components in this stage of the project
+	 /$LAN/software/shared/nms/nms_acq_home/
+	 /$LAN/software/shared/nms/nms_calib_home/
+	 which covers acquisition part and communication with the stations - sending calibration requests.
+
+	 Main Use Cases - VDMS - Request/Subscription component
+	 UC1: Register subscription - registered uses can send subscription email for defined products
+	      Then when new data will arrive, they are processed and send to the user automatically.
+	      (does not need Apache HTTP server - just Mail adapter)
+	 UC2: Request data by email
+	      Registered user send the request email to dedicated VDMS email account, and recieves
+	      data by replay email or if the data are too big, VDMS provides just URL link to compressed
+	      data on the VDMS Apache server.
+	      (Does need Apache HTTP server for big requests)
+	 UC3: Process request by command line client
+	      Autheticated user is allowed to exetcute command line client CLI and to retrieve
+	      requested data locally
+	      Command line client is executed from VDMS installtion and its environment, request is send
+	      via HTTP RPC method on local VDMS Apache server, and as RPC responce is returned file with the
+	      data
+	 UC4. Serve all subscriptions
+	      There is a background process serving all subscriptions.
+	      When new data arrive to IDC, they are recorded into:
+	      IDCX.DATREADY
+	      VDMS reacts on new data and serves all subscriptions by sending data to
+	      the customers according their subscriptions.
+	 UC5. Register new VDMS user
+	      System administrator via Secure Web Portal register new user
+	      to the VDMS system. 
+
+VDSM_Q0_1: We need to verify usage of HTTP Apache and Mail adapter for different scenarios yet.
+           We need to verify instances of the DATAREQUEST tables - which are actually used.
+
+VDMS_Q0_2: Where and how are users registered into VDMS. How they are verified.
+           How we will test this aspect in CATS, shall we use devlan infrastructure or have just local
+	   CATS user for testing.
+
+VDMS_Q1: What are the repositories of VDMS system and what role they have and who is maintaining them?
+         I see four repositories:
+         - new-message-subsystem
+         - vdms-utilities (https://ols008.ops.ctbto.org:8443/summary/vdms-utilities.git)
+	 - nms_config (https://ols008.ops.ctbto.org:8443/r/config/nms_config.git)
+	   seems like this configuration is duplicate and obsolete, directly in new-message-subsystem we have
+	   two groups of full configuraiton in
+	   new-message-subsystem/nms_server_dist/env/
+	   new-message-subsystem/nms_lite_server_dist/env + conf
+	   and production configuration was found also here
+	   nms_production_engine/resources/main/
+	   random check of for example nms_queue.conf revealed that in /dvl there is installed queue configuration
+	   from this location.
+	 - nms-cots (https://ols008.ops.ctbto.org:8443/r/nms-cots)
+	   do not have perissions to clone this repository. Looks like there are some small utilities
+	   e.g. mod_wsgi, openldap, openssl or swig.
+VDMS_A1: The main repository for both VDMS system components - request-subscription and acquisition component
+         is 'new-message-subsystem'. We deal with installation of only 'nms_home' component.
+	 Looking at two instances of the repository - in CTBTO Gitolite server and in Github.
+	 From Evangelos I have learned that there is a bit disorder in branching.
+	 Moreover, there are various feature branches which is impossible to merge to the master branch
+	 and also the latest version is stored in CTBTO git server without any branch name.
+	 Moreover, VDMS Request/Subscription part is developed separatelly as Acquisition part and
+	 meanwhile they are sharing one repository.
+	 The impression is that this system in current situation is impossible to maintain nor test.
+
+	 'new-message-subsystem' status:
+	 Github branches:
+	 -------
+	 github/2.3.1.X
+	 github/2.3.X
+	 github/2.4.3_kpi-support
+	 github/2.4.X
+	 github/2.5.X
+	 github/3.0.X
+	 github/HEAD -> github/master
+	 github/RH6.10fix
+	 github/S54
+	 github/change_quota
+	 github/channels_sta_info
+	 github/develop
+	 github/enhanced_bulletins
+	 github/feature/VDMS-129
+	 github/fix_acceptance_tests
+	 github/imap_fix_3.0
+	 github/imap_fix_3.0-RC11
+	 github/importer_fixes
+	 github/importer_fixes2
+	 github/issue517
+	 github/maintenance1.1
+	 github/master
+	 github/master_no_tmp_table
+	 github/multiline_sta_list
+	 github/new_execsum
+	 github/nms_client3
+	 github/nseb
+	 github/nseb_subscription
+	 github/rnps3.0
+	 github/start_keypair_daemon
+	 github/vdms_141_prodname
+	 github/vdms_151
+	 github/vdms_81
+	 
+	 Ctbto server branches:
+	 --------
+	 ctbto/20130221
+	 ctbto/ACQ_RC8
+	 ctbto/DCR_1688
+	 ctbto/DCR_1749
+	 ctbto/DEVLAN
+	 ctbto/HEAD -> ctbto/master
+	 ctbto/IDC_2.3.1
+	 ctbto/dcr_1912
+	 ctbto/dcr_1950
+	 ctbto/dcr_1989
+	 ctbto/feature_DCR-3122
+	 ctbto/icr_462
+	 ctbto/master
+	 ctbto/testbed
+
+	 As on 27.6.2019 the latest release was:
+	 http://its.ctbto.org/browse/DCR-3146
+	 http://its.ctbto.org/browse/ICR-1330
+	 reflected as latest tag without branch in ctbto git server and
+	 by not mergable feature branch in github, 'imap_fix_3.0-RC11'.
+
+	 'vdms-utilities' contains different scripts documented also on
+	 the VDMS confluence page, but mostly not used anymore.
+	 We have again two a bit divergent repositories in ctbto and github.
+	 Fom content according Manachem only these scripts are in use:
+	 getcrt.pl - I gues this the one: /$LAN/software/shi/scripts/bin/getcrt
+	 - this is not true, getcrt is maintained in shiscripts repository.
+	 So without installation sometimes these scripts are in use
+	 by a PE:
+	 analyze_acq_messages.pl
+	 send_requests.pl
+
+	 'nms_config' is present only in ctbto git server and contains
+	 deployment configuration which is replaced in 'nms_home/conf' directory.
+	 See the deployment procedure in the DCR/ICR.
+	 It has standard CTBTO branches:
+	 devlan, testbed, operations, master
+	 E.g. devlan branch contains this sctructure:
+	 .
+	 ├── certs
+	 │   ├── acq
+	 │   ├── history
+	 │   ├── IDC-CERT.pem
+	 │   └── pts_ca.pem
+	 ├── lan_auto.env
+	 ├── messageAPI
+	 │   ├── messageAPI_config.par
+	 │   └── sensorinfo.txt
+	 ├── nms
+	 │   ├── conf
+	 │   └── env
+	 ├── nms_acq
+	 │   ├── bin
+	 │   ├── conf
+	 │   ├── env
+	 │   ├── etc
+	 │   └── sql
+	 ├── nms_stand_alone_client
+	 │   ├── bin
+	 │   ├── conf
+	 │   └── env
+	 └── waveReader
+	     └── waveReader.par
+	 And copied over is nms/conf and nms/env
+	 Containing:
+		calibration_sync.conf
+		logging_calibration_sync.conf
+		logging_mail_adapter.conf
+		logging_nms_management_client.conf
+		logging_nms_queue.conf
+		logging_nms_watch_dog.conf
+		logging_production_engine.conf
+		logging_user_services.authorization.conf
+		logging_user_services.conf
+		nms_mail_adapter.conf
+		nms_management_client_acq.conf
+		nms_management_client.conf
+		nms_management_client_req.conf
+		nms_production_engine.conf
+		nms_queue.conf
+		nms_user_services.authorization.conf
+		nms_user_services.conf
+		nms_watch_dog.conf
+		subscription_importer.conf
+
+	 Checking conf files in new-message-subsystem we can see the source when generating
+	 installation package:
+	 - just counting *.conf files we have 190 files.
+	 E.g. apache django configurations we have as following:
+	 ./nms_lite_server_dist/conf/apache_django_service.conf
+	 ./nms_user_services/resources/main/apache_django_service_ssl.conf
+	 ./nms_user_services/resources/main/apache_django_service.conf
+	 ./nms_user_services/resources/main/apache_django_service_dev.conf
+	 ./nms_user_services/resources/test/apache_django_service_local.conf
+	 Or for the nms_queue component:
+	 ./nms_lite_server_dist/conf/nms_queue.conf
+	 ./nms_lite_server_dist/conf/logging_nms_queue.conf
+	 ./nms_production_engine/resources/main/nms_queue.conf
+	 ./nms_production_engine/resources/main/logging_nms_queue.conf
+	 In case of appache django configuration, this is not taken from nms_config
+	 repository but one of conf files from new-message-subsytem is taken.
+	 For nms_queue.conf it is first depoyed with the source code and
+	 then replaced by version from nms-config.
+	 
+         'nms-cots' and its third party binaries are not in use any more.
+	 The general impression is that whole
+	 /$LAN/software/shared/nms/usr is obsolete and can be cleaned except of
+	 the waveReader.
+	 
+VDMS_Q1_1: What is the actual content of nms_config repository and why only nms part is deployed.
+
+VDMS_Q1_2: We are deploying and testing 'nms_server_dist' and 'nms_client'
+           what contains these other distributions in the repository
+	   'nms_lite_server_dist'
+	   'nms_stand_alone_dist'
+	   
+	 
+VDMS_Q2: There is mentioned abrevation NMS and whole system is installed into:
+         /ops/software/shared/nms/
+	 Installation of monitoring scripts, e.g. /$LAN/software/shi/scripts/bin/monitor_vdms_logs.pl
+	 does not exists anymore. Seems like whole system is installed into:
+	 /ops/software/shared/nms/
+	  `->nms_acq_home
+	  `->nms_home
+
+	 I have localized getcrt.pl documented on confluence page. It is this script:
+	 /$LAN/software/shi/scripts/bin/getcrt
+	 monitor_vdms_logs.pl and analyze_acq_message.pl I have not found.
+
+VDMS_A2: Scripts from vdms-utilities repository are not installed any more.
+         /$LAN/software/shi/scripts/bin/getcrt is not the one from vdms-utilites, but from shiscripts.
+	 According new proposed nomenclature we have installations in:
+	 /$LAN/software/shared/nms/nms_home - VDMS request-subscription component
+	 /$LAN/software/shared/nms/nms_acq_home - VDMS acquistion component
+	 /$LAN/software/shared/nms/nms_calib_home - VDMS calibration synchronization
+	 /$LAN/software/shared/nms/nms_stand_alone_home - ???
+	 /$LAN/software/shared/nms/usr - shared third party binaries of which only waveReader should be in use
+
+VDMS_Q2_1: Would like to learn more about nms_calib_home and calibration synchronization.
+
+
+VDMS_Q2.2: When playing arround with the script getcrt, I see it is trying to connect to
+           the testing LDAP server with my local user retrieved by 'whoami' command.
+	   pkilab3.test.ctbto.org is not reachable.
+	   Does this server exists?
+	   How actually is this script used in the target solution?
+
+VDMS_Q2.3: When switched to our standard default LDAP server, ldap.ctbto.org
+           and running under our technical user 'cats' who has access to
+	   the LDAP server, we could connect but did not retrieved any stations certificates.
+	   This is the call:
+	   ---
+	   [cats@dlv020 ~]$ ./getcrt -l
+
+	   Working directory: /home/misc/cats
+	   LDAP Server: ldap.ctbto.org -l 5
+	   OPENSSL: /usr/bin/openssl
+	   LDAPSEARCH: /usr/bin/ldapsearch
+	   user: cats
+	   
+	   
+	   LDAPSERVER is alive. Please wait.......
+	   
+	   The following are the valid station names in LDAP
+
+
+VDMS_Q3: These are the structures of 'nms' directories in /dvl, /tst, /ops
+         What does it mean, each release is installed into a separate directory?
+
+	 /dvl/software/shared/nms/
+		nms_acq_home/
+		nms_acq_home_1.1-RC6_obsolete/
+		nms_acq_home_1.1-RC7/
+		nms_acq_home_1.1-RC8_20181010/
+		nms_acq_home_1.1-RC8_20181015/
+		nms_acq_home_20141120/
+		nms_acq_home_DCR-2288/
+		nms_acq_home_DCR-2288_20151030/
+		nms_acq_home_DCR-2288_20151118/
+		nms_acq_home_DCR-2288_20151123/
+		nms_acq_home_DCR-2757_obsolete/
+		nms_acq_home_pre_DCR-2557/
+		nms_acq_home_pre_DCR-2695/
+		nms_acq_home_pre_DCR-2757/
+		nms_acq_home_pre_DCR2677/
+		nms_calib_home/
+		nms_calib_home_pre_DCR-2587/
+		nms_home/
+		nms_home.bkp/
+		nms_home_20141120/
+		nms_home_20150514/
+		nms_home_20150901/
+		nms_home_3.0-RC10a_20181126/
+		nms_home_3.0-RC10b/
+		nms_home_3.0-RC10c_post_RHL610/
+		nms_home_3.0-RC14/
+		nms_home_3.0-RC2/
+		nms_home_3.0-RC3_20160128/
+		nms_home_3.0-RC4/
+		nms_home_3.0-RC6/
+		nms_home_3.0-RC8/
+		nms_home_3.0-RC8_obsolete_20161005/
+		nms_home_3.0-RC9/
+		nms_home_3.0_RC15/
+		nms_home_3.1-RC2_failing/
+		nms_home_DCR_2372_20151109/
+		nms_home_pre_dcr_2334/
+		nms_home_pre_dcr_2560/
+		nms_stand_alone_home/
+		usr/
+
+	 /tst/software/shared/nms/
+		nms_acq_home/
+		nms_acq_home_pre_ICR-1261/
+		nms_acq_home_pre_ICR-928/
+		nms_acq_home_pre_ICR-987/
+		nms_calib_home/
+		nms_calib_home_20151203/
+		nms_calib_home_20160210/
+		nms_calib_home_20170316/
+		nms_calib_home_PRE_ICR-890_20161123/
+		nms_home/
+		nms_home_2.5-RC10_20160205/
+		nms_home_20160428/
+		nms_home_3.0-RC10/
+		nms_home_3.0-RC10b/
+		nms_home_3.0-RC10c/
+		nms_home_3.0-RC6/
+		nms_home_3.0-RC7/
+		nms_home_3.0-RC8/
+		nms_home_3.0-RC9/
+		nms_home_ICR-635_20150423/
+		nms_home_ICR-701_20150916/
+		nms_home_ICR-701_20151006/
+		nms_home_V3-RC4_20160413/
+		nms_home_pre_ICR-725_20151112/
+		nms_home_pre_ICR-733_20151117/
+		nms_stand_alone_home/
+		usr/
+
+	 /ops/software/shared/nms/
+		nms_acq_home/
+		nms_acq_home_20141208/
+		nms_acq_home_acq_1.0/
+		nms_acq_home_pre-ICR-1261/
+		nms_acq_home_pre_ICR-929/
+		nms_acq_home_pre_ICR-995/
+		nms_calib_home/
+		nms_home/
+		nms_home_2.5-RC10_20160223/
+		nms_home_3.0-RC10/
+		nms_home_3.0-RC6/
+		nms_home_3.0-RC7/
+		nms_home_3.0-RC8/
+		nms_home_3.0-RC9/
+		nms_home_3.0_RC4/
+		nms_home_3.1-RC1/
+		nms_home_ICR-633_20150416/
+		nms_home_ICR-640_20150507/
+		nms_home_RH5/
+		nms_home_RH6/
+		nms_home_pre_icr717/
+		nms_home_temp/
+		nms_stand_alone_home/
+		usr/
+		usr_pre_icr717/
+
+VDMS_A3: Accoridng DCR/ICR procedures it is done such that before installing new version
+         whole previous version is backed up to the backup directory with previous release
+	 indentification - PE has to know the release version.
+	 VMDS request/subscription component and VDMS acquistion component is depoyed independently
+	 in spite they share the code base in new-message-subsystem git repository.
+
+VDMS_Q4: What everything contains directory /$LAN/software/shared/nms/usr, particularly
+         /$LAN/software/shared/nms/usr/bin
+	 e.g. waveReader is part of nms installation from the git repository:
+	 new-message-subsystem/wave_reader
+	 but where come from for example binaries:
+	 ldapcompare*
+	 ldapdelete*
+	 ldapexop*
+	 ldapmodify*
+	 ldapmodrdn*
+	 ldappasswd*
+	 ldapsearch*
+
+VDMS_Q5: What contains directory:
+	 /dvl/software/shared/nms/nms_stand_alone_home/
+	 the structure is simillar like in 'nms_home', but reduced. Is it some special stand-alone
+	 installation? Is it up to date with standard installation?
+	 I thought VDMS is running in python virtual environment.
+
+
+
+VDMS_Q6: I browsed also through the Acquistion System documentation and wanted just to check the database schema.
+         Using public idcx access as well as my udb account on mycelium.ctbto.org Oracle server.
+	 I have not found any user nor table resembling ACQ_* objects.
+	 Where are the tables of particularly acquistion system?
+	 How can I access them at least read-only. Probably the same also for VDMS system case.
+	 ---
+	 select owner, table_name from all_tables where table_name = 'ACQ_MSG';
+	 select owner, table_name from all_tables where table_name like 'ACQ%';
+	 ---
+	 gave zero results.
+
+VDMS_Q7: Admin Guide of VDMS - In Figure2 there is displayed Queue server.
+         What is this queue server? Some third party product or some component
+	 implemented directly in VDMS python environment?
+
+VDMS_Q8: Admin Guide of VDMS - Figure 3 - which components are custom implemented in VDMS?
+
+VDMS_Q9: When trying to simulate 'NMS' environment I see that
+         /dvl/software/shared/nms/nms_home/nms_bashrc
+	 is sourcing $HOME/nms/nms_auto.env
+	 which is installed only for the user 'auto'.
+	 How can we preprae different local environment for VDMS?
+
+VDMS_Q10: msgsys.env - contains this variable SEISCOMP_ROOT. Does this means there is any relation between VDMS and Seicomp3 software?
+
+VDMS_Q11: msgsys.env - there are configured several accounts, how and for what purpose are they used?
+
+VDMS_Q12: msgsys.env - products are stored in the user home directory /home/misc/rmsops
+          'rmsops' user has some special role in the processing?
+
+VDMS_Q13: msgsys.env - oracle home is pointing to oracle-11.2.0.3
+          does this mean that VDMS was not yet ported to Oracle 12.2 client?
+
+VDMS_Q14: In nms_home/etc/templates are template files, what they are
+          serving to and what is their syntax - on internet I found
+          for example tpl 'Smarty' syntax, but these templates do not
+          seem to following this standard.
+
+VDMS_Q15: Directories nms_home/data, nms_home/logs, nms_home/waveform are empty.
+          As far as we know VDMS is using syslog. What these directories server for?
+	  Are they still in use?
+
+VDMS_Q16: Playing around with nms_client - seeing:
+	  new-message-subsystem/nms_client/conf/nms_client.conf
+	  There is whole configuration for verification available, and http apache server:
+	  https://msgsystest.ctbto.org/nms_user_services/xmlrpc/
+	  this server is not reachable, could it be resumed?
+	  nms_client/conf/nms_cred
+	  nms_client/conf/nms_ca.crt
+
+VDMS_Q17: In the appache server there is installed dedicated component serving RPC?
+          How this component is set up, where is implemented/documented.
+
+VDMS_Q18: In new-message-subsystem/nms_user_services/ seems the actual 'xmlrpc' is implemented.
+          In /dvl/software/shared/nms/nms_home/conf/nms_user_services.conf
+	  is the configuration. How it is, is dvl-msgsys.ctbto.org different machine where is
+	  installed one more instance of VDMS to serve this?
+	  
+	  nms_home/conf/apache_django_service.conf contains local configuration for local Apache server
+	  and mod_wsgi and Pyro is configured there.
+	  WSGI stands for 'Python Web Server Gateway', Pyro is 'Python Remote Objects'
+	  how are these components installed? From nms-cots repository?
+
+VDMS_Q19: Not all startaup logs are owned by the user 'auto'. Apache logs are owned by user 'nfsnobody'.
+          What is this user, apache http server is running under this user?
+
+VDMS_Q20: In nms_bashrc there is combination of Oracle DB users and hosts. In CATS there is small snapshot of
+          SHI database not matching full content what VDMS will be using. Is there a way how to retrieve
+	  list of user.table names to prepare Oracle dump for CATS?
+
+----
+Quick notes from Meeting with Cyrille Bonnet on 12.6.2019 - first glance of the complexity of the system.
+Start with installation - try to create the archive and build, install the NMS subsystem.
+new-message-subsystem README file on Github.
+1. Creation of archive for installation:
+https://github.com/ctbtosa/new-message-subsystem/tree/master/nms_server_dist
+python setup.py dist <server_name>
+this create dist folder and
+https://github.com/ctbtosa/new-message-subsystem/blob/master/nms_server_dist/src/nms_install_utils.py
+this takes the code and put it in into a big archive.
+
+
+# on 14.6.2019 attempt to build new-message-subsystem repository according the procedure in the readme file.
+On my machine 'dlv022'I successfully did the following:
+1. Sourced the copied environment
+> bash
+> source /dvl/software/shared/nms/nms_home/env/nms_bashrc
+> source /dvl/software/shared/nms/nms_home/env/msgsys.env
+
+> export NMS_PROJECTS_HOME=/git/kianicka_new/new-message-subsystem
+> export GIT_INSTALL_DIRNAME=/git/kianicka_new/install/nms
+> export SERVER_LIST=dlv022
+> export GIT_ROOT_DIR=git
+> export GIT_ADM=kianicka_new
+
+Built the nms repository:
+> pushd $NMS_PROJECTS_HOME
+> ./scripts/build_nms.sh dlv022
+
+Installed local python virtual environment
+> cd $GIT_INSTALL_DIRNAME
+> ./bin/nms_virtualenv-bootstrap.py /git/kianicka_new/install/nms/nms_python
+
+This created these two local outputs:
+  > ls -1 $GIT_INSTALL_DIRNAME
+  nms_python
+  nms_server_dist
+  nms_server_dist.3.1-RC3-py2.6.tar.gz
+  > ls -1 $GIT_INSTALL_DIRNAME/nms_server_dist
+  bin
+  conf
+  env
+  etc
+  lib
+  script
+  sql
+  waveform
+  > ls -1 $GIT_INSTALL_DIRNAME/nms_python
+  bin
+  conf
+  data
+  env
+  etc
+  include
+  lib
+  lib64
+  logs
+  waveform
+
+
+Request access to VDMS project in Jira.
+Reuqest SSO access to all VDMS Apache servers.
+With Yuri arrange registration of me as VDMS user on devlan.
+  
+# Technical support from Edward - running the 'dev unittest' instance on dlw022 on 9.7.2019
+First of all Edard had shared with me the credentials and machine configuration
+for dlv018. And I have successfully attempted to launch this instance of VDMS.
+Edward has prepared for me this special DCR:
+http://its.ctbto.org/browse/DCR-3219 (there is procedure for VDMS-request-subscription part and VDMS acquisition part.
+Configuration he provide for me is put into our shared folder here:
+J:\idc projects\COD_VDMS\EdwardsConfigs
+Credentials for special user for this instance of VDMS system were copied from dedicated user 'nmsgsys'.
+/home/smd/nmsgsys/nms
+
+Detail procedure with essential notes is below in the section
+
+# dlv unittest instance running on my dlw022 workstaiton - jun 2019
+
+# Technical meeting with Yuriy Kotselko about SSO and authentication mechanism - 8.June 2019
+There is issue with authorization of the commmand line client on
+devlan instance of VDMS - authrization does not work. However, Youriy
+confirmed SSO works well.  Edward said there is some special file
+maintaned by puppet deployed to the apache server by sysadmins which
+will need to be system administrators.
+Apache configuration is this file:
+/dvl/software/shared/nms/nms_home/conf/apache_django_service.conf
+this file is in several places in new-message-subsytem repository. However, there is probably obsolete and
+is not deployed via DCR/ICR by PE. Menachem said it is maintained by Yuriy. Yuriy is not failier with this file and
+concrete apache configuration.
+In order to set up borders of responsibility and where actually is border of the VDMS system and web/SSO infrastructure
+we have to understand more details. My immpression we have some 'gap' here - would be better to have overlap of competencies and knowledge.
+
+Yuriy said - we have too options how to set up new instance on devlab5 machine:
+A. Try to install it without SSO integration using local apache users.
+and to change the way how URL is called and using the header with username/password
+This will be case for CATS anyway.
+Interesting is this code:
+nms_admin/src/nms_admin/security/nms_security.py
+there is handling of SSO header (HTTP_HTTP_OBLIX_UID).
+Integration is based on django, apache and mod_wsgi technologies - see e.g.:
+https://docs.djangoproject.com/en/2.2/howto/deployment/wsgi/modwsgi/
+For details how current infrastructure was set up see:
+http://its.ctbto.org/browse/ICR-719 - mapping of DNS names
+Border of VDMS and SSO systems are such that VDMS apache is in charge of VDMS team and sysadmins,
+Yuriy is taking care of 'WebGate' and 'Load Balancer' - see the figure 2 in Administrator guide of the system.
+But we should be capable to access VDMS XMRPC calles also directly with direct
+authentication - may be:
+https://dlv018.idc.ctbto.org/nms_user_services/xmlrpc
+
+B. Other option is to set up whole SSO integration as for two devlan instances
+- but probably to integrate it into TST/OPS SSO infrastructure
+This would require:
+1. new rules for new machine in firewall and DMZ
+2. configured new machine in Load Balancer and Web Gate
+3. all has to be approved by the security officer
+
+We need to meet/work with system administrators to resolve current apache issues.
+We need to resolve at least option A and to approve the final set up of devlab machines.
+
+# Preparing second dev unittest instance - PADD2 schemas:
+Dear Robert,
+First of all thank you very much for providing us with revived PADD2 VDMS users.
+I have modified passwords and tested authentication as following:
+
+  -- works with the original reset password --
+  sqlplus padd2_shi@idcdev
+  sqlplus padd2_shi@extodb
+  sqlplus padd2_shi@extadb
+  -- works with the original reset password -- 
+  sqlplus padd2_wave@idcdev
+  sqlplus padd2_wave@extodb
+  sqlplus padd2_wave@extadb
+  -- works with the original reset password --
+  sqlplus padd2_rn@idcdev
+  sqlplus padd2_rn@extodb
+  sqlplus padd2_rn@extadb - does not have account
+  -- works with the new reset password matching the previous accounts --
+  sqlplus padd2_pidc@extodb
+  sqlplus padd2_pidc@idcdev - does not have account
+  sqlplus padd2_pidc@extadb - does not have account
+
+Password was set to match configuration entries in 'dev unittest' instance of VDMS dedicated for dlv018. However, dlv018 is by default using PADD1 schema and adjacent padd1_* users, official devlan instance of VDMS running on dlv019 is using PADD schema and padd_* users.
+Passwords for padd1_* and padd2_* users are stored in:
+/home/smd/nmsgsys/nms/nms_auto.env
+You can close the ticket as done.
+Jan
+
+Follow up ticket DBA-1268 - missing users to run VDMS REQ-SUB system:
+PADD2_SSO - done
+PADD2 - done
+PADD2_ENG - done
+PADD2_IN - done
+PADD2_MA - done
+PADD2_WATCH - done
+I put for all these user the same password as for padd2_shi...
+
+
+# VDMS - working on integration of the unit tests and making them run on devlan
+- potentially integrated into CATS
+
+Coordination and technical meeting with Cyrille Bonnet - harmonization of build procedures and unit test integration - 22.8.2019
+Meeting minutes of technical coordination meeting - phone call with Cyrille Bonnet which has taken place on 22.8.2019.
+Discussed topics:
+ - capability to run unit/integrated tests of new-message-subsystem repo on devlan with potential to be launched also in CATS system
+ - interface between CATS system and new-message-subsystem - simplification and unification of build launch procedure
+
+1. We have agreed to adress this work by Jira Core user stories under management roof of Edward Wokabi
+   - there exists already ticket: https://itscore.ctbto.org/browse/VDMS-195 - Support for unit tests to CATS
+   Jan will create subtasks including more detail description to break down the work in this direction.
+   VDMS-196 Implement interface scripts and preparation of environment for unit tests
+   VDMS-197 Implement execution of unit tests which do not need Oracle db nor any other service
+   VDMS-198 Implement execution of db unit tests in VDMS REQ-SUBS which need Oracle but not other installed resources - draft
+   VDMS-199 Implement exectuin of db unit tests in VDMS REQ_SUBS which need also specialy deployed file resources - draft
+   VDMS-200 Implement execution of db unit tests in VDMS REQ-SUBS which launch waveReader - draft
+   VDMS-201 Implement execution of db unit tests in VDMS REQ-SUBS which launch Seiscomp3 binaries - draft
+   
+2. What we are trying to do when bringing unit/integration tests from separate environment to CATS is in fact handing over
+   this separate testing environment from Cyrille to us.
+   When Cyrille comes in September he will bring:
+   - Docker image with ready-to-use Oracle XE database - ~70GB
+   - Pertaining resource files - several houndreds of MB (RN messages from various stations, waveforms)
+
+   In order to integrate with Jenkins it is would be convenient that unit tests
+   publish results in a standard XML with assertion details.
+   There are several options supported by CATS already:
+   e.g. JUnit reports (quick found implementation options https://stackoverflow.com/questions/11241781/python-unittests-in-jenkins)
+   for most of libraries we use xUnit plugin and simple xUnit xml syntaxt published from various software platforms
+   (https://google.github.io/rich-test-results/xunitxml)
+   and for example for geotool we use Test Anython Protocol (https://testanything.org/, https://pypi.org/project/tap.py/)
+   Preferred is JUnit XML syntax.
+
+3. Running on devlan is to integrate them into IDC infrastructure.
+   We are establishing new Third VDMS environment on devlan for this purpose which when finished will be clearly described and
+   shared with COD and VDMS team. We have padd2* Oracle users ready to use, request for new Linux/IMAP account 'nmsgsys2' is pending.
+
+   Before this is done - Cyrille and Jan will use their Linux accounts and
+   work in separate environments in /git/kianicka_new, /git/bonnet respectivelly.
+   Cyrille will implement increment and Jan will test it from skratch in his account/directory/environment.
+
+   The launching of unit tests on devlan must not depend on any other resource
+   than installed on OS, available in /cots/ (oracle client), Oracle database restricted to padd2 users only,
+   shared waveforms and rn data (for this would be better to have more independent envirnment - e.g. having already
+   waveforms and rn data used by unit test on different genuine place - but this can be thought through yet)
+
+   Important - unit test should not rely on any resources from /dvl/software/shared/nms
+   because it is already different installation - particularly third party components and their configurations.
+   (e.g. Seiscomp binaries, messageAPI, waveReader) should be build/deployed into separate environment also on devlan.
+   Built from source code, configuration taken/patched from nms_conf - might be also thought through - but unique and only place
+   for configuration is good - or if there is different pattern for VDMS it could be reflected - however, it must be clear
+   where everywhere e.g new configuration parameter shall be added.
+   But - duplicate of conf files, creating tar ball with source code from other git repositories under our control, duplicate
+   build procedures copied over from one git repo to other should be avoided.
+
+4. Defining of interface.
+   In CATS we have generic script cats/build/generic-build-and-test-launcher.sh which does:
+   - cloning of repositories (if running without Jenkins using metafile)
+   - building of clonned repositories
+   - according input env parameters launches different types of tests unit/bbox/valgrind/coverage tests
+
+   It is convenient to encapsulate complexities of particular repositories into the
+   ./build script
+   Good example is in ibase: https://github.com/ctbtosa/ibase/blob/master/build
+
+   It is also convenient that this script is the single robust - well documented build/install tool.
+   So it should be used for - built launch and unit tests on devlan, in CATS and also for build and deployment of the runtime system
+   during delivery - it should replace other scripts and tools in the new-message-subsystem repository.
+
+   Combination of input parameters in generic-build-and-test-launcher.sh:
+     build and local deployment (make install) is executed by default
+     RUN_UNIT_TESTS=1 - not supported at the present, unit tests are executet always,
+                        but I want to revive it in order to have more options during testing (some unit tests might be demanding).
+                        Launches unit tests which do not depend on any external resources (e.g. database).
+     RUN_DB_UNIT_TESTS=1 - launches unit test, plus unit tests which requires also Oracle DB
+     RUN_BLACK_BOX_TESTS=1 - launches verification pipelines implemented in cats system and Robot framework is used to verify the results.
+                             (this hopefully once will be such that we will have in CATS slave VDMS REQ-SUBS runtime with local Mail/apache server and
+			      automated representative requests with CLI client, email requests and using Robot templates to verify returned data)
+     RUN_EXTENDED_TESTS=1 - works in junction with black box tests - it executes processing pipelines for bigger data samples where
+                            several days of data are processes (e.g. all DPRK sample data) and processing takes even several days.
+			    (for VDMS I see potential to map this switch to performace testing of VDMS)
+     RUN_COVERAGE=1 - turns on unit test coverage report (using gcovr and Cobertura) - we want to include also this report in VDMS
+     RUN_VALGRIND_TESTS=1 - profiling - we can consider different memory profiles for python
+
+   Interface and proposed structure of the new-message-subsystem/build script:
+   Implement in bash "Bourne Again Shell - #!/bin/bash on RedHat6.10/Centos6.10" (not for example C-shell or some other flawor)
+   Shall reflect following input arguments in order to be easily integrated into
+   (as reference have a look on https://github.com/ctbtosa/ibase/blob/master/build
+    script)
+   build environ=IDC/CATS module=[ALL, or VDMS_REQ-SUBS, VDMS_ACQ, VDMS_CLI] target_machine="dlv019"/"olv106"
+     build at IDC $LAN either build all modules/components or restrict build to particular module e.g. VDMS REQ-SUBS
+     or build for CATS worker (might be different in various aspects - e.g. java version and path)
+   build environ=IDC/CATS test_type=UNIT module=ALL
+     build and execute all unit tests do not required Oracle/LDAP nor other special service and in all modules
+     'module=VDMS_REQ-SUBS' will execute unit tests related only to nms_server_dist and its dependencies.
+   build environ=IDC/CATS test_type=DB_UNIT module=ALL
+     build and execute all unit tests and all integrated tests which require Oracle database and in all modules
+   build environ=IDC/CATS test_type=UNIT_COVERAGE module=ALL
+     build and execute all unit tests without Oracle database with coverage reporting turned on
+   build environ=IDC/CATS test_type=DB_UNIT_COVERAGE module=ALL
+     build and execute all db unit tests with coverage turned on
+     
+   Using of QUICK/EXTENDED tests discrepancy we can introduce latter if there will be need to do so.
+
+   For building and running unit tests please extract these actions into separate scripts (functions):
+   - install python virtual environment for unit tests - e.g. new-message-subsystem/install_python_unit.sh
+   - source file to switch to this virtual environment - e.g. new-message-subsystem/unitenvrc which shall be sourced after installation
+   - checks of resources - e.g. new-message-subsystem/unitenv_check
+     which will check availability of Oracle, users, files needed etc.
+     this is to distinguish failing tests from environment defects
+     can be also implemented as on of unit/integration tests
+     but should be executed at first
+   Listing of unit tests to categories - A. unit or B.unit db (integrated) tests should be extracted into a internal config file
+
+   Cyrille - please create dedicated/shared development branch in the github/new-message-susbsystem repository branched from 'master',
+             proposed name:  'vmds_cod_integration' 
+	     I will request to become also VDMS developer and will contribute to Cyrille's branch by branching feature branches
+	     thus Cyrille/Edward will be integrator of these features. 
+	     In cats repository we are working in github/cats - vmds-integration branch and Thomas Fabian will be integrator.
+	     When done first functional increment - we merge to the 'master'.
+   Please keep comatible and still fully functional scripts in:
+   new-message-subsystem/scripts/
+   because in transiftion period they still be in use.
+	     
+5. Incremental inclusion and delivery of unit/integrated tests.
+   
+   - first implement first version of build and pertaining scripts
+   - execution of unit tests which do not need any services like e.g. Oracle
+   - execution of db unit tets using Oracle but which do not special external data sets or third party binaries
+   - execution of db unit tests which requires functional and working third party binaries
+     - at first waveReader
+     - then Seiscomp binaries
+     (deployment of configurations, compilation has to be addresses systematically - e.i. to exactly define versions
+      and to use VDMS git repositories conciselly)
+   
+6. Questions to be clarified:
+   1. Is it possible to split integrated tests - DB_UNIT tests split into quick and extended
+      the first running quickly (in minutes) and the second to run longer (tens of minutes or hours).
+   2. What contains these directories: cc_module, cc_portal, cc_portal_dist
+      see info like: http://192.168.56.2:8000/pkicc_portal/
+      C&C portal
+      Please let me know its relation to whole VDMS system and what service does it provide
+      to IDC and give me link to lattest DCR/ICR how it has been deployed.
+   3. It looks it will be hard to get dedicated IMAP and linux users from our sysadmin department.
+      Is it required to have dedicated IMAP account for any db unit tests in the repository?
+      So far we have to stick to concept where unit tests will run on personal linux accounts
+      only - so like this they shall be delivered and tested.
+      Only shared resource will be PADD2* Oracle accounts.
+      And would be good to create concept of incorporation of VDMS unit tests into
+       A. devlan
+       B. CATS as separate environment
+
+# Issues - bugs collected during ramp of to VDMS knowledge
+
+VDMS_ISSUE1: quota_monitoring.py after execution ended with these set of errors
+on devlan
+
+> source /dvl/software/shared/nms/nms_home/env/nms_bashrc
+> source $NMS_HOME/bin/activate
+>  $NMS_HOME/bin/quota_monitoring.py --reset -u 306
+/dvl/software/shared/nms/nms_home/bin/quota_monitoring.py: line 1: from: command not found
+/dvl/software/shared/nms/nms_home/bin/quota_monitoring.py: line 2: from: command not found
+/dvl/software/shared/nms/nms_home/bin/quota_monitoring.py: line 3: from: command not found
+import: unable to open X server `localhost:10.0' @ error/import.c/ImportImageCommand/368.
+import: unable to open X server `localhost:10.0' @ error/import.c/ImportImageCommand/368.
+/dvl/software/shared/nms/nms_home/bin/quota_monitoring.py: line 9: syntax error near unexpected token `('
+/dvl/software/shared/nms/nms_home/bin/quota_monitoring.py: line 9: `    option_parser = OptionParser()'
+---
+Even when running from X server command line, it did not work but remain hanging.
+
+In order to deactive the Python virtual environment, just type:
+> deactivate
+
+
+
+

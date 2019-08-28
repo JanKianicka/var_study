@@ -1,0 +1,751 @@
+# My experiments preparing the local VDMS environment on 14.6.2019
+#
+
+> bash
+> source /dvl/software/shared/nms/nms_home/env/nms_bashrc
+> source /dvl/software/shared/nms/nms_home/env/msgsys.env
+
+> export NMS_PROJECTS_HOME=/git/kianicka_new/new-message-subsystem
+> export GIT_INSTALL_DIRNAME=/git/kianicka_new/install/nms
+> export SERVER_LIST=dlv022
+> export GIT_ROOT_DIR=git
+> export GIT_ADM=kianicka_new
+
+Built the nms repository:
+> pushd $NMS_PROJECTS_HOME
+> ./scripts/build_nms.sh dlv022
+
+Installed local python virtual environment
+> cd $GIT_INSTALL_DIRNAME
+> ./bin/nms_virtualenv-bootstrap.py /git/kianicka_new/install/nms/nms_python
+
+This created these two local outputs:
+  > ls -1 $GIT_INSTALL_DIRNAME
+  nms_python
+  nms_server_dist
+  nms_server_dist.3.1-RC3-py2.6.tar.gz
+  > ls -1 $GIT_INSTALL_DIRNAME/nms_server_dist
+  bin
+  conf
+  env
+  etc
+  lib
+  script
+  sql
+  waveform
+  > ls -1 $GIT_INSTALL_DIRNAME/nms_python
+  bin
+  conf
+  data
+  env
+  etc
+  include
+  lib
+  lib64
+  logs
+  waveform
+
+# Work of Cyrille on 14.6.2019 in the moring.
+  We decided to separate installation package from the installation target it self
+  $NMS_HOME
+  > mkdir /git/kianicka_new/nms_home
+  > cd /git/kianicka_new/install/nms/nms_server_dist
+  and create new installation
+  > python nms_virtualenv-bootstrap.py --no-site-packages /git/kianicka_new/nms_home/
+  > export NMS_HOME=/git/kianicka_new/nms_home/
+  > cd $NMS_HOME
+  
+  And we verify the installation by trying to run the simplest component: Queue
+  - verify the configuration of watch_dog
+  conf/nms_watch_dog.conf
+  > ./bin/start_nms_queue.sh
+  These were the fixies needed to run the component locally.
+  > export SERVER_LIST=dlw022
+  > export NMS_LOGS=$NMS_HOME/logs
+  > export PID_DIR=$NMS_HOME
+  missing dependency - installed locally into local python virtual environment
+  > ./bin/easy_install psutil
+  writeable cache
+  > export PYTHON_EGG_CACHE=$NMS_HOME/nms_vdms_cache
+  > mkdir $NMS_HOME/nms_vdms_cache
+  Checking syslog to check how queue has started
+  > cat /dvl/syslog/2019-06-14/ctbt.msgsys.nms_queue | grep dlw022
+
+  Attempt to run a unit test
+  > cd /git/kianicka_new/new-message-subsystem/
+  > $NMS_PROJECTS_HOME
+  /git/kianicka_new/new-message-subsystem
+  > cd nms_common/
+  Running python tests, we have to be in this path and have corresponding python environment.
+  It is recommended to have two python virtual environments:
+  1. One for runtime
+  2. For running unit tests
+  We try to run unit tests using local runtime python virtual environment.
+  > $NMS_HOME/bin/python test/nms_common_test/http_utils_test.py
+  Fixes - missing different things
+  PYTHONPATH
+  > export PYTHONPATH=$PYTHONPATH:$NMS_PROJECTS_HOME/nms_test_common/src:$NMS_PROJECTS_HOME/nms_test_common/test:$NMS_PROJECTS_HOME/nms_configuration/src:$NMS_PROJECTS_HOME/nms_configuration/test
+  Missing dependencies from new-message-subsystem/third_party/nms_dev/
+  > $NMS_HOME/bin/easy_install unittest2
+  > $NMS_HOME/bin/easy_install logilab-common
+Q1 - Here is question - are these third_party dependencies not insalled by a automated install script?
+   
+  Then, the original implementation of the unit has failed,
+  Cyrille had to modify the source code and switch from:
+    nms_test_case.run_main(TestHTTPSConnection)
+  to
+    nms_test_case.run_main(TestCertificates)
+  This has worked:
+---
+bash-4.1$ $NMS_HOME/bin/python test/nms_common_test/http_utils_test.py
+/git/kianicka_new/nms_home/lib/python2.6/site-packages/pkg_resources/__init__.py:1222: UserWarning: /git/kianicka_new/nms_home//nms_vdms_cache is writable by group/others and vulnerable to attack when used with get_resource_filename. Consider a more secure location (set with .set_extraction_path or the PYTHON_EGG_CACHE environment variable).
+  warnings.warn(msg, UserWarning)
+testCertificate_common_name_list (__main__.TestCertificates) ... ok
+testCertificate_subject_alt_name (__main__.TestCertificates) ... ok
+testCertificate_subject_alt_name_before_common_name (__main__.TestCertificates) ... ok
+testCertificate_subject_no_host (__main__.TestCertificates) ... ok
+test_no_subject (__main__.TestCertificates) ... ok
+test_one_common_name (__main__.TestCertificates) ... ok
+test_wrong_common_name (__main__.TestCertificates) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.001s
+
+OK
+---
+
+# Working on the nms client.
+
+I have not succeeded with creating tar.gz but only of python egg file which was then installed into 
+my python environemt.
+
+Running from local directory in new-message-subsystem repository.
+
+> export NMS_CLI_HOME=/git/kianicka_new/new-message-subsystem/nms_client
+> ./run_client.sh
+---
+bash-4.1$ ./run_client.sh 
+Using configuration file: /git/kianicka_new/new-message-subsystem/nms_client/conf/nms_client.conf
+2019-06-14 11:53:29,006 - INFO - Python 2.6.6 final
+2019-06-14 11:53:29,006 - INFO - Protocol version : 0.2
+2019-06-14 11:53:29,006 - INFO - Client version : 1.3
+2019-06-14 11:53:29,006 - INFO - Entering interactive mode. Press CTRL^D to launch the request.
+
+2019-06-14 11:54:20,720 - INFO - no ENV variable $NMS_USER_DIR defined. Set by default $NMS_USER_DIR to $HOME/.nms_client
+2019-06-14 11:54:20,721 - ERROR - Sent request :
+2019-06-14 11:54:20,721 - ERROR - 
+2019-06-14 11:54:20,721 - ERROR - 
+2019-06-14 11:54:20,721 - ERROR - No credential file defined in dir /home/kianicka/.nms_client. Please add your credential in /home/kianicka/.nms_client/nms_cred.
+2019-06-14 11:54:20,721 - ERROR - Exit on Error
+bash-4.1$ pwd
+/git/kianicka_new/new-message-subsystem/nms_client
+---
+I will need to request for access, and document installation procedure.
+
+
+
+# After provind me more technical accounts for different instances of VDMS by Yuryi, I have the following errors
+# for dev VDMS (on 2.6.2019):
+---
+bash-4.1$ ./bin/nms_client.sh bin/ims_test.req
+INFO - ******************** Check Env variables ********************
+INFO - NMS_USER_DIR is undefined. I am setting it to default=(/home/kianicka/.nms_client).
+WARNING: CONF_FILE is not empty, temporarily overwriting it
+INFO - Setting CONF_FILE to: /git/kianicka_new/new-message-subsystem/nms_client/resources/distribution/dist/nms_client/conf/nms_client.conf
+INFO - *************************************************************
+
+Using configuration file: /git/kianicka_new/new-message-subsystem/nms_client/resources/distribution/dist/nms_client/conf/nms_client.conf
+2019-07-02 12:14:24,318 - INFO - Python 2.6.6 final
+2019-07-02 12:14:24,318 - INFO - Protocol version : 0.2
+2019-07-02 12:14:24,318 - INFO - Client version : 1.3
+2019-07-02 12:14:24,318 - INFO - Read the different request files
+2019-07-02 12:14:24,320 - INFO - Using ssl public certificate for connection : disabled
+2019-07-02 12:14:24,384 - ERROR - Sent request :
+2019-07-02 12:14:24,384 - ERROR - BEGIN IMS2.0
+2019-07-02 12:14:24,385 - ERROR - MSG_TYPE REQUEST
+2019-07-02 12:14:24,385 - ERROR - MSG_ID 1234 shi-reb
+2019-07-02 12:14:24,385 - ERROR - TIME 2009/06/21 00:00:00 to 2009/06/21 00:20:00
+2019-07-02 12:14:24,385 - ERROR - BULL_TYPE REB
+2019-07-02 12:14:24,385 - ERROR - BULLETIN IMS2.0:long
+2019-07-02 12:14:24,385 - ERROR - STOP
+2019-07-02 12:14:24,385 - ERROR - Error while sending request to https://dvl-msgsys.ctbto.org/nms_user_services/xmlrpc/ : Unauthorized
+2019-07-02 12:14:24,385 - ERROR - Exit on Error
+---
+
+# One more verification on 19.7.2019:
+Running the script run_client.sh from /git/kianicka_new/new-message-subsystem/nms_client
+> export NMS_CLI_HOME=/git/kianicka_new/new-message-subsystem/nms_client
+> ./run_client.sh /git/kianicka_new/new-message-subsystem/nms_client/resources/distribution/dist/nms_client/bin/ims_test.req
+Correctly retrieved bulletine REB_444955081.bul.
+> cd resources/distribution/dist/nms_client
+> export NMS_CLI_HOME=`pwd`
+> ./bin/nms_client.sh bin/ims_test.req
+Successfully generated REB_444966611.bul
+
+OPS Server: 
+https://ops-msgsys.ctbto.org/nms_user_services/xmlrpc/
+
+DEV servers:
+https://dvl-msgsys.ctbto.org/nms_user_services/xmlrpc/
+user: pbtest05
+Unauthorized.
+
+https://dvl-msgsys-unittest.ctbto.org/nms_user_services/xmlrpc/
+user: pbtest05
+Unauthorized.
+
+Both have the same error.
+
+# Running other unit tests:
+  NMS_HOME /git/kianicka_new/nms_home/
+  NMS_PROJECTS_HOME /git/kianicka_new/new-message-subsystem
+Trying to run:
+$NMS_HOME/bin/python test/calibration_sync_test/calib_sync_test.py
+First missing dependecies in python path:
+$NMS_PROJECTS_HOME/nms_calibration_sync/src etc to have something like this:
+Don't we have some script/command to prepare PYTHONPATH for unit tests?
+
+Need to install missing dependencies from site-packages
+$NMS_HOME/bin/easy_install unittest2
+$NMS_HOME/bin/easy_install traceback2
+$NMS_HOME/bin/easy_install linecache2
+$NMS_HOME/bin/easy_install six
+$NMS_HOME/bin/easy_install argparse
+$NMS_HOME/bin/easy_install logilab-common
+$NMS_HOME/bin/easy_install ply
+$NMS_HOME/bin/easy_install psutil
+$NMS_HOME/bin/easy_install sqlalchemy
+$NMS_HOME/bin/easy_install springpython
+$NMS_HOME/bin/easy_install Pyro
+$NMS_HOME/bin/easy_install amara
+then still is missing:
+
+  File "build/bdist.linux-x86_64/egg/amara/binderytools.py", line 13, in <module>
+ImportError: No module named Ft.Xml
+
+When trying to add Ft module it does not compile:
+> $NMS_HOME/bin/easy_install Ft
+ends with syntax error:
+---
+ File "/tmp/easy_install-METGN0/ft-1.0.0/ft/__init__.py", line 139
+    return {v: [d for d in data if v in d[prop]] for v in values}
+                                                   ^
+SyntaxError: invalid syntax
+---
+
+This means we can not even execute this test because of missing dependencies in the 
+python virtual environment and I can not even fix this environment.
+Version of python:
+$NMS_HOME/bin/python                                                      
+Python 2.6.6 (r266:84292, Aug  9 2016, 06:11:56) 
+[GCC 4.4.7 20120313 (Red Hat 4.4.7-17)] on linux2
+
+Attempt to run different test, for example waveReader test.
+- first there was missing waveReader binary - I did not found any strightforward procedure, like e.g. 
+  a build script. Then I have copied over compiled binary from devlan.
+The test failed in different aspects (however it at least launched correctly). Log is attached in:
+   waveReader_unittest_error_log.txt
+
+
+############################################################
+# Attempt to launch dev unittest instance for my machine
+# 9.7.2019 - on dlw022
+
+> bash
+> source ~/projects/VDMS/EdwardsConfigs/env/nms_bashrc
+Everything switched to padd
+> bash-4.1$ printenv |grep padd 
+SHI_USER=padd1_shi
+NMS_WAVE_ARCH_USER=padd1_wave
+NMS_SHI_USER=padd1_shi
+NMS_WATCHDOG_USER=padd1_watch
+NMS_RN_ARCH_USER=padd1_rn
+NMS_MAIL_DB_USER=padd1_ma
+WAVE_USER=padd1_wave
+NMS_WAVE_USER=padd1_wave
+NMS_DATAREADY_USER=padd1_shi
+PIDC_STATIC_SCHEMA=padd1_pidc
+NMS_USER_DB_USER=padd1_in
+CAMT_PW=padd_shi_2014
+NMS_RN_USER=padd1_rn
+NMS_CAMT_USER=padd_shi
+NMS_SHI_ARCH_USER=padd1_shi
+SEISCOMP_USER=padd1_shi
+SEISCOMP_ARCH_USER=padd1_shi
+NMS_WAVE_PIDC_USER=padd1_pidc
+RN_USER=padd1_rn
+NMS_PROD_DB_USER=padd1_eng
+NMSGSYS_SCHEMA=padd1
+
+> export NMS_PROJECTS_HOME=/git/kianicka_new/new-message-subsystem
+> export SERVER_LIST=dlw022
+> export GIT_ROOT_DIR=git
+> export GIT_ADM=kianicka_new
+> mkdir /git/kianicka_new/nms_home2
+> export GIT_INSTALL_DIRNAME=/git/kianicka_new/install/nms
+> export NMS_HOME=/git/kianicka_new/nms_home2
+> pushd $NMS_PROJECTS_HOME
+
+> ./scripts/build_nms.sh dlw022
+> pushd $GIT_INSTALL_DIRNAME/nms_server_dist
+
+> ./bin/nms_virtualenv-bootstrap.py $NMS_HOME
+We had to modify Edwards msgsys.env to switched from the dev unittest technical user 'nmsgsys' to
+different locations. We still will use IMAP server user for 'nmsgsys'.
+OPENSOURCE=/usr/openv/pdde/pdopensource does not exists even on dlv018.
+> printenv |grep nmsgsys
+NMS_IMAP_USER=nmsgsys
+NMS_FROM_ADDRESS=nmsgsys@ctbto.org
+ only this was left over from nmsgsys configuration
+
+NMS_DATA=/git/kianicka_new/nms_home2/nms-unittest
+> printenv |grep CACHE   
+PYTHON_EGG_CACHE_APACHE=/git/kianicka_new/nms_home2/nms-unittest/nms_wsgi_cache
+PYTHON_EGG_CACHE=/git/kianicka_new/nms_home2/nms-unittest/nms_vdms_cache
+PYTHON_REWRITE_EGG_CACHE=/git/kianicka_new/nms_home2/nms-unittest/nms_rewrite_cache
+PYTHON_WSGI_EGG_CACHE=/git/kianicka_new/nms_home2/nms-unittest/nms_wsgi_cache
+
+# Connection to Oracle and check the tables, log files etc.
+Devlan version of nms/nms_auto.env does not contain all passwords needed to run
+the system with PADD1 schema. For example:
+$PADD1_MA_PW is empty. We have to try to use the dvl018 nms/nms_auto from the user under which the 
+system should originally run. Fortuantelly we have read-only access to this user, therefore I copy
+over this version to my home directory:
+> cp ~/nms/nms_auto.env ~/nms/nms_auto_dev.env
+> cp /home/smd/nmsgsys/nms/nms_auto.env ~/nms/ -v
+and source whole environment again
+
+Now we have passwords for dev unittest instance of VDMS like $PADD1_MA_PW available.
+We have the connection.
+
+# Lets try to launch 'queue' component.
+> Checking the conf/nms_watch_dog.conf - comparision of my local file with Edwards.
+There are for example following differences:
+$NMS_SMTP_HOST - points to imap.ctbto.org - the original points to the localhost.
+$NMS_IDC_CERT_DIR, $NMS_IDC_KEY_DIR - points to ${HOME}/certs
+
+> ls /home/smd/nmsgsys/certs - these are probably certificates for stations.
+We will have to probably copy whole this directory as well as modifed Edwards configuration.
+But lets try to launch queue with the original configuration.
+> ./bin/start_nms_queue.sh
+ 1. Attempt  - this is the error:
+---
+Starting the queue server
+Queue server started
+./bin/start_nms_queue.sh: line 20: /git/kianicka_new/nms_home2/nms-unittest/logs/queue_server.pid: No such file or directory
+./bin/start_nms_queue.sh: line 13: /git/kianicka_new/nms_home2/nms-unittest/logs/startup_queue_server_error.log: No such file or directory
+---
+There was missing log directory, so I have created it:
+> mkdir -p $NMS_LOGS
+Then we have started the queue component:
+> ./bin/start_nms_queue.sh
+And we can stop it
+> ./bin/stop_nms_queue.sh
+
+Checking the syslog file:
+> cat /dvl/syslog/2019-07-09/ctbt.msgsys.nms_queue |grep dlw022
+2019-07-09T13:52:46+00:00 dlw022/172.27.48.48 [user.info] ctbt.msgsys.nms_queue[]: '2019-07-09 13:52:46':OracleCnxProvider:31290:INFO:Initializing nms_database_connection_provider Database url : oracle://padd1_eng:########@ptsdev:1521
+2019-07-09T13:52:46+00:00 dlw022/172.27.48.48 [user.info] ctbt.msgsys.nms_queue[]: '2019-07-09 13:52:46':OracleCnxProvider:31290:INFO:nms_database_connection_provider initialized, database connection ok
+2019-07-09T13:52:46+00:00 dlw022/172.27.48.48 [user.info] ctbt.msgsys.nms_queue[]: '2019-07-09 13:52:46':ManagementService:31290:INFO:Pyro service nms_queue_monitor started 127.0.0.1:2777
+2019-07-09T13:52:46+00:00 dlw022/172.27.48.48 [user.info] ctbt.msgsys.nms_queue[]: '2019-07-09 13:52:46':springpython.remoting.pyro.PyroServiceExporter:31290:INFO:Pyro service QueueManagement started 127.0.0.1:2777
+2019-07-09T13:52:46+00:00 dlw022/172.27.48.48 [user.info] ctbt.msgsys.nms_queue[]: '2019-07-09 13:52:46':springpython.remoting.pyro.PyroServiceExporter:31290:INFO:Pyro service Queue started 127.0.0.1:2777
+2019-07-09T13:58:23+00:00 dlw022/172.27.48.48 [user.info] ctbt.msgsys.nms_queue[]: '2019-07-09 13:58:23':QueueServer:31290:INFO:Stopping queue ...
+2019-07-09T13:58:23+00:00 dlw022/172.27.48.48 [user.info] ctbt.msgsys.nms_queue[]: '2019-07-09 13:58:23':QueueServer:31290:INFO: ... Queue stopped
+---
+
+Lets try to launch mail addapter - but we have problems with SMTP server currently, but even though lets try:
+> ./bin/start_nms_mail_adapter.sh 
+it did not succeeded - it is not running.
+There are the following errors:
+'2019-07-09 14:01:20':IMAPClient:1268:ERROR:Connection error to smtp host imap.ctbto.org, user nmsgsys, ssl False: [Errno 111] Connection refused#012Traceback (most recent call last):#012  File "/git/kianicka_new/nms_home2/lib/python2.6/site-packages/NMSMailAdapter-3.1_
+...
+'2019-07-09 14:01:20':FilePoller:1268:ERROR:/git/kianicka_new/nms_home2/reprocessor_folder does not exist
+--
+These are folders from nms_mail_adapter.conf - but looks like the system is not capable to create them automatically.
+
+Comparing nms_mail_adapter.conf we can see that:
+- default SMTP host is 'localhost' and most (ENV[HOME]) are point to the user's home. We have to replace config files - default
+  ones from the new-message-subsystem are not usable. Comparing yet to /dvl instance we can see that /dvl installation
+  contain yet ssl=true - communication with IMAP server is secured by SSL.
+
+We use Edwards configuration.
+> ./bin/start_nms_mail_adapter.sh
+Could not start - there was missing reprocessor folder:
+> mkdir /git/kianicka_new/nms_home2/nms-unittest/reprocessor_folder
+Even after this attempt I got the error of refused connection - exactly same.
+> less /dvl/syslog/2019-07-10/ctbt.msgsys.mail_adapter
+'IMAPClient:612:ERROR:Connection error to smtp host imap.ctbto.org, user nmsgsys, ssl False: [Errno 111] Connection refused#012Traceback (most recent call last):#012  File "/git/kianicka_new/nms_home2/lib/python2.6/site-packages/NMSMailAdapter-3.1_RC3-py2.6.egg/EGG-INFO/scripts/mail_adapter_server.py'
+
+Using these credentials:
+echo $NMS_SMTP_HOST
+   imap.ctbto.org
+echo $NMS_IMAP_USER
+   nmsgsys
+echo $NMS_FROM_ADDRESS
+   nmsgsys@ctbto.org
+echo $NMS_IMAP_PW
+   <provied password from Edwards nms_auto.env file>
+
+Nest attempt was to turn on ssl. In this case the connection was allowed, but I got an authentication failure.
+---
+2019-07-10T13:42:58+00:00 dlw022/172.27.48.48 [user.err] ctbt.msgsys.mail_adapter[]: '2019-07-10 13:42:58':IMAPClient:10040:ERROR:Connection error to smtp host imap.ctbto.org, user nmsgsys, ssl True: Login failed: authentication failure#012Traceback (most recent call last):#012  File "/git/kianicka_new/nms_home2/lib/python2.6/site-packages/NMSMailAdapter-3.1_RC3-py2.6.egg/EGG-INFO/scripts/mail_adapter_server.py", line 319, in _get_client#012  File "/git/kianicka_new/nms_home2/lib/python2.6/site-packages/NMSMailAdapter-3.1_RC3-py2.6.egg/EGG-INFO/scripts/mail_adapter_server.py", line 307, in _connect#012  File "/usr/lib64/python2.6/imaplib.py", line 512, in login#012    raise self.error(dat[-1])#012error: Login failed: authentication failure
+---
+
+Issue is that simply nmsgsys can not authenticate anymore to imap server - which probably means that dlv018 
+was not launched quite some time ...
+
+For verification of this circumstance I have used
+the follwing web page:
+https://blogging.dragon.org.uk/testing-imap-mailserver/
+> openssl s_client -connect imap.ctbto.org:993 -crlf
+  and then
+1 LOGIN nmsgsys <password>
+1 NO Login failed: authentication failure
+2 LOGOUT
+
+For dvl-msgsys it worked
+> openssl s_client -connect imap.ctbto.org:993 -crlf
+1 LOGIN dvl-msgsys <password>
+1 OK [CAPABILITY IMAP4 IMAP4rev1 LITERAL+ ID LOGINDISABLED AUTH=PLAIN COMPRESS=DEFLATE ACL RIGHTS=kxte QUOTA MAILBOX-REFERRALS NAMESPACE UIDPLUS NO_ATOMIC_RENAME UNSELECT CHILDREN MULTIAPPEND BINARY SORT SORT=MODSEQ THREAD=ORDEREDSUBJECT THREAD=REFERENCES ANNOTATEMORE CATENATE CONDSTORE SCAN IDLE LISTEXT LIST-SUBSCRIBED X-NETSCAPE URLAUTH] User logged in
+2 LIST "" "*"
+* LIST (\HasChildren) "." "INBOX"
+* LIST (\HasNoChildren) "." "INBOX.Drafts"
+* LIST (\HasNoChildren) "." "INBOX.Sent"
+* LIST (\HasNoChildren) "." "Trash"
+3 LOGOUT
+
+# We try anyway to launch also rest of VDMS - watch dog
+First we have used Edward's nms_watch_dog_back.conf - the most important difference that SMTP publisher is set to $NMS_SMTP_HOST.
+> ./bin/start_nms_watch_dog.sh 
+Successfully started.
+Log files looks good - no errors even though we can not connect to smtp server (but watch dog has launched also mail_adapter which has connection errors)
+There started to be processed many subscription. It can be tracked in the syslog file:
+/dvl/syslog/2019-07-11/ctbt.msgsys.nms_watch_dog
+and in PADD1.MSG_SUB_NOTIFIER
+
+# We try also production engine to launch
+Comparing configuration  - Edward was using padd schema for [shi_connection_provider], whole [idcdev_connection_provider] is missing,
+   and several more customizations (which I found not really consistent for tests), interesting are e.g.:
+> echo $NMS_THIRD_PARTY
+/dvl/software/shared/nms/usr/
+
+> echo $SEISCOMP_USER
+padd1_shi
+> echo $NMS_HTTP_HOST - used in [ftp_publisher]
+dvl-msgsys.ctbto.org
+> echo $EVSC_MAP_DIR - empty - by Edward modified to /ops/software/shi/config/earth_specs/EVSC
+   
+Watch dog has started two instances of production engine before I have replaced the configuraiton with the Edward's version.
+We have this error in the log file:
+/dvl/syslog/2019-07-11/ctbt.msgsys.production_engine
+---
+2019-07-11T09:18:59+00:00 dlw022/172.27.48.48 [user.err] ctbt.msgsys.production_engine[]: NMSProductionEngine - 15242/MainThread - ERROR - Error starting production engine server :: not all arguments converted during string formatting#012Traceback (most recent call last):#012  File "/git/kianicka_new/nms_home2/lib/python2.6/site-packages/NMSProductionEngine-3.1_RC3-py2.6.egg/EGG-INFO/scripts/production_engine_server.py", line 93, in <module>#012  File "/git/kianicka_new/nms_home2/lib/python2.6/site-packages/NMSProductionEngine-3.1_RC3-py2.6.egg/EGG-INFO/scripts/production_engine_server.py" ...
+---
+and later on also PYROLOC errors:
+---
+2019-07-11T10:57:11+00:00 dlw022/172.27.48.48 [user.err] ctbt.msgsys.production_engine[]: JobPicker - 10028/JobPicker-4 - ERROR - Exception in the picker Cannot reconnect PYROLOC://127.0.0.1:2777/Queue#012Traceback (most recent call last):#012  File "build/bdist.linux-x86_64/egg/nms_production_engine/dispatcher.py", line 205, in run#012    job_entity = self._queue.get(True , 5)#012  File "/git/kianicka_new/nms_home2/lib/python2.6/site-packages/Pyro-3.9.1-py2.6.egg/Pyro/core.py", line 384, in __call__#012    return self.__send(self.__name, args, kwargs)#012  File "build/bdist.linux-x86_64/egg/nms_common/utils/pyro_utils.py", line 115, in _invokePYRO#012    self._retry(name, vargs, kargs)#012  File "build/bdist.linux-x86_64/egg/nms_common/utils/pyro_utils.py", line 156, in _retry#012    self._rebind()#012  File "build/bdist.linux-x86_64/egg/nms_common/utils/pyro_utils.py", line 152, in _rebind#012    raise Pyro.protocol.ConnectionClosedError("Cannot reconnect %s" % self.URI)#012ConnectionClosedError: Cannot reconnect PYROLOC://127.0.0.1:2777/Queue
+---
+I will try to stop and start production engines with the new configuraiton.
+> ./bin/stop_nms_production_engine.sh
+Ended with the error:
+---
+Monitoring service: QueueManagement on host 127.0.0.1 and port 2777 does not seem to be started, it could not be added to the monitoring services
+> ./bin/stop_nms.sh 
+sed: can't read /git/kianicka_new/nms_home2/nms-unittest/logs/keep_alive_tool.pid: No such file or directory
+
+The only way how to stop the system was to use
+> kill -9 <pids>
+starting from watchdog, otherwise new production engines were started. SIGTERM did not work.
+
+# Lets try to start just production engine
+> ./bin/start_nms_production_engine.sh
+ended with this error
+
+Monitoring service: QueueManagement on host 127.0.0.1 and port 2777 does not seem to be started, it could not be added to the monitoring services
+Monitoring service: Management on host 127.0.0.1 and port 3888 does not seem to be started, it could not be added to the monitoring services
+Monitoring service: MailManagement on host 127.0.0.1 and port 4999 does not seem to be started, it could not be added to the monitoring services
+
+> ./bin/monitoring_tool.sh
+ended with the same error
+
+# Starting whole system at once
+> ./bin/start_nms.sh
+
+NMS keep alive tool started successfully, please check /git/kianicka_new/nms_home2/nms-unittest/logs/nms_keep_alive.log to see what's going on
+
+Checking the processes:
+---
+ps aux|grep python
+kianicka 17924  0.1  0.0  45192  5620 pts/2    S    11:18   0:00 /git/kianicka_new/nms_home2/bin/python /git/kianicka_new/nms_home2/bin/start_nms.py
+kianicka 17931  0.5  0.2 491584 36536 pts/2    Sl   11:18   0:01 /git/kianicka_new/nms_home2/bin/python /git/kianicka_new/nms_home2/bin/queue_server.py --conf_file /git/kianicka_new/nms_home2/conf/nms_queue.conf
+kianicka 17953 59.0  1.1 669792 181452 pts/2   Sl   11:18   2:17 /git/kianicka_new/nms_home2/bin/python /git/kianicka_new/nms_home2/bin/watch_dog_server.py --conf_file /git/kianicka_new/nms_home2/conf/nms_watch_dog.conf
+kianicka 17977  1.2  0.4 461052 71432 pts/2    Sl   11:18   0:02 /git/kianicka_new/nms_home2/bin/python /git/kianicka_new/nms_home2/bin/production_engine_server.py --conf_file /git/kianicka_new/nms_home2/conf/nms_production_engine.conf
+kianicka 17978  1.2  0.4 461052 71012 pts/2    Sl   11:18   0:02 /git/kianicka_new/nms_home2/bin/python /git/kianicka_new/nms_home2/bin/production_engine_server.py --conf_file /git/kianicka_new/nms_home2/conf/nms_production_engine.conf
+kianicka 18013  0.4  0.2 508220 43040 pts/2    Sl   11:18   0:01 /git/kianicka_new/nms_home2/bin/python /git/kianicka_new/nms_home2/bin/mail_adapter_server.py --conf_file /git/kianicka_new/nms_home2/conf/nms_mail_adapter.conf
+---
+So looks like VDMS was launched successfully in this state:
+ - DB connection are successful
+ - IMAP authentication for 'nmsgsys' user does not work - we can not test emails
+ - we do not have set up local Apache server and user services - we can not test command line client.
+ - we do not have persmissions for OS 'nmsgsys' user on dlv018 thus we can not run the system there 
+
+So this is all we could achieve with current permissions.
+
+Put Edwards configurations to the shared folder in J: drive and reference it on the confluence page.
+
+
+# Attempt to fix dlv018 installation
+1. Requested sudo access as following:
+---
+    (root) /sbin/service httpd configtest, (root) /sbin/service httpd restart, (root) /sbin/service httpd reload
+    (nmsgsys) NOPASSWD: ALL
+---
+This will allow me to restart and troubleshoot the VDMS request-subscription installation.
+
+1. Fixing of apache server - there was missconfiguration in PUPPET generated apache file:
+/etc/httpd/conf.d/vdms.ctbto.org.conf which contains just link to apache_django_service.conf.
+This was fixed to point to the default nms_home owned by nmsgsys user:
+--- cat ---
+# PUPPET MANAGED FILE!
+include "/home/smd/nmsgsys/nms_home/conf/apache_django_service.conf"
+--- cat ---
+After configuration test and restart of the apache server we have it running and valid links:
+https://dvl-msgsys-unittest.ctbto.org/client/
+https://dvl-msgsys-unittest.ctbto.org/docs/
+
+Updated ISI_IMAP_PW password in: ${HOME}/nms/nms_auto.env
+
+2. Trying to deploy new version and run it:
+Loggin in to dlv018 as nmsgsys:
+> sudo -u nmsgsys  bash
+List of modifications:
+ - switch from sourcing /git/wokabi/nms_config/nms/env/nms_bashrc to /home/smd/nmsgsys/nms_home/env/nms_bashrc
+   in ${HOME}.bashrc 
+ - putting original ${HOME}/nms_home to nms_home_back/
+ - coping successfully running instance to ${HOME}/jan_nms_install/ and using standard instalation procedure
+   installed completely new installation into ${HOME}/nms_home
+ - copied over just modified and used Edward's configuration - also fixed by me during dlw022 running
+   > pushd $NMS_HOME
+   cp /git/kianicka_new/nms_home2/conf/nms_mail_adapter.conf conf/
+   cp /git/kianicka_new/nms_home2/conf/nms_watch_dog.conf conf/
+   cp /git/kianicka_new/nms_home2/conf/nms_production_engine.conf conf/
+   copied over Edwards environment to use PADD1 user
+   cp /home/kianicka/projects/VDMS/EdwardsConfigs/env/nms_bashrc env/ -v
+   cp /home/kianicka/projects/VDMS/EdwardsConfigs/env/msgsys.env env/ -v
+ - installed missing dependencies
+   $NMS_HOME/bin/easy_install psutil
+   $NMS_HOME/bin/easy_install spring_python
+Meanwhile happend that I have left running the the system with incorrect IMAP connection
+and Micheala have blocked dlv018 to protect the imap server from insuccessfull connection attempts.
+This was latter on resolved by modification of bashrc and issuing new password.
+
+Now we have the following status on dlv018 - we can not start the VDMS request-subscription system
+due to following error:
+/dvl/syslog/2019-07-23/ctbt.msgsys.mail_adapter
+---
+2019-07-23T13:11:02+00:00 dlv018/172.27.48.48 [user.info] ctbt.msgsys.mail_adapter[]: '2019-07-23 13:11:02':ManagementService:21022:INFO:Pyro service nms_mail_monitor started 127.0.0.1:4999
+2019-07-23T13:11:02+00:00 dlv018/172.27.48.48 [user.err] ctbt.msgsys.mail_adapter[]: '2019-07-23 13:11:02':MailServer:21022:ERROR:Error starting the nms file poller server: not all arguments converted during string formatting
+---
+The configuration is exactly same as when the system was successfully ran on dlw022.
+
+3. Trying to troubleshoot and resolve issues with CLI client and authorization.
+Local apache server log files are here:
+/var/log/httpd - but this directory is not accessible for us.
+There is one more syslog file redirecting error messages from the VDMS apache servers.
+  /dvl/syslog/2019-07-23/ctbt.msgsys.apache
+
+# CLI authorization issues on dlv018:
+When running CLI client for dev unittest machine we can observe the following error:
+---
+Exception occurred processing WSGI script '/home/smd/nmsgsys/nms_home/bin/nms_access.wsgi
+...
+ExtractionError: Can't extract file(s) to egg cache
+...
+[Errno 13] Permission denied: '/dvl/msgsys_cache/nms-unittest/nms_wsgi_cache/SQLAlchemy-0.7.9-py2.6-linux-x86_64.egg-tmp'
+The Python egg cache directory is currently set to:
+  /dvl/msgsys_cache/nms-unittest/nms_wsgi_cache
+Perhaps your account does not have write access to this directory?  You can
+change the cache directory by setting the PYTHON_EGG_CACHE environment
+variable to point to an accessible directory.
+---
+The permissions for the cache directories are as following:
+drwxr-Sr--.  5 nmsgsys apache /dvl/msgsys_cache/nms-unittest/nms_wsgi_cache/
+and inside
+drwxr-xr-x. 3 apache apache SQLAlchemy-0.7.9-py2.6-linux-x86_64.egg-tmp/
+
+We can work on trying to reconfigure it in order to make tha apache service running.
+There are the following additional configurations wrong:
+conf/apache_django_service.conf
+---
+  wsgi_module /dvl/shi/nms/usr/lib64/mod_wsgi26.so
+  headers_module /dvl/shi/nms/usr/mod_headers.so
+pointing to non-existing locations
+---
+
+conf/nms_user_services.conf
+---
+  [SMTP]
+  #FIXME
+  host=localhost
+should be switched to smtp.ctbto.org
+---
+
+# CLI authorization issues on dlv019:
+After attempt to run the command this is the debug error of the CLI client.
+---
+bash-4.1$ ./bin/nms_client.sh 
+INFO - ******************** Check Env variables ********************
+INFO - PYTHON_BIN is undefined. I am setting it to default=(python).
+INFO - NMS_USER_DIR is undefined. I am setting it to default=(/home/kianicka/.nms_client).
+INFO - Setting CONF_FILE to: /home/kianicka/nms_client/nms_client/conf/nms_client.conf
+INFO - *************************************************************
+
+Using configuration file: /home/kianicka/nms_client/nms_client/conf/nms_client.conf
+2019-07-23 13:47:30,441 - INFO - Python 2.6.6 final
+2019-07-23 13:47:30,441 - INFO - Protocol version : 0.2
+2019-07-23 13:47:30,441 - INFO - Client version : 1.3
+2019-07-23 13:47:30,441 - INFO - Entering interactive mode. Press CTRL^D to launch the request.
+HELP
+2019-07-23 13:47:35,160 - DEBUG - Requests to execute [('HELP\n', 'interactive.req')]
+2019-07-23 13:47:35,162 - DEBUG - login=[pbtest05], password=[########]
+2019-07-23 13:47:35,163 - DEBUG - HTTPDownloadClient initialized
+2019-07-23 13:47:35,163 - INFO - Using ssl public certificate for connection : disabled
+2019-07-23 13:47:35,164 - DEBUG - submitting request ::HELP
+2019-07-23 13:47:35,164 - DEBUG - 
+2019-07-23 13:47:35,164 - DEBUG - Sending basic authentication to https://dvl-msgsys.ctbto.org/nms_user_services/xmlrpc/.
+2019-07-23 13:47:35,165 - DEBUG - Sending request
+2019-07-23 13:47:35,165 - DEBUG - Establishing HTTP/S connection
+2019-07-23 13:47:35,165 - DEBUG - Creating ssl connection dvl-msgsys.ctbto.org:443
+2019-07-23 13:47:35,188 - DEBUG - SSL connection established
+2019-07-23 13:47:35,188 - DEBUG - HTTP/S connection established, getting response
+2019-07-23 13:47:35,287 - DEBUG - Response received
+2019-07-23 13:47:35,287 - DEBUG - 404- Received response from https://dvl-msgsys.ctbto.org/nms_user_services/xmlrpc/
+2019-07-23 13:47:35,288 - ERROR - Sent request :
+2019-07-23 13:47:35,288 - ERROR - HELP
+2019-07-23 13:47:35,288 - ERROR - 
+2019-07-23 13:47:35,288 - ERROR - Error while sending request to https://dvl-msgsys.ctbto.org/nms_user_services/xmlrpc/ : 404:https://dvl-msgsys.ctbto.org/nms_user_services/xmlrpc/
+2019-07-23 13:47:35,288 - ERROR - Exit on Error
+---
+Apache errors in the log files:
+---
+there is currently no entry - this might point to completelly malfunctional installation for the VDMS apache part.
+Also the URL which worked last week is gone:
+https://dvl-msgsys.ctbto.org/nms_user_services/xmlrpc/
+would be good to see the content of the apache config file.
+
+The same error occurres when trying to open give rpc url:
+https://dvl-msgsys.ctbto.org/nms_user_services/xmlrpc/
+  The requested URL /nms_user_services/xmlrpc/ was not found on this server.
+
+# Further working on investigation of the issues:
+dlv019 we have situation that it sometimes works, sometimes does not work
+we all the time can not reach VDMS URL links.
+See two log files when trying to run the CLI - once it worked, second time it did not:
+  nms_client_log
+  nms_client_log2
+
+I have inquired arround to the people and nobody does anything.  I
+Suspected is randomnes in succesfull and really blind requests is connected
+to malfunctional configuration of may be load balancer or web gate
+configuration.
+
+Issues with dlv018 instance. Experiments shows there is very likelly permission
+problem between nmsgsys user and the user apache which actually run the
+WSGI process and nms_user_services. Would be good to adjust 
+/dvl/msgsys_cache/nms-unittest/
+---
+ls -l /dvl/msgsys_cache/nms-unittest/
+total 52
+drwxr-sr-x.  2 nmsgsys apache 4096 Jul 11  2018 attachments/
+drwxr-sr-x. 37 nmsgsys apache 4096 Apr 11 13:49 evsc_drv_working_dir/
+drwxr-sr-x.  2 nmsgsys apache 4096 Jul 19 13:01 file_poller_folder/
+drwxr-sr-x.  2 nmsgsys apache 4096 Apr 30 08:15 file_poller_working_dir/
+drwxr-sr-x.  2 nmsgsys apache 4096 Mar  1 09:31 http_msg/
+drwxr-sr-x.  2 nmsgsys apache 4096 Jul 18 14:20 logs/
+drwxr-Sr--.  2 nmsgsys apache 4096 Jul 11  2018 nms_rewrite_cache/
+drwxr-sr-x.  2 nmsgsys apache 4096 Apr 11 13:49 nms_te_store/
+drwxr-Sr--.  6 nmsgsys apache 4096 Jul 24 11:52 nms_vdms_cache/
+drwxr-Sr--.  5 nmsgsys apache 4096 Jul 24 11:52 nms_wsgi_cache/
+drwxr-sr-x.  2 nmsgsys apache 4096 Aug 15  2018 reprocessor_folder/
+drwxr-sr-x.  2 nmsgsys apache 4096 Jul 11  2018 reprocessor_working_dir/
+drwxr-sr-x.  2 nmsgsys apache 4096 Apr 16 13:00 waveform/
+---
+
+such that will follow the permission schema between cmsss, auto and apache for 
+dvl019 or tst installation of the VDMS. However, root nmsgsys_cache directories are fully owned by 'auto' user.
+
+Found the good article:
+https://groups.google.com/forum/#!topic/sqlalchemy/LJ-A704CnJ0
+https://code.google.com/archive/p/modwsgi/wikis/ApplicationIssues.wiki#Access_Rights_Of_Apache_User
+I need to have read-write cache for apache and nmsgsys users for dev-unittest instance.
+
+When tried to switch to different shared read-write cache /dvl/msgsys_cache/nms_rewrite_cache/
+When started VDMS apache and WSGI mod_wsgi module python egg packages were unpacked into
+cache under apache user:
+drwxr-xr-x. 2 apache apache 4096 Jul 24 11:41 cx_Oracle-5.0.1-py2.6-linux-x86_64.egg-tmp/
+drwxr-xr-x. 3 apache apache 4096 Jul 24 11:41 SQLAlchemy-0.7.9-py2.6-linux-x86_64.egg-tmp/
+However, we got the following error, and reading proved that mutual permission schema between
+VDMS installation and apache is not set up correctly.
+---
+2019-07-24T11:26:29+00:00 dlv018/172.27.48.48 [user.err] ctbt.msgsys.apache[]: [Wed Jul 24 11:26:29 2019] [info] [client 192.168.27.90] mod_wsgi (pid=8767, process='', application=''): Loading WSGI script '/home/smd/nmsgsys/nms_home/bin/nms_access.wsgi'.
+2019-07-24T11:26:30+00:00 dlv018/172.27.48.48 [user.err] ctbt.msgsys.apache[]: [Wed Jul 24 11:26:30 2019] [info] mod_wsgi (pid=8763): Create interpreter 'dvl-msgsys-unittest.ctbto.org|/nms_user_services'.
+2019-07-24T11:26:30+00:00 dlv018/172.27.48.48 [user.err] ctbt.msgsys.apache[]: [Wed Jul 24 11:26:30 2019] [info] [client 192.168.27.90] mod_wsgi (pid=8763, process='apache_nms', application='dvl-msgsys-unittest.ctbto.org|/nms_user_services'): Loading WSGI script '/home/smd/nmsgsys/nms_home/bin/nms_user_services.wsgi'.
+2019-07-24T11:26:31+00:00 dlv018/172.27.48.48 [user.err] ctbt.msgsys.apache[]: [Wed Jul 24 06:26:31 2019] [error] [client 192.168.27.90] mod_wsgi (pid=8763): Exception occurred processing WSGI script '/home/smd/nmsgsys/nms_home/bin/nms_user_services.wsgi'.
+2019-07-24T11:26:31+00:00 dlv018/172.27.48.48 [user.err] ctbt.msgsys.apache[]: [Wed Jul 24 06:26:31 2019] [error] [client 192.168.27.90] Traceback (most recent call last):
+2019-07-24T11:26:31+00:00 dlv018/172.27.48.48 [user.err] ctbt.msgsys.apache[]: [Wed Jul 24 06:26:31 2019] [error] [client 192.168.27.90]   File "/home/smd/nmsgsys/nms_home/bin/nms_user_services.wsgi", line 31, in application
+2019-07-24T11:26:31+00:00 dlv018/172.27.48.48 [user.err] ctbt.msgsys.apache[]: [Wed Jul 24 06:26:31 2019] [error] [client 192.168.27.90]     return wsgi_handler(environ, start_response)
+2019-07-24T11:26:31+00:00 dlv018/172.27.48.48 [user.err] ctbt.msgsys.apache[]: [Wed Jul 24 06:26:31 2019] [error] [client 192.168.27.90]   File "/home/smd/nmsgsys/nms_home/lib/python2.6/site-packages/Django-1.2.1-py2.6.egg/django/core/handlers/wsgi.py", line 241, in __call__
+2019-07-24T11:26:31+00:00 dlv018/172.27.48.48 [user.err] ctbt.msgsys.apache[]: [Wed Jul 24 06:26:31 2019] [error] [client 192.168.27.90]     response = self.get_response(request)
+2019-07-24T11:26:31+00:00 dlv018/172.27.48.48 [user.err] ctbt.msgsys.apache[]: [Wed Jul 24 06:26:31 2019] [error] [client 192.168.27.90]   File "/home/smd/nmsgsys/nms_home/lib/python2.6/site-packages/Django-1.2.1-py2.6.egg/django/core/handlers/base.py", line 142, in get_response
+2019-07-24T11:26:31+00:00 dlv018/172.27.48.48 [user.err] ctbt.msgsys.apache[]: [Wed Jul 24 06:26:31 2019] [error] [client 192.168.27.90]     return self.handle_uncaught_exception(request, resolver, exc_info)
+2019-07-24T11:26:31+00:00 dlv018/172.27.48.48 [user.err] ctbt.msgsys.apache[]: [Wed Jul 24 06:26:31 2019] [error] [client 192.168.27.90]   File "/home/smd/nmsgsys/nms_home/lib/python2.6/site-packages/Django-1.2.1-py2.6.egg/django/core/handlers/base.py", line 177, in handle_uncaught_exception
+2019-07-24T11:26:31+00:00 dlv018/172.27.48.48 [user.err] ctbt.msgsys.apache[]: [Wed Jul 24 06:26:31 2019] [error] [client 192.168.27.90]     if resolver.urlconf_module is None:
+2019-07-24T11:26:31+00:00 dlv018/172.27.48.48 [user.err] ctbt.msgsys.apache[]: [Wed Jul 24 06:26:31 2019] [error] [client 192.168.27.90]   File "/home/smd/nmsgsys/nms_home/lib/python2.6/site-packages/Django-1.2.1-py2.6.egg/django/core/urlresolvers.py", line 238, in _get_urlconf_module
+2019-07-24T11:26:31+00:00 dlv018/172.27.48.48 [user.err] ctbt.msgsys.apache[]: [Wed Jul 24 06:26:31 2019] [error] [client 192.168.27.90]     self._urlconf_module = import_module(self.urlconf_name)
+2019-07-24T11:26:31+00:00 dlv018/172.27.48.48 [user.err] ctbt.msgsys.apache[]: [Wed Jul 24 06:26:31 2019] [error] [client 192.168.27.90]   File "/home/smd/nmsgsys/nms_home/lib/python2.6/site-packages/Django-1.2.1-py2.6.egg/django/utils/importlib.py", line 35, in import_module
+2019-07-24T11:26:31+00:00 dlv018/172.27.48.48 [user.err] ctbt.msgsys.apache[]: [Wed Jul 24 06:26:31 2019] [error] [client 192.168.27.90]     __import__(name)
+2019-07-24T11:26:31+00:00 dlv018/172.27.48.48 [user.err] ctbt.msgsys.apache[]: [Wed Jul 24 06:26:31 2019] [error] [client 192.168.27.90]   File "/home/smd/nmsgsys/nms_home/lib/python2.6/site-packages/NMSUserServices-3.1_RC3-py2.6.egg/nms_user_services/xml_rpc_adapter/urls.py", line 4, in <module>
+2019-07-24T11:26:31+00:00 dlv018/172.27.48.48 [user.err] ctbt.msgsys.apache[]: [Wed Jul 24 06:26:31 2019] [error] [client 192.168.27.90]     from nms_admin.admin_config import AdminConfig
+2019-07-24T11:26:31+00:00 dlv018/172.27.48.48 [user.err] ctbt.msgsys.apache[]: [Wed Jul 24 06:26:31 2019] [error] [client 192.168.27.90]   File "/home/smd/nmsgsys/nms_home/lib/python2.6/site-packages/NMSAdmin-3.1_RC3-py2.6.egg/nms_admin/admin_config.py", line 6, in <module>
+2019-07-24T11:26:31+00:00 dlv018/172.27.48.48 [user.err] ctbt.msgsys.apache[]: [Wed Jul 24 06:26:31 2019] [error] [client 192.168.27.90]     from nms_admin.dao.user_dao import UserDao
+2019-07-24T11:26:31+00:00 dlv018/172.27.48.48 [user.err] ctbt.msgsys.apache[]: [Wed Jul 24 06:26:31 2019] [error] [client 192.168.27.90]   File "/home/smd/nmsgsys/nms_home/lib/python2.6/site-packages/NMSAdmin-3.1_RC3-py2.6.egg/nms_admin/dao/user_dao.py", line 7, in <module>
+2019-07-24T11:26:31+00:00 dlv018/172.27.48.48 [user.err] ctbt.msgsys.apache[]: [Wed Jul 24 06:26:31 2019] [error] [client 192.168.27.90]     from nms_common.dao.dao_utils import GenericDAO
+2019-07-24T11:26:31+00:00 dlv018/172.27.48.48 [user.err] ctbt.msgsys.apache[]: [Wed Jul 24 06:26:31 2019] [error] [client 192.168.27.90]   File "/home/smd/nmsgsys/nms_home/lib/python2.6/site-packages/NMSCommon-3.1_RC3-py2.6.egg/nms_common/dao/dao_utils.py", line 7, in <module>
+2019-07-24T11:26:31+00:00 dlv018/172.27.48.48 [user.err] ctbt.msgsys.apache[]: [Wed Jul 24 06:26:31 2019] [error] [client 192.168.27.90]   File "/home/smd/nmsgsys/nms_home/lib/python2.6/site-packages/NMSCommon-3.1_RC3-py2.6.egg/nms_common/dao/ConnectionManager.py", line 3, in <module>
+2019-07-24T11:26:31+00:00 dlv018/172.27.48.48 [user.err] ctbt.msgsys.apache[]: [Wed Jul 24 06:26:31 2019] [error] [client 192.168.27.90]   File "/home/smd/nmsgsys/nms_home/lib/python2.6/site-packages/SQLAlchemy-0.7.9-py2.6-linux-x86_64.egg/sqlalchemy/__init__.py", line 10, in <module>
+2019-07-24T11:26:31+00:00 dlv018/172.27.48.48 [user.err] ctbt.msgsys.apache[]: [Wed Jul 24 06:26:31 2019] [error] [client 192.168.27.90] AttributeError: 'module' object has no attribute 'exc'
+---
+
+# After troubleshooting with Yuryi we have confirmed random behavior and 
+reading http apache log files showed that issue mighe be related to missmatch in PYTHON_EGG_CACHE
+configuration - nms_access.wsgi vs. nms_user_services.wsgi.
+---
+grep PYTHON_EGG_CACHE /dvl/software/shared/nms/nms_home/bin/*              
+/dvl/software/shared/nms/nms_home/bin/apache_token_authorization2.py:    os.environ['PYTHON_EGG_CACHE']='/dvl/data/shared/nms/nms_rewrite_cache'
+/dvl/software/shared/nms/nms_home/bin/apache_token_authorization.py:    os.environ['PYTHON_EGG_CACHE']='/dvl/data/shared/nms/nms_rewrite_cache'
+/dvl/software/shared/nms/nms_home/bin/nms_access.wsgi:os.environ["PYTHON_EGG_CACHE"] = '/dvl/data/shared/nms/nms_wsgi_cache'
+/dvl/software/shared/nms/nms_home/bin/nms_user_services.wsgi:os.environ["PYTHON_EGG_CACHE"] = '/dvl/msgsys_cache/nms_wsgi_cache'
+/dvl/software/shared/nms/nms_home/bin/nms_user_services.wsgi:#os.environ["PYTHON_EGG_CACHE"] = '/dvl/data/shared/nms/nms_wsgi_cache'
+---
+/tst/software/shared/nms/nms_home/bin/apache_token_authorization2.py:    os.environ['PYTHON_EGG_CACHE']='/tst/msgsys_cache/nms_rewrite_cache'
+/tst/software/shared/nms/nms_home/bin/apache_token_authorization.py:    os.environ['PYTHON_EGG_CACHE']='/tst/msgsys_cache/nms_rewrite_cache'
+/tst/software/shared/nms/nms_home/bin/nms_access.wsgi:os.environ["PYTHON_EGG_CACHE"] = '/tst/msgsys_cache/nms_wsgi_cache'
+/tst/software/shared/nms/nms_home/bin/nms_user_services.wsgi:os.environ["PYTHON_EGG_CACHE"] = '/tst/msgsys_cache/nms_wsgi_cache'
+
+# Yet there was another issue on my client Firefox and Chrome browsers - these internet clients cache
+the malfunctional URL. In order to have it working it is required to clean coockies.
+One more important information. To see the failure of the apache server, we have to have access to apache log files
+on system level: /var/log/httpd/
+VDMS is running its own 'Virtual host' configured in apache_django_service.conf.
+When this host fails, apache still runs but switches to the default internal virtual host and
+required URL is not found - error 404.
+
+
+
+
+-----------------------------
+We will test yet following:
+1. Adding me as user dlv019 instance and test couple of requests - various ones and watch adjacent logs and tables.
+2. Create a subscription and recieve some SHI data products.
+
+
