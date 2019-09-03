@@ -14,4 +14,86 @@ Docker is a container management service. The keywords of Docker are develop, sh
 
 Official site: https://www.docker.com
 
+Addind 'docker' user on Centos7 VM - CATS local master:
+> useradd -m docker
+> passwd docker
+> usermod -aG wheel docker
+> su - docker
+> sudo ls -l /root
+
+Docker is only designed to run on Linux kernel version 3.8 and higher
+> uname -a
+Linux localhost.localdomain 3.10.0-957.el7.x86_64 #1 SMP Thu Nov 8 23:39:32 UTC 2018 x86_64 x86_64 x86_64 GNU/Linux
+
+For installation we switched to follow: 
+https://www.cyberciti.biz/faq/install-use-setup-docker-on-rhel7-centos7-linux/
+As root execute these commands:
+> yum install -y http://mirror.centos.org/centos/7/extras/x86_64/Packages/container-selinux-2.95-2.el7_6.noarch.rpm
+> yum install docker-ce
+   ---
+   docker-ce                    x86_64                3:19.03.1-3.el7                docker-ce-stable                 24 M
+   Installing for dependencies:
+    containerd.io                x86_64                1.2.6-3.3.el7                  docker-ce-stable                 26 M
+     docker-ce-cli 
+   ---
+   Retrieving key from https://download.docker.com/linux/centos/gpg
+   Importing GPG key 0x621E9F35:
+    Userid     : "Docker Release (CE rpm) <docker@docker.com>"
+    Fingerprint: 060a 61c5 1b55 8a7f 742b 77aa c52f eb6b 621e 9f35
+> systemctl enable docker.service
+> systemctl start docker.service
+> systemctl status docker.service
+● docker.service - Docker Application Container Engine
+   Loaded: loaded (/usr/lib/systemd/system/docker.service; enabled; vendor preset: disabled)
+   Active: active (running) since Tue 2019-09-03 16:25:36 CEST; 7s ago
+     Docs: https://docs.docker.com
+
+> docker info
+  Return Value
+  - Number of containers
+  - Number of images
+  - The storage driver used by Docker
+  - The root directory used by Docker
+  - The execution driver used by Docker
+  /var/lib/docker
+   builder
+   buildkit
+   containers
+   image
+   network
+   overlay2
+   plugins
+   runtimes
+   swarm
+   tmp
+   trust
+   volumes
+
+> docker help
+
+> docker version
+Client: Docker Engine - Community
+ Version:           19.03.1
+ API version:       1.40
+ Go version:        go1.12.5
+ Git commit:        74b1e89
+ Built:             Thu Jul 25 21:21:07 2019
+ OS/Arch:           linux/amd64
+ Experimental:      false
+
+> docker run hello-world
+Downloaded container from  https://hub.docker.com/
+
+> docker run -it ubuntu bash 
+root@d133f2651d1f:/#
+ There I could execute for example installation of gcc using Ubuntu commands:
+ > apt update
+ > apt install build-essential
+ > which gcc
+ > which make
+
+From outside it is possible to see installed resource when one has root priviledges on hosting system:
+> ls -l /var/lib/docker/overlay2/
+> less /var/lib/docker/overlay2/781f51b42f0449e8e0710b11c2d333b17cc86e010b5439cdf72304bd000527ea/diff/var/log/apt/history.log
+> ls /var/lib/docker/overlay2/781f51b42f0449e8e0710b11c2d333b17cc86e010b5439cdf72304bd000527ea/diff/etc
 
