@@ -1,0 +1,17 @@
+# Esentials of Docker and its features
+# 3.9.2019 - for CATS and VDMS automatic testing
+# https://www.tutorialspoint.com/docker/docker_overview.htm
+
+# Overview
+Docker is a container management service. The keywords of Docker are develop, ship and run anywhere.
+
+* Docker for Mac − It allows one to run Docker containers on the Mac OS.
+* Docker for Linux − It allows one to run Docker containers on the Linux OS.
+* Docker for Windows − It allows one to run Docker containers on the Windows OS.
+* Docker Engine − It is used for building Docker images and creating Docker containers.
+* Docker Hub − This is the registry which is used to host various Docker images.
+* Docker Compose − This is used to define applications using multiple Docker containers.
+
+Official site: https://www.docker.com
+
+
