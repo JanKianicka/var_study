@@ -192,6 +192,88 @@ When Dockerfile sequence fails, no new image is created and only exited containe
  custom_ubuntu       0.1                 fc5386f99eea        8 seconds ago       91.3MB
  ---
 
+Trying to build CATS slave machine implemented by Thomas.
+Copied from cats repository. But I have removed some local files to be copied -
+- this is already obsolete because we have automated it.
+Had to copy ssh keys which are actually mine. We can see there also big 
+duplicities of installation procedures. This will required to be different.
+For inspiration see:
+https://stackoverflow.com/questions/18136389/using-ssh-keys-inside-docker-container
+> docker build -t example --build-arg ssh_prv_key="$(cat ~/.ssh/id_rsa)" --build-arg ssh_pub_key="$(cat ~/.ssh/id_rsa.pub)" --squash .
+
+Successfull built of the image.
+> sudo docker build -f Dockerfile_cats -t centos_cats:1.0 .
+--- cat ---
+WARNING: modifying listener
+/bin/sh: line 0: cd: /apps/bin/python/bin: No such file or directory
+
+
+
+Removing intermediate container 185d3d6b6726
+ ---> 295472cac53f
+Step 18/24 : USER root
+ ---> Running in db3f61c4e74e
+Removing intermediate container db3f61c4e74e
+ ---> d66734870c11
+Step 19/24 : RUN dbus-uuidgen > /var/lib/dbus/machine-id;     ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key -N ''
+ ---> Running in 311482a6b650
+Generating public/private rsa key pair.
+Your identification has been saved in /etc/ssh/ssh_host_rsa_key.
+Your public key has been saved in /etc/ssh/ssh_host_rsa_key.pub.
+The key fingerprint is:
+67:61:7d:e3:94:02:1a:3d:0d:0d:02:4b:9d:0a:8d:1e root@311482a6b650
+The key's randomart image is:
++--[ RSA 2048]----+
+|     ooooo+=     |
+|    E...o+ooo  . |
+|   . o... o.o =  |
+|    . .  . . = . |
+|        S o   .  |
+|         o       |
+|                 |
+|                 |
+|                 |
++-----------------+
+Removing intermediate container 311482a6b650
+ ---> ba583aff6449
+Step 20/24 : WORKDIR "${WORKDIR}"
+ ---> Running in 49b6429717ca
+Removing intermediate container 49b6429717ca
+ ---> 1b78b1d99f40
+Step 21/24 : EXPOSE 22
+ ---> Running in 03821855e6ef
+Removing intermediate container 03821855e6ef
+ ---> 10d63df16e13
+Step 22/24 : EXPOSE 5910-5920
+ ---> Running in 4484c5fface0
+Removing intermediate container 4484c5fface0
+ ---> 141a602c8815
+Step 23/24 : CMD ["/sbin/service", "sshd", "start"]
+ ---> Running in a4877be3029b
+Removing intermediate container a4877be3029b
+ ---> 0312546851a2
+Step 24/24 : CMD ["sh", "-c", "tail -f /dev/null"]
+ ---> Running in 64c6e80e8185
+Removing intermediate container 64c6e80e8185
+ ---> 9ef4ad06d562
+Successfully built 9ef4ad06d562
+Successfully tagged centos_cats:1.0
+--- cat ---
+
+However, trying to launch oracle on this machine has the following problem:
+ SQL> SQL> ORA-00845: MEMORY_TARGET not supported on this system
+ ERROR:
+ ORA-01012: not logged on
+ Process ID: 0
+ Session ID: 0 Serial number: 0
+Even if I changed the shared memory size like this:
+> sudo docker run --shm-size 0.5G -it 9ef4ad06d562 /bin/bash
+So we have two issues with this Docker image. Repository name is not recognized (image id had to be used)
+and oracle can not start because of MEMORY_TARGET issue.
+
+Addind more shared memory has cured the issue:
+> sudo docker run --shm-size 4G -it 9ef4ad06d562 /bin/bash
+
 
 
 
