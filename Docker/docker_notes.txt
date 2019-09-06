@@ -97,3 +97,101 @@ From outside it is possible to see installed resource when one has root priviled
 > less /var/lib/docker/overlay2/781f51b42f0449e8e0710b11c2d333b17cc86e010b5439cdf72304bd000527ea/diff/var/log/apt/history.log
 > ls /var/lib/docker/overlay2/781f51b42f0449e8e0710b11c2d333b17cc86e010b5439cdf72304bd000527ea/diff/etc
 
+Docker image for Jenkins:
+> docker pull jenkins
+> docker run -p 8080:8080 -p 50000:50000 jenkins
+Because Jenkins is running and occuping already port 8080 we have to map to port 8090:
+> docker run -p 8090:8080 -p 50000:50000 jenkins
+> docker ps #for listing running containers
+--- cat ---
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                                              NAMES
+0a7133820aaf        jenkins             "/bin/tini -- /usr/l…"   11 minutes ago      Up 11 minutes       0.0.0.0:50000->50000/tcp, 0.0.0.0:8090->8080/tcp   great_curie
+--- cat ---
+And name to be used to connect to the running container is CONTAINER ID.
+> docker exec -it 0a7133820aaf /bin/bash
+> docker stop 768b338c366a
+The downloaded Jenkins container is very old and most of the pluggins was not possible to install
+will requrie uprade.
+
+In Docker, everything is based on Images. An image is a combination of a file system and parameters.
+Getting yet Centos image and run corresponding container.
+> docker run -it centos /bin/bash
+> docker images
+ ---
+ REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+ centos              latest              67fa590cfc1c        2 weeks ago         202MB
+ ubuntu              latest              a2a15febcdf3        3 weeks ago         64.2MB
+ hello-world         latest              fce289e99eb9        8 months ago        1.84kB
+ jenkins             latest              cd14cecfdb3a        13 months ago       696MB
+ ---
+> docker images -q #Just IMAGE ID
+We remove hello-world. 
+> docker rmi fce289e99eb9
+We have the following error message:
+"Error response from daemon: conflict: unable to delete fce289e99eb9 (must be forced) - image is being used by stopped container 4703d1eddb5d"
+> docker ps -a # Lists also stopped containers
+> docker rm 4703d1eddb5d # For removing hello_world container
+> docker rmi fce289e99eb9 # removed one image
+
+Inspecting details about the image:
+> docker inspect centos 
+retuns comprehensive JSON output with details.
+
+History of commands in the docker image
+> docker history 67fa590cfc1c # IMAGE ID
+To see top process
+> docker top 060051ebf01d # Container ID
+
+See the performance statistics of running container
+> docker stats 060051ebf01d
+---
+CONTAINER ID        NAME                   CPU %               MEM USAGE / LIMIT     MEM %               NET I/O             BLOCK I/O           PIDS
+060051ebf01d        xenodochial_dubinsky   95.56%              38.19MiB / 4.575GiB   0.82%               656B / 0B           0B / 0B             5
+---
+
+> docker attach 060051ebf01d # attaches to running container and terminal there
+> docker pause b825cf106c1e # really just pauses the processes 
+> docker unpause b825cf106c1e # the processing continues
+Kill the container - final state
+> docker kill b825cf106c1e
+
+Docker is the new virtualization architecure - we do not need dedicated virtual HW for each 
+new application:
+"Now comes the new generation which is the Docker engine. 
+This is used to run the operating system which earlier used to be virtual machines as Docker containers.
+All of the Apps now run as Docker containers."
+
+To start stopped or freshly created containers use this sequence:
+> docker ps -a
+> docker start CONTAINER_ID
+> docker attach CONTAINER_ID
+
+For easy working with containers we need nsenter. Installation is like this:
+> docker run --rm -v /usr/local/bin:/target jpetazzo/nsenter
+We need to get Pid of the process on hosting system
+> docker inspect bc86a73b1b46 |grep Pid
+
+Command > nsenter –m –u –n –p –i –t 2978 /bin/bash - did not work
+but this has worker
+> nsenter --target 8980 --mount --uts --ipc --net --pid
+And
+> exit 
+Will not destroy the container but just logout.
+
+Dockerfile - sample stored here.
+Provided command "sudo docker build –t myimage:0.1 ." did not work.
+This command has deployed the new container:
+> docker build -f Dockerfile --tag 1.0 . # but did not provide the proper name
+
+When Dockerfile sequence fails, no new image is created and only exited container remains hanging.
+
+> docker build -f Dockerfile -t custom_ubuntu:0.1 .
+> docker images
+ ---
+ REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+ custom_ubuntu       0.1                 fc5386f99eea        8 seconds ago       91.3MB
+ ---
+
+
+
+
