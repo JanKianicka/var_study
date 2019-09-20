@@ -1,0 +1,327 @@
+# Here I will record my detail tasks not directly related to a
+  particular project.
+
+# 4.4.2019 - I need to put hand on the dev enviroment and to prepare the machine
+1. Check linux version
+   > [kianicka@dlw003 ~]$ cat /etc/*-release
+   LSB_VERSION=base-4.0-amd64:base-4.0-noarch:core-4.0-amd64:core-4.0-noarch:graphics-4.0-amd64:graphics-4.0-noarch:printing-4.0-amd64:printing-4.0-noarch
+   Red Hat Enterprise Linux Workstation release 6.10 (Santiago)
+   Red Hat Enterprise Linux Workstation release 6.10 (Santiago)
+   
+   Trying to reach other VMs, succceeded only with
+   dvl014 - where actual devlan system is running
+   (others either did not exists or I was not authentificated)
+   
+   python 2.6.6 everywhere
+   [kianicka@dlv014 ~]$ gcc --version
+   gcc (GCC) 4.4.7 20120313 (Red Hat 4.4.7-23)
+   [kianicka@dlw003 ~]$ gcc --version
+   gcc (GCC) 4.4.7 20120313 (Red Hat 4.4.7-23)
+
+   SQLDeveloper:
+   > /cots/oracle/sqldeveloper-17.4.1.054/sqldeveloper.sh
+   > path to java: /cots/oracle/java/jdk1.8
+     stored to: /home/kianicka/.sqldeveloper/17.4.1/product.conf
+   For connections use:
+   > ls /cots/oracle/conf/tnsnames.ora
+    
+   sqlplus:
+   > setenv ORACLE_HOME /cots/oracle/oracle-11.2.0.2
+   > /cots/oracle/oracle-11.2.0.2/bin/sqlplus idcx/idcx_dev@idcdev
+   > select * from wfdisc where rownum < 10;
+
+   Eclipse 
+   Default /usr/bin/eclipse is without C/C++ plugin.
+   There is still my old eclipse:
+   /dvlscratch/RN/kianicka/Software/eclipse/eclipse with PyDEV and C/C++ support
+   
+   SSH-Keys
+   Generate, send to Thomas and Evangelos, register on Github (Done).
+   Send.
+   But did not succeed with ssh-key authentification.
+   Wrong permission to .ssh directory and to authorized keys file.
+   This sequence has fixed the problem:
+   > chmod 755 .ssh/
+   > chmod 644 .ssh/authorized_keys
+   > chmod 600 .ssh/id_rsa
+   
+   Firefox was installed and I did not succeed with local instalaltion of mc.
+    
+   TODO - move old kianicka artifacts and request Raluca to clean shared folders.
+
+2. Account on parallel computing station and installed numpy and pandas locally using anaconda.
+   Now try some nice use case to demonstrate performance of pandas and numpy.
+   May be compare with java.
+   
+3. SHI software details refreshment:
+   cbase:
+	libaesir - utility functions for developers (sleep, string manipulation, dynamic arrays)
+        libcancomp - canada compress for waveforms
+        libidcstream - stream redirection
+	libidcsyslog - syslog library 
+	libmseed - The Mini-SEED library
+        libparidc - functionality for retrieving parameters
+        libstdtime - Y2K compliant time functions
+	libsteim -  compression and decompression functions for steim level 1,2,3 compression (SEED)
+        libtable - insertion,search, deletion of any type of user data in a table
+
+   idcmodel:
+	libidccss30 - array structures for SHI sofware DB tables
+	libidccss30qa- array struct QA module for CSS 3.0 and IMS database tables
+	libidcwfstructs - beam recipe, wfdisc structs and other conveniet structs
+	
+   sbase:
+	libbeam - computes beams, which is a new channel derived according beam recipe
+	libconvert - type conversion routines 
+	libdataqc - checking of data quality - creating masks
+	libfilter- filtering of data with Butterworth filter
+	libfk - filtering of data in f-k domain (frequency-wavenumber domain f_k, or also space-frequency domain)
+	libgeog - routines for geographical data (on ellipsoid)
+	libhae - computes  normalized cross-correlation and F-statistic for a set of waveforms
+	libidcnumwf - numerical waveform library - detrend, cross-correlation, hilbert transformation
+	libinterp - interpolation routines
+	libloc - SAIC hypocentral event location module
+	liblp - find distance on sphere, using travel time tables
+	libmagnitude - determining event magnitude
+	libprob - probablity of detection
+	libsigpolar - polarization analyses of the signal
+	libspectra - sopute spectra characteristics of the signal
+	libstanoise - estimate station noise
+	libwav - manipulating routines for waveform data
+	
+   libcd:
+	libcd - library needed for continuos data handling
+   ibase:
+	libAt
+	libWcl
+	libXbae
+	libXcss
+	libauth
+	libclips
+	libdbq
+	libevsc
+	libfdetector
+	libfileproduct
+	libgdi
+	libgmisc
+	libgobj
+	libgsefmt
+	libgsewf
+	libhashtree
+	libidcbeamrecipe
+	libidclog
+	libipcnt
+	libmisc
+	libpartcl
+	libresponse
+	libscheme
+	libseis
+	libsyslog
+	libsyslog2
+	libtmcf
+	libwaveformqc
+	libwaveformqcdb
+	libwfm
+	libwio
+	libwreq
+	libxdes
+   ibase applications:
+   	 ARS
+	 Archive
+	 BullComp
+	 CTestRunner
+	 CreateTMSession
+	 DFX
+	 EvLoc
+	 ExAnComp
+	 GA_DBI
+	 GAassoc
+	 GAconflict
+	 GAcons
+	 HASE
+	 LPcompile
+	 LPdisp3_frq
+	 LocSAT
+	 Map
+	 MigrateData
+	 PolariPlot
+	 QTrace
+	 SLSD
+	 Scanner
+	 SpectraPlot
+	 StaPro
+	 SynGen
+	 TMmap
+	 TMthreshold
+	 TestRunner
+	 UpdateTMSession
+	 WaveExpert
+	 WorkFlow
+	 XfkDisplay
+	 birdie
+	 canary
+	 check1
+	 colibri
+	 db_load
+	 doday
+	 e2h
+	 eman
+	 evsc_drv
+	 fpstacap
+	 gdi_gen_Astructs
+	 get_db_str
+	 gettables
+	 h2e
+	 imspar
+	 ipcwrap
+	 jd
+	 maxpmf
+	 nontux
+	 nontux_mgr
+	 od3
+	 qc_conf
+	 qc_mask_detection
+	 rdf2cdf
+	 segcut
+	 segextract
+	 tdiff
+	 tm_beambasic
+	 tm_globrec
+	 tm_stast
+	 wreq
+	 write_fp
+	 wseg
+	 wseg_arrival
+	 xbirdie
+   ibase scm files:
+   	 ARSdefault.scm
+	 DFX-botf.scm
+	 DFX-depth-phase-snr.scm
+	 DFX-detection.scm
+	 DFX-evch-hydro.scm
+	 DFX-evch.scm
+	 DFX-hydro-detection.scm
+	 DFX-hydro-recall.scm
+	 DFX-int-recall.scm
+	 DFX-noiseamp.scm
+	 DFX-origamp.scm
+	 DFX-originbeam.scm
+	 DFX-pmcc-detection.scm
+	 DFX-qcstats.scm
+	 DFX-recall.scm
+	 DFX-segarch.scm
+	 DFXdefault.scm
+	 Mapdefault.scm
+	 Mapgc.scm
+	 general.scm
+	 high_dseis.scm
+	 high_seis.scm
+	 intrinsic.scm
+	 libpar.scm
+	 math.scm
+	 mod_dseis.scm
+	 mod_seis.scm
+	 pde1980_1989.scm
+	 retime.scm
+	 siod.scm
+
+   Configuration repositories:
+   	/ops/software/shi/config/
+	WorldWind (6.1G)
+	app_config (341M)
+		DFX
+		archive
+		automatic
+		continuous_data
+		distributed
+		interactive
+		misc
+		monitoring
+	earth_specs (3.8G)
+		BLK_HYD
+		BLK_INF
+		BLK_OSO
+		EVSC
+		GA
+		LPdisp
+		MAG
+		SASC
+		STAPRO
+		SynGen
+		TT
+		idc_tlsf.defs
+		maps
+		sasc.FURI
+	geotool (757M)
+		scripts
+		tables
+	station_specs (41M)
+		AAK.par
+		ABKT.par
+		AFI.par
+		AKASG.par
+		AKTO.par
+		ALQ.par
+		ANMO.par
+		APG.par
+		AQU.par
+		ARCES.par
+		ARTI.par
+		... and all stations
+	system_specs (114M)
+		DFX.par
+		X11
+		admin.par
+		analysis.par
+		app-resources
+		arc_db
+		auth
+		automatic.par
+		dacs.par
+		env
+		idcdacs.par
+		interactive.par
+		mail_include
+		message_system_auth.par
+		miscspecs.par
+		msgs.par
+		ops_db
+		oracle
+		process.par
+		public.par
+		shared.par
+		sql
+		training.par
+
+
+Ampid issue resolution - looks like genial idea from Gleb Kuzmenko:
+https://itscore.ctbto.org/browse/SIM-681
+
+Attempt to implemented automated interactive tests for ARS using scheme intepreter - by Thomas Neubauer:
+https://itscore.ctbto.org/browse/SIM-909
+
+
+Questions:
+Ibase:
+- what is actually in ibase 'master' branch on GitHUB? Why it does not correspond to devlan branch?
+- I see that devlan_clean has been abandoned - good:
+  dlw003.idc.ctbto.org.-328% git branch -avv | grep devlan
+   * devlan                                                           4a7f526 [github/devlan] Merge remote branch 'remotes/origin/hotfix_TST_ICR-1245' into testbed
+   remotes/ctbto/devlan                                             4a7f526 Merge remote branch 'remotes/origin/hotfix_TST_ICR-1245' into testbed
+   remotes/ctbto/devlan_old                                         3a7ad6b changed directory with ICR-819 script location has been changed
+   remotes/github/devlan                                            4a7f526 Merge remote branch 'remotes/origin/hotfix_TST_ICR-1245' into testbed
+   remotes/github/devlan_clean                                      d43ba50 Merge remote branch 'remotes/breitenf/DCR-2861' into devlan
+  And I see also that devlan corresponds to testbed branch - which shows that new release, porting to RH6.10 is in progress.
+  However, reading the Git workflow and seeing the status on ctbto Gitolite, I see that devlan and testbed branches are laging behind operations,
+  but there is missing integration 'master' branch which should be ahead of the operation all the time.
+
+  The same for the github repository - in ibase there are several feature branches, but they are not merged to the 'master' branch and 
+  it almost look like master/devlan/operations diverge.
+
+  In the described process overview, there is mentioned, that 'each commit object on master is a new release with released version on nexus'.
+  In case of cdtools this is valid (cdtools is only on CTBTO Gitolite server - or I do not see the GitHUB repo), 
+  but not for dependent libraries, e.g. libcd. Publishing of deployment artifacts to nexus works.
+
+- libcd -
+  I see that devlan branch is far byond the testbed and operation branch. The head of development is probably github master branch.
+  
