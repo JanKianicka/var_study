@@ -442,6 +442,8 @@ Adding new disk to logical volume:
   > vgextend VolGroup /dev/sdb
   > lvextend -L+59G /dev/VolGroup/lv_root
   > resize2fs /dev/VolGroup/lv_root
+# resize2fs does not work on Centos7 - we need to use different command
+  > xfs_growfs /dev/centos/root
 
 - now we have it
 ---

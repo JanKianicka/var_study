@@ -1,0 +1,257 @@
+# Structure of new-message-subsystem repository and particularly its unit tests
+# 8.7.2019
+
+When running commented out unit_tests.py it browses whole repo and
+executes the tests in this main modules:
+============= Executing unit tests in acq_archiver
+============= Executing unit tests in acq_message_processor
+============= Executing unit tests in acq_scheduler
+============= Executing unit tests in cc_module
+============= Executing unit tests in idc_products
+============= Executing unit tests in nms_acquisition_receiver
+============= Executing unit tests in nms_admin
+============= Executing unit tests in nms_archiver
+============= Executing unit tests in nms_calibration_sync
+============= Executing unit tests in nms_client
+============= Executing unit tests in nms_common
+============= Executing unit tests in nms_configuration
+============= Executing unit tests in nms_lite_products
+============= Executing unit tests in nms_mail_adapter
+============= Executing unit tests in nms_production_engine
+============= Executing unit tests in nms_result_manager
+============= Executing unit tests in nms_station_registry
+============= Executing unit tests in nms_subscription_engine
+============= Executing unit tests in nms_user_services
+============= Executing unit tests in wave_reader
+
+Lets try to run tests in wave_reader:
+- exited with different errors when we have coped over binary from devlan
+
+Listing of details of the unit tests:
+   Important is class nms_test_common.test.nms_test_case. logilab.common.testlib.nms_test_case.NMSTestCase import TestCase
+   
+Packages:
+CCUPI - (clues - ecdsa_url=http://pkiportal11.test.ctbto.org:8080/ECDSAUPI)
+acq_archiver - 
+   acq_archiver/test/acq_archiver_test/acq_archiver_test.py - DB UNIT test
+acq_message_processor -
+   acq_message_processor/test/acq_message_processor_test/generic_message_processor_test.py
+   acq_message_processor/test/acq_message_processor_test/acq_message_processor_helper_test.py
+   acq_message_processor/test/acq_message_processor_test/acq_message_processor_test.py
+   acq_message_processor/test/acq_message_processor_test/acq_time_segment_test.py 
+   - DB UNIT test
+acq_scheduler - 
+   acq_scheduler/test/acq_scheduler_test/acq_request_test.py
+   acq_scheduler/test/acq_scheduler_test/acq_requestor_test.py
+   acq_scheduler/test/acq_scheduler_test/acq_scheduler_test.py
+archi_sandbox -
+   TestCryptoECDSA/ - integrated but UNIT
+   TestDjangoLPO/ - integrated but UNIT
+   TestDjangoOnTwisted/ - integrated but UNIT
+   TestDjangoXMLRPC/ - integrated but UNIT
+   TestEmailM2Crypto/ - integrated but UNIT
+   TestEmailOnTwisted/ - integrated but UNIT
+   TestHTTPSDjango/ - integrated but UNIT
+   TestPickle/ - UNIT
+   TestPyroServer/ - integrated but UNIT
+   TestTransactionManagement/ - integrated but UNIT
+   TestWebService/ - probably UNIT
+cc_module -
+   cc_module/test/cc_module_test/
+	cc_mail_dao_test.py
+	cc_process_dao_test.py
+	cc_reminder_test.py
+	cc_station_dao_test.py
+	cc_user_dao_test.py
+	cc_user_manager_test.py
+	dao_test_utils.py 
+	dots_dao_test.py - looks like DB UNIT tests
+	pki_cc_manager_test.py
+	start_keypair_daemon_test.py
+	utils_test.py - UNIT (depends on env variable NMS_PROJECTS_HOME) 
+	utils_test.pyc
+cc_portal -
+cc_portal_dist -
+continuous_integration - ?
+doc -
+docs - there are some docket images exports/imports, and interesting is SeisComp3.md
+env - templates of msgsys.env and nms_acq.env with generator and Edward's aliases
+etc -
+   certs -
+   docs/documents
+      nms_file_poller/file_poller_dynamic_diagram_failovermanagement_case.png
+      PerformancesReport.pdf and others
+   docs/official-documents/docs/CTBTO-Architecture-v3.11.doc end others
+   docs/official-documents/presentations/20090628-GA-New-Generation-Message-System-Short.ppt
+execsum_metrics_retrieval -
+   execsum_metrics_retrieval/test/execsum_dir_retrieval_test.py - DB UNIT (through execsum_dir_retrieval.py)
+   execsum_metrics_retrieval/test/mock_kpi_server.py - integrated UNIT - runs kpi server localy
+idc_products - 
+   idc_products/test/idc_products_test/waveform_test/waveform_test.py
+   idc_products/test/idc_products_test/waveform_test/waveform_sub_listener_test.py
+   idc_products/test/idc_products_test/waveform_test/test_waveform_product_definition.py - DB UNIT tests
+   -- ended with this error --
+   "nms_configuration.conf.resource.ResourceError: Cannot find the Env Variable NMS_RN_HOST. One of them should be defined" 
+   and in both I had to change CONF_FILE to absolute path, 'resources/test/waveform_products.conf' did not work.
+   ended finally with this error: 
+   sqlalchemy.exc.InterfaceError: (InterfaceError) Unable to acquire Oracle environment handle None None
+nms_acceptance_test -
+   nms_acceptance_test/test/test_suite.py - DB UNIT and even performance testing
+nms_acquisition_dist -
+nms_acquisition_receiver -
+   nms_acquisition_receiver/test/nms_acquisition_receiver_test/
+	acquisition_job_dao_test.py - UNIT (needed to modify CONF_FILE in generic_receiver_test.py)
+	acquisition_mail_adapter_test.py
+	acquisition_mail_poller_test.py - UNIT (mocking of mail addapter)   
+	acquisition_message_dao_test.py
+	acquisition_queue_test.py
+	generic_receiver_test.py
+	message_checker_test.py
+	station_authentication_test.py
+   	(But some of these are DB UNIT while there is 'create_test_tables.sh' present in the directory.)
+nms_admin -
+   nms_admin/test/nms_admin_test/user_management_test.py
+nms_admin_client -
+nms_archiver -
+   nms_archiver/test/nms_archiver_test/test_utils.py
+nms_calibration_sync -
+   nms_calibration_sync/test/calibration_sync_test/calib_sync_test.py
+nms_calibration_sync_dist -
+nms_client -
+   nms_client/test/nms_client_test/batch_test/batchclient_test.py - UNIT (all services are mocked)
+   ( it was required to add to PYTHONPATH this directory and not install egg file - third_party/nms_client )
+nms_common
+   nms_common/test/nms_common_test
+      bug_pyro_client.py - not a test but main with local pyro server - does not work
+      bug_pyro_server.py - not a test but main with local pyro server - does work
+      certificate_utils_test.py - UNIT but all paths to resource is relatie to nms_common
+      cron_utils_test.py - UNIT but tests python crontab and its execution takes ~65 sec
+      dao_create_test.py - DB UNIT (print_create_table requires Oracle)
+      dao_utils_no_context_test.py
+      dao_utils_test.py
+      email_parser_utils_test.py
+      http_utils_test.py
+      idc_file_utils_test.py
+      ims_utils_test.py
+      ldap_server_test.py - integrated (DB UNIT) requires LDAP server
+      nms_result_test.py
+      nms_tracer_test.py - DB UNIT
+      process_test.py
+      pyro_utils_test.py
+      signing_utils_test.py
+      smtp_utils_test.py
+      test_jinja_utils.py
+      time_utils_test.py
+      time_utils_test.pyc
+      xmlrpc_test.py - UNIT (wih this 'warning' message - Can't read the config file None)
+   nms_common/test/nms_common_test/idc_products
+      idc_validators_test.py
+   nms_common/test/nms_common_test/logger_test
+      nms_logger_test.py
+   nms_common/test/nms_common_test/parser_test
+      ims_message_parser_test.py
+      ims_semantic_validator_test.py
+      ims_tokenizer_test.py
+      lexer_test.py
+      nl_semantic_validator_test.py
+      parser_strategy_test.py
+      parser_test.py
+   ( When commenting integrated or DB UNIT tests we reach that all tests passes with one failing test:
+     testSimpleSMIME (nms_common_test.signing_utils_test.SignedMIMEWithPassphraseTest) ... Verification failure
+     140208977307464:error:21075075:PKCS7 routines:PKCS7_verify:certificate verify error:pk7_smime.c:342:Verify error:certificate has expired
+     FAIL, and one probably uncaught error message:
+     Error loading file /git/kianicka_new/new-message-subsystem/nms_common/resources/test/certificates/selfsigned_privkey.pem )
+nms_configuration -
+   nms_configuration/test/nms_configuration_test/conf_test/conf_helper_test.py - UNIT (but not executed by setup.py prob due to path)
+nms_lite_products -
+   nms_lite_products/test/nms_lite_products_test/nms_lite_test.py - UNIT, failing probably obsolete
+nms_lite_products_definition -
+nms_lite_server_dist -
+nms_mail_adapter -
+   nms_mail_adapter/test/nms_mail_adapter_test/
+      mail_adapter_test.py - DB UNIT
+      poller_test.py - UNIT
+      store_mail_test.py - UNIT
+      ( FilePollerConfigurationException: resources/test/file_poller/folder_2_poll does not exist
+        creation of this directory should be included into setUp of the tests.
+        There is one more error:
+        ResourceError: Cannot find the Env Variable NMSTEST_SCHEMA. One of them should be defined - this is schema for mail adapter Oracle connection)
+nms_management -
+nms_monitoring -
+nms_production_engine -
+   nms_production_engine/test/nms_production_engine_test/
+      dao_test
+        nms_dao_test.py
+      dispatcher_test.py
+      job_manager_test.py
+      production_engine_test.py
+      queue_test.py
+      unittest_config.py
+      ( Major part of these tests is DB UNIT)
+nms_resource_tests - (resources for tests)
+nms_result_manager -
+   nms_result_manager/test/apache_token_authorization_dev.py - DB UNIT
+nms_server_dist -
+nms_stand_alone -
+nms_stand_alone_dist -
+nms_station_registry -
+   nms_station_registry/test/nms_station_registry_test/station_registry_test.py - DB UNIT
+nms_subscription_engine - 
+   nms_subscription_engine/test/nms_subscription_importer_test
+      subscription_importer_test.py - DB UNIT
+   nms_subscription_engine/test/nms_subscription_test
+      subscription_dao_test.py
+      subscription_engine_no_producttype_save_test.py
+      subscription_engine_test.py
+      subscription_environment.py
+      subscription_factory.py
+      subscription_notifier_test.py
+      subscription_publisher_test.py
+      (Most of them looks like DB UNIT tests)
+nms_test_common - generic types for the unit tests
+nms_tools - 
+   nms_tools/test/springpython_aspect_test.py - UNIT
+nms_user_services
+   nms_user_services/test/nms_user_services_test
+      dao_test
+         nms_dao_test.py
+      service_test
+         request_service_test.py
+	 subscription_service_test.py
+	 test_user_service_facade.py
+sandbox -
+   sandbox/database_multithreading/src
+      cx_oracle_test.py
+      dao_threading_test.py
+      db_multi_test.py
+      http_test.py
+      jython_worker_thread.py
+      sqlalchemy_pool_test.py
+      sqlalchemy_worker_test.py
+      worker_test.py
+   sandbox/src/sandbox/wave_reader_test.py
+   sandbox/src/acceptance_test_launcher.py
+   (Looks like DB UNIT and obsolete test procedures)
+scripts -
+third_party -
+unit_tests.py
+update_db.sh
+wave_reader -
+   wave_reader/test/nms_wave_reader_test
+      wave_reader_test.py
+      wave_reader_test.py
+   (This tests are DB UNIT because waveReader it self is connecting to the database.
+    However, they are worthy to be cleaned up and are using binary src/c/waveReader, and whole
+    local VDMS environment. When run from 
+    /git/kianicka_new/nms_home2/wave_reader as
+    $NMS_HOME/bin/python setup.py test
+    with copied over waveReader binary from devlan installation - this was the result
+    ---
+    Ran 10 tests in 5.829s
+    FAILED (failures=5)
+    ---
+    and two files were generated
+    /tmp/wave_multi.data
+    /tmp/wave_3min_cm6.data  - connected to databases as PADD1 user )
+
+

@@ -423,6 +423,56 @@ faclities and to implement robust monitoring tools - <link to
 pertaining SIM tickets>.
 - and create fixing ticket into SIM backlog.
 
+Thomas verification revealed that my conclusion was wrong.
+Yes, load_scheme.sh consumes one more semaphore array, but this is used by the Oracle DB.
+When running multiply times the script without any test, additional semaphore array is
+not added. Only when chosen tests are executed. This is further investigation:
+
+Adding detail diagnostics into DFX-detection bbox test - cats, branch
+IPC-investigations-jan. It was discovered that one additional
+semaphore arrays is consumed by first execution of DFX through python
+script. Even though we loop over modes, no new additional semaphore
+array is consumed.
+So the suspicious pattern is this:
+---
+blackbox/tests/dfx/DFX-detection/run.sh
+launches 
+blackbox/tests/dfx/DFX-detection/run-DFX-detection.py
+by this code:
+  csh -x <<EOF
+  source \${CMS_CONFIG}/system_specs/env/global.env
+  hup python run-DFX-detection.py ${DFX_MODE} > ${DFX_DETECTION_LOG} &
+  wait
+  EOF
+And yet DFX is executed as sub-process in run-DFX-detection.py by this command:
+  os.system(cmd_DFX)
+
+When this happens first time in the loop, and DFX has ran, then one
+additional semaphore arrays is consumed and never released.  However,
+small lightweight prototype of this pattern did not confirm this
+hypothesis. Might be that there is some timeout for hup&wait command,
+or that subprocess has to connect to Oracle in additional connection.
+But checking patterns in bbox jobs that did not consume additional
+array we can confirm that in analyst_log, ARS and mig_bul there is no
+python and nohup wrapping.
+
+- h2e bbox test did not consume the semaphore array - does not connect to database
+- EvLoc - it does not use wrapping and did not add one more semaphore array
+- HASE - it has wrapping and did not consume additional semaphore array
+- GA - it has also wrapping and did not consume additional semaphore array
+- maxpmf - it has no wrapping and did not consume additional semapthore array
+- StaPro - it has also wrapping and did not consume additional semaphore array
+
+One important information, checking status of SHI pipeline
+on dlv014 (with Benoit) we saw that there is no overconsumtion
+of semaphore arrays - and there are running all applications in realtime.
+
+These observations confirm that very likely semaphopre array consumption is
+caouse by applications which uses odbc driver for connection:
+DFX which has two connections - old one through libgdi (OCI driver) and libwaveformqc
+using ODBC driver and (QODBC3) and once more separate connection.
+DTK-PMCC is also very likelly using ODBC - can be confirmed yet.
+
 # On 19.8.2019 issue with failing interactive tests on some workers, different JDK
 Relates to not well harmonized path to java and jdk instalation.
 The situation is as following:

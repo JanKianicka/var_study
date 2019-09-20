@@ -741,6 +741,49 @@ When this host fails, apache still runs but switches to the default internal vir
 required URL is not found - error 404.
 
 
+# 13.9.2019 - working on running unit/integrated tests on my local VMs.
+Docker image was loaded to my local Centos7 workstation and to
+devlab02.
+Connecting to local machine works like this - using cats user:
+> sqlplus rmsuser/xxx@192.168.17.2:1521/XE
+where the docker is running
+On devlan/devlab machines we have to use explicitly the TNS entry
+while there is restriction on listener in SID usage.
+> sqlplus rmsuser/xxx@"(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = 192.168.17.2)(PORT = 1521)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = XE)))"
+
+Trying to build testing envirnment on devlan - dlw022 - success.
+On Centos7 machine - built has passed but there were missing different packages,
+errors in dependency installations (e.g. cx_Oracle).
+Then some tests them self failed as following:
+---
+ loaded_suite = self.suiteClass(map(testCaseClass, testCaseNames))
+  File "/home/cats/nms_home/lib/python2.7/site-packages/logilab_common-0.50.3-py2.7.egg/logilab/common/testlib.py", line 1009, in __init__
+    self.__exc_info = self._exc_info
+AttributeError: 'TestArchiveDateSplitter' object has no attribute '_exc_info'
+---
+This means that the system is not portable to python2.7, but python2.6 is needed.
+
+Using my Centos6 slave installation, we had again such error related to bug in python2.6 on RH6.10:
+---
+from sysconfig import get_platform
+ImportError: No module named sysconfig
+---
+Based on this discussion
+https://stackoverflow.com/questions/50742538/importerror-no-module-named-sysconfig-cant-get-pip-working
+we have fixed it by removing
+/usr/lib/python2.6/site-packages/pkg_resources
+> mv /usr/lib/python2.6/site-packages/pkg_resources /usr/lib/python2.6/site-packages/pkg_resources_back
+
+On CATS slave machine we ended up with this error:
+---
+Searching for cx-Oracle==5.0.1
+Best match: cx-Oracle 5.0.1
+Processing cx_Oracle-5.0.1.tar.gz
+Writing /tmp/easy_install-40o1tK/cx_Oracle-5.0.1/setup.cfg
+Running cx_Oracle-5.0.1/setup.py -q bdist_egg --dist-dir /tmp/easy_install-40o1tK/cx_Oracle-5.0.1/egg-dist-tmp-eExYxm
+error: Oracle home () does not refer to an 9i, 10g or 11g installation.
+---
+
 
 
 -----------------------------
