@@ -414,6 +414,21 @@ For dvl-msgsys it worked
 * LIST (\HasNoChildren) "." "Trash"
 3 LOGOUT
 
+YOU HAVE TO ENTER NUMBER "1 LOGIN"  !!!
+
+# In course of searching convenient email client to connect to the IMAP we succeeded with following:
+> openssl s_client -connect imap.gmail.com:993 -crlf
+1 LOGIN jan.kianicka@gmail.com <password>
+
+2 LIST "" "*"
+3 SELECT INBOX
+4 STATUS INBOX (MESSAGES)
+5 FETCH 6378:6388 (BODY[HEADER])
+6 FETCH 6378:6388 (BODY[1])
+7 LOGOUT
+However, openssl is low level tool used for different purpose than reading emails
+(in spite we verified connectivity and could read row content of the emails)
+
 # We try anyway to launch also rest of VDMS - watch dog
 First we have used Edward's nms_watch_dog_back.conf - the most important difference that SMTP publisher is set to $NMS_SMTP_HOST.
 > ./bin/start_nms_watch_dog.sh 
@@ -784,7 +799,190 @@ Running cx_Oracle-5.0.1/setup.py -q bdist_egg --dist-dir /tmp/easy_install-40o1t
 error: Oracle home () does not refer to an 9i, 10g or 11g installation.
 ---
 
+# Notes for development of the smoke tests
+1. mail linux utility has limitations and clumsy interface in spite of
+successfully working on devlab05.
+2. devlab05 cats user - integrated into Jenkins job and CATS's cats user can authenticate through authenticated users
+to cats user on devlab05
+3. Using local email we can successfully send email requests like this:
+mailx fabian@alv621.idc.ctbto.org
+Subject: cats-test1
+BEGIN IMS2.1
+MSG_TYPE REQUEST
+MSG_ID Example4_for_Jerry
+TIME 2016/05/10 00:00:00 to 2016/05/11 00:00:00
+STA_LIST ARP01
+RRR IMS2.0
+STOP
+EOF
 
+Email address cats@alv621.idc.ctbo.org was registered to PADD.MSG_USER table
+and thus we recieved the RRR data in the email. Successfull.
+This email was recived to local IMAP server.
+> mail utility or mutt can be used to read/evaluate/manipulate the recieved emails.
+
+2. Investigation for options in devlan
+However, we did not figure out how to easily configure mail client on
+devlan.
+There is possibility to send emails from devlab and my personal account: kianicka
+simply like this:
+> mailx jan.kianicka@ctbto.org
+> mailx jan.kianicka@gmail.org
+In all cases the sending email address was jan.kianicka@ctbto.org (which is probably attached to my linux account)
+Sending email using mailx with more parameters did not work - e.g.:
+> echo "message" | mailx -S smtp=smtp.gmail.com:465 -s "subject line" -v jan.kianicka@gmail.com
+- for un-authenticated sending
+>  echo "This is the message body and contains the message" | mailx -v -r "jan.kianicka@ctbto.org" -s "This is the subject" -S smtp="smtp.gmail.com:465" -S smtp-use-starttls -S smtp-auth=login -S smtp-auth-user="jan.kianicka@gmail.com" -S smtp-auth-password="XXX" -S ssl-verify=ignore jan.kianicka@gmail.com
+- did not work neither
+
+Other option for actuall reading the emails is to use
+openssl - we could connect to imap.ctbto.org or to gmail after disabling security on Google account.
+However, openssl is clumsy/limited and tool dedicated for other purpose than email client.
+
+After consultation also with Peter Polzer we should use python.
+Following these web-pages we prototyped reading of emails on my personal gmail account.
+We have to verify yet how this will work for user cats on devlab05.
+
+Then this would be best to implement as smoke test in the cats repository.
+---
+import sys
+import imaplib
+import getpass
+import email
+import email.header
+import datetime
+
+M = imaplib.IMAP4_SSL('imap.gmail.com')
+rv, data = M.login('jan.kianicka@gmail.com', 'XXX')
+rv, mailboxes = M.list()
+rv, data = M.search(None, "ALL") -- not allowed on gmail
+rv, data = M.select(mailbox='INBOX', readonly=True)
+rv, e_data = M.fetch(5300, '(RFC822)') -- the number is desceding, we read the last email
+msg = email.message_from_string(e_data[0][1])
+decode = email.header.decode_header(msg['Subject'])[0]
+>>> print unicode(decode[0])
+test-dlw022
+
+# Sending emails via gmail SMTP server:
+Let us try to connect to cats user mailbox using python and then to create testing account
+for devlan.
+> import smtplib, ssl
+> server = smtplib.SMTP('smtp.gmail.com', 587)
+> server.starttls()
+# turn off security blocking of third-applicaiton on the google account
+> server.login('jan.kianicka@gmail.com', 'XXX')
+> message = 'From: jan.kianicka@gmail.com\nTo: jan.kianicka@ctbto.org\nSubject: Alert!\n\nThis is my devlan gamil smtlib test message'
+> server.sendmail('jan.kianicka@gmail.com', 'jan.kianicka@ctbto.org', message)
+
+As user fabian I have successfully connected to local IMAP on alv621
+However, this IMAP has only one user - we have to create one more user - cats.
+For cats I do not have password and actually this account is not configured as dovecot IMAP account.
+When trying to connect I have the following error:
+>>> rv, data = M.login(getpass.getuser(),  getpass.getpass())
+Password:
+Traceback (most recent call last):
+    raise self.abort('command: %s => %s' % (name, val))
+imaplib.abort: command: LOGIN => socket error: EOF
+---
+But using python we can read local emails and delete them afterwards:
+>>> import mailbox
+>>> a=mailbox.mbox('/var/mail/cats')
+>>> for i in a:
+...     print(i['from'])
+...
+fabian@alv621.idc.ctbto.org
+Continuous Automated Testing System <cats@alv621.idc.ctbto.org>
+Continuous Automated Testing System <cats@alv621.idc.ctbto.org>
+fabian@alv621.idc.ctbto.org
+fabian@alv621.idc.ctbto.org
+fabian@alv621.idc.ctbto.org
+fabian@alv621.idc.ctbto.org
+fabian@alv621.idc.ctbto.org
+fabian@alv621.idc.ctbto.org
+fabian@alv621.idc.ctbto.org
+fabian@alv621.idc.ctbto.org
+
+# Sending emails from local host as cats on devlab05:
+- sending via smtlib did not work, could not connect to localhost
+Running mailx as subprocess worked:
+> import subprocess
+> import sys
+> cmd = """echo "test" | mailx -s 'test1' cats@alv621.idc.ctbto.org"""
+> p=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+> output, errors = p.communicate()
+
+# Sending email as user jan.kianicka on devlan
+2 Options - to use localhost and to use Office SMTP server
+1.
+> server = smtplib.SMTP("localhost")
+> message = 'From: jan.kianicka@ctbto.org\nTo: jan.kianicka@gmail.com\nSubject: Second alert!\n\nThis is my devlan locahost smtlib test message'
+> server.sendmail('jan.kianicka@ctbto.org', 'jan.kianicka@gmail.com', message)
+
+2.
+> server = smtplib.SMTP("malta25.office.ctbto.org")
+> message = 'From: jan.kianicka@ctbto.org\nTo: jan.kianicka@gmail.com\nSubject: Third alert!\n\nThis is my malta25 SMTP smtlib test message'
+> server.starttls()
+> server.login('jan.kianicka@ctbto.org', 'XXX')
+
+# Also reading from IMAP works (not reading from local mail)
+> M = imaplib.IMAP4_SSL('malta25.office.ctbto.org')
+> rv, data = M.login('jan.kianicka@ctbto.org', 'XXX')
+> M.list()
+
+# Deletion of emails from IMAP
+> import imaplib
+> M = imaplib.IMAP4_SSL('imap.gmail.com')
+> rv, data = M.login('nmsunittest@gmail.com', 'XXX')
+> rv, mailboxes = M.list()
+['(\\HasNoChildren) "/" "INBOX"', '(\\HasChildren \\Noselect) "/" "[Gmail]"', 
+'(\\All \\HasNoChildren) "/" "[Gmail]/All Mail"', '(\\HasNoChildren \\Trash) "/" "[Gmail]/Bin"', 
+'(\\Drafts \\HasNoChildren) "/" "[Gmail]/Drafts"', '(\\HasNoChildren \\Important) "/" "[Gmail]/Important"', 
+'(\\HasNoChildren \\Sent) "/" "[Gmail]/Sent Mail"', 
+'(\\HasNoChildren \\Junk) "/" "[Gmail]/Spam"', 
+'(\\Flagged \\HasNoChildren) "/" "[Gmail]/Starred"']
+> rv,data = M.select(mailbox='INBOX', readonly=False)
+> rv, data = M.search(None, "ALL")
+> for num in data[0].split():
+    M.store(num, '+FLAGS', '\\Deleted')
+> M.expunge()
+> M.close()
+> M.logout()
+For removing sent emails select the proper inbox
+> rv, data = M.select(mailbox='[Gmail]/Sent Mail', readonly=False)
+There is yet such inbox '[Gmail]/All Mail', but I did not succeed to remove emails from this one.
+
+
+Good links:
+https://mchirico.github.io/python/2017/01/23/readingMail.html
+https://gist.github.com/robulouski/7441883
+https://docs.python.org/2/library/imaplib.html
+https://tewarid.github.io/2011/05/10/access-imap-server-from-the-command-line-using-openssl.html
+https://lists.fedoraproject.org/pipermail/users/2013-September/440917.html
+https://www.binarytides.com/linux-mail-command-examples/
+
+So conclusion:
+--------------
+We need to support smtp local host without authentication,
+IMAP host with authentication.
+We need to support remote host with authentication.
+We need to support reading and processing emails for local user 'cats' for devlab temporally.
+
+# Specification for smoke-bbox tests for amail request use case for VDMS REQ-SUBS system
+1. We want to have it available for DEVLAN with personal/technical account
+2. For CATS slave for cats user and local IMAP/SMTP account
+3. We want to have it available for devlab with local cats IMAP/SMTP account
+4. Whereas we do not have yet fully configured cats accounts on the local Dovecot server, we
+support also reading of local emails and sending from local machine. - sending emails implemented, reading pending yet (will be part of verification). - In progress
+(CATS infrastrucrucutre has just one local user with email address cats@ctbto.org)
+
+There will be first version of python script function 
+on devlab05 for cats user and for my account on devlan.
+We will have local simple config file with entries and 
+this file will be wrapped and generated with VDMS run.sh script
+which will use also robot framework.
+
+For today - parametrized deletion of IMAP emails and proper inclusion into run.sh 
+such that can be eventually merged to the master branch.
 
 -----------------------------
 We will test yet following:
