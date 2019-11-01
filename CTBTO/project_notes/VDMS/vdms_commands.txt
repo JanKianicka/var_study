@@ -902,6 +902,14 @@ fabian@alv621.idc.ctbto.org
 fabian@alv621.idc.ctbto.org
 fabian@alv621.idc.ctbto.org
 
+# Deleting using mailbox did not work due to permission problem
+# we have to use mail, mailx tools in subprocess
+deleting all messages in the local mailbox
+> echo \"d *\" | mail -N 
+deleting messages according subject
+> echo "delete (subject \"VDMS REQ-SUBS Test\")" |mail
+
+
 # Sending emails from local host as cats on devlab05:
 - sending via smtlib did not work, could not connect to localhost
 Running mailx as subprocess worked:
@@ -950,6 +958,156 @@ Running mailx as subprocess worked:
 For removing sent emails select the proper inbox
 > rv, data = M.select(mailbox='[Gmail]/Sent Mail', readonly=False)
 There is yet such inbox '[Gmail]/All Mail', but I did not succeed to remove emails from this one.
+
+# Deletion based on UID - did not work on local Dovecot, but worked on gmail
+# let us verify also malta and imap.ctbto.org
+The error:
+---
+  File "./blackbox/tests/vdms/run_vdms_mail_requests.py", line 585, in <module>
+    imapMailHelper.deleteAllMails(inbox)
+  File "/home/misc/cats/cats_temp/cats/./blackbox/tests/vdms/../../MailTools/IMAPHelper.py", line 114, in deleteAllMails
+    rv, flagData =  self.imapClient.uid('store', uid, '+FLAGS', '\\Deleted')
+  File "/usr/lib64/python2.6/imaplib.py", line 765, in uid
+    typ, dat = self._simple_command(name, command, *args)
+  File "/usr/lib64/python2.6/imaplib.py", line 1072, in _simple_command
+    return self._command_complete(name, self._command(name, *args))
+  File "/usr/lib64/python2.6/imaplib.py", line 907, in _command_complete
+    raise self.error('%s command error: %s %s' % (name, typ, data))
+imaplib.error: UID command error: BAD ['Error in IMAP command UID STORE: Flags list contains non-atoms.']
+
+---
+And according to documentation this means the Dovecot IMAP server does not support UID - flag '\Deleted'
+and not using UID we endenger by concurrent connection that will be actually deleted different emails
+than the one supposed to:
+https://yuji.wordpress.com/2011/06/22/python-imaplib-imap-example-with-gmail/
+
+Trying my imap exchange - works, malta25 supports UID \Delete flag
+> M = imaplib.IMAP4_SSL('malta25.office.ctbto.org')
+> rv, data = M.login('jan.kianicka@ctbto.org', 'XXX')
+> M.list()
+> rv,data = M.select(mailbox='INBOX/COD/VDMS_automatic', readonly=False)
+> rv, mailSearchData = M.uid('search', None, "ALL")
+> rv, mailData = M.uid('fetch', 1, "(RFC822)")
+> raw_mail = mailData[0][1]
+> import email
+> email_msg = email.message_from_string(raw_mail)
+> print email_msg["Subject"]
+nmsgsys test
+> rv, flagData =  M.uid('store', 1, '+FLAGS', '\\Deleted')
+>  M.expunge()
+('OK', ['1'])
+> M.close()
+('OK', ['CLOSE completed.'])
+
+# Trying with imap.ctbto.org - the same case, the server does not support UID store for \Deleted
+but this means using deletion just by sequence number is dangerous pattern.
+> M = imaplib.IMAP4_SSL('imap.ctbto.org')
+> rv, data = M.login('dvl-msgsys', 'XXX')
+> M.list()
+('OK', ['(\\HasChildren) "." "INBOX"', '(\\HasNoChildren) "." "INBOX.Drafts"', '(\\HasNoChildren) "." "INBOX.Sent"', '(\\HasNoChildren) "." "Junk E-mail"', '(\\HasNoChildren)
+# There were not mails except of test
+> rv,data = M.select(mailbox='INBOX.Sent', readonly=False)
+> rv, mailSearchData = M.uid('search', None, "ALL")
+> rv, mailData = M.uid('fetch', 1, "(RFC822)")
+> raw_mail = mailData[0][1]
+> import email
+> email_msg = email.message_from_string(raw_mail)
+> print email_msg["Subject"]
+test
+> rv, flagData =  M.uid('store', 1, '+FLAGS', '\\Deleted')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/usr/lib64/python2.6/imaplib.py", line 765, in uid
+    typ, dat = self._simple_command(name, command, *args)
+  File "/usr/lib64/python2.6/imaplib.py", line 1072, in _simple_command
+    return self._command_complete(name, self._command(name, *args))
+  File "/usr/lib64/python2.6/imaplib.py", line 907, in _command_complete
+    raise self.error('%s command error: %s %s' % (name, typ, data))
+imaplib.error: UID command error: BAD ['Missing required argument to UID Store']
+
+Conclusions:
+VDMS is not using UID for deletion nor reading of emails, and imap.ctbto.org nor our Dovecot does not support
+this flag.
+Let us see the capabilities.
+https://bip.weizmann.ac.il/course/python/PyMOTW/PyMOTW/docs/imaplib/
+
+Diagnostics of devlab05 dovecot server, and malta25 which supports flagging based on UID:
+devlab05
+> imaplib.Debug = 4
+> M = imaplib.IMAP4('localhost')
+  00:34.33 imaplib version 2.58
+  00:34.33 new IMAP4 connection, tag=HLOP
+  00:34.35 < * OK [CAPABILITY IMAP4rev1 LITERAL+ SASL-IR LOGIN-REFERRALS ID ENABLE IDLE AUTH=PLAIN AUTH=LOGIN] Dovecot ready.
+  00:34.35 > HLOP0 CAPABILITY
+  00:34.35 < * CAPABILITY IMAP4rev1 LITERAL+ SASL-IR LOGIN-REFERRALS ID ENABLE IDLE AUTH=PLAIN AUTH=LOGIN
+  00:34.35 < HLOP0 OK Capability completed.
+  00:34.35 CAPABILITIES: ('IMAP4REV1', 'LITERAL+', 'SASL-IR', 'LOGIN-REFERRALS', 'ID', 'ENABLE', 'IDLE', 'AUTH=PLAIN', 'AUTH=LOGIN')
+> rv, data = M.login('fabian', 'XXX')
+  01:11.84 > HLOP1 LOGIN fabian "password"
+  01:11.84 < * CAPABILITY IMAP4rev1 LITERAL+ SASL-IR LOGIN-REFERRALS ID ENABLE IDLE SORT SORT=DISPLAY THREAD=REFERENCES THREAD=REFS MULTIAPPEND UNSELECT CHILDREN NAMESPACE UIDPLUS LIST-EXTENDED I18NLEVEL=1 CONDSTORE QRESYNC ESEARCH ESORT SEARCHRES WITHIN CONTEXT=SEARCH LIST-STATUS
+  01:11.84 < HLOP1 OK Logged in
+> rv,data = M.select(mailbox='INBOX', readonly=False)
+  01:50.96 > HLOP4 SELECT INBOX
+  01:50.96 < * FLAGS (\Answered \Flagged \Deleted \Seen \Draft)
+  01:50.96 < * OK [PERMANENTFLAGS (\Answered \Flagged \Deleted \Seen \Draft \*)] Flags permitted.
+  01:50.96 < * 8 EXISTS
+  01:50.96 < * 0 RECENT
+  01:50.96 < * OK [UIDVALIDITY 1564673071] UIDs valid
+  01:50.96 < * OK [UIDNEXT 4865] Predicted next UID
+  01:50.96 < * OK [HIGHESTMODSEQ 1] Highest
+  01:50.96 < HLOP4 OK [READ-WRITE] Select completed.
+> rv, mailSearchData = M.uid('search', None, "ALL")
+  03:27.89 > HLOP5 UID SEARCH ALL
+  03:27.89 < * SEARCH 4857 4858 4859 4860 4861 4862 4863 4864
+  03:27.89 < HLOP5 OK Search completed (0.000 secs).
+> rv, mailData = M.uid('fetch', 1, "(RFC822)")
+  03:42.46 > HLOP6 UID FETCH 1 (RFC822)
+  03:42.46 < HLOP6 OK Fetch completed.
+> rv, flagData =  M.uid('store', 1, '+FLAGS', '\\Deleted')
+  03:57.70 > HLOP7 UID STORE 1 +FLAGS "\\Deleted"
+  03:57.70 < HLOP7 BAD Error in IMAP command UID STORE: Flags list contains non-atoms.
+  03:57.70 BAD response: Error in IMAP command UID STORE: Flags list contains non-atoms.
+We can see that this server does not support flagging of the messages.
+And sequencial number is used in VDMS too:
+---
+nms_mail_adapter.src.nms_mail_adapter.mail_adapter_server.IMAPClient.remove_email()
+            client.store(mailnum, '+FLAGS', '\\Deleted')
+            client.expunge()  
+---
+
+malta25
+> imaplib.Debug = 4
+> M = imaplib.IMAP4_SSL('malta25.office.ctbto.org')
+  11:28.48 imaplib version 2.58
+  11:28.48 new IMAP4 connection, tag=GEID
+  11:28.52 < * OK The Microsoft Exchange IMAP4 service is ready.
+  11:28.52 > GEID0 CAPABILITY
+  11:28.52 < * CAPABILITY IMAP4 IMAP4rev1 AUTH=NTLM AUTH=GSSAPI AUTH=PLAIN UIDPLUS CHILDREN IDLE NAMESPACE LITERAL+
+  11:28.52 < GEID0 OK CAPABILITY completed.
+  11:28.52 CAPABILITIES: ('IMAP4', 'IMAP4REV1', 'AUTH=NTLM', 'AUTH=GSSAPI', 'AUTH=PLAIN', 'UIDPLUS', 'CHILDREN', 'IDLE', 'NAMESPACE', 'LITER
+> rv, data = M.login('jan.kianicka@ctbto.org', 'XXX')
+  12:56.47 > NIOJ1 LOGIN "jan.kianicka@ctbto.org" "XXX"
+  12:56.52 < NIOJ1 OK LOGIN completed.
+> rv,data = M.select(mailbox='INBOX/COD/VDMS_automatic', readonly=False)
+  13:06.00 > NIOJ2 SELECT "INBOX/COD/VDMS_automatic"
+  13:06.03 < * 27 EXISTS
+  13:06.03 < * 0 RECENT
+  13:06.03 < * FLAGS (\Seen \Answered \Flagged \Deleted \Draft $MDNSent)
+  13:06.03 < * OK [PERMANENTFLAGS (\Seen \Answered \Flagged \Deleted \Draft $MDNSent)] Permanent flags
+  13:06.03 < * OK [UIDVALIDITY 114819] UIDVALIDITY value
+  13:06.03 < * OK [UIDNEXT 31] The next unique identifier value
+  13:06.03 < NIOJ2 OK [READ-WRITE] SELECT completed.
+> rv, mailData = M.uid('fetch', 2, "(RFC822)")
+  15:05.48 > NIOJ5 UID FETCH 2 (RFC822)
+  15:05.49 < * 1 FETCH (RFC822 {5656}
+  15:05.49 read literal size 5656
+  15:05.49 <  UID 2 FLAGS (\Seen))
+  15:05.49 < NIOJ5 OK FETCH completed.
+> rv, flagData =  M.uid('store', 2, '+FLAGS', '\\Seen')
+  16:32.20 > NIOJ6 UID STORE 2 +FLAGS "\\Seen"
+  16:32.21 < * 1 FETCH (FLAGS (\Seen))
+  16:32.21 < NIOJ6 OK STORE completed.
+
 
 
 Good links:
