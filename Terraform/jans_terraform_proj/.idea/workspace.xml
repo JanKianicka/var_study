@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="a18145ef-c20b-4474-a717-a53f14eeda93" name="Default Changelist" comment="" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ProjectId" id="1THhoM7zghXBmd181Iy5NF12KI9" />
+  <component name="PropertiesComponent">
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="go.import.settings.migrated" value="true" />
+    <property name="go.vendoring.notification.had.been.shown" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/lab10/elb-module/module" />
+    <property name="project.structure.last.edited" value="Modules" />
+    <property name="project.structure.proportion" value="0.0" />
+    <property name="project.structure.side.proportion" value="0.0" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\ctbto-guest\jans_terraform_proj\lab10" />
+      <recent name="C:\Users\ctbto-guest\jans_terraform_proj\lab9" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\ctbto-guest\jans_terraform_proj\lab10\elb-module\module" />
+      <recent name="C:\Users\ctbto-guest\jans_terraform_proj\lab7\module\Services\elb" />
+      <recent name="C:\Users\ctbto-guest\jans_terraform_proj\lab6_1" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="a18145ef-c20b-4474-a717-a53f14eeda93" name="Default Changelist" comment="" />
+      <created>1573123101295</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1573123101295</updated>
+      <workItem from="1573123112875" duration="1211000" />
+      <workItem from="1573126900631" duration="154000" />
+      <workItem from="1573127059628" duration="2347000" />
+      <workItem from="1573129415491" duration="1457000" />
+      <workItem from="1573130879015" duration="7675000" />
+      <workItem from="1573201363195" duration="3985000" />
+      <workItem from="1573205358729" duration="27000" />
+      <workItem from="1573205387261" duration="40000" />
+      <workItem from="1573205436784" duration="4363000" />
+      <workItem from="1573215262353" duration="10000" />
+      <workItem from="1573215302116" duration="864000" />
+      <workItem from="1573216169696" duration="461000" />
+      <workItem from="1573216649311" duration="789000" />
+      <workItem from="1573217442183" duration="1884000" />
+      <workItem from="1573219440019" duration="2231000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/lab10/basic_setup_test.go</url>
+          <line>4</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>
