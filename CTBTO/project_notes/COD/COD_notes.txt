@@ -49,14 +49,241 @@ Important users:
 
 /home/misc/cats/ - is empty, basically only .ssh is there
 
+# 12.12.2019 - working on desing of configuration change automation.
+By Evangelos proposed three solutions:
+
+A. Separate (dedicated) config files per LAN in the same Git branch, distinguished by file extension
+B. Parameterized template files with variables that are expanded by the deployment script
+C. Parameterized template files with variables that are expanded by the executing application
+
+Honestly, I did not like any of proposed solutions.
+
+I proposed soluton D which will automate configuration delivery.
+And keep current configuration basically untouched.
+---
+We need to automate also configuration deliveries and therefore need
+some easy achievable solution soon
+
+   1. We need full automation of config change delivered to OPS
+   because we need to deploy and verify it also to our devlab machines
+   - Maintainers Staging Area and Acceptance Testing Area
+   
+   2. We need solution which will easy allow us to have different
+   configuration for different deployments
+
+D. Option with having conf→operations branch as reference and deliver
+configuration change in conf->release/release candidate branch
+
+   # Use case 1 - delivery of only conf change without pertaining code change:
+
+   We have in nms_config (as well as in app_config and other config
+   repos) three branches: devlan, testbed, operations.
+
+   1. Edward decides to deliver only config change (e.g. decide to
+   change pool_size of DB connection for production engine as a fix of
+   random failures in ops).
+   
+   2. Edward creates release branch from latest HEAD operations and
+   commits his configuration change
+   
+   3. Our COD pipelines detects new release with just config change and does following:
+   
+   3.1 Temporally merges this change to all three existing branches -
+   devlab, testbed, operations - for potential conflict check
+   
+   3.2 Temporally merges this change and deploys such locally merged
+   configuration to Maintainers Staging Area - devlab05
+   
+   3.3 CATS automatically test the new configuration using automated
+   smoke tests, VDMS PE yet verifies manually special cases (executes
+   special automated tests)
+   
+   3.4 Via our ICR workflow in the same way the new release is merged
+   and deployed also to Acceptance Testing Area
+   
+   3.5 When approved, the release branch is finally merged and tagged
+   to operations branch and ready to be automatically deployed to OPS
+   
+   When desired: using manual DCR and ICR the change is merged also to
+   devlan and tested branches/installations of nms_config (this can be
+   for convenience also semiautomated).
+
+   # Use case 2 - delivery of conf change with pertaining source code change:
+
+   Similar like in use case 1, but source code release deployment has
+   to go with config release deployment hand-in-hand.
+
+   And again - for us is essential 'operations' branch as reference,
+   and temporal 'release' branch.
+
+   And our COD pipeline - Jenkins jobs have to guarantee that both
+   changes are automatically deployed to devlab05 in synch. (Will need
+   some detail design of Jenkins jobs or deployment scripts to address
+   it).
+
+   devlan, testbed again maintained just as now - manually.
+
+
+# 12.12.2019 Addressing some improvements probably necessary for
+  integration into COD pipeline
+
+So my proposal at least as workaround to keep nms_config as is, with
+three branches. But it would need even in COD implement some improvements
+to clean up and do VDMS configuration such that we do not e.g. need
+very much unecessary patching in COD scripts.
+
+VDMS configuration is generally quite well designed. Most of environment specific
+configurations are in ENV variables in these two files:
+nms/env/nms_bashrc - local installation variables, users, server names etc.
+nms/env/msgsys.env - many more specific variables related to current VDMS version, installation
+(Oracle variables, PATH, LD_LIBRARY_PATH, ports)
+
+The files in the 'conf'directory really contains well documented blocks where env
+variables from these two files are referenced. Here such example of
+mail adapter configuration file (nms/conf/nms_mail_adapter.conf).
+
+[file_poller]
+#folder being filled by the procmail and being polled by the user services layer
+folder_2_poll=%(ENV[NMS_DATA])/file_poller_folder
+
+#time for the poller (in seconds, it's a float number, so you can write 0.452 if you want to)
+time_trigger=0.2
+
+#maximum number of files being polled each time the poller is triggered
+maximum_number_of_files=99999
+
+#The number of file a consumer will poll in one cycle
+consumer_buffer_size=100
+
+#number of threads file polling
+thread_number=1
+
+#number of reprocessing threads file polling
+reprocessing_thread_number=1
+
+#working directory is the directory where files are temporary copied 
+working_directory=%(ENV[NMS_DATA])/file_poller_working_dir
+
+#Temporary folder used to log that the mail adapter received a new mail content
+mail_adapter_logging_file=%(ENV[NMS_DATA])/temporary_mail_adapter_logger.log
+
+#fail over management: if true, working dir is treated, if false, the working dir is brutally cleared
+is_fail_over_managed=True
+
+#acknowledgment mail: if true, an acknowledgment mail is sent on mail reception by the system, if false, only the response mail is sent
+is_ack_mail_managed=True
+
+We can see that tested verified configuraiton parameters strongly bind to
+VDMS system it self are set without env variable and variables installation specific are
+referenced from the environment.
+
+And really looking at differences between conf/* files, most of them
+are really just left over e.g. DEBUG logging, left over comments or
+some forgotten small insignificant changes - so my conclusion is, if
+we would just keep config clean we can exists alreay now in a single
+branch for most of configuraiton.
+
+The only exceptions and problematic points are these:
+1. nms_config contains certificates which are LAN specific and has to
+be regularly maintained:
+nms_config/certs/
+acq
+history
+IDC-CERT.pem
+pts_ca.pem
+
+2. There is strange station specific configuration for THIRD-PARTY binary:
+messageAPI/sensorinfo.txt
+which differ per branch (installation).
+---
+# Primary stations
+ABKT ABKT ABKT be 111100 STS-1 0.3214852 1 20 735696000 9999999999.999 1 0
+ABKT ABKT ABKT bn 111101 STS-1 0.3164885 1 20 735696000 9999999999.999 1 1
+ABKT ABKT ABKT bz 111102 STS-1 0.2915417 1 20 735696000 9999999999.999 1 2
+AKASG AK01 AK01 BHZ 1117200 CMG-3E 0.0295 1 40 1158192000 9999999999.999 0 0
+AKASG AK02 AK02 BHZ 1117201 CMG-3E 0.02967 1 40 1158192000 9999999999.999 0 1
+....
+----
+
+3. There are still some specific variables which are worthy to be put to env variables
+- nicelly they were revealed when Thomas had to implement:
+patchVDMSConfig.sh in continuos_delivery repository.
+e.g. turning on/off signing of outgoing emails or SSL over IMAP connection
+Ideally we should have not conf patching - but to have all
+what is variable per VDMS installation in a single or two single files.
+
+4. msgsys.env still contains entries which should be referenced from
+nms_bashrc - e.g. some server names, DB user names.
+
+5. nms_bashrc has if-else block and checking of $LAN and HOSTNAME pattern.
+And this block supports only three installations:
+devlan
+testbad
+ops
+(Thus for example the instance running on devlan on dlv018 is not supported here,
+but only in untracked custom Edward's configuration file.)
+
+6. All passwords are retrieved from auto's home directory -
+/home/misc/auto/nms/nms_auto.env which contains all passwords,
+it is not secure, and not versatile to efficiently support different installations.
+Password variables are named e.g.:
+PADD1_SHI_PW
+PADD2_SHI_PW
+PADD_D_SHI_PW
+PADD_T_SHI_PW
+PADD_P_SHI_PW
+Three for devlan, one per testbed and operations.
+
+# Detail proposal how to slightly improve the configuration
+# as a first interation which would allow us to
+# transfer COD VDMS from a 'prototype' to potentially operational
+# solution
+1. To strip out content of nms_bashrc into different git repository
+containing dedicated file with server names, user names, ports etc.
+And for each VDMS installation one file, or one branch.
+Proposed name: nms_instances
+dvl-dlv019_nms_bashrc
+dvl-dlv018_nms_bashrc
+testbed_nms_bashrc
+operations_nms_bashrc
+devlab05_nms_bashrc
+
+2. Strip out server names, user names, other potentially deviating
+variables from msgsys.env and keep there only really VDMS specific
+variables, like e.g. Pyro ports.
+
+3. Try to revise content of  /home/misc/auto/nms/nms_auto.env
+to use the same variables and change just value per VDMS installation.
+We might think about using Ansible service here.
+
+4. Improve current configuration by:
+- revisiting of differences and clean up of current branches in nms_config
+- striping out potentially deviating parameters to env variables
+and after this:
+
+5. Remove most of configuration patching in our COD scripts.
+(May be patching of apache_django_servise or locally installed nms_client
+we can not avoid - or? ... )
+
+6. Remove from nms_config also really installation specific
+certificates or station specific configurations to the new repository:
+nms_instances
+
+We then need to consult such change with VDMS team, implement it,
+verify on devlab, then create DCR/ICR and verify it also on devlan,
+testbed, operations - and probably we need this for COD VDMS putting
+to operations.
+
+Estimation just for this is at least 1 month of work - communication,
+detail design, review, testing.
+
 
 Qestions:
 Reading document Description of the Cdtools COD:
-COD_Q1: There is mentioned cleaning crontab running on staging area or accpetance testing area
-on devlab* machines. System should be deployed to devlab01, or devlab03. Cleaning crontab should be owned by the user 'auto' but for cleaning DB is used
+COD_Q1: There is mentioned cleaning crontab running on staging area or
+accpetance testing area on devlab* machines. System should be deployed
+to devlab01, or devlab03. Cleaning crontab should be owned by the user
+'auto' but for cleaning DB is used
 /home/consult/klinkl/cleanUpDB
 I have not found this script on any of the devlab machines.
 Where it resides and where I can have a look on it?
-
-
-Something here.
