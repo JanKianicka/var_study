@@ -1,0 +1,156 @@
+python duration:
+Duration: 0:00:27.054937
+Exited
+
+---
+dlw022.idc.ctbto.org.-1187% top -b -c | grep -v grep | grep perf_test
+21536 kianicka  20   0 2548m 2.5g 1684 R 35.4 15.9   0:01.07 /usr/bin/python2.6 -u /git/kianicka_new/var_study/python_tests/perf_test/perf_test_python.py                                                                                    
+21536 kianicka  20   0 3356m 3.2g 1688 R 99.7 20.9   0:04.08 /usr/bin/python2.6 -u /git/kianicka_new/var_study/python_tests/perf_test/perf_test_python.py                                                                                    
+21536 kianicka  20   0 3586m 3.4g 1688 R 99.7 22.3   0:07.09 /usr/bin/python2.6 -u /git/kianicka_new/var_study/python_tests/perf_test/perf_test_python.py                                                                                    
+21536 kianicka  20   0 3860m 3.7g 1688 R 100.0 23.7   0:10.12 /usr/bin/python2.6 -u /git/kianicka_new/var_study/python_tests/perf_test/perf_test_python.py                                                                                   
+21536 kianicka  20   0 3188m 3.0g 1748 R 99.9 19.6   0:13.14 /usr/bin/python2.6 -u /git/kianicka_new/var_study/python_tests/perf_test/perf_test_python.py                                                                                    
+21536 kianicka  20   0 3188m 3.0g 1772 R 99.6 19.6   0:16.15 /usr/bin/python2.6 -u /git/kianicka_new/var_study/python_tests/perf_test/perf_test_python.py                                                                                    
+21536 kianicka  20   0 3188m 3.0g 1772 R 100.0 19.6   0:19.18 /usr/bin/python2.6 -u /git/kianicka_new/var_study/python_tests/perf_test/perf_test_python.py                                                                                   
+21536 kianicka  20   0 3188m 3.0g 1772 R 100.0 19.6   0:22.21 /usr/bin/python2.6 -u /git/kianicka_new/var_study/python_tests/perf_test/perf_test_python.py                                                                                   
+21536 kianicka  20   0 3188m 3.0g 1772 R 99.8 19.6   0:25.23 /usr/bin/python2.6 -u /git/kianicka_new/var_study/python_tests/perf_test/perf_test_python.py                                                                                    
+21536 kianicka  20   0 3188m 3.0g 1780 R 99.5 19.6   0:28.24 /usr/bin/python2.6 -u /git/kianicka_new/var_study/python_tests/perf_test/perf_test_python.py 
+
+numpy for the same test case:
+----
+Duration: 0:00:03.742582
+Exited
+
+---
+dlw022.idc.ctbto.org.-1188% top -b -c | grep -v grep | grep perf_test
+21927 kianicka  20   0 1620m 1.0g 3392 R 47.7  6.3   0:01.44 /usr/bin/python2.6 -u /git/kianicka_new/var_study/python_tests/perf_test/perf_test_numpy.py
+
+
+C implementation
+---
+dlw022.idc.ctbto.org.-1189% gcc perf_test.c -o perf_test -lm
+dlw022.idc.ctbto.org.-1190% ./perf_test
+Start
+size: 100000000
+Duration: 3.47
+Exited
+
+---
+dlw022.idc.ctbto.org.-1001% top -b -c | grep -v grep | grep perf_test
+22261 kianicka  20   0  769m  58m  416 R  1.0  0.4   0:00.03 ./perf_test                                                                                                                                                                     
+22261 kianicka  20   0  769m 763m  476 R 99.8  4.8   0:03.04 ./perf_test
+
+java implementation
+----
+bash-4.1$ javac PerfTest.java
+bash-4.1$ java PerfTest
+Duration: 37
+Exited
+
+---
+dlw022.idc.ctbto.org.-1016% top -b -c | grep -v grep | grep Perf
+17640 kianicka  20   0 6700m 794m  11m S 98.0  5.0   0:03.84 java PerfTest                                                                                                                                                                   
+17640 kianicka  20   0 6700m 794m  11m S 100.1  5.0   0:06.86 java PerfTest                                                                                                                                                                  
+17640 kianicka  20   0 6700m 794m  11m S 99.7  5.0   0:09.87 java PerfTest                                                                                                                                                                   
+17640 kianicka  20   0 6700m 794m  11m S 100.5  5.0   0:12.90 java PerfTest                                                                                                                                                                  
+17640 kianicka  20   0 6700m 794m  11m S 99.6  5.0   0:15.91 java PerfTest                                                                                                                                                                   
+17640 kianicka  20   0 6700m 794m  11m S 100.0  5.0   0:18.93 java PerfTest                                                                                                                                                                  
+17640 kianicka  20   0 6700m 794m  11m S 99.8  5.0   0:21.94 java PerfTest                                                                                                                                                                   
+17640 kianicka  20   0 6700m 794m  11m S 100.5  5.0   0:24.97 java PerfTest                                                                                                                                                                  
+17640 kianicka  20   0 6700m 794m  11m S 99.9  5.0   0:27.98 java PerfTest                                                                                                                                                                   
+17640 kianicka  20   0 6700m 794m  11m S 100.2  5.0   0:31.01 java PerfTest                                                                                                                                                                  
+17640 kianicka  20   0 6700m 794m  11m S 99.6  5.0   0:34.02 java PerfTest                                                                                                                                                                   
+17640 kianicka  20   0 6700m 794m  11m S 100.0  5.0   0:37.04 java PerfTest  
+
+
+Using also string manipulation routines
+Java:
+----
+bash-4.1$ java PerfTest
+Duration - sin: 37.321
+String maniplation
+Duration overall: 85.325
+Exited
+
+---
+dlw022.idc.ctbto.org.-1019% top -b -c | grep -v grep | grep Perf
+25309 kianicka  20   0 6700m 793m  11m S 47.7  5.0   0:01.44 java PerfTest                                                                                                                                                                   
+25309 kianicka  20   0 6700m 793m  11m S 100.1  5.0   0:04.46 java PerfTest                                                                                                                                                                  
+25309 kianicka  20   0 6700m 793m  11m S 99.7  5.0   0:07.47 java PerfTest                                                                                                                                                                   
+25309 kianicka  20   0 6700m 793m  11m S 99.9  5.0   0:10.48 java PerfTest                                                                                                                                                                   
+25309 kianicka  20   0 6700m 793m  11m S 100.5  5.0   0:13.51 java PerfTest                                                                                                                                                                  
+25309 kianicka  20   0 6700m 793m  11m S 99.9  5.0   0:16.53 java PerfTest                                                                                                                                                                   
+25309 kianicka  20   0 6700m 793m  11m S 99.7  5.0   0:19.54 java PerfTest                                                                                                                                                                   
+25309 kianicka  20   0 6700m 793m  11m S 100.4  5.0   0:22.57 java PerfTest                                                                                                                                                                  
+25309 kianicka  20   0 6700m 793m  11m S 99.9  5.0   0:25.59 java PerfTest                                                                                                                                                                   
+25309 kianicka  20   0 6700m 793m  11m S 100.0  5.0   0:28.61 java PerfTest                                                                                                                                                                  
+25309 kianicka  20   0 6700m 793m  11m S 100.1  5.0   0:31.63 java PerfTest                                                                                                                                                                  
+25309 kianicka  20   0 6700m 793m  11m S 99.6  5.0   0:34.64 java PerfTest                                                                                                                                                                   
+25309 kianicka  20   0 6700m 878m  12m S 119.9  5.5   0:38.25 java PerfTest                                                                                                                                                                  
+25309 kianicka  20   0 6700m 2.0g  12m S 133.5 13.2   0:42.28 java PerfTest                                                                                                                                                                  
+25309 kianicka  20   0 6700m 2.1g  12m S 106.2 13.5   0:45.48 java PerfTest                                                                                                                                                                  
+25309 kianicka  20   0 6700m 2.1g  12m S 106.9 13.5   0:48.70 java PerfTest                                                                                                                                                                  
+25309 kianicka  20   0 6700m 2.1g  12m S 109.6 13.5   0:52.01 java PerfTest                                                                                                                                                                  
+25309 kianicka  20   0 6700m 2.1g  12m S 107.9 13.5   0:55.27 java PerfTest                                                                                                                                                                  
+25309 kianicka  20   0 6700m 2.1g  12m S 108.8 13.5   0:58.56 java PerfTest                                                                                                                                                                  
+25309 kianicka  20   0 6700m 2.1g  12m S 106.6 13.5   1:01.78 java PerfTest                                                                                                                                                                  
+25309 kianicka  20   0 6700m 2.1g  12m S 103.6 13.5   1:04.95 java PerfTest                                                                                                                                                                  
+25309 kianicka  20   0 6700m 2.1g  12m S 107.4 13.5   1:08.19 java PerfTest                                                                                                                                                                  
+25309 kianicka  20   0 6700m 2.1g  12m S 105.6 13.5   1:11.38 java PerfTest                                                                                                                                                                  
+25309 kianicka  20   0 6700m 2.1g  12m S 105.6 13.5   1:14.57 java PerfTest                                                                                                                                                                  
+25309 kianicka  20   0 6700m 2.1g  12m S 106.9 13.5   1:17.80 java PerfTest                                                                                                                                                                  
+25309 kianicka  20   0 6700m 2.1g  12m S 106.4 13.5   1:21.01 java PerfTest                                                                                                                                                                  
+25309 kianicka  20   0 6700m 2.1g  12m S 105.4 13.5   1:24.19 java PerfTest                                                                                                                                                                  
+25309 kianicka  20   0 6700m 2.1g  12m S 106.4 13.5   1:27.40 java PerfTest    
+
+Python:
+---
+bash-4.1$ python perf_test_python.py
+Duration - sin: 0:00:26.273149
+String manipulation
+Duration overall: 0:01:53.163826
+Exited
+
+---
+dlw022.idc.ctbto.org.-1020% top -b -c | grep -v grep | grep perf
+25994 kianicka  20   0 3129m 3.0g 1656 R 45.0 19.6   0:01.36 python perf_test_python.py                                                                                                                                                      
+25994 kianicka  20   0 3382m 3.3g 1660 R 100.0 21.1   0:04.40 python perf_test_python.py                                                                                                                                                     
+25994 kianicka  20   0 3641m 3.5g 1660 R 99.1 22.7   0:07.42 python perf_test_python.py                                                                                                                                                      
+25994 kianicka  20   0 3858m 3.7g 1660 R 100.0 24.2   0:10.44 python perf_test_python.py                                                                                                                                                     
+25994 kianicka  20   0 3186m 3.0g 1744 R 99.8 19.6   0:13.45 python perf_test_python.py                                                                                                                                                      
+25994 kianicka  20   0 3186m 3.0g 1744 R 100.0 19.6   0:16.47 python perf_test_python.py                                                                                                                                                     
+25994 kianicka  20   0 3186m 3.0g 1744 R 100.0 19.6   0:19.50 python perf_test_python.py                                                                                                                                                     
+25994 kianicka  20   0 3186m 3.0g 1744 R 99.8 19.6   0:22.52 python perf_test_python.py                                                                                                                                                      
+25994 kianicka  20   0 3186m 3.0g 1744 R 100.0 19.6   0:25.54 python perf_test_python.py                                                                                                                                                     
+25994 kianicka  20   0 3186m 3.0g 1776 R 99.7 19.6   0:28.55 python perf_test_python.py                                                                                                                                                      
+25994 kianicka  20   0 3186m 3.0g 1776 R 100.0 19.6   0:31.57 python perf_test_python.py                                                                                                                                                     
+25994 kianicka  20   0 3186m 3.0g 1776 R 99.7 19.6   0:34.58 python perf_test_python.py                                                                                                                                                      
+25994 kianicka  20   0 3186m 3.0g 1776 R 99.7 19.6   0:37.59 python perf_test_python.py                                                                                                                                                      
+25994 kianicka  20   0 3186m 3.0g 1776 R 100.0 19.6   0:40.61 python perf_test_python.py                                                                                                                                                     
+25994 kianicka  20   0 3186m 3.0g 1776 R 99.7 19.6   0:43.62 python perf_test_python.py                                                                                                                                                      
+25994 kianicka  20   0 3186m 3.0g 1776 R 100.0 19.6   0:46.64 python perf_test_python.py                                                                                                                                                     
+25994 kianicka  20   0 3186m 3.0g 1776 R 99.7 19.6   0:49.65 python perf_test_python.py                                                                                                                                                      
+25994 kianicka  20   0 3186m 3.0g 1776 R 100.0 19.6   0:52.67 python perf_test_python.py                                                                                                                                                     
+25994 kianicka  20   0 3186m 3.0g 1776 R 99.7 19.6   0:55.68 python perf_test_python.py                                                                                                                                                      
+25994 kianicka  20   0 3186m 3.0g 1776 R 100.0 19.6   0:58.70 python perf_test_python.py                                                                                                                                                     
+25994 kianicka  20   0 3186m 3.0g 1776 R 100.0 19.6   1:01.72 python perf_test_python.py                                                                                                                                                     
+25994 kianicka  20   0 3186m 3.0g 1776 R 99.7 19.6   1:04.73 python perf_test_python.py                                                                                                                                                      
+25994 kianicka  20   0 3186m 3.0g 1776 R 100.0 19.6   1:07.75 python perf_test_python.py                                                                                                                                                     
+25994 kianicka  20   0 3186m 3.0g 1776 R 100.0 19.6   1:10.77 python perf_test_python.py                                                                                                                                                     
+25994 kianicka  20   0 3186m 3.0g 1776 R 99.9 19.6   1:13.79 python perf_test_python.py                                                                                                                                                      
+25994 kianicka  20   0 3186m 3.0g 1776 R 100.0 19.6   1:16.81 python perf_test_python.py                                                                                                                                                     
+25994 kianicka  20   0 3186m 3.0g 1776 R 99.7 19.6   1:19.82 python perf_test_python.py                                                                                                                                                      
+25994 kianicka  20   0 3186m 3.0g 1776 R 100.0 19.6   1:22.84 python perf_test_python.py                                                                                                                                                     
+25994 kianicka  20   0 3186m 3.0g 1776 R 99.9 19.6   1:25.85 python perf_test_python.py                                                                                                                                                      
+25994 kianicka  20   0 3186m 3.0g 1776 R 100.0 19.6   1:28.87 python perf_test_python.py                                                                                                                                                     
+25994 kianicka  20   0 3186m 3.0g 1776 R 99.9 19.6   1:31.89 python perf_test_python.py                                                                                                                                                      
+25994 kianicka  20   0 3186m 3.0g 1776 R 99.7 19.6   1:34.90 python perf_test_python.py                                                                                                                                                      
+25994 kianicka  20   0 3186m 3.0g 1776 R 100.0 19.6   1:37.92 python perf_test_python.py                                                                                                                                                     
+25994 kianicka  20   0 3186m 3.0g 1776 R 100.0 19.6   1:40.96 python perf_test_python.py                                                                                                                                                     
+25994 kianicka  20   0 3186m 3.0g 1776 R 99.6 19.6   1:43.98 python perf_test_python.py                                                                                                                                                      
+25994 kianicka  20   0 3186m 3.0g 1776 R 99.8 19.6   1:46.99 python perf_test_python.py                                                                                                                                                      
+25994 kianicka  20   0 3186m 3.0g 1776 R 99.7 19.6   1:50.00 python perf_test_python.py                                                                                                                                                      
+25994 kianicka  20   0 3186m 3.0g 1776 R 100.0 19.6   1:53.02 python perf_test_python.py 
+
+
+
+
