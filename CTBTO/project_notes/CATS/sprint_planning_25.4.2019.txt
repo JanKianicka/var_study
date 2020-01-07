@@ -270,9 +270,12 @@ On next sprint planning record these user stories for us or Thomas:
  - Maintain DEV/OPS - move cats-worker04 to DEV
 
 VDMS - CATS developoment
- - VDMS - veirfy Thomas's build of nms_home on my local dev
+ - VDMS - verify Thomas's build of nms_home on my local dev
  - VDMS - try to set up local runtime environment in CATS and run the nms_queue component therein
  - VDMS - try to execute one of the unit tests on new-message-subsustem in CATS
+
+
+# Detail Sprint planning - addressing vision to really cleanup the CATS system backend to emprace more system repositories 25.11.2019:
 
 
 

@@ -1,0 +1,43 @@
+# CLI commands to export/import jobs and thus verify the CLI command prompt
+java -jar jenkins-cli.jar -s http://dlv020.idc.ctbto.org:8080/ who-am-i --username kianicka --password XXX
+java -jar jenkins-cli.jar -s http://dlv020.idc.ctbto.org:8080/ get-job MON_CATS_ops_shi_ibase_build_unit_cov --username kianicka --password XXX > MON_CATS_ops_shi_ibase_build_unit_cov.xml
+java -jar jenkins-cli.jar -s http://dlv020.idc.ctbto.org:8080/ get-job MON_CATS_githubmaster_shi_ibase_bboxquick_automatic --username kianicka --password XXX > MON_CATS_githubmaster_shi_ibase_bboxquick_automatic.xml
+java -jar jenkins-cli.jar -s http://dlv020.idc.ctbto.org:8080/ get-job MON_CATS_githubmaster_shi_ibase_bboxquick_DFX_valgrind --username kianicka --password XXX > MON_CATS_githubmaster_shi_ibase_bboxquick_DFX_valgrind.xml
+
+# Upgrade of jenkins
+> wget http://mirrors.jenkins.io/war-stable/latest/jenkins.war
+# backup
+> cp -r ${CATS_BIN_TOMCAT}/webapps/ROOT/ back/ -v
+> cp ${CATS_BIN_JENKINS} back/ -v
+> cp -r ${CATS_DATA_JENKINS}/users back/ -v
+# deployment
+> ${CATS_ETC_INITD}/tomcat stop
+> cp jenkins.war ${CATS_BIN_JENKINS} -v
+> rm -rf ${CATS_BIN_TOMCAT}/webapps/ROOT/ -v
+> ${CATS_ETC_INITD}/tomcat start
+
+# Verification
+- try to log in
+- check version on web interface and using CLI command line
+> java -jar jenkins-cli.jar -s http://dlv020.idc.ctbto.org:8080/ version
+# veriy authentication
+> java -jar jenkins-cli.jar -s http://dlv020.idc.ctbto.org:8080/ who-am-i --username kianicka --password XXX
+# test e.g. getting simple job configuration
+> java -jar jenkins-cli.jar -s http://dlv020.idc.ctbto.org:8080/ get-job MON_CATS_githubmaster_shi_ibase_bboxquick_DFX_valgrind --username kianicka --password XXX > MON_CATS_githubmaster_shi_ibase_bboxquick_DFX_valgrind.xml
+
+# Downgrade of OPS CATS Jenkins
+> java -jar jenkins-cli.jar -s http://cats.ctbto.org:8080/ version
+> java -jar jenkins-cli.jar -s http://cats.ctbto.org:8080/ who-am-i --username jan.kianicka --password XXX
+> java -jar jenkins-cli.jar -s http://cats.ctbto.org:8080/ get-job MON_CATS_ops_shi_sbase_build_worker06_RH7 --username jan.kianicka --password XXX > MON_CATS_ops_shi_sbase_build_worker06_RH7.xml
+
+
+# Population of the rest of verification jobs to OPS CATS
+java -jar jenkins-cli.jar -s http://dlv020.idc.ctbto.org:8080/ get-job MON_CATS_githubmaster_shi_cdtools_build_unit_worker04 --username kianicka --password XXX > MON_CATS_githubmaster_shi_cdtools_build_unit_worker04.xml
+java -jar jenkins-cli.jar -s http://dlv020.idc.ctbto.org:8080/ get-job MON_CATS_githubmaster_shi_dtk-pmcc_bboxquick_worker04 --username kianicka --password XXX > MON_CATS_githubmaster_shi_dtk-pmcc_bboxquick_worker04.xml
+java -jar jenkins-cli.jar -s http://dlv020.idc.ctbto.org:8080/ get-job MON_CATS_githubmaster_shi_ibase_bboxquick_interactive_worker04 --username kianicka --password XXX > MON_CATS_githubmaster_shi_ibase_bboxquick_interactive_worker04.xml
+java -jar jenkins-cli.jar -s http://dlv020.idc.ctbto.org:8080/ get-job MON_CATS_githubmaster_shi_shiscripts_bboxquick_mig_bul_worker04 --username kianicka --password XXX > MON_CATS_githubmaster_shi_shiscripts_bboxquick_mig_bul_worker04.xml
+
+java -jar jenkins-cli.jar -s http://cats.ctbto.org:8080/ create-job MON_CATS_githubmaster_shi_cdtools_build_unit_worker04 --username jan.kianicka --password XXX < MON_CATS_githubmaster_shi_cdtools_build_unit_worker04.xml
+java -jar jenkins-cli.jar -s http://cats.ctbto.org:8080/ create-job MON_CATS_githubmaster_shi_dtk-pmcc_bboxquick_worker04 --username jan.kianicka --password XXX < MON_CATS_githubmaster_shi_dtk-pmcc_bboxquick_worker04.xml
+java -jar jenkins-cli.jar -s http://cats.ctbto.org:8080/ create-job MON_CATS_githubmaster_shi_ibase_bboxquick_interactive_worker04 --username jan.kianicka --password XXX < MON_CATS_githubmaster_shi_ibase_bboxquick_interactive_worker04.xml
+java -jar jenkins-cli.jar -s http://cats.ctbto.org:8080/ create-job MON_CATS_githubmaster_shi_shiscripts_bboxquick_mig_bul_worker04 --username jan.kianicka --password XXX < MON_CATS_githubmaster_shi_shiscripts_bboxquick_mig_bul_worker04.xml

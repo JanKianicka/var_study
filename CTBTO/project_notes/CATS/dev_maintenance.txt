@@ -522,3 +522,7 @@ Yet other system-like dependencies missing.
 
 There is all combination of issues - we have to approach it systematically.
 
+# 29.11.2019 - in course of configuring smoke regression testing jobs for devlab05 we
+need new pluggin "Workspace Cleanup" to DEV Jenkins.
+
+
