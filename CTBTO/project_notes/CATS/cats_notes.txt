@@ -486,6 +486,97 @@ If you have any questions, do not hesitate to contact me.
 Thank you very much
 Jan Kianicka
 
+# 7.1.2020 - study of Robot Framework for being capable to implement
+  new tests and particularly VDMS smoke tests.
 
+Robot Framework is an open source test automation framework for
+acceptance testing and acceptance test-driven development.  It follows
+different test case styles – keyword-driven, behaviour-driven and
+data-driven for writing test cases.
+Robot Integrated Development Environment (RIDE) for writing test cases.
+Robot Framework Features:
+      Tabular format for test cases
+      Keywords
+      Variables
+      Libraries
+      Resources
+      Data driven test cases
+      Test Case Tagging
+      Reports and Logs
+Robot Framework Limitations:
+      Robot lacks support for if-else, nested loops, which are
+      required when the code gets complex.
+
+# Installation of whole robot framework dependencies needed for
+https://www.tutorialspoint.com/robot_framework/
+
+For user 'cats' we have already robot and python2.6 installed.
+We need wxPython - installaed as root via yum:
+> yum install wxPython.x86_64
+> yum install wxPython-devel.x86_64
+
+Then comes 'robotframework-ride', with this there are issues with broken pip and easy_install.
+> pip install robotframework-ride
+setuptools must be installed to install from a source distribution
+> pip install setuptools
+Requirement already satisfied (use --upgrade to upgrade): setuptools in /apps/bin/python/lib/python2.6/site-packages
+
+> pip install --upgrade setuptools
+Successfully installed setuptools-44.0.0
+> pip install robotframework-ride
+ValueError: zero length field name in format
+
+We try to install python2.7 virtual environment.
+Commands which Thomas has used are in the Docker file.
+We have installed python2.7 virual environment into the cats's home:
+> deactivate
+> emacs ~/cats/docker/Dockerfile
+> wget https://www.python.org/ftp/python/2.7/Python-2.7.tgz
+> tar -xzf Python-2.7.tgz
+> cd Python-2.7
+> ./configure --prefix=/apps/bin/python_install --enable-optimizations
+> make
+> make install
+> virtualenv --python=/apps/bin/python_install/bin/python ~/python
+> chmod +x /home/cats/python/bin/activate
+> source /home/cats/python/bin/activate
+Installing cats dependencies
+> pip install robotframework
+> pip install --upgrade cx_Oracle
+> pip install --upgrade pyodbc
+> pushd ~/cats/RoboTest
+> python setup.py install
+> popd
+And problematic ride
+> pip install --upgrade pip
+> pip install --upgrade setuptools
+> pip install --pre robotframework-ride
+(pip install robotframework-ride; installing latest version did not work)
+ but execution did not work due to wxPython of proper version missing, even after compilation
+ from source code and installing it did not notice it. No go with this crap on my VM.
+
+pip install robotframework-ride
+
+The error in both cases - python2.6, python2.7
+and installation on Centos6.10 nor Centos7.6 was not successfull.
+When trying to install wxPython via pip
+it failed with the following error (dependency problem):
+----
+> pip install wxpython
+> pip install --pre wxpython
+checking for pkg-config... /usr/bin/pkg-config
+    checking for GTK+ - version >= 3.0.0... no
+    *** Could not run GTK+ test program, checking why...
+    *** The test program failed to compile or link. See the file config.log for the
+    *** exact error that occured. This usually means GTK+ is incorrectly installed.
+    configure: error:
+    The development files for GTK+ were not found. For GTK+ 2, please
+    ensure that pkg-config is in the path and that gtk+-2.0.pc is
+    installed. For GTK+ 1.2 please check that gtk-config is in the path,
+    and that the version is 1.2.3 or above. Also check that the
+    libraries returned by 'pkg-config gtk+-2.0 --libs' or 'gtk-config
+    --libs' are in the LD_LIBRARY_PATH or equivalent.
+
+ERROR: Command errored out with exit status 1: /home/cats/python/bin/python -u -c 'import sys, setuptools, tokenize; sys.argv[0] = '"'"'/tmp/pip-install-dmIi9B/wxpython/setup.py'"'"'; __file__='"'"'/tmp/pip-install-dmIi9B/wxpython/setup.py'"'"';f=getattr(tokenize, '"'"'open'"'"', open)(__file__);code=f.read().replace('"'"'\r\n'"'"', '"'"'\n'"'"');f.close();exec(compile(code, __file__, '"'"'exec'"'"'))' install --record /tmp/pip-record-2VD5IJ/install-record.txt --single-version-externally-managed --compile --install-headers /home/cats/python/include/site/python2.7/wxpython Check the logs for full command output.
 
 

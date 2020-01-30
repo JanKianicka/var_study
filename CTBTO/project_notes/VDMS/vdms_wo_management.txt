@@ -1,0 +1,379 @@
+# On 14.1.2020 I temporally try to walk in Edwards shoes
+Here the records of preparations.
+
+ISI-748 Adaption of msg client (XMLRPC) to be used without SSO
+---
+For a discussion:
+For NDC/Users who use ONLY GCI links for obtaining data SSO could be replaced by following:
+ - whitelist IPs per a destination (as we do for CD stations/opening firewall)
+ - use certificate/token
+
+For implementation msg client&XMLRPC shall be updated (not straight forward).
+---
+Link where GCI is briefly described:
+https://www.ctbto.org/verification-regime/the-global-communications-infrastructure/
+
+From Helmuth's email:
+User Requirements Inspection Meeting Minutes - 22 April 2016 - not important document -
+just formal inspection of the requeirement collection process.
+
+
+Technical discussion and retrieval of technical information
+from Cyrille:
+------------
+
+1. VDMS
+SEISAN integration:
+-----------
+[te_format_shi_bulletin]
+template_dir=%(ENV[NMS_HOME])/etc/templates
+storage_dir=%(ENV[NMS_DATA])
+nordic_executable=%(ENV[NMS_THIRD_PARTY])/bin/norims
+
+All third party executables in production are supposed to be in that directory.
+So, do you want me to change the test file to use SEISAN_HOME?
+
+Nordinc format documented here:
+https://www.geosig.com/files//GS_SEISAN_9_0_1.pdf
+Appendix A
+
+- Give me list of features eventually with Jira links where are I can find details which were implemented and were never released to OPS – also specification
+* NORDIC products
+* DLSEED products 
+* removal of regional screening
+* new Category criteria for some radionuclide products (ARR, RRR, ARR_html, RRR_html, SPHD, SPHF) 
+* SSREB_html product
+ 
+From what I can see, here is what is already in operations:
+* NEB/NSEB products (which use evsc_drv executable)
+* new EXECSUM products
+
+Can you tell me, from the latest DCR avaiable, what version is deployed on OPS?
+
+Build procedure described already in eniab repository.
+
+
+EXECSUM status:
+--------------
+The requirement was to add sections EDS (Executive Data Summary), EPS
+(Executive Product Summary) and EPOS (Executive Performance and
+Operational Summary) both as new sections for the EXECSUM product and
+as standalone products.  The requirements were never put in writing
+but instead resulted from a series of email exchanges between Robert
+Werzi and me.
+---
+I attach the current templates for EXECSUM, EPS, EDS and EPOS, as well
+as the old EXECSUM template (prior to any of these changes). I also
+attach samples for the current EXECSUM, EPS, EDS and EPOS products, as
+well as for the old EXECSUM product.
+
+In my opinion, we cannot simply "revert" to the old EXECSUM product
+because too many improvements have been done.
+
+The simplest way forward is to take the current EXECSUM product and
+cross the information you (meaning the whole CTBTO team, including
+Alexander) don't want there. For instance, the availability data, that
+we retrieve from the KPI site, is not particularly good and not easy
+to interpret: it could be removed, in my opinion.
+
+Once everybody agrees on what should stay and what should go, I can
+delete the unwanted information from the EXECSUM template, and remove
+the EDS, EPS and EPOS products.
+
+Attachments in:
+Z:\Projects\VDMS\SEISAN_cleanup_release_preparation
+
+---
+There is no documentation but let let me describe the implementation
+in a few words: I have implemented a Python script which retrieves
+data from 2 sources: the file system and the KPI server. This data is
+retrieved once a day with a cron job and saved in our database. When
+users request EXECSUM, EDS, EPS or EPOS products, we use data from our
+database to create the product.
+
+
+---
+I do not have much in the way of specifications regarding DLSEED. There is a document that Wolfgang had sent me (I attach it)
+
+If a user requests:
+BEGIN IMS2.0
+MSG_TYPE REQUEST
+MSG_ID test_dlseed
+STA_LIST ARCES
+CHAN_LIST BHF
+STA_INFO IMS2.0:DLSEED
+STOP
+Then, instead of the usual command:
+css2inv --osdb user:pwd@odb --schemas STATIC ARCES
+I need to execute:
+css2inv --osdb user:pwd@odb --schemas STATIC ARCES | inv2dlsv
+
+The DLSEED output is not particularly readable (a sample output is attached to this email).
+
+---
+removal of regional screening
+
+In screened bulletins (SEB and SSEB) there was a Regional Screening
+section. Apparently the data was not good and/or not relevant so Elena
+asked me to remove it.  This is not a new product. I do not have any
+documentation.
+
+---
+new Category criteria for some radionuclide products (ARR, RRR, ARR_html, RRR_html, SPHD, SPHF)
+ARR, RRR, ARR_html, RRR_html, SPHD, SPHF are all standard CTBTO products. If you want to know what these abbreviations mean, you can check the Format & Protocols.
+What is important here is that ARR, RRR, SPHD and SPHF are particulate products, while ARR_html and RRR_html are noble gaz products (their output are in HTML, hence the name).
+These products list events which have a category. This category denotes how important the event is.
+Note that for particulate products (ARR, RRR, SPHD, SPHF), the categories are numbers (1,2,3,4,5) whereas for noble gaz products (ARR_html, RRR_html) there are letters (A,B,C).
+When you request these products, you can now add a Category criteria. Here is an example for a SPHD (the new criteria is highlighted in red):
+
+begin ims1.0
+msg_type request
+msg_id ex026
+time 1999/07/01 to 2000/08/01
+sta_list AU*
+CATEGORY 4,5
+sphdf rms2.0
+sphdp rms2.0
+stop
+
+The criteria will restrict the results to these categories.
+
+---
+Actually, I looked it up on OPS and this product has already been deployed.
+But anyway: this product is a SSREB (Standard Screened Radionuclide Event Bulletin) for noble gaz stations. Its output is in HTML.
+You can request it like this:
+
+BEGIN IMS2.0
+MSG_TYPE REQUEST
+MSG_ID test_ssreb2
+TIME 2019/12/01 to 2019/12/30
+STA_LIST *
+SSREB IMS2.0:HTML
+STOP
+
+I attach a sample response.
+2. PKI C&C
+
+PKI C&C is a Django/Python server that manages the lifecycle of new
+PKI certificates for stations. It is in final testing (it works with
+admin role, but needs to be tested with the various roles: station
+operators, CA admin, etc.).
+
+It also interacts with the UPI backend through a small Java server
+called CCUPI.
+
+The test instance of PKI C&C is installed in the DMZ, on a VM called
+alv326. Nobody knows much about PKI C&C except Edward and I. The PKI
+C&C server aims to replace a manual exchange of emails that Edward was
+handling with a script before.
+
+Luke Preston is Verizon contractor. He manages UPI dev and
+maintenance. His email address is luke.preston@uk.verizon.com but I
+would talk with Florin before contacting him.
+
+There is no PKI C&C infrastructure document. I should write one once
+the testing is finished.
+
+Our repository:
+https://github.com/ctbtosa/pki-command-control
+(quite row again - will need more cleanup)
+
+Give me customers contacts to internal CTBOT persons who will use PKi C&C systems – including their roles
+---
+Marina: marina.MALAKHOVA@ctbto.org
+The station operators (I have only dealt with Vladimir, who is the station operator for Vienna: vladimir.GELASHVILI@ctbto.org)
+The PTS CA administrator: I have never been in contact with him or her.
+
+
+DEVlan installation:
+portal:
+https://pkiccdev.ctbto.org/index
+(connect as PBTEST03)
+on machine:
+alv326.idc.ctbto.org
+
+
+# Notes of PKI C&C requirements
+Q1. What means abrevation UPI? (not explained in the document)
+A1, It is a question for Luke. I think it means Unified PKI Infrastructure. This is an acronym from Verizon.
+
+Q2. SO email address is 'station operator' email address?
+It means PKI C&C is integrated also with DOTS?
+A2. Yes. Yes, it uses the DOTS database.
+
+Q3. Station operators are generating key-pair? What is actually key-pair?
+
+A3. Yes, they generate a public/private keypair and a CSR (Certificate
+    Signing Request). For more explanation, you can look at PKI on
+    Wikipedia: https://en.wikipedia.org/wiki/Public_key_infrastructure.
+
+Q4. Who is PTS CA and what is their role in overall station maintainenance?
+A4. I don't know the name of the PTS Certificate Authority, but it is
+    the person in charge of approving the new certificates. Certificate
+    Authorities use their private key to sign the CSRs and generate the
+    new certificates.
+
+Q5. In UC2 there is mentioned 'stakeholders list in the database', who are stakeholders
+    and which database is used to store them?
+A5. It is users who have an interest in following a particular
+    station. The DOTs database has a list of them.
+
+Q6. UC5 - Keypair started reponse - what does this use case in whole workflow?
+    In the survey diagram this action actually records the status in 'KPS record DB'.
+    Is this happening also in the new PKI C&C system?
+A6. I do not understand this question. Could you rephrase it? Or else
+    we can discuss before the meeting.
+
+Q7. UC6 Abort pending process - is TBD - has it been implemented, shall we test it?
+A7. Yes it has been implemented. There is a button on the homepage.
+
+Q8. What about UC7 to UC10 which have note 'Work in progress' - has it been specified
+    and implemented? Shall we test it?
+A8. I only see UC7, UC8 and UC9 on my document (v0.8 with Edward comments).
+    None of those has been implemented.
+
+Q9. CRL - Certificate Revocation List - what is it and where it resides, who make changes there?
+    (In UC7 it is supposed to be a file).
+A9. CRLs in a PKI infrastructure are lists of certificates that have
+    been revoked. For the moment they have not been implemented.
+
+Q10. The PKI C&C system integrates at least with PKI system and with DOTS.
+     Do we have available the latest API documentation, can I have it?
+
+A10. It integrates with the UPI server (through the CCUPI server, a
+     small Java server that we provide) and the DOTs database. There is
+     also a KeyPairDaemon which checks the LDAP server on a regular basis
+     for new certificates.
+     I will provide you with an architecture diagram.
+     What do you mean by API in this context?
+
+Q11. Where is logging of PKI C&C, is it using syslog? I did not find anything which seems to be log of
+     the current PKI C&C portal on devlan.
+
+A11. I think it is in /apps/pkicc/LOG.
+     I should have access when I receive my token and will be able to tell you more.
+
+Q12. CC_Portal is using DB, could I have credentails to have a look on the
+    schema and data there? Where are they stored in the configuration?
+
+AQ12: I have investigated on alv326,
+      /apps/etc/httpd/conf.d/pkicc.conf
+      and could connect to the pkicc database:
+      > psql -h essai.db.ctbto.org -d arena -U pkicc -W
+      and using the password from there.
+      Probably issue with permissions:
+      arena=> SELECT * FROM CC_USERS;
+      ERROR:  relation "cc_users" does not exist
+      ----
+      Cyrille's answer:
+      No, it is because you are in the wrong schema and Postgres does not allow upper case without quotes.
+      If you do:
+      SET search_path=pkicc;
+      SELECT * from "CC_USERS";
+      It should work.
+
+      Django uses a SQLite database located in /apps/pkicc/cc_portal/database/
+      You can look at the data if you want but you should not have to change or maintain it in any way.
+
+
+# Information from meeting with Balazs:
+Related tickets:
+
+LB migration: http://its.ctbto.org/browse/UL-7234
+Initial ticket (the VM names ar enot correct. Please resolve pkicc11.{test,ops,idc}.ctbto.org to get the correct VM names): 
+http://its.ctbto.org/browse/UL-2031
+
+http://ulsu.ctbto.org/wiki/index.php/PKI_2017_Portal_Documentation
+
+http://ulsu.ctbto.org/wiki/index.php/PKI_2017_LDAP_Documentation
+
+http://ulsu.ctbto.org/wiki/index.php/PKI_2017_LDAP_installation_documentation
+
+Best,
+Balazs
+
+
+# Additional technical records comming from meeting with Cyrille and Luke on 29.1.2020
+There was missing running start_keypair_daemon_runner.py
+This was the command supposed to be executed by Cyrille:
+> source /apps/pkicc/env/cc_portal.env && export CONF_FILE=/apps/pkicc/conf/start_keypair_daemon.conf && /apps/pkicc/bin/python /apps/pkicc/bin/start_keypair_daemon_runner.py
+
+Listing of certificates stored in the local server:
+> ldapsearch -x -h pkildap16.test.ctbto.org -b "l=VIP00,ou=Data Authenticators,ou=IMS,o=ctbto" objectclass=*
+Testing of validity of the certificate:
+> openssl x509 -in ~/VIP00_cert -inform PEM -text
+
+
+# PKI C&C Meeting minutes of todays meeting
+PKI C&C presentation of implemented use cases deployed to devlan (DMZ4, DMZ5)
+29.1.2020
+Present:
+Tryggvi Edwald - taking over management of the project
+Galaftion Florin - information security manager
+Cyrille Bonnet - developer of PKI C&C portal
+Luke Preston - specialist of PKI system and contributor to integration
+
+Informed: Edward Wokabi (Jan just temporally stands his role)
+Vlado Gelashvili and Megan Slingard - SA unit head
+
+Goals of the meeting was to:
+A. present functional use and already implemented use cases of PKI C&C portal
+B. For Jan to learn about the project status
+
+Cyrille started with conducting presentation of the system.
+There were several issues:
+1. Malformed CSR request caused error which was vague to undestand - addressed by development task
+to implement more robust error handling <link to ticket>.
+2. After submittion of valid CSR, the use case could not continue due to
+"UPI server was switched to 'manual approval' and therefore did not return valid certificate"
+Meanwhile we learned that there is one more process running on 'bonnet' account
+start_keypair_daemon_runner which was missing and Jan could not launch it on his account.
+(yet running from crontab as background process - not very fortunate).
+
+On 'bonnet' account was running yet another process - CCUPI - java wrapper for UPI API.
+
+Luke has in the afternoon arranged on the UPI server automatic submission of certificates.
+Then we checked in LDAP of alv326 that very probably certificate was synchronized.
+(Not really confirmed).
+
+Cyrrile in the afternoon received his VPN token and finally can investigate
+all circumstances.
+However, wrapping the status up - we do not have system ready for testing or presentation and there is
+integration/fixing work ahead of us.
+
+Jan has asked about the staus of development of requirements and learned that
+Use Cases UC7-UC10 from CTBTO-PKI CC_requirements-v0.11
+have not been specified nor implemented - needs clarification about the status.
+UC7 - User requests UPDATE_CRL (WIP)
+UC8 - User notifies CRL_UPDATED (WIP)
+UC9 - User generates report (WIP)
+UC10 - User manages the list of notified recipients
+
+---
+Follow up - todo list:
+Requirements -
+It is needed to meet with the person reponsible for requirements and clarify missing use cases
+- Jan to meet with Malakhova Marina and try to discuss it.
+
+Architecture desing:
+Would be good to think about crontab components, and how each process is started, stoped and monitored.
+We need to have dedicated technical account on alv326 and the system deployed under technica account.
+We need to prepare for rollout to APS by means of collecting documentaiton, installation procedures,
+well documented configuration, testing and verification procedures.
+Then we need additional machine to set up instance maintained and isntalled by APS (processing engineers) via a DCR.
+(I have spoken with Alexander Sudakov - the system has to ready to be accepted by APS before doing this.)
+
+Testing:
+First we need test plan and established roles and test cases for involved people.
+I have visited also Vlado Gelashvili - he will support us by creating valid CSR requests.
+We need to test also error scenarios - test plan and first round of testing will be conducted by Cyrille.
+We need to verify integration with PKI and UPI server next week when Luke is arround to support us.
+
+Imediate follow up SCRUM tickets in the VMDS Jira board:
+<list>
+
+Drafted stories for follow up:
+<list>
+
+
+

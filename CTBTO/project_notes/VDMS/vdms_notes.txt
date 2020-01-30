@@ -1079,6 +1079,161 @@ Discussed topics:
        A. devlan
        B. CATS as separate environment
 
+Left over - configure devlab05 cats user as secreet certificate and sending emails to broader audience (afte agreement with Edward - Cyrille, Menachem).
+
+# Meeting minutes from technical/coordination meeting between COD and VDMS teams - 10.01.2020
+Participants:
+VDMS team: Cyrille Bonnet - remotelly via Skype
+           Menachem Amir - on-site
+COD team: Thomas Fabian - on-site
+          Jan Kianicka - on-site
+
+Delivered agenda:
+Dear Cyrille,
+As we discussed by email let us meet on the skype call to exchange ideas and eventually to coordinate further development in COD VDMS integration:
+Proposed agenda:
+-	Presentation of progress on automation testing – inclusion of ~270 request messages from acceptance tests
+-	Presentation of our status of devlab05 installation and issues of VDMS on devlan/devlab
+-	Forthcoming deliveries and fixes of VDMS system – gaining knowledge of new features
+-	Pending features to be implemented in order to bring COD for VDMS into operations – if possible to talk about addressing these on VDMS team side and delivery plan.
+-	Particularly we need to talk about:
+o	Clear gitflow with single development branch, tagging and operational branch and about standard releases and hotfix releases – how to tag them, how to remove pending features
+o	How to automatically integrate new third-party dependencies, how to integrate automatically new configuration parameters
+o	Build procedure improvements
+o	Automation of DB changes – providing SQL scripts digested by our Ligquibase installation, how to automate these (provide also example how to deploy/undeploy EXECSUM product which will be very likely not integrated as implemented now)
+o	Automation of verification – new representative messages for new products, how to extend and maintain acceptance tests and our smoke tests
+
+Would be good if we can prepare some short term action plan and if we can really address contributions needed for COD into the work orders.
+Thank you very much and looking forward to talk on Friday.
+Kind regards
+Jan
+
+Meeting minutes records:
+1. Presentation of progress on automation testing – inclusion of ~270 request messages from acceptance tests
+Configured COD jobs which are over night running smoke tests with Edward's verification messages and messages
+stripped out from acceptance tests of new-message-subsystem repository.
+It would be beneficial if Cyrille has also access to the CATS Jenkins.
+We need to provide VPN connection access to DEV as well as OPS CATS Jenkins:
+http://dlv020.idc.ctbto.org:8080/
+http://cats.ctbto.org:8080/
+Then Jan can create Jenkins accounts and scale the authorization permissions.
+
+We discussed also the failures of tests and reported several issues.
+evsc_drv issue was addressed by Jan by creating fixing DCR: DCR-3298
+Other failures are investited currently.
+
+We have also agreed on option to automatically include new verifcaiton messages
+bringing new data products.
+When the new product is implemented in new-message-subsystem, verification message
+should be published to dedicated directory, e.g.:
+nms_acceptance_test/resources/test/smoke_requests
+*.msg
+with unique name and unique MSG-ID with restricted lenght to 14 characters.
+(to add _<5-digits-unique-execution-id>).
+
+
+2. Presentation of our status of devlab05 installation and issues of VDMS on devlan/devlab
+We have discussed failing smoke tests on devlab05 and reported these two cases:
+ - failing request on devlan when extadb is in use -
+ - not handled error from acceptance tests - addressed by VDMS-220
+
+3. Forthcoming deliveries and fixes of VDMS system – gaining knowledge of new features
+We discussed that both teams suffer from Edard's absence.
+After common agreement with unit head we try to supply Edward's
+absence temporally by Jan when he will gain knowledge of latests
+pending deliveries and integrate them at least to devlan installation.
+
+4. Pending features for COD integration - GitFlow
+   We have learned that new 'operations' branch in the
+   new-message-subsystem repository was created by Cyrille and yet he
+   has pushed into it recently. This made it actually divergent from
+   the operations version of the software installed in OPS.
+   Yet the 'master' branch, which is according our GitFlow shared development branch
+   completelly diverges from operations whereas there are old features never to be delivered to OPS.
+   Such solution we can not integrate into COD pipeline.
+   Therefore we agreed:
+   Our CM will create 'real operations' branch from latest installed version - tag 3.0-RC19
+   and rename current branch to 'operations' to 'operations_cyrille'.
+   Than Cyrille should do the following:
+   - merge the new official operations branch to master
+   - then remove, fix and clean undesired features - either by reverting, or by moving them to
+     the obsolete feature branches for archivation
+   - this new master branch will be used for VDMS development from this time on
+   (We publish also ACQ and CALIB_SYNCH packages to Nexus, and use the latest master versions of VDMS.
+    How ACQ and potentially other subsystems will be integrate into COD will remain open.
+    But it is clear that we must not diverge too much - shared code has to integrate all
+    fixes tested in other part of the overall supersystem.)
+    
+5. Pending features for COD integration - THIRD-PARTY dependencies
+   We have exchanged experience on building of Seiscomp3 binaries.
+   Jan has successfully used the following combination - latest 'master' versions of SHI dependencies:
+       cbase (latest master -  192cfa13865)
+       idcmodel (latest master - 4c376174f0b)
+       libcd (latest master - 491357851ac4dc)
+       sbase (latest master - a323d3245a2b8eae)
+       gbase (cats branch - 3f828cb3b7108c8)
+       ibase (latest master - a21172ff4d6b47ba6)
+       dfx (latest master - 0a5bdaefc4969c)
+       eniab (latest master - 57e5fd7440bea4)
+       seicomp3 (special tag release/jakarta/2018.327.02 - beaf9642c4fac1d1)
+   Attempto build corresponding 'operation' version or version originaly delivered by ICR-837
+   was not successful (spent on attempts about 2 full days so far).
+   If anyone have records about what version of source code of all dependencies
+   was used to delivery currently operation version of VDMS THIRD-PARTY, this information
+   would be appraciated.
+
+6. Pending features for COD integration - build procedure improvement
+   We excahnges information that Thomas has started to implemented shading of the build script
+   for new-message-subsystem repo.
+   Cyrille should return to this work and peform once more review of
+   already defined SCRUM ticket:
+   VDMS-196
+   we also agreed that build of all new-message-repository subsystems is only needed for now.
+
+7. Pending features for COD integration - automation of DB changes
+   Cyrille has proposed providing for each release time stamped
+   subdirectory with upgrade/downgrate SQL script.
+   For this task we have in our COD team dedicated specialized - Processing Engineer
+   Alexandru Toma (will be informed).
+   Alexandru has Liquibase tool already installed on devlab05.
+   Let us prototype the integration by:
+   Cyrille to provide detail design how we can integrate changes.
+   Alexandru to try to install/uninstall the changes in devlab05.
+   We should exercide with EXECSUM product which according several
+   leading people at IDC will not be delivered as implemented.
+   Let us try to prepare for final decision by capability to
+   deploy/undeploy it automatically.
+
+8. Pending features for COD integration - automation of configuration changes
+   We did not discuss this aspect in too detail.
+   But would be good if Cyrille will have a look on our discussion and proposal
+   what we want to work on - action item.
+
+
+Action items:
+1. Jan to request VPN access to CATS Jenkins and create/revive for cyrille Jenkins accounts.
+2. Cyrille to implement publishing of new product messages - created new VDMS user story for this.
+   (https://itscore.ctbto.org/browse/VDMS-222 as subtask of VDMS-221 Integration of VDMS into COD)
+3. Cyrille - address also other reported issues and bug fixing by separate bug tickets in the
+   SCRUM board.
+4. Jan to gain knowledge about pending deliveries and prepare DCR to bring them to devlan
+   and perform also verification. (planned meeting about SEISAN on Tuesday 14.1.2020).
+5. Jan to create DCR to create real protected 'operations' branch and VDMS ticket to integrate and
+   it into the master branch. Done.
+   (DCR-3300 Create protected operations branch in new-message-subsystem repository,
+    VDMS-223 Integrate official operations branch)
+6. Cyrille to provide exact tags, branches, commitids, issues how seiscomp3 binaries
+   were build and what version is he using for his development/verification.
+7. Cyrille to review interface definition - VDMS-196 and eventually in close cooperation
+   with Thomas Fabian to start implementation of this interface script.
+   (We will have to have dedail release plan to perform final integration).
+8. Cyrille to review and study this page for DB changes automation:
+   http://confluence.ctbto.org/display/COD/DB+Migration+Tools
+9. Cyrille to review our proposals documented here:
+   http://confluence.ctbto.org/display/COD/Handling+Configuration+Changes+with+a+Single+Production+Branch
+   please provide us with your feedback.
+   
+
 # Issues - bugs collected during ramp of to VDMS knowledge
 
 VDMS_ISSUE1: quota_monitoring.py after execution ended with these set of errors

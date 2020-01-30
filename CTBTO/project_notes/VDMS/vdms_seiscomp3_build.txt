@@ -1,0 +1,308 @@
+# 8.1.2020 - we are progressing to building of seiscomp3
+  binaries. This is email from Wolfgang and this the Jenkins job which
+  actually build seiscomp3:
+
+Dear Jan,
+Alexander asked me to provide you the build procedure for SeisComp and SEISAN. So, here you go:
+1.	SeisComp3: https://github.com/SeisComP3/seiscomp3
+2.	CTBTO modules for SeisComp3 (as part of the SeisComp3 build):  https://github.com/ctbtosa/eniab/tree/master/ctbto
+After running cmake, you don’t need to build all of SeisComp3. Just cd into the directory you want to build and run make. The only binaries needed by VDMS as far as I’m aware are css2inv and css2proc.
+3.	SEISAN: 
+The source code is found here: ftp://ftp.geo.uib.no/pub/seismo/SOFTWARE/SEISAN/, file seisan_v11_linux_64.tar.gz
+The only thing needed is the NORIMS utility which is contained in binary and source in the PRO folder. 
+
+Best regards,
+Wolfgang
+
+http://cats.ctbto.org:8080/job/seiscomp3-github-cats/
+
+
+
+Cloning the proper version of seiscomp3:
+> git clone --origin github git@github.com:SeisComP3/seiscomp3.git
+in the cats job is used this release tag:
+'release/jakarta/2018.327.02'
+
+Reading /git/kianicka_new/eniab/ctbto/README.md
+
+Building dependencies - master branches only - lattest development:
+> mkdir ../install
+> cbase (./build IDC)
+> idcmodel (./build IDC)
+> libcd (./build IDC)
+> sbase (./build IDC)
+> gbase (./build IDC) - cats branch
+> ibase (./build IDC)
+> dfx (./build IDC)
+
+seicomp3 for eniab
+---
+> cd seiscomp3/src
+> git checkout release/jakarta/2018.327.02
+> ln -s ../../eniab/ctbto ctbto
+> cd ..
+> mkdir build
+> cd build/
+
+cmake ../ \
+-DCMAKE_INSTALL_PREFIX=/git/kianicka_new/install/seicomp3 \
+-DENIAB_CBASE_INCLUDE=/git/kianicka_new/install/cbase/include -DENIAB_CBASE_LIBDIR=/git/kianicka_new/install/cbase/lib \
+-DENIAB_SBASE_INCLUDE=/git/kianicka_new/install/sbase/include -DENIAB_SBASE_LIBDIR=/git/kianicka_new/install/sbase/lib \
+-DENIAB_IDCMODEL_INCLUDE=/git/kianicka_new/install/idcmodel/include -DENIAB_IDCMODEL_LIBDIR=/git/kianicka_new/install/idcmodel/lib \
+-DENIAB_IBASE_INCLUDE=/git/kianicka_new/install/ibase/include -DENIAB_IBASE_LIBDIR=/git/kianicka_new/install/ibase/lib \
+-DENIAB_DFX_INCLUDE=/git/kianicka_new/install/dfx/include -DENIAB_DFX_LIBDIR=/git/kianicka_new/install/dfx/lib \
+-DENIAB_GBASE_INCLUDE=/git/kianicka_new/install/gbase/include -DENIAB_GBASE_LIBDIR=/git/kianicka_new/install/gbase/lib \
+-DSC_TRUNK_DB_POSTGRESQL=ON \
+-DSC_TRUNK_DB_MYSQL=OFF \
+-DSC_GLOBAL_GUI=OFF
+make
+
+The first build attempt ended up with the compilation error:
+---
+/git/kianicka_new/install/ibase/lib/libgdi.a(ora_fetch.o): In function `ora_fetch':
+/git/kianicka_new/ibase/libsrc/libgdi/src/oracle9/ora_fetch.c:48: undefined reference to `OCIStmtFetch'
+collect2: ld returned 1 exit status
+---
+This is because I have omitted SEICOMP3 flags which are present in 
+the CATS.
+I have to return to ibase and dfx:
+> ibase (./build IDC --without-oracle --disable-waveformqcdb)
+> dfx (./build IDC --without-waveformqcdb)
+
+Now the build was successfull, but:
+make install ended with this error:
+---
+CMake Error at src/ctbto/apps/nms2proc/cmake_install.cmake:44 (FILE):
+  file INSTALL cannot find
+  "/git/kianicka_new/seiscomp3/src/ctbto/apps/nms2proc/../../../trunk/apps/templates/initd.py".
+Call Stack (most recent call first):
+  src/ctbto/apps/cmake_install.cmake:41 (INCLUDE)
+  src/ctbto/cmake_install.cmake:38 (INCLUDE)
+  src/cmake_install.cmake:48 (INCLUDE)
+  cmake_install.cmake:37 (INCLUDE)
+---
+Once more with different install prefix.
+Again occured error during 'make install'.
+
+# Another build using 'operations' versions of dependencies, which we should use:
+> mkdir operations; cd operations
+> mkdir ../install
+> cbase (checkout operations; ./build IDC)
+> idcmodel (checkout operations; ./build IDC)
+> libcd (checkout operations; ./build IDC)
+> sbase (checkout operations; ./build IDC)
+> gbase (./build IDC) - cats branch (operation branch does not contain the build script)
+> ibase (checkout operations; ./build IDC --without-oracle --disable-waveformqcdb)
+ - here we have problem, the build script in operations does not contain
+   option to disable oracle or add any additonal parameters. 
+   We will need to ovecome also this in CATS - not nice.
+> eniab (checkout master - there is not operations branch, but there is e.g. unmerged my contribution
+         'kianicka_fixes'  where fixed set up scripts were stored.)
+
+When locally modified the script we have the following compilation error:
+---
+make[7]: Entering directory `/git/kianicka_new/operations/ibase/libsrc/java/org/ctbto/idc/ipc'
+ /cots/oracle/java/jdk1.8/bin/javac -d ../../../../../../libsrc/java    IPCConn.java IPCException.java IPCMessage.java IPCMessageListener.java LibIPC.java
+Note: IPCConn.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+echo timestamp > classdist_noinst.stamp
+/cots/oracle/java/jdk1.8/bin/javah -d . -jni   org.ctbto.idc.ipc.LibIPC
+Error: Could not find class file for 'org.ctbto.idc.ipc.LibIPC'.
+---
+I have removed flags from the build script and ${java_home} directory.
+
+Finally the right combination when ibase can be build is this one:
+--without-oracle --disable-waveformqc --disable-waveformqcdb --without-java
+because disabling just waveformqcdb has couse libqc build to fail with 
+missing dependencies.
+
+seicomp3 for eniab
+---
+> cd seiscomp3/src
+> git checkout release/jakarta/2018.327.02
+> ln -s ../../eniab/ctbto ctbto
+> cd ..
+> mkdir build
+> cd build/
+
+cmake ../ \
+-DCMAKE_INSTALL_PREFIX=/git/kianicka_new/operations/install/seicomp3 \
+-DENIAB_CBASE_INCLUDE=/git/kianicka_new/operations/install/cbase/include -DENIAB_CBASE_LIBDIR=/git/kianicka_new/operations/install/cbase/lib \
+-DENIAB_SBASE_INCLUDE=/git/kianicka_new/operations/install/sbase/include -DENIAB_SBASE_LIBDIR=/git/kianicka_new/operations/install/sbase/lib \
+-DENIAB_IDCMODEL_INCLUDE=/git/kianicka_new/operations/install/idcmodel/include -DENIAB_IDCMODEL_LIBDIR=/git/kianicka_new/operations/install/idcmodel/lib \
+-DENIAB_IBASE_INCLUDE=/git/kianicka_new/operations/install/ibase/include -DENIAB_IBASE_LIBDIR=/git/kianicka_new/operations/install/ibase/lib \
+-DENIAB_DFX_INCLUDE=/git/kianicka_new/operations/install/dfx/include -DENIAB_DFX_LIBDIR=/git/kianicka_new/operations/install/dfx/lib \
+-DENIAB_GBASE_INCLUDE=/git/kianicka_new/operations/install/gbase/include -DENIAB_GBASE_LIBDIR=/git/kianicka_new/operations/install/gbase/lib \
+-DSC_TRUNK_DB_POSTGRESQL=ON \
+-DSC_TRUNK_DB_MYSQL=OFF \
+-DSC_GLOBAL_GUI=OFF
+make
+
+We can not build seicomp3 binaries using the operations version.
+We have compilation error:
+---
+[ 87%] Building CXX object src/ctbto/apps/scdfx/CMakeFiles/scdfx.dir/scpersistencecontroller.cpp.o
+/git/kianicka_new/operations/seiscomp3/src/ctbto/apps/scdfx/scpersistencecontroller.cpp: In member function 'virtual ibase::waveformqc::WfdataWrapper Seiscomp::ScPersistenceController::getWfdataWrapperForChanInt(const ibase::waveformqc::ChanInt&)':
+/git/kianicka_new/operations/seiscomp3/src/ctbto/apps/scdfx/scpersistencecontroller.cpp:454: error: no matching function for call to 'ibase::waveformqc::WfmAdapter::create_wfdatawrapper(par_struct&, ibase::waveformqc::t_wfdisc_container&)'
+/git/kianicka_new/operations/install/ibase/include/WfmAdapter.hpp:167: note: candidates are: static ibase::waveformqc::WfdataWrapper ibase::waveformqc::WfmAdapter::create_wfdatawrapper(const float*, size_t, double, const QString&, const QString&, double, double, Wfdisc*, int)
+make[2]: *** [src/ctbto/apps/scdfx/CMakeFiles/scdfx.dir/scpersistencecontroller.cpp.o] Error 1
+make[1]: *** [src/ctbto/apps/scdfx/CMakeFiles/scdfx.dir/all] Error 2
+---
+May we should try older verion of seisomp3, or older version of eniab source code?
+What works with what?
+
+Last commit in ibase operations is from July 2015 - let us try to go back in eniab to this version:
+eniab:
+> git checkout b2f1fae1519413b62cb778291
+In this case we have error in css2inv:
+---
+/git/kianicka_new/operations/seiscomp3/src/trunk/libs/seiscomp3/datamodel/stream.h: In member function 'virtual bool Seiscomp::CSS2InvApp::run()':
+/git/kianicka_new/operations/seiscomp3/src/trunk/libs/seiscomp3/datamodel/stream.h:82: error: 'Seiscomp::DataModel::Stream::Stream()' is protected
+/git/kianicka_new/operations/seiscomp3/src/ctbto/apps/css2inv/css2inv.cpp:1149: error: within this context
+make[2]: *** [src/ctbto/apps/css2inv/CMakeFiles/css2inv.dir/css2inv.cpp.o] Error 1
+make[1]: *** [src/ctbto/apps/css2inv/CMakeFiles/css2inv.dir/all] Error 2
+make: *** [all] Error 2
+---
+We should try to use also seicomp3 repository from approximatelly same period:
+
+> git checkout e81319957658578005d8f3be340
+
+In this case we have dependency failure of css2inv with regards to gbase:
+---
+Linking CXX executable ../../../../bin/css2inv
+/usr/bin/ld: cannot find -ltime
+collect2: ld returned 1 exit status
+make[2]: *** [bin/css2inv] Error 1
+make[1]: *** [src/ctbto/apps/css2inv/CMakeFiles/css2inv.dir/all] Error 2
+make: *** [all] Error 2
+---
+
+We try also corresponding version of gbase (but then would be good to
+find our DCR/ICR and find out about exact versions used for building
+of versions deployed to VDMS OPS).
+gbase:
+> git checkout 4fe45f2757960cbe4b8cfca4b
+---
+Linking CXX executable ../../../../bin/css2inv
+/usr/bin/ld: cannot find -lstanoise
+collect2: ld returned 1 exit status
+make[2]: *** [bin/css2inv] Error 1
+make[1]: *** [src/ctbto/apps/css2inv/CMakeFiles/css2inv.dir/all] Error 2
+make: *** [all] Error 2
+---
+Stanoise in the version was already moved to sbase and not found there by seiscomp3.
+When trying to build yet older version which still contain libstanois, we end up with this error:
+---
+/git/kianicka_new/operations/install/sbase/lib/libstanoise.a(libstanoise_la-psd_welch.o): In function `PsdWelch':
+/git/kianicka_new/operations/sbase/libsrc/libstanoise/psd_welch.c:183: undefined reference to `fftwf_import_wisdom_from_string'
+/git/kianicka_new/operations/sbase/libsrc/libstanoise/psd_welch.c:274: undefined reference to `fftwf_destroy_plan'
+/git/kianicka_new/operations/sbase/libsrc/libstanoise/psd_welch.c:275: undefined reference to `fftwf_free'
+/git/kianicka_new/operations/install/sbase/lib/libstanoise.a(libstanoise_la-calculate_psd.o): In function `CalculatePSD':
+/git/kianicka_new/operations/sbase/libsrc/libstanoise/calculate_psd.c:139: undefined reference to `fftwf_execute'
+/git/kianicka_new/operations/sbase/libsrc/libstanoise/calculate_psd.c:131: undefined reference to `fftwf_plan_dft_r2c_1d'
+/git/kianicka_new/operations/sbase/libsrc/libstanoise/calculate_psd.c:103: undefined reference to `fftwf_malloc'
+collect2: ld returned 1 exit status
+---
+
+I would say if Edward will not provide exact dependency tree for the versions
+originally deployed to ops, we will not succeed to build the operation version
+of seiscomp3 binaries:
+But we can get them from:
+/git/wokabi/install/seicomp3
+
+# Lisdting of DCRs and ICRs which have bring VDMS Seiscomp3 dependencies
+
+ICR-1134 Release of NDC-in-a-Box version 4.3 (Wolfgang)
+         Jakarta Release 2017.33.4.02
+         missing tagged versions of dependencies
+
+DCR-3058 Please update css2inv to latest version
+         Also missing tagged versions of dependencies.
+         Link issue ticket SHD-70155
+
+Older DCRs and ICR which probably have brought to OPS current binaries
+DCR-2508 Build and install css2inv, css2proc and seisomp (Edward)
+         all versions recorded and build procedure
+         missing information about version of the 'eniab' repository
+         But others are defined by exact tags.
+         Special dedicated build scripts are used:
+         do_cbase.sh, do_gbase.sh
+         But this rather old DCR.
+
+DCR-2514, ICR-836, ICR-837 have very probably brought current ops versions
+But the build procedure with dependencies is not documented.
+It just copies the binaries and libraries from still present Edward's directory:
+/git/wokabi/install/seiscomp3/
+
+---------------------
+Questions to Wolfgang:
+Q1. What is the policy for tagging the seiscomp3 repo?
+In the jenkins job is used fixed tag which is already pretty old.
+What about our continues delivery, how we will deliver fixes for seiscomp3 binaries if they 
+are erroneous:
+> git tag
+....
+release/jakarta/2017.334.03
+release/jakarta/2017.334.04
+release/jakarta/2017.334.05
+release/jakarta/2017.334.08
+release/jakarta/2017.334.09
+release/jakarta/2017.334.10
+release/jakarta/2017.334.11
+release/jakarta/2017.334.p2
+release/jakarta/2018.327.01
+release/jakarta/2018.327.02
+release/jakarta/2018.327.04
+release/jakarta/2018.327.05
+release/jakarta/2018.327.06
+release/jakarta/2018.327.07
+release/jakarta/2018.327.08
+release/jakarta/2018.327.09
+release/jakarta/2018.327.10
+release/jakarta/2018.327.11
+release/jakarta/2018.327.12
+release/jakarta/2018.327.13
+release/jakarta/2018.327.14
+release/jakarta/2018.327.15
+release/jakarta/2018.327.16
+release/jakarta/2018.327.17
+---
+
+Q2. Gbase is using 'cats' branch but it is the same version as 'master', why there was created 'cats' branch?
+
+Q3. In the cats job 'seiscomp3-github-cats' is reflected splitting of
+ibase.  However, splitting of ibase was not yet released and in the
+master branch is happing on-going development - thus can introduce
+bugs.  Which version of SHI software dependencies should we actually
+use in COD for VDMS THIRD-PARTY?
+
+Q4. In the eniab/aVDMS are tools which automate sending and receiving
+data from VDMS REQ_SUBS subsystem.  I am implementing very simillar
+use case as part of smoke testing in CATS system.  How and by whom are
+these tools used, who is responsible for their maintainenance?
+
+Q5. Are there are some stand alone automated tests for ctbto gempa contributions
+implemented in eniab/ctbto which are easy to integrate into CATS?
+
+Q6. When building seiscomp3 using versions from the cats job and when trying to
+execute 'make install'  it ended with the following error:
+---
+CMake Error at src/ctbto/apps/nms2proc/cmake_install.cmake:44 (FILE):
+  file INSTALL cannot find
+  "/git/kianicka_new/seiscomp3/src/ctbto/apps/nms2proc/../../../trunk/apps/templates/initd.py".
+Call Stack (most recent call first):
+  src/ctbto/apps/cmake_install.cmake:41 (INCLUDE)
+  src/ctbto/cmake_install.cmake:38 (INCLUDE)
+  src/cmake_install.cmake:48 (INCLUDE)
+  cmake_install.cmake:37 (INCLUDE)
+---
+It would be convenient to use published artifacts from the install
+directory, not directly content of the 'build' after successfull
+build.  Could we have this error fixed?
+
+Q7. When trying to build seicomp3 with older version of eniab
+components I had incompatible error in building 'scdfx'.  What would
+be the right version still compatible to 'operations' ibase,
+particularly libwaveformqc?  In order to be correct for VDMS devlab
+installation I should use binaries of VDMS THIRD-PARTY binaries
+installed in OPS, not new ones.

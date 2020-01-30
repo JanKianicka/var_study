@@ -1,0 +1,132 @@
+# Notes about the cleanup release preparation - Januray 2020
+---
+1. VDMS
+SEISAN integration:
+-----------
+[te_format_shi_bulletin]
+template_dir=%(ENV[NMS_HOME])/etc/templates
+storage_dir=%(ENV[NMS_DATA])
+nordic_executable=%(ENV[NMS_THIRD_PARTY])/bin/norims
+
+All third party executables in production are supposed to be in that directory.
+So, do you want me to change the test file to use SEISAN_HOME?
+
+Nordinc format documented here:
+https://www.geosig.com/files//GS_SEISAN_9_0_1.pdf
+Appendix A
+
+- Give me list of features eventually with Jira links where are I can find details which were implemented and were never released to OPS – also specification
+* NORDIC products
+* DLSEED products 
+* removal of regional screening
+* new Category criteria for some radionuclide products (ARR, RRR, ARR_html, RRR_html, SPHD, SPHF) 
+* SSREB_html product
+ 
+From what I can see, here is what is already in operations:
+* NEB/NSEB products (which use evsc_drv executable)
+* new EXECSUM products
+
+Can you tell me, from the latest DCR avaiable, what version is deployed on OPS?
+
+Build procedure described already in eniab repository.
+
+
+EXECSUM status:
+--------------
+The requirement was to add sections EDS (Executive Data Summary), EPS
+(Executive Product Summary) and EPOS (Executive Performance and
+Operational Summary) both as new sections for the EXECSUM product and
+as standalone products.  The requirements were never put in writing
+but instead resulted from a series of email exchanges between Robert
+Werzi and me.
+---
+I attach the current templates for EXECSUM, EPS, EDS and EPOS, as well
+as the old EXECSUM template (prior to any of these changes). I also
+attach samples for the current EXECSUM, EPS, EDS and EPOS products, as
+well as for the old EXECSUM product.
+
+In my opinion, we cannot simply "revert" to the old EXECSUM product
+because too many improvements have been done.
+
+The simplest way forward is to take the current EXECSUM product and
+cross the information you (meaning the whole CTBTO team, including
+Alexander) don't want there. For instance, the availability data, that
+we retrieve from the KPI site, is not particularly good and not easy
+to interpret: it could be removed, in my opinion.
+
+Once everybody agrees on what should stay and what should go, I can
+delete the unwanted information from the EXECSUM template, and remove
+the EDS, EPS and EPOS products.
+
+Attachments in:
+Z:\Projects\VDMS\SEISAN_cleanup_release_preparation
+
+---
+There is no documentation but let let me describe the implementation
+in a few words: I have implemented a Python script which retrieves
+data from 2 sources: the file system and the KPI server. This data is
+retrieved once a day with a cron job and saved in our database. When
+users request EXECSUM, EDS, EPS or EPOS products, we use data from our
+database to create the product.
+
+
+---
+I do not have much in the way of specifications regarding DLSEED. There is a document that Wolfgang had sent me (I attach it)
+
+If a user requests:
+BEGIN IMS2.0
+MSG_TYPE REQUEST
+MSG_ID test_dlseed
+STA_LIST ARCES
+CHAN_LIST BHF
+STA_INFO IMS2.0:DLSEED
+STOP
+Then, instead of the usual command:
+css2inv --osdb user:pwd@odb --schemas STATIC ARCES
+I need to execute:
+css2inv --osdb user:pwd@odb --schemas STATIC ARCES | inv2dlsv
+
+The DLSEED output is not particularly readable (a sample output is attached to this email).
+
+---
+removal of regional screening
+
+In screened bulletins (SEB and SSEB) there was a Regional Screening
+section. Apparently the data was not good and/or not relevant so Elena
+asked me to remove it.  This is not a new product. I do not have any
+documentation.
+
+---
+new Category criteria for some radionuclide products (ARR, RRR, ARR_html, RRR_html, SPHD, SPHF)
+ARR, RRR, ARR_html, RRR_html, SPHD, SPHF are all standard CTBTO products. If you want to know what these abbreviations mean, you can check the Format & Protocols.
+What is important here is that ARR, RRR, SPHD and SPHF are particulate products, while ARR_html and RRR_html are noble gaz products (their output are in HTML, hence the name).
+These products list events which have a category. This category denotes how important the event is.
+Note that for particulate products (ARR, RRR, SPHD, SPHF), the categories are numbers (1,2,3,4,5) whereas for noble gaz products (ARR_html, RRR_html) there are letters (A,B,C).
+When you request these products, you can now add a Category criteria. Here is an example for a SPHD (the new criteria is highlighted in red):
+
+begin ims1.0
+msg_type request
+msg_id ex026
+time 1999/07/01 to 2000/08/01
+sta_list AU*
+CATEGORY 4,5
+sphdf rms2.0
+sphdp rms2.0
+stop
+
+The criteria will restrict the results to these categories.
+
+---
+Actually, I looked it up on OPS and this product has already been deployed.
+But anyway: this product is a SSREB (Standard Screened Radionuclide Event Bulletin) for noble gaz stations. Its output is in HTML.
+You can request it like this:
+
+BEGIN IMS2.0
+MSG_TYPE REQUEST
+MSG_ID test_ssreb2
+TIME 2019/12/01 to 2019/12/30
+STA_LIST *
+SSREB IMS2.0:HTML
+STOP
+
+I attach a sample response.

@@ -1,0 +1,103 @@
+python vs java in complex enteprise systems
+
+Dear Colleagues,
+This Friday before christmas I wanted to devote few hours to study. Yesterday talks inspired me to spend some time
+on study of state of the art of the enteprise technologies, choise of supported open source alternatives with respect to
+existing solutions at IDC - particularly role and usage of:
+ low level programming languages:  C, Fortran, C++
+ scripting langauges: bash, csh, perl and python - as scripting language
+ higher level programming frameworks: python - as data processing and enteprise language in VDMS, java comming in new system
+
+Python versus java considering modern open-source frameworks.
+Browsing these resources:
+https://hi.throput.com/is-python-ready-for-enterprise-application-development-d826fe3a6a0c - author is a friend of python
+https://www.quora.com/Why-are-IT-systems-in-big-enterprises-usually-built-using-Java-instead-of-Python-or-JavaScript - clearly state that python is not suited
+for distributed systems
+https://julien.danjou.info/is-python-a-good-choice-for-entreprise-projects/ - claims that python is getting mature enough for enteprise projects
+
+Using my experience of a 'fluctuant', but I saw many systems and project I can state that:
+- big enteprise systems rely on a middle layer, or called 'Enteprise Service Bus' which is mainly implemented in Java, J2EE and these systems growed into
+  really huge complexity and are hard-to-maintain
+- low level languages like C, C++ etc. are still mainly used for high performance implementations and development of operation systems
+- python with its simple user friendly syntax and C-extensions for scientists - numpy, scipy is emerging
+
+I saw these solutions:
+- In the bank core systems were proprietary and as ESB layer was used IBM Websphere Message Broker and IBM Websphere application server - most development in Java, using JMS - terribly complex
+- Then in the system which was processing satellite data we succesfully used - for backend data processing python with numpy, scipy and netCDF4, for front end and processing of data request was used Java Spring Framework and Spring Integration very succesfully
+- for project at TU Wien we work in python only again for satellite data processing, even for data processing on a supercomputer
+- for IDCDACS we used low level language - C - implementation combined with scripts and RabbitMQ message broker
+
+Considering the about reading I would conclude:
+For Multitask distributed systems as VDMS is, is still much better Java namely Java Spring Framework which is trying to overcome
+complexity of too complex platforms of J2EE.
+Python is great for scripting, fast development of small not critical systems and for data processing.
+
+Reasons why python is not suitable for systems like VDMS:
+Python - The biggest drawback here is the poor performance and the oversimplification of multithreading and error handling.
+      (Also based on my practical experience and we can see it also in VDMS)
+      Language has some limitations: the GIL (Global Interpreter Lock)
+      
+Java is a language that handles several topics very well:
+     Error/Exception handling. One of the key components of an enterprise grade application is to be robust and be able to handle errors well.
+     Good maintainability.
+     Robust, easy multithreading. Java makes it very easy to write applications that run code in parallel.
+     Great performance.
+
+My performance exercise:
+Simple trade-off of sin() calculation of a big array - time, memory usage:
+---
+python:
+Duration: 0:00:27.054937
+Memmory:
+top -b -c | grep -v grep | grep perf_test
+2548m 2.5g 
+3356m 3.2g
+3188m 3.0g
+up to 3.2g of physical memory
+
+numpy for the same test case:
+----
+Duration: 0:00:03.742582
+1620m 1.0g
+up to 1.0g of physical memory
+
+C implementation
+---
+Duration: 3.47 s
+769m  58m
+Only 58m of physical memory used, up 800 virutal memory allocated.
+
+java implementation
+---
+Duration: 37 s
+6700m 794m
+Up to 800m of physical memory in use and alloceted 6.7g of virtuall memory for java
+
+Included also String manipulation into the loop:
+Python:
+Duration - sin: 0:00:26.273149
+String manipulation
+Duration overall: 0:01:53.163826
+Exited
+
+Java:
+6700m 793m - for sin() computation
+6700m 2.0g - for string manipulation
+
+There are more peformance tests  - for most Java is more performant than python:
+https://benchmarksgame-team.pages.debian.net/benchmarksgame/fastest/python.html
+
+Some links of interest:
+https://pivotal.io/open-source - powerfull open source platforms supported by Pivotal
+https://spring.io/projects/spring-integration - emerging enteprise platform
+https://en.wikipedia.org/wiki/Spring_Framework - successful alternative to overcomplex J2EE and hard to maintain C, C++ solutions
+https://en.wikipedia.org/wiki/List_of_numerical_libraries#Java - high performance libraires for Java - some developed by CERN
+https://docs.scipy.org/doc/numpy/reference/c-api.html - C-API - this is why python is so good for research and even data processing
+
+In the attachment are snippet of my code for performance test.
+Kind regards
+Jan
+
+Ps: Sorry for having it a bit regged - I am short on time..
+
+

@@ -255,3 +255,58 @@ wave_reader -
     /tmp/wave_3min_cm6.data  - connected to databases as PADD1 user )
 
 
+
+
+# Structure of the mail adapater and its transaction pattern:
+Using sequential number of email in IMAP inbox is highly vilatile and dangerous.
+In any change in the inbox the sequential number starts to point to the wrong mail.
+See:
+https://yuji.wordpress.com/2011/06/22/python-imaplib-imap-example-with-gmail/
+---
+Using UIDs instead of volatile sequential ids
+The imap search function returns a sequential id, meaning id 5 is the 5th email in your inbox.
+That means if a user deletes email 10, all emails above email 10 are now pointing to the wrong email.
+This is unacceptable.
+Luckily we can ask the imap server to return a UID (unique id) instead.
+---
+
+Not safe function which uses sequntial num:
+nms_mail_adapter.src.nms_mail_adapter.mail_adapter_server.IMAPClient.remove_email
+used in
+  -> nms_mail_adapter.src.nms_mail_adapter.mail_adapter_server.IMAPPoller.get_list
+  -> nms_mail_adapter.src.nms_mail_adapter.mail_adapter_server.IMAPClient.pop_email
+sequential mail id on IMAP server is used also for fetching:
+nms_mail_adapter.src.nms_mail_adapter.mail_adapter_server.IMAPClient.fetch_mail
+use also during retrieval of mails from the IMAP server:
+  -> nms_mail_adapter.src.nms_mail_adapter.mail_adapter_server.IMAPPoller.get_list
+There is limit not to read and remove emails in buffer, prefetch size is limited to 1 in
+nms_mail_adapter.src.nms_mail_adapter.DEFAULT_BUFFER_SIZE = 1
+
+In spite of this small buffer even this seq. number 1 can in time point to the wrong email in the inbox.
+
+# Second issue is that imap.ctbto.org does not support deletion based on UID
+It does not support flagging.
+Call of:
+client.uid('store', 1, '+FLAGS', '\\Deleted')
+cats this error:
+imaplib.error: UID command error: BAD ['Missing required argument to UID Store']
+which indicates that the IMAP server does not support so-called flagging based on UID.
+Thus in my investigation we have this feature available on:
+gmail - imap.gmail.com
+our CTBTO exchane server - malta25.office.ctbto.org
+and not available on:
+imap.ctbto.org
+nor on devlab05 local Dovecot imap server.
+
+# smtp.ctbto.org does not support authentication and TLS connection
+Anyone who sees the server can connect and can start sending emails 
+from any address to any address and without TLS encryption on connection.
+
+The same features has also local devlab05 Dovecor server.
+
+
+# Meeting with Cyrille on the unit-integrated tests again on 21.11.2019:
+
+
+
+

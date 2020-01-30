@@ -1,3 +1,402 @@
+From: KIANICKA Jan 
+Sent: 31 October 2019 16:23
+To: 'Cyrille Bonnet'; WOKABI Edward
+Subject: errors of VDMS observed when running smoke tests
+
+Dear Cyrille, dear Edward,
+We held today short experience and technical knowledge exchange via skype call and part of it was collection of our issues observed, when running set of sample requests provided by you.
+Please if you have time to have a look on them and eventually we can try to verify these cases, when you are here within two Weeks.
+First 5 was collected by me running test against devlan VDMS installation,
+Second 5 in addition were observed only on devlab05 collected by Thomas
+Kind regards
+Jan
+
+From: Fabian, Thomas [mailto:thomas.fabian@atos.net] 
+Sent: 30 October 2019 16:37
+To: KIANICKA Jan
+Subject: RE: my error log of investigations on devlan
+
+Dear Jan,
+
+I have added the errors I have observed. 
+
+Br
+Thomas
+
+# Issues - October 2019:
+1. Confirmation emails when reporting error have different subject:
+do not contain space after Re:
+
+2. This request just disappear without any reply or error code even in syslog
+and without confirmation email with error description.
+What is the circumstance:
+
+BEGIN IMS1.0
+MSG_TYPE DATA
+MSG_ID ws01_1
+REF_ID 196418_normal
+DATA_TYPE WAVEFORM IMS1.0:CSF
+TIME_STAMP 2015/02/17 15:13:53
+WID2 2015/02/17 14:43:40.000 KIV1  SHZ      CSF     1600   40.000000   3.18e-03   1.000 GS13    -1.0  0.0
+STA2 GSRAS      43.95700   42.69460 WGS84        1.210 0.000
+DAT2
+STOP
+
+3. This request ended with the error:
+begin ims1.0
+msg_type request
+msg_id origin_test
+time 2015/12/01 to 2015/12/31
+ORIGIN IMS2.0
+stop
+
+Error:
+BEGIN IMS1.0
+MSG_TYPE DATA
+MSG_ID err_origin_test_60021 CTBT_IDC
+REF_ID origin_test_60021 
+DATA_TYPE LOG
+Submitted request :
+begin ims1.0
+msg_type request
+msg_id origin_test_60021
+time 2015/12/01 to 2015/12/31
+ORIGIN IMS2.0
+stop
+DATA_TYPE ERROR_LOG
+Error: no bulletin type defined: {'FILTER': 'ORIGIN', 'FORMAT': 'IMS2.0', 'TECHNOLOGYTYPE': 'UNKNOWN', 'PRODUCTFAMILY': 'BULLETIN', 'TECHNOLOGYFAMILY': 'SHI', 'TIME': {'START': '2015/12/01', 'END': '2015/12/31'}}
+STOP
+
+4. This request ended with this error - probably malfunctional parsing of such long request:
+
+BEGIN IMS2.0
+MSG_TYPE REQUEST
+MSG_ID parallel_3
+STA_LIST ARA0,ARA1,ARA2,ARA3,ARB1,ARB2,ARB3,ARB4,ARB5,ARC1,ARC2,ARC3,ARC4,ARC5,ARC6,ARC7,ARD1,ARD2,ARD3,ARD4,ARD5,ARD6,ARD7,ARD8,ARD9,AS01,AS02,AS03,AS04,AS05,AS06,AS07,AS08,AS09,AS10,AS11,AS12,AS13,AS14,AS15,AS16,AS17,AS18,AS19,AS31,BORG,BR101,BR102,BR103,BR104,BR105,BR106,BR131,EKB,EKB1,EKB10,EKB2,EKB3,EKB4,EKB5,EKB6,EKB7,EKB8,EKB9,EKR1,EKR10,EKR2,EKR3,EKR4,EKR5,EKR6,EKR7,EKR8,EKR9,ES01,ES02,ES03,ES04,ES05,ES06,ES07,ES08,ES09,ES10,ES11,ES12,ES13,ES14,ES15,ES16,ES17,ES18,ES19,ESBB,ESBB1,FIA0,FIA1,FIA2,FIA3,FIB1,FIB2,FIB3,FIB4,FIB5,FIB6,FIC1,FIC2,FIC3,FIC4,FIC5,FIC6,HFA0,HFA1,HFA2,HFA3,HFB1,HFB2,HFB3,HFB4,HFB5,HFC2,NAO00,NAO01,NAO02,NAO03,NAO04,NAO05,NB200,NB201,NB202,NB203,NB204,NB205,NBO00,NBO01,NBO02,NBO03,NBO04,NBO05,NC200,NC201,NC202,NC203,NC204,NC205,NC300,NC301,NC302,NC303,NC304,NC305,NC400,NC401,NC402,NC403,NC404,NC405,NC600,NC601,NC602,NC603,NC604,NC605,PD01,PD02,PD03,PD04,PD05,PD06,PD07,PD08,PD09,PD10,PD11,PD12,PD13,PD31,PD32,SCHQ,SPA0,SPA1,SPA2,SPA3,SPB1,SPB2,SPB3,SPB4,SPB5,TOA0,TOA1,TOA2,TOA3,TOB1,TOB2,TOB3,TOB4,TOB5,TOC1,TOC2,TOC3,TOC4,TOC5,TOC6,TOC7,WB1,WB10,WB2,WB3,WB4,WB5,WB6,WB7,WB8,WB9,WC1,WC2,WC3,WC4,WR1,WR10,WR2,WR3,WR4,WR5,WR6,WR7,WR8,WR9,YKAB0,YKAB1,YKAB2,YKAB3,YKAB4,YKAB6,YKAB7,YKAB8,YKAB9,YKAR1,YKAR2,YKAR3,YKAR4,YKAR5,YKAR6,YKAR7,YKAR8,YKAR9,YKAW1,YKAW3
+CHAN_LIST BHE,BHN,BHZ,SHZ,BH1,BH2,SHE
+TIME 2016/04/12 18:45:00 to 2016/04/12 19:45:00
+WAVEFORM IMS2.0:INT
+STOP 
+
+---
+BEGIN IMS2.0
+MSG_TYPE DATA
+MSG_ID err_parallel_3_60021 CTBT_IDC
+REF_ID parallel_3_60021 
+DATA_TYPE LOG
+Submitted request :
+BEGIN IMS2.0
+MSG_TYPE REQUEST
+MSG_ID parallel_3_60021
+STA_LIST ARA0,ARA1,ARA2,ARA3,ARB1,ARB2,ARB3,ARB4,ARB5,ARC1,ARC2,ARC3,ARC4,ARC5,ARC6,ARC7,ARD1,ARD2,ARD3,ARD4,ARD5,ARD6,ARD7,ARD8,ARD9,AS01,AS02,AS03,AS04,AS05,AS06,AS07,AS08,AS09,AS10,AS11,AS12,AS13,AS14,AS15,AS16,AS17,AS18,AS19,AS31,BORG,BR101,BR102,BR103,BR104,BR105,BR106,BR131,EKB,EKB1,EKB10,EKB2,EKB3,EKB4,EKB5,EKB6,EKB7,EKB8,EKB9,EKR1,EKR10,EKR2,EKR3,EKR4,EKR5,EKR6,EKR7,EKR8,EKR9,ES01,ES02,ES03,ES04,ES05,ES06,ES07,ES08,ES09,ES10,ES11,ES12,ES13,ES14,ES15,ES16,ES17,ES18,ES19,ESBB,ESBB1,FIA0,FIA1,FIA2,FIA3,FIB1,FIB2,FIB3,FIB4,FIB5,FIB6,FIC1,FIC2,FIC3,FIC4,FIC5,FIC6,HFA0,HFA1,HFA2,HFA3,HFB1,HFB2,HFB3,HFB4,HFB5,HFC2,NAO00,NAO01,NAO02,NAO03,NAO04,NAO05,NB200,NB201,NB202,NB203,NB204,NB205,NBO00,NBO01,NBO02,NBO03,NBO04,NBO05,NC200,NC201,NC202,NC203,NC204,NC205,NC300,NC301,NC302,NC303,NC304,NC305,NC400,NC401,NC402,NC403,NC404,NC405,NC600,NC601,NC602,NC603,NC604,NC605,PD01,PD02,PD03,PD04,PD05,PD06,PD07,PD08,PD09,PD10,PD11,PD12,PD13,PD31,PD32,SCHQ,SPA0,SPA1,SPA2,SPA3,SPB1,SPB2,SPB!
+3!
+  ,SPB4,SPB5,TOA0,TOA1,TOA2,TOA3,TOB1,TOB2,TOB3,TOB4,TOB5,TOC1,TOC2,TOC3,TOC4,TOC5,TOC6,TOC7,WB1,WB10,WB2,WB3,WB4,WB5,WB6,WB7,WB8,WB9,WC1,WC2,WC3,WC4,WR1,WR10,WR2,WR3,WR4,WR5,WR6,WR7,WR8,WR9,YKAB0,YKAB1,YKAB2,YKAB3,YKAB4,YKAB6,YKAB7,YKAB8,YKAB9,YKAR1,YKAR2,YKAR3,YKAR4,YKAR5,YKAR6,YKAR7,YKAR8,YKAR9,YKAW1,YKAW3
+CHAN_LIST BHE,BHN,BHZ,SHZ,BH1,BH2,SHE
+TIME 2016/04/12 18:45:00 to 2016/04/12 19:45:00
+WAVEFORM IMS2.0:INT
+STOP
+DATA_TYPE ERROR_LOG
+Illegal Character ! in Line 4, position 989.
+STOP
+
+
+5. This request ended with the following error:
+begin ims1.0
+msg_type request
+msg_id comm_test
+time 2015/12/01 to 2015/12/31
+comm_status IMS2.0
+stop
+
+---
+BEGIN IMS1.0
+MSG_TYPE DATA
+MSG_ID err_comm_test_33811 CTBT_IDC
+REF_ID comm_test_33811 
+DATA_TYPE LOG
+begin ims1.0
+msg_type request
+msg_id comm_test_33811
+time 2015/12/01 to 2015/12/31
+comm_status IMS2.0
+stop
+DATA_TYPE ERROR_LOG
+Your request cannot be completed: Product shi_bulletin_commstatus is not available yet
+STOP
+
+
+
+6. This request ended with an sql statement that exceeds the maximum number of expressions
+BEGIN IMS2.0
+MSG_TYPE REQUEST
+MSG_ID ORID_14865358
+BULL_TYPE REB
+TIME 2017/09/01 00:00:00 to 2017/09/18 00:00:00
+ORIGIN IMS2.0
+STOP
+
+syslog:
+Oct 29 16:43:13 alv621 ctbt.msgsys.production_engine: GenericIDCDAO - 5713/JobPicker-4 - ERROR - SQL request failed with following error: (DatabaseError) ORA-01795: maximum number of expressions in a list is 1000
+Oct 29 16:43:13 alv621 ctbt.msgsys.production_engine: GenericIDCDAO - 5713/JobPicker-4 - ERROR -  'SELECT "REB"."NETMAG".orid, "REB"."NETMAG".magtype, "REB"."NETMAG".magnitude, "REB"."NETMAG".uncertainty, "REB"."NETMAG".nsta \nFROM "REB"."NETMAG", "REB"."ORIGIN" \nWHERE "REB"."NETMAG".orid = "REB"."ORIGIN".orid AND "REB"."ORIGIN".orid IN (:orid_1, :orid_2, :orid_3, :orid_4, :orid_5,  ....
+'orid_49': 14807333, 'orid_1480': 14873563}#012Traceback (most recent call last):#012  File "build/bdist.linux-x86_64/egg/nms_production_engine/production_engine.py", line 293, in execute#012    te_data_nms_result = te_data.execute(product, execution_context)#012  File "build/bdist.linux-x86_64/egg/springpython/aop/__init__.py", line 199, in dispatch#012    return invocation.__getattr__(name)(*args, **kwargs)#012  File "build/bdist.linux-x86_64/egg/springpython/aop/__init__.py", line 75, in __call__#012    return self.proceed()#012  File "build/bdist.linux-x86_64/egg/springpython/aop/__init__.py", line 61, in proceed#012    return interceptor.invoke(self)#012  File "build/bdist.linux-x86_64/egg/nms_common/utils/springpython_aspect.py", line 101, in invoke#012    return invocation.proceed()#012  File "build/bdist.linux-x86_64/egg/springpython/aop/__init__.py", line 61, in proceed#012    return interceptor.invoke(self)#012  File "build/bdist.linux-x86_64/egg/nms_common/utils/stats.py", line 34, in invoke#012    result = invocation.proceed()#012  File "build/bdist.linux-x86_64/egg/springpython/aop/__init__.py", line 61, in proceed#012    return interceptor.invoke(self)#012  File "build/bdist.linux-x86_64/egg/springpython/aop/__init__.py", line 162, in invoke#012    return getattr(invocation.instance, invocation.method_name)(*invocation.args, **invocation.kwargs)#012  File "build/bdist.linux-x86_64/egg/idc_products/shi/data_collector/shi_data_collector.py", line 61, in execute#012    self.__archive_range(ranges, a_prod_dict, nms_result, execution_context)#012  File "build/bdist.linux-x86_64/egg/idc_products/shi/data_collector/shi_data_collector.py", line 113, in __archive_range#012    archive_nms_result = self._archive_collector.execute(a_prod_dict, execution_context)#012  File "build/bdist.linux-x86_64/egg/idc_products/shi/data_collector/shi_data_collector.py", line 274, in execute#012    collected_data = self._collect_data(a_prod_dict, tables, execution_context)#012  File "build/bdist.linux-x86_64/egg/idc_products/shi/data_collector/shi_full_bulletin_data_collector.py", line 455, in _collect_data#012    netmag_index = self._cache_netmag(tables, schema, orid_float_list, a_prod_dict)#012  File "build/bdist.linux-x86_64/egg/idc_products/shi/data_collector/shi_full_bulletin_data_collector.py", line 736, in _cache_netmag#012    netmag_rows = self._dao.execute( self.__netmag_req(schema, schema, orid_float_list))#012  File "build/bdist.linux-x86_64/egg/nms_common/dao/dao_utils.py", line 116, in generic_retry_function#012    raise exp#012DatabaseError: (DatabaseError) ORA-01795: maximum number of expressions in a list is 1000
+
+
+7. This request ended with an sql error: table or view does not exist
+BEGIN ims2.0
+MSG_TYPE request
+MSG_ID Bug_334
+TIME 2012/12/01 to 2012/12/02
+LAT 20 to 60
+LON 30 to 120
+EXECSUM ims2.0
+STOP
+
+syslog:
+Oct 29 16:43:38 alv621 ctbt.msgsys.production_engine: OracleCnxProvider - 5714/JobPicker-4 - ERROR - (DatabaseError) ORA-00942: table or view does not exist: database error while connected to DBA1257.qandef as user padd_eng
+Oct 29 16:43:38 alv621 ctbt.msgsys.production_engine: NMSMixedDAO - 5714/JobPicker-4 - ERROR - SQL request failed with following error: (DatabaseError) ORA-00942: table or view does not exist
+Oct 29 16:43:38 alv621 ctbt.msgsys.production_engine: NMSMixedDAO - 5714/JobPicker-4 - ERROR -  'SELECT padd.msg_execsum_metrics.metric_name, padd.msg_execsum_metrics.metric_value, padd.msg_execsum_metrics.metric_date \nFROM padd.msg_execsum_metrics \nWHERE padd.msg_execsum_metrics.metric_date = :metric_date_1 AND padd.msg_execsum_metrics.metric_name != :metric_name_1 AND padd.msg_execsum_metrics.metric_name != :metric_name_2 AND padd.msg_execsum_metrics.metric_name != :metric_name_3 AND padd.msg_execsum_metrics.metric_name != :metric_name_4 AND padd.msg_execsum_metrics.metric_name != :metric_name_5 AND padd.msg_execsum_metrics.metric_name != :metric_name_6' {'metric_name_2': 'auxiliary_seismic_availability_percentage', 'metric_name_3': 'hydro_availability_percentage', 'metric_name_1': 'primary_seismic_availability_percentage', 'metric_name_6': 'noble_gaz_rn_availability_percentage', 'metric_name_4': 'infrasound_availability_percentage', 'metric_name_5': 'particulate_rn_availability_percentage', 'metric_date_1': datetime.datetime(2012, 12, 1, 0, 0, tzinfo=<nms_common.utils.time_utils.UTC object at 0x42
+Oct 29 16:43:38 alv621 ctbt.msgsys.production_engine: NMSMixedDAO - 5714/JobPicker-4 - ERROR - 256d0>)}
+
+
+
+8. These four requests ended with an out of memory situation where the kernel killed the process
+begin ims2.0
+msg_type request
+msg_id 2015327REBbull
+time 2017/09/07 00:00:00 to 2017/09/07 23:59:59
+bull_type REB
+bulletin ims2.0
+stop
+
+begin ims2.0
+msg_type request
+msg_id EDWARDLong_SEB
+time 2018/12/25 to 2018/12/26
+bull_type SEB
+bulletin ims2.0:long
+stop
+
+BEGIN IMS2.0
+MSG_TYPE REQUEST
+MSG_ID ED_TEST
+TIME 2011-03-11 00:00:00 to 2011-03-11 02:00:00
+BULL_TYPE REB
+BULLETIN IMS2.0
+STOP
+
+begin ims2.0
+msg_type request
+msg_id ED_SC3XML
+time 2013/02/12 00:00:00 to 2013/02/12 00:30:00 
+sta_list BOSA 
+sta_info IMS2.0:SC3XML 
+stop
+
+syslog:
+Oct 29 16:46:47 alv621 kernel: python invoked oom-killer: gfp_mask=0x201da, order=0, oom_adj=0, oom_score_adj=0
+Oct 29 16:46:47 alv621 kernel: python cpuset=/ mems_allowed=0
+Oct 29 16:46:47 alv621 kernel: Pid: 5731, comm: python Not tainted 2.6.32-754.15.3.el6.x86_64 #1
+Oct 29 16:46:47 alv621 kernel: Call Trace:
+Oct 29 16:46:47 alv621 kernel: [<ffffffff81136a10>] ? dump_header+0x90/0x1b0
+Oct 29 16:46:47 alv621 kernel: [<ffffffff81245132>] ? security_real_capable_noaudit+0x42/0x70
+Oct 29 16:46:47 alv621 kernel: [<ffffffff81136e92>] ? oom_kill_process+0x82/0x2a0
+Oct 29 16:46:47 alv621 kernel: [<ffffffff81136dd1>] ? select_bad_process+0xe1/0x120
+Oct 29 16:46:47 alv621 kernel: [<ffffffff811372d0>] ? out_of_memory+0x220/0x3c0
+Oct 29 16:46:47 alv621 kernel: [<ffffffff81143d91>] ? __alloc_pages_nodemask+0x941/0x960
+Oct 29 16:46:47 alv621 kernel: [<ffffffff8117efda>] ? alloc_pages_current+0xaa/0x110
+Oct 29 16:46:47 alv621 kernel: [<ffffffff81133d87>] ? __page_cache_alloc+0x87/0x90
+Oct 29 16:46:47 alv621 kernel: [<ffffffff8113376e>] ? find_get_page+0x1e/0xa0
+Oct 29 16:46:47 alv621 kernel: [<ffffffff81134d3d>] ? filemap_fault+0x1ad/0x520
+Oct 29 16:46:47 alv621 kernel: [<ffffffff8115c15a>] ? __do_fault+0x5a/0x540
+Oct 29 16:46:47 alv621 kernel: [<ffffffff8115fb5a>] ? handle_pte_fault+0x9a/0xc80
+Oct 29 16:46:47 alv621 kernel: [<ffffffff81160a46>] ? handle_mm_fault+0x306/0x450
+Oct 29 16:46:47 alv621 kernel: [<ffffffff81054f21>] ? __do_page_fault+0x141/0x4d0
+Oct 29 16:46:47 alv621 kernel: [<ffffffff81250e6f>] ? selinux_file_permission+0xbf/0x150
+Oct 29 16:46:47 alv621 kernel: [<ffffffff811a2061>] ? vfs_read+0x131/0x1a0
+Oct 29 16:46:47 alv621 kernel: [<ffffffff815640f4>] ? save_args+0xf4/0x10a
+Oct 29 16:46:47 alv621 kernel: [<ffffffff815640e8>] ? save_args+0xe8/0x10a
+Oct 29 16:46:47 alv621 kernel: [<ffffffff815640f4>] ? save_args+0xf4/0x10a
+Oct 29 16:46:47 alv621 kernel: [<ffffffff815602be>] ? do_page_fault+0x3e/0xa0
+Oct 29 16:46:47 alv621 kernel: [<ffffffff8155d265>] ? page_fault+0x25/0x30
+Oct 29 16:46:47 alv621 kernel: Mem-Info:
+Oct 29 16:46:47 alv621 kernel: 40139 total pagecache pages
+Oct 29 16:46:47 alv621 kernel: 39282 pages in swap cache
+Oct 29 16:46:47 alv621 kernel: Swap cache stats: add 53644466, delete 53605184, find 28285347/33454293
+Oct 29 16:46:47 alv621 kernel: Free swap  = 0kB
+Oct 29 16:46:47 alv621 kernel: Total swap = 1740796kB
+Oct 29 16:46:47 alv621 kernel: 2097151 pages RAM
+Oct 29 16:46:47 alv621 kernel: 81862 pages reserved
+Oct 29 16:46:47 alv621 kernel: 3689 pages shared
+Oct 29 16:46:47 alv621 kernel: 1983844 pages non-shared
+Oct 29 16:46:47 alv621 kernel: [ pid ]   uid  tgid total_vm      rss cpu oom_adj oom_score_adj name
+Oct 29 16:46:47 alv621 kernel: [  570]     0   570     2771       42   1     -17         -1000 udevd
+Oct 29 16:46:47 alv621 kernel: [ 1387]     0  1387     7441       24   2     -17         -1000 auditd
+Oct 29 16:46:47 alv621 kernel: [ 1389]     0  1389    21054       34   2       0             0 audispd
+Oct 29 16:46:47 alv621 kernel: [ 1391]     0  1391     5316       48   2       0             0 sedispatch
+Oct 29 16:46:47 alv621 kernel: [ 1439]     0  1439    58214       67   0       0             0 sssd
+Oct 29 16:46:47 alv621 kernel: [ 1440]     0  1440    73309     1314   0       0             0 sssd_be
+Oct 29 16:46:47 alv621 kernel: [ 1441]     0  1441    59129      136   2       0             0 sssd_nss
+Oct 29 16:46:47 alv621 kernel: [ 1442]     0  1442    53969       94   0       0             0 sssd_pam
+Oct 29 16:46:47 alv621 kernel: [ 1475]     0  1475     4563       30   2       0             0 irqbalance
+Oct 29 16:46:47 alv621 kernel: [ 1493]    32  1493     4745       48   2       0             0 rpcbind
+Oct 29 16:46:47 alv621 kernel: [ 1515]    29  1515     7414       24   1       0             0 rpc.statd
+Oct 29 16:46:47 alv621 kernel: [ 1557]     0  1557     5774       45   1       0             0 rpc.idmapd
+Oct 29 16:46:47 alv621 kernel: [ 1583]    81  1583    27398       29   1       0             0 dbus-daemon
+Oct 29 16:46:47 alv621 kernel: [ 1605]     0  1605    47285        2   0       0             0 cupsd
+Oct 29 16:46:47 alv621 kernel: [ 1637]     0  1637     1019        1   2       0             0 acpid
+Oct 29 16:46:47 alv621 kernel: [ 1649]    68  1649    13121      122   0       0             0 hald
+Oct 29 16:46:47 alv621 kernel: [ 1650]     0  1650     5099        2   2       0             0 hald-runner
+Oct 29 16:46:47 alv621 kernel: [ 1682]     0  1682     5629        2   0       0             0 hald-addon-inpu
+Oct 29 16:46:47 alv621 kernel: [ 1691]    68  1691     4501        2   2       0             0 hald-addon-acpi
+Oct 29 16:46:47 alv621 kernel: [ 1864]     0  1864    16572       17   1     -17         -1000 sshd
+Oct 29 16:46:47 alv621 kernel: [ 1892]    38  1892     9690       46   2       0             0 ntpd
+Oct 29 16:46:47 alv621 kernel: [ 1965]     0  1965    45774        2   0       0             0 abrtd
+Oct 29 16:46:47 alv621 kernel: [ 1991]     0  1991   161942      351   1       0             0 collectd
+Oct 29 16:46:47 alv621 kernel: [ 2025]     0  2025     5276        5   0       0             0 atd
+Oct 29 16:46:47 alv621 kernel: [ 2038]     0  2038     1015        2   0       0             0 mingetty
+Oct 29 16:46:47 alv621 kernel: [ 2040]     0  2040     1015        2   0       0             0 mingetty
+Oct 29 16:46:47 alv621 kernel: [ 2042]     0  2042     1015        2   0       0             0 mingetty
+Oct 29 16:46:47 alv621 kernel: [ 2044]     0  2044     1015        2   0       0             0 mingetty
+Oct 29 16:46:47 alv621 kernel: [ 2046]     0  2046     1015        2   1       0             0 mingetty
+Oct 29 16:46:47 alv621 kernel: [ 2053]     0  2053     3100       61   2     -17         -1000 udevd
+Oct 29 16:46:47 alv621 kernel: [ 2054]     0  2054     1015        2   1       0             0 mingetty
+Oct 29 16:46:47 alv621 kernel: [17106]     0 17106     4816       16   2       0             0 dovecot
+Oct 29 16:46:47 alv621 kernel: [17107]    97 17107     3246       31   2       0             0 anvil
+Oct 29 16:46:47 alv621 kernel: [17108]     0 17108     3277       38   2       0             0 log
+Oct 29 16:46:47 alv621 kernel: [19253]     0 19253     2770        1   0     -17         -1000 udevd
+Oct 29 16:46:47 alv621 kernel: [19335]     0 19335   249544     9117   0       0             0 funionfs
+Oct 29 16:46:47 alv621 kernel: [23852]     0 23852    81738      114   2       0             0 rsyslogd
+Oct 29 16:46:47 alv621 kernel: [ 3524]     0  3524    22772       63   0       0             0 sendmail
+Oct 29 16:46:47 alv621 kernel: [ 3534]    51  3534    20112       23   2       0             0 sendmail
+Oct 29 16:46:47 alv621 kernel: [26916]     0 26916    31684        2   1       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [26928] 8700864 26928    31846       41   1       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [26929] 8700864 26929     6529        2   2       0             0 csh
+Oct 29 16:46:47 alv621 kernel: [ 5225]     0  5225    31684        2   1       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [ 5236] 8700864  5236    31950       43   1       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [ 5237] 8700864  5237     6529        2   2       0             0 csh
+Oct 29 16:46:47 alv621 kernel: [ 5254]     0  5254    29280        2   0       0             0 sudo
+Oct 29 16:46:47 alv621 kernel: [ 5255]     0  5255    17668        2   2       0             0 su
+Oct 29 16:46:47 alv621 kernel: [ 5256]     0  5256     2869       49   2       0             0 bash
+Oct 29 16:46:47 alv621 kernel: [ 6471]     0  6471    29280        2   2       0             0 sudo
+Oct 29 16:46:47 alv621 kernel: [ 6477]     0  6477    20241        2   2       0             0 su
+Oct 29 16:46:47 alv621 kernel: [ 6478] 300002  6478    30743       89   2       0             0 csh
+Oct 29 16:46:47 alv621 kernel: [ 6692]     0  6692    31684        2   1       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [ 6707] 8700864  6707    31684        6   1       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [ 6708] 8700864  6708     6529        2   2       0             0 csh
+Oct 29 16:46:47 alv621 kernel: [ 6738]     0  6738    29286        2   0       0             0 sudo
+Oct 29 16:46:47 alv621 kernel: [ 6739]     0  6739    20241        2   0       0             0 su
+Oct 29 16:46:47 alv621 kernel: [ 6740] 300001  6740    30743        2   1       0             0 csh
+Oct 29 16:46:47 alv621 kernel: [ 6977]     0  6977    31684        2   1       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [ 6989] 8700864  6989    31684       46   1       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [ 6990] 8700864  6990     6529        2   2       0             0 csh
+Oct 29 16:46:47 alv621 kernel: [ 7010]     0  7010    29280        2   0       0             0 sudo
+Oct 29 16:46:47 alv621 kernel: [ 7012]     0  7012    20241        2   1       0             0 su
+Oct 29 16:46:47 alv621 kernel: [ 7013] 300036  7013    30235       53   2       0             0 bash
+Oct 29 16:46:47 alv621 kernel: [ 4746]     0  4746    29633       50   2       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [ 4753]     0  4753    27119       13   0       0             0 bash
+Oct 29 16:46:47 alv621 kernel: [ 4843]     0  4843    52438      126   0       0             0 sssd_autofs
+Oct 29 16:46:47 alv621 kernel: [ 4950]     0  4950   287774      101   2       0             0 automount
+Oct 29 16:46:47 alv621 kernel: [ 5111]     0  5111    50616       36   2       0             0 httpd
+Oct 29 16:46:47 alv621 kernel: [ 5112]     0  5112    22655       93   1       0             0 apache_token_au
+Oct 29 16:46:47 alv621 kernel: [ 5113]     0  5113    22654       93   1       0             0 apache_token_au
+Oct 29 16:46:47 alv621 kernel: [ 5114]    48  5114    71641      100   1       0             0 httpd
+Oct 29 16:46:47 alv621 kernel: [ 5115]    48  5115    71641      100   1       0             0 httpd
+Oct 29 16:46:47 alv621 kernel: [ 5116]    48  5116    53752       88   0       0             0 httpd
+Oct 29 16:46:47 alv621 kernel: [ 5117]    48  5117    53752       88   0       0             0 httpd
+Oct 29 16:46:47 alv621 kernel: [ 5118]    48  5118    53752       88   1       0             0 httpd
+Oct 29 16:46:47 alv621 kernel: [ 5119]    48  5119    53752       88   0       0             0 httpd
+Oct 29 16:46:47 alv621 kernel: [ 5314]     0  5314    31686       15   1       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [ 5328] 300002  5328    31686       49   1       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [ 5329] 300002  5329    30742       15   2       0             0 csh
+Oct 29 16:46:47 alv621 kernel: [ 5386]     0  5386   118378      832   0       0             0 sshfs
+Oct 29 16:46:47 alv621 kernel: [ 5391]     0  5391    15718      273   1       0             0 ssh
+Oct 29 16:46:47 alv621 kernel: [ 5401] 300002  5401     5985       15   1       0             0 bash
+Oct 29 16:46:47 alv621 kernel: [ 5601]     0  5601    31684       15   1       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [ 5603] 8701801  5603    31684       72   2       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [ 5604]     0  5604    31684       23   1       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [ 5606] 8701801  5606    30202       15   1       0             0 bash
+Oct 29 16:46:47 alv621 kernel: [ 5630] 8701801  5630    31684       50   1       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [ 5631] 8701801  5631    18463       14   1       0             0 sftp-server
+Oct 29 16:46:47 alv621 kernel: [ 5632]     0  5632    53500       15   2       0             0 sudo
+Oct 29 16:46:47 alv621 kernel: [ 5636]     0  5636    27121       13   2       0             0 bash
+Oct 29 16:46:47 alv621 kernel: [ 5692] 300002  5692    11303      392   0       0             0 python
+Oct 29 16:46:47 alv621 kernel: [ 5699] 300002  5699   245267     4537   0       0             0 python
+Oct 29 16:46:47 alv621 kernel: [ 5704] 300002  5704   310931     3748   1       0             0 python
+Oct 29 16:46:47 alv621 kernel: [ 5710] 300002  5710   116118     9130   1       0             0 python
+Oct 29 16:46:47 alv621 kernel: [ 5711] 300002  5711   518079   410055   1       0             0 python
+Oct 29 16:46:47 alv621 kernel: [ 5712] 300002  5712   115045     5818   1       0             0 python
+Oct 29 16:46:47 alv621 kernel: [ 5713] 300002  5713   116611     7360   1       0             0 python
+Oct 29 16:46:47 alv621 kernel: [ 5714] 300002  5714   116611    20597   2       0             0 python
+Oct 29 16:46:47 alv621 kernel: [ 5715] 300002  5715   131429    32059   1       0             0 python
+Oct 29 16:46:47 alv621 kernel: [ 5716] 300002  5716   165762    16813   2       0             0 python
+Oct 29 16:46:47 alv621 kernel: [ 5717] 300002  5717   500604   395171   1       0             0 python
+Oct 29 16:46:47 alv621 kernel: [ 5721] 300002  5721   116892     3831   0       0             0 python
+Oct 29 16:46:47 alv621 kernel: [ 5753]    97  5753    19196       15   1       0             0 auth
+Oct 29 16:46:47 alv621 kernel: [ 5754] 8701801  5754     6682       65   2       0             0 imap
+Oct 29 16:46:47 alv621 kernel: [ 6694]     0  6694    31684       23   1       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [ 6710] 300036  6710    31684       47   1       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [ 6711] 300036  6711     2309       13   1       0             0 bash
+Oct 29 16:46:47 alv621 kernel: [ 6734] 300036  6734    21154      377   1       0             0 python
+Oct 29 16:46:47 alv621 kernel: [ 7476] 300002  7476   147238    35708   2       0             0 css2proc
+Oct 29 16:46:47 alv621 kernel: [ 7477] 300002  7477   113659     2967   2       0             0 css2inv
+Oct 29 16:46:47 alv621 kernel: [ 7628] 300002  7628  1247949   937822   2       0             0 css2proc
+Oct 29 16:46:47 alv621 kernel: Out of memory: Kill process 7628 (css2proc) score 472 or sacrifice child
+Oct 29 16:46:47 alv621 kernel: Killed process 7628, UID 300002, (css2proc) total-vm:4991796kB, anon-rss:3751196kB, file-rss:92kB
+Oct 29 16:46:48 alv621 ctbt.msgsys.production_engine: SeisCompHelper - 5713/JobPicker-4 - INFO - SeisComp sub process exited, exit value -9
+Oct 29 16:46:48 alv621 ctbt.msgsys.production_engine: SHIAutomaticArrivalSeiscompDataCollector - 5713/JobPicker-4 - WARNING - 16:44:38 [notice] Converted 158820 arrivals
+Oct 29 16:46:48 alv621 ctbt.msgsys.production_engine: SHIAutomaticArrivalSeiscompDataCollector - 5713/JobPicker-4 - WARNING - 
+Oct 29 16:46:49 alv621 ctbt.msgsys.production_engine: tracer - 5713/JobPicker-4 - WARNING - 16:44:38 [notice] Converted 158820 arrivals
+Oct 29 16:46:49 alv621 ctbt.msgsys.production_engine: tracer - 5713/JobPicker-4 - WARNING - 
+Oct 29 16:46:49 alv621 ctbt.msgsys.production_engine: tracer - 5713/JobPicker-4 - INFO - Job 58298728: job status has changed to: ABORTED
+
+
+9. The following request does not return any results. A mnual call of the wavereader returns data
+BEGIN IMS2.0
+  MSG_TYPE REQUEST
+  MSG_ID ED_H02S_TEST1_07208
+  TIME 2017/05/11 00:00:00.000 to 2017/05/11 00:00:10.000
+  STA_LIST H02S
+  CHAN_LIST *
+  WAVEFORM IMS2.0:CM6
+  STOP
+
+BEGIN IMS2.0
+MSG_TYPE DATA
+MSG_ID 44635665 CTBT_IDC
+REF_ID ED_H02S_TEST1_07208
+DATA_TYPE LOG
+Info - 44635665 - IMSLANGUAGE request successfully parsed
+Info - 44635665 - Job 58298746: job status has changed to: QUEUED
+Info - 44635665 - Request submitted successfully, request id 44635665
+Info - 44635665 - Job 58298746: job status has changed to: RUNNING
+Info - 44635665 - Your request did not return any results.
+Info - 44635665 - You have 4095.98M left out of your daily 4194304.00M quota
+STOP
+
+The syslog does not show any call of the waveready, while when changing the request to H04S it works
+
+For H04 we see in the log:
+Oct 30 15:14:49 alv621 ctbt.msgsys.production_engine: WaveReaderHelper - 5869/JobPicker-4 - INFO - Command: ['/ops/software/shared/nms/usr/bin/waveReader', '-p', '/ops/software/shared/nms/usr/conf/waveReader.par', '-n', u'H04S1:EDH,H04S2:EDH,H04S3:EDH', '-b', '2017/05/11 00:00:00.000', '-e', '2017/05/11 00:00:10.000', '-f', 'CM6']
+
+
+
+10. in the syslog i see: Oct 29 16:43:41 alv621 css2inv: (140462340626400) ResponseFeatures(): error with response file: /ops/software/shi/config/station_specs/rsp/ESDC_sp.1u
+several times. What does it mean?
+
+From: KIANICKA Jan <Jan.KIANICKA@CTBTO.ORG> 
+Sent: Wednesday, October 30, 2019 10:59 AM
+To: Fabian, Thomas <thomas.fabian@atos.net>
+Subject: my error log of investigations on devlan
+
+Hi Thomas,
+Just to exchange experience to collect final issues report for Edward and Cyrille:
+Issues observed.
+Perhaps could you compile the relevant list which might be interesting for Cyrille to discuss – may be tomorrow and eventually to record the problems of VDMS itself.
+Thank you very much
+Jan
+
+
+
 # Issues - October 2019:
 1. Confirmation emails when reporting error have different subject:
 do not contain space after Re:
@@ -98,5 +497,419 @@ DATA_TYPE LOG
 DATA_TYPE ERROR_LOG
  Your request cannot be completed: Product shi_bulletin_commstatus is not available yet
 STOP
+
+
+From: KIANICKA Jan 
+Sent: 31 October 2019 16:23
+To: 'Cyrille Bonnet'; WOKABI Edward
+Subject: errors of VDMS observed when running smoke tests
+
+Dear Cyrille, dear Edward,
+We held today short experience and technical knowledge exchange via skype call and part of it was collection of our issues observed, when running set of sample requests provided by you.
+Please if you have time to have a look on them and eventually we can try to verify these cases, when you are here within two Weeks.
+First 5 was collected by me running test against devlan VDMS installation,
+Second 5 in addition were observed only on devlab05 collected by Thomas
+Kind regards
+Jan
+
+From: Fabian, Thomas [mailto:thomas.fabian@atos.net] 
+Sent: 30 October 2019 16:37
+To: KIANICKA Jan
+Subject: RE: my error log of investigations on devlan
+
+Dear Jan,
+
+I have added the errors I have observed. 
+
+Br
+Thomas
+
+# Issues - October 2019:
+1. Confirmation emails when reporting error have different subject:
+do not contain space after Re:
+
+2. This request just disappear without any reply or error code even in syslog
+and without confirmation email with error description.
+What is the circumstance:
+
+BEGIN IMS1.0
+MSG_TYPE DATA
+MSG_ID ws01_1
+REF_ID 196418_normal
+DATA_TYPE WAVEFORM IMS1.0:CSF
+TIME_STAMP 2015/02/17 15:13:53
+WID2 2015/02/17 14:43:40.000 KIV1  SHZ      CSF     1600   40.000000   3.18e-03   1.000 GS13    -1.0  0.0
+STA2 GSRAS      43.95700   42.69460 WGS84        1.210 0.000
+DAT2
+STOP
+
+3. This request ended with the error:
+begin ims1.0
+msg_type request
+msg_id origin_test
+time 2015/12/01 to 2015/12/31
+ORIGIN IMS2.0
+stop
+
+Error:
+BEGIN IMS1.0
+MSG_TYPE DATA
+MSG_ID err_origin_test_60021 CTBT_IDC
+REF_ID origin_test_60021 
+DATA_TYPE LOG
+Submitted request :
+begin ims1.0
+msg_type request
+msg_id origin_test_60021
+time 2015/12/01 to 2015/12/31
+ORIGIN IMS2.0
+stop
+DATA_TYPE ERROR_LOG
+Error: no bulletin type defined: {'FILTER': 'ORIGIN', 'FORMAT': 'IMS2.0', 'TECHNOLOGYTYPE': 'UNKNOWN', 'PRODUCTFAMILY': 'BULLETIN', 'TECHNOLOGYFAMILY': 'SHI', 'TIME': {'START': '2015/12/01', 'END': '2015/12/31'}}
+STOP
+
+4. This request ended with this error - probably malfunctional parsing of such long request:
+
+BEGIN IMS2.0
+MSG_TYPE REQUEST
+MSG_ID parallel_3
+STA_LIST ARA0,ARA1,ARA2,ARA3,ARB1,ARB2,ARB3,ARB4,ARB5,ARC1,ARC2,ARC3,ARC4,ARC5,ARC6,ARC7,ARD1,ARD2,ARD3,ARD4,ARD5,ARD6,ARD7,ARD8,ARD9,AS01,AS02,AS03,AS04,AS05,AS06,AS07,AS08,AS09,AS10,AS11,AS12,AS13,AS14,AS15,AS16,AS17,AS18,AS19,AS31,BORG,BR101,BR102,BR103,BR104,BR105,BR106,BR131,EKB,EKB1,EKB10,EKB2,EKB3,EKB4,EKB5,EKB6,EKB7,EKB8,EKB9,EKR1,EKR10,EKR2,EKR3,EKR4,EKR5,EKR6,EKR7,EKR8,EKR9,ES01,ES02,ES03,ES04,ES05,ES06,ES07,ES08,ES09,ES10,ES11,ES12,ES13,ES14,ES15,ES16,ES17,ES18,ES19,ESBB,ESBB1,FIA0,FIA1,FIA2,FIA3,FIB1,FIB2,FIB3,FIB4,FIB5,FIB6,FIC1,FIC2,FIC3,FIC4,FIC5,FIC6,HFA0,HFA1,HFA2,HFA3,HFB1,HFB2,HFB3,HFB4,HFB5,HFC2,NAO00,NAO01,NAO02,NAO03,NAO04,NAO05,NB200,NB201,NB202,NB203,NB204,NB205,NBO00,NBO01,NBO02,NBO03,NBO04,NBO05,NC200,NC201,NC202,NC203,NC204,NC205,NC300,NC301,NC302,NC303,NC304,NC305,NC400,NC401,NC402,NC403,NC404,NC405,NC600,NC601,NC602,NC603,NC604,NC605,PD01,PD02,PD03,PD04,PD05,PD06,PD07,PD08,PD09,PD10,PD11,PD12,PD13,PD31,PD32,SCHQ,SPA0,SPA1,SPA2,SPA3,SPB1,SPB2,SPB3,SPB4,SPB5,TOA0,TOA1,TOA2,TOA3,TOB1,TOB2,TOB3,TOB4,TOB5,TOC1,TOC2,TOC3,TOC4,TOC5,TOC6,TOC7,WB1,WB10,WB2,WB3,WB4,WB5,WB6,WB7,WB8,WB9,WC1,WC2,WC3,WC4,WR1,WR10,WR2,WR3,WR4,WR5,WR6,WR7,WR8,WR9,YKAB0,YKAB1,YKAB2,YKAB3,YKAB4,YKAB6,YKAB7,YKAB8,YKAB9,YKAR1,YKAR2,YKAR3,YKAR4,YKAR5,YKAR6,YKAR7,YKAR8,YKAR9,YKAW1,YKAW3
+CHAN_LIST BHE,BHN,BHZ,SHZ,BH1,BH2,SHE
+TIME 2016/04/12 18:45:00 to 2016/04/12 19:45:00
+WAVEFORM IMS2.0:INT
+STOP 
+
+---
+BEGIN IMS2.0
+MSG_TYPE DATA
+MSG_ID err_parallel_3_60021 CTBT_IDC
+REF_ID parallel_3_60021 
+DATA_TYPE LOG
+Submitted request :
+BEGIN IMS2.0
+MSG_TYPE REQUEST
+MSG_ID parallel_3_60021
+STA_LIST ARA0,ARA1,ARA2,ARA3,ARB1,ARB2,ARB3,ARB4,ARB5,ARC1,ARC2,ARC3,ARC4,ARC5,ARC6,ARC7,ARD1,ARD2,ARD3,ARD4,ARD5,ARD6,ARD7,ARD8,ARD9,AS01,AS02,AS03,AS04,AS05,AS06,AS07,AS08,AS09,AS10,AS11,AS12,AS13,AS14,AS15,AS16,AS17,AS18,AS19,AS31,BORG,BR101,BR102,BR103,BR104,BR105,BR106,BR131,EKB,EKB1,EKB10,EKB2,EKB3,EKB4,EKB5,EKB6,EKB7,EKB8,EKB9,EKR1,EKR10,EKR2,EKR3,EKR4,EKR5,EKR6,EKR7,EKR8,EKR9,ES01,ES02,ES03,ES04,ES05,ES06,ES07,ES08,ES09,ES10,ES11,ES12,ES13,ES14,ES15,ES16,ES17,ES18,ES19,ESBB,ESBB1,FIA0,FIA1,FIA2,FIA3,FIB1,FIB2,FIB3,FIB4,FIB5,FIB6,FIC1,FIC2,FIC3,FIC4,FIC5,FIC6,HFA0,HFA1,HFA2,HFA3,HFB1,HFB2,HFB3,HFB4,HFB5,HFC2,NAO00,NAO01,NAO02,NAO03,NAO04,NAO05,NB200,NB201,NB202,NB203,NB204,NB205,NBO00,NBO01,NBO02,NBO03,NBO04,NBO05,NC200,NC201,NC202,NC203,NC204,NC205,NC300,NC301,NC302,NC303,NC304,NC305,NC400,NC401,NC402,NC403,NC404,NC405,NC600,NC601,NC602,NC603,NC604,NC605,PD01,PD02,PD03,PD04,PD05,PD06,PD07,PD08,PD09,PD10,PD11,PD12,PD13,PD31,PD32,SCHQ,SPA0,SPA1,SPA2,SPA3,SPB1,SPB2,SPB!
+3!
+  ,SPB4,SPB5,TOA0,TOA1,TOA2,TOA3,TOB1,TOB2,TOB3,TOB4,TOB5,TOC1,TOC2,TOC3,TOC4,TOC5,TOC6,TOC7,WB1,WB10,WB2,WB3,WB4,WB5,WB6,WB7,WB8,WB9,WC1,WC2,WC3,WC4,WR1,WR10,WR2,WR3,WR4,WR5,WR6,WR7,WR8,WR9,YKAB0,YKAB1,YKAB2,YKAB3,YKAB4,YKAB6,YKAB7,YKAB8,YKAB9,YKAR1,YKAR2,YKAR3,YKAR4,YKAR5,YKAR6,YKAR7,YKAR8,YKAR9,YKAW1,YKAW3
+CHAN_LIST BHE,BHN,BHZ,SHZ,BH1,BH2,SHE
+TIME 2016/04/12 18:45:00 to 2016/04/12 19:45:00
+WAVEFORM IMS2.0:INT
+STOP
+DATA_TYPE ERROR_LOG
+Illegal Character ! in Line 4, position 989.
+STOP
+
+
+5. This request ended with the following error:
+begin ims1.0
+msg_type request
+msg_id comm_test
+time 2015/12/01 to 2015/12/31
+comm_status IMS2.0
+stop
+
+---
+BEGIN IMS1.0
+MSG_TYPE DATA
+MSG_ID err_comm_test_33811 CTBT_IDC
+REF_ID comm_test_33811 
+DATA_TYPE LOG
+begin ims1.0
+msg_type request
+msg_id comm_test_33811
+time 2015/12/01 to 2015/12/31
+comm_status IMS2.0
+stop
+DATA_TYPE ERROR_LOG
+Your request cannot be completed: Product shi_bulletin_commstatus is not available yet
+STOP
+
+
+
+6. This request ended with an sql statement that exceeds the maximum number of expressions
+BEGIN IMS2.0
+MSG_TYPE REQUEST
+MSG_ID ORID_14865358
+BULL_TYPE REB
+TIME 2017/09/01 00:00:00 to 2017/09/18 00:00:00
+ORIGIN IMS2.0
+STOP
+
+syslog:
+Oct 29 16:43:13 alv621 ctbt.msgsys.production_engine: GenericIDCDAO - 5713/JobPicker-4 - ERROR - SQL request failed with following error: (DatabaseError) ORA-01795: maximum number of expressions in a list is 1000
+Oct 29 16:43:13 alv621 ctbt.msgsys.production_engine: GenericIDCDAO - 5713/JobPicker-4 - ERROR -  'SELECT "REB"."NETMAG".orid, "REB"."NETMAG".magtype, "REB"."NETMAG".magnitude, "REB"."NETMAG".uncertainty, "REB"."NETMAG".nsta \nFROM "REB"."NETMAG", "REB"."ORIGIN" \nWHERE "REB"."NETMAG".orid = "REB"."ORIGIN".orid AND "REB"."ORIGIN".orid IN (:orid_1, :orid_2, :orid_3, :orid_4, :orid_5,  ....
+'orid_49': 14807333, 'orid_1480': 14873563}#012Traceback (most recent call last):#012  File "build/bdist.linux-x86_64/egg/nms_production_engine/production_engine.py", line 293, in execute#012    te_data_nms_result = te_data.execute(product, execution_context)#012  File "build/bdist.linux-x86_64/egg/springpython/aop/__init__.py", line 199, in dispatch#012    return invocation.__getattr__(name)(*args, **kwargs)#012  File "build/bdist.linux-x86_64/egg/springpython/aop/__init__.py", line 75, in __call__#012    return self.proceed()#012  File "build/bdist.linux-x86_64/egg/springpython/aop/__init__.py", line 61, in proceed#012    return interceptor.invoke(self)#012  File "build/bdist.linux-x86_64/egg/nms_common/utils/springpython_aspect.py", line 101, in invoke#012    return invocation.proceed()#012  File "build/bdist.linux-x86_64/egg/springpython/aop/__init__.py", line 61, in proceed#012    return interceptor.invoke(self)#012  File "build/bdist.linux-x86_64/egg/nms_common/utils/stats.py", line 34, in invoke#012    result = invocation.proceed()#012  File "build/bdist.linux-x86_64/egg/springpython/aop/__init__.py", line 61, in proceed#012    return interceptor.invoke(self)#012  File "build/bdist.linux-x86_64/egg/springpython/aop/__init__.py", line 162, in invoke#012    return getattr(invocation.instance, invocation.method_name)(*invocation.args, **invocation.kwargs)#012  File "build/bdist.linux-x86_64/egg/idc_products/shi/data_collector/shi_data_collector.py", line 61, in execute#012    self.__archive_range(ranges, a_prod_dict, nms_result, execution_context)#012  File "build/bdist.linux-x86_64/egg/idc_products/shi/data_collector/shi_data_collector.py", line 113, in __archive_range#012    archive_nms_result = self._archive_collector.execute(a_prod_dict, execution_context)#012  File "build/bdist.linux-x86_64/egg/idc_products/shi/data_collector/shi_data_collector.py", line 274, in execute#012    collected_data = self._collect_data(a_prod_dict, tables, execution_context)#012  File "build/bdist.linux-x86_64/egg/idc_products/shi/data_collector/shi_full_bulletin_data_collector.py", line 455, in _collect_data#012    netmag_index = self._cache_netmag(tables, schema, orid_float_list, a_prod_dict)#012  File "build/bdist.linux-x86_64/egg/idc_products/shi/data_collector/shi_full_bulletin_data_collector.py", line 736, in _cache_netmag#012    netmag_rows = self._dao.execute( self.__netmag_req(schema, schema, orid_float_list))#012  File "build/bdist.linux-x86_64/egg/nms_common/dao/dao_utils.py", line 116, in generic_retry_function#012    raise exp#012DatabaseError: (DatabaseError) ORA-01795: maximum number of expressions in a list is 1000
+
+
+7. This request ended with an sql error: table or view does not exist
+BEGIN ims2.0
+MSG_TYPE request
+MSG_ID Bug_334
+TIME 2012/12/01 to 2012/12/02
+LAT 20 to 60
+LON 30 to 120
+EXECSUM ims2.0
+STOP
+
+syslog:
+Oct 29 16:43:38 alv621 ctbt.msgsys.production_engine: OracleCnxProvider - 5714/JobPicker-4 - ERROR - (DatabaseError) ORA-00942: table or view does not exist: database error while connected to DBA1257.qandef as user padd_eng
+Oct 29 16:43:38 alv621 ctbt.msgsys.production_engine: NMSMixedDAO - 5714/JobPicker-4 - ERROR - SQL request failed with following error: (DatabaseError) ORA-00942: table or view does not exist
+Oct 29 16:43:38 alv621 ctbt.msgsys.production_engine: NMSMixedDAO - 5714/JobPicker-4 - ERROR -  'SELECT padd.msg_execsum_metrics.metric_name, padd.msg_execsum_metrics.metric_value, padd.msg_execsum_metrics.metric_date \nFROM padd.msg_execsum_metrics \nWHERE padd.msg_execsum_metrics.metric_date = :metric_date_1 AND padd.msg_execsum_metrics.metric_name != :metric_name_1 AND padd.msg_execsum_metrics.metric_name != :metric_name_2 AND padd.msg_execsum_metrics.metric_name != :metric_name_3 AND padd.msg_execsum_metrics.metric_name != :metric_name_4 AND padd.msg_execsum_metrics.metric_name != :metric_name_5 AND padd.msg_execsum_metrics.metric_name != :metric_name_6' {'metric_name_2': 'auxiliary_seismic_availability_percentage', 'metric_name_3': 'hydro_availability_percentage', 'metric_name_1': 'primary_seismic_availability_percentage', 'metric_name_6': 'noble_gaz_rn_availability_percentage', 'metric_name_4': 'infrasound_availability_percentage', 'metric_name_5': 'particulate_rn_availability_percentage', 'metric_date_1': datetime.datetime(2012, 12, 1, 0, 0, tzinfo=<nms_common.utils.time_utils.UTC object at 0x42
+Oct 29 16:43:38 alv621 ctbt.msgsys.production_engine: NMSMixedDAO - 5714/JobPicker-4 - ERROR - 256d0>)}
+
+
+
+8. These four requests ended with an out of memory situation where the kernel killed the process
+begin ims2.0
+msg_type request
+msg_id 2015327REBbull
+time 2017/09/07 00:00:00 to 2017/09/07 23:59:59
+bull_type REB
+bulletin ims2.0
+stop
+
+begin ims2.0
+msg_type request
+msg_id EDWARDLong_SEB
+time 2018/12/25 to 2018/12/26
+bull_type SEB
+bulletin ims2.0:long
+stop
+
+BEGIN IMS2.0
+MSG_TYPE REQUEST
+MSG_ID ED_TEST
+TIME 2011-03-11 00:00:00 to 2011-03-11 02:00:00
+BULL_TYPE REB
+BULLETIN IMS2.0
+STOP
+
+begin ims2.0
+msg_type request
+msg_id ED_SC3XML
+time 2013/02/12 00:00:00 to 2013/02/12 00:30:00 
+sta_list BOSA 
+sta_info IMS2.0:SC3XML 
+stop
+
+syslog:
+Oct 29 16:46:47 alv621 kernel: python invoked oom-killer: gfp_mask=0x201da, order=0, oom_adj=0, oom_score_adj=0
+Oct 29 16:46:47 alv621 kernel: python cpuset=/ mems_allowed=0
+Oct 29 16:46:47 alv621 kernel: Pid: 5731, comm: python Not tainted 2.6.32-754.15.3.el6.x86_64 #1
+Oct 29 16:46:47 alv621 kernel: Call Trace:
+Oct 29 16:46:47 alv621 kernel: [<ffffffff81136a10>] ? dump_header+0x90/0x1b0
+Oct 29 16:46:47 alv621 kernel: [<ffffffff81245132>] ? security_real_capable_noaudit+0x42/0x70
+Oct 29 16:46:47 alv621 kernel: [<ffffffff81136e92>] ? oom_kill_process+0x82/0x2a0
+Oct 29 16:46:47 alv621 kernel: [<ffffffff81136dd1>] ? select_bad_process+0xe1/0x120
+Oct 29 16:46:47 alv621 kernel: [<ffffffff811372d0>] ? out_of_memory+0x220/0x3c0
+Oct 29 16:46:47 alv621 kernel: [<ffffffff81143d91>] ? __alloc_pages_nodemask+0x941/0x960
+Oct 29 16:46:47 alv621 kernel: [<ffffffff8117efda>] ? alloc_pages_current+0xaa/0x110
+Oct 29 16:46:47 alv621 kernel: [<ffffffff81133d87>] ? __page_cache_alloc+0x87/0x90
+Oct 29 16:46:47 alv621 kernel: [<ffffffff8113376e>] ? find_get_page+0x1e/0xa0
+Oct 29 16:46:47 alv621 kernel: [<ffffffff81134d3d>] ? filemap_fault+0x1ad/0x520
+Oct 29 16:46:47 alv621 kernel: [<ffffffff8115c15a>] ? __do_fault+0x5a/0x540
+Oct 29 16:46:47 alv621 kernel: [<ffffffff8115fb5a>] ? handle_pte_fault+0x9a/0xc80
+Oct 29 16:46:47 alv621 kernel: [<ffffffff81160a46>] ? handle_mm_fault+0x306/0x450
+Oct 29 16:46:47 alv621 kernel: [<ffffffff81054f21>] ? __do_page_fault+0x141/0x4d0
+Oct 29 16:46:47 alv621 kernel: [<ffffffff81250e6f>] ? selinux_file_permission+0xbf/0x150
+Oct 29 16:46:47 alv621 kernel: [<ffffffff811a2061>] ? vfs_read+0x131/0x1a0
+Oct 29 16:46:47 alv621 kernel: [<ffffffff815640f4>] ? save_args+0xf4/0x10a
+Oct 29 16:46:47 alv621 kernel: [<ffffffff815640e8>] ? save_args+0xe8/0x10a
+Oct 29 16:46:47 alv621 kernel: [<ffffffff815640f4>] ? save_args+0xf4/0x10a
+Oct 29 16:46:47 alv621 kernel: [<ffffffff815602be>] ? do_page_fault+0x3e/0xa0
+Oct 29 16:46:47 alv621 kernel: [<ffffffff8155d265>] ? page_fault+0x25/0x30
+Oct 29 16:46:47 alv621 kernel: Mem-Info:
+Oct 29 16:46:47 alv621 kernel: 40139 total pagecache pages
+Oct 29 16:46:47 alv621 kernel: 39282 pages in swap cache
+Oct 29 16:46:47 alv621 kernel: Swap cache stats: add 53644466, delete 53605184, find 28285347/33454293
+Oct 29 16:46:47 alv621 kernel: Free swap  = 0kB
+Oct 29 16:46:47 alv621 kernel: Total swap = 1740796kB
+Oct 29 16:46:47 alv621 kernel: 2097151 pages RAM
+Oct 29 16:46:47 alv621 kernel: 81862 pages reserved
+Oct 29 16:46:47 alv621 kernel: 3689 pages shared
+Oct 29 16:46:47 alv621 kernel: 1983844 pages non-shared
+Oct 29 16:46:47 alv621 kernel: [ pid ]   uid  tgid total_vm      rss cpu oom_adj oom_score_adj name
+Oct 29 16:46:47 alv621 kernel: [  570]     0   570     2771       42   1     -17         -1000 udevd
+Oct 29 16:46:47 alv621 kernel: [ 1387]     0  1387     7441       24   2     -17         -1000 auditd
+Oct 29 16:46:47 alv621 kernel: [ 1389]     0  1389    21054       34   2       0             0 audispd
+Oct 29 16:46:47 alv621 kernel: [ 1391]     0  1391     5316       48   2       0             0 sedispatch
+Oct 29 16:46:47 alv621 kernel: [ 1439]     0  1439    58214       67   0       0             0 sssd
+Oct 29 16:46:47 alv621 kernel: [ 1440]     0  1440    73309     1314   0       0             0 sssd_be
+Oct 29 16:46:47 alv621 kernel: [ 1441]     0  1441    59129      136   2       0             0 sssd_nss
+Oct 29 16:46:47 alv621 kernel: [ 1442]     0  1442    53969       94   0       0             0 sssd_pam
+Oct 29 16:46:47 alv621 kernel: [ 1475]     0  1475     4563       30   2       0             0 irqbalance
+Oct 29 16:46:47 alv621 kernel: [ 1493]    32  1493     4745       48   2       0             0 rpcbind
+Oct 29 16:46:47 alv621 kernel: [ 1515]    29  1515     7414       24   1       0             0 rpc.statd
+Oct 29 16:46:47 alv621 kernel: [ 1557]     0  1557     5774       45   1       0             0 rpc.idmapd
+Oct 29 16:46:47 alv621 kernel: [ 1583]    81  1583    27398       29   1       0             0 dbus-daemon
+Oct 29 16:46:47 alv621 kernel: [ 1605]     0  1605    47285        2   0       0             0 cupsd
+Oct 29 16:46:47 alv621 kernel: [ 1637]     0  1637     1019        1   2       0             0 acpid
+Oct 29 16:46:47 alv621 kernel: [ 1649]    68  1649    13121      122   0       0             0 hald
+Oct 29 16:46:47 alv621 kernel: [ 1650]     0  1650     5099        2   2       0             0 hald-runner
+Oct 29 16:46:47 alv621 kernel: [ 1682]     0  1682     5629        2   0       0             0 hald-addon-inpu
+Oct 29 16:46:47 alv621 kernel: [ 1691]    68  1691     4501        2   2       0             0 hald-addon-acpi
+Oct 29 16:46:47 alv621 kernel: [ 1864]     0  1864    16572       17   1     -17         -1000 sshd
+Oct 29 16:46:47 alv621 kernel: [ 1892]    38  1892     9690       46   2       0             0 ntpd
+Oct 29 16:46:47 alv621 kernel: [ 1965]     0  1965    45774        2   0       0             0 abrtd
+Oct 29 16:46:47 alv621 kernel: [ 1991]     0  1991   161942      351   1       0             0 collectd
+Oct 29 16:46:47 alv621 kernel: [ 2025]     0  2025     5276        5   0       0             0 atd
+Oct 29 16:46:47 alv621 kernel: [ 2038]     0  2038     1015        2   0       0             0 mingetty
+Oct 29 16:46:47 alv621 kernel: [ 2040]     0  2040     1015        2   0       0             0 mingetty
+Oct 29 16:46:47 alv621 kernel: [ 2042]     0  2042     1015        2   0       0             0 mingetty
+Oct 29 16:46:47 alv621 kernel: [ 2044]     0  2044     1015        2   0       0             0 mingetty
+Oct 29 16:46:47 alv621 kernel: [ 2046]     0  2046     1015        2   1       0             0 mingetty
+Oct 29 16:46:47 alv621 kernel: [ 2053]     0  2053     3100       61   2     -17         -1000 udevd
+Oct 29 16:46:47 alv621 kernel: [ 2054]     0  2054     1015        2   1       0             0 mingetty
+Oct 29 16:46:47 alv621 kernel: [17106]     0 17106     4816       16   2       0             0 dovecot
+Oct 29 16:46:47 alv621 kernel: [17107]    97 17107     3246       31   2       0             0 anvil
+Oct 29 16:46:47 alv621 kernel: [17108]     0 17108     3277       38   2       0             0 log
+Oct 29 16:46:47 alv621 kernel: [19253]     0 19253     2770        1   0     -17         -1000 udevd
+Oct 29 16:46:47 alv621 kernel: [19335]     0 19335   249544     9117   0       0             0 funionfs
+Oct 29 16:46:47 alv621 kernel: [23852]     0 23852    81738      114   2       0             0 rsyslogd
+Oct 29 16:46:47 alv621 kernel: [ 3524]     0  3524    22772       63   0       0             0 sendmail
+Oct 29 16:46:47 alv621 kernel: [ 3534]    51  3534    20112       23   2       0             0 sendmail
+Oct 29 16:46:47 alv621 kernel: [26916]     0 26916    31684        2   1       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [26928] 8700864 26928    31846       41   1       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [26929] 8700864 26929     6529        2   2       0             0 csh
+Oct 29 16:46:47 alv621 kernel: [ 5225]     0  5225    31684        2   1       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [ 5236] 8700864  5236    31950       43   1       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [ 5237] 8700864  5237     6529        2   2       0             0 csh
+Oct 29 16:46:47 alv621 kernel: [ 5254]     0  5254    29280        2   0       0             0 sudo
+Oct 29 16:46:47 alv621 kernel: [ 5255]     0  5255    17668        2   2       0             0 su
+Oct 29 16:46:47 alv621 kernel: [ 5256]     0  5256     2869       49   2       0             0 bash
+Oct 29 16:46:47 alv621 kernel: [ 6471]     0  6471    29280        2   2       0             0 sudo
+Oct 29 16:46:47 alv621 kernel: [ 6477]     0  6477    20241        2   2       0             0 su
+Oct 29 16:46:47 alv621 kernel: [ 6478] 300002  6478    30743       89   2       0             0 csh
+Oct 29 16:46:47 alv621 kernel: [ 6692]     0  6692    31684        2   1       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [ 6707] 8700864  6707    31684        6   1       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [ 6708] 8700864  6708     6529        2   2       0             0 csh
+Oct 29 16:46:47 alv621 kernel: [ 6738]     0  6738    29286        2   0       0             0 sudo
+Oct 29 16:46:47 alv621 kernel: [ 6739]     0  6739    20241        2   0       0             0 su
+Oct 29 16:46:47 alv621 kernel: [ 6740] 300001  6740    30743        2   1       0             0 csh
+Oct 29 16:46:47 alv621 kernel: [ 6977]     0  6977    31684        2   1       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [ 6989] 8700864  6989    31684       46   1       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [ 6990] 8700864  6990     6529        2   2       0             0 csh
+Oct 29 16:46:47 alv621 kernel: [ 7010]     0  7010    29280        2   0       0             0 sudo
+Oct 29 16:46:47 alv621 kernel: [ 7012]     0  7012    20241        2   1       0             0 su
+Oct 29 16:46:47 alv621 kernel: [ 7013] 300036  7013    30235       53   2       0             0 bash
+Oct 29 16:46:47 alv621 kernel: [ 4746]     0  4746    29633       50   2       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [ 4753]     0  4753    27119       13   0       0             0 bash
+Oct 29 16:46:47 alv621 kernel: [ 4843]     0  4843    52438      126   0       0             0 sssd_autofs
+Oct 29 16:46:47 alv621 kernel: [ 4950]     0  4950   287774      101   2       0             0 automount
+Oct 29 16:46:47 alv621 kernel: [ 5111]     0  5111    50616       36   2       0             0 httpd
+Oct 29 16:46:47 alv621 kernel: [ 5112]     0  5112    22655       93   1       0             0 apache_token_au
+Oct 29 16:46:47 alv621 kernel: [ 5113]     0  5113    22654       93   1       0             0 apache_token_au
+Oct 29 16:46:47 alv621 kernel: [ 5114]    48  5114    71641      100   1       0             0 httpd
+Oct 29 16:46:47 alv621 kernel: [ 5115]    48  5115    71641      100   1       0             0 httpd
+Oct 29 16:46:47 alv621 kernel: [ 5116]    48  5116    53752       88   0       0             0 httpd
+Oct 29 16:46:47 alv621 kernel: [ 5117]    48  5117    53752       88   0       0             0 httpd
+Oct 29 16:46:47 alv621 kernel: [ 5118]    48  5118    53752       88   1       0             0 httpd
+Oct 29 16:46:47 alv621 kernel: [ 5119]    48  5119    53752       88   0       0             0 httpd
+Oct 29 16:46:47 alv621 kernel: [ 5314]     0  5314    31686       15   1       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [ 5328] 300002  5328    31686       49   1       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [ 5329] 300002  5329    30742       15   2       0             0 csh
+Oct 29 16:46:47 alv621 kernel: [ 5386]     0  5386   118378      832   0       0             0 sshfs
+Oct 29 16:46:47 alv621 kernel: [ 5391]     0  5391    15718      273   1       0             0 ssh
+Oct 29 16:46:47 alv621 kernel: [ 5401] 300002  5401     5985       15   1       0             0 bash
+Oct 29 16:46:47 alv621 kernel: [ 5601]     0  5601    31684       15   1       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [ 5603] 8701801  5603    31684       72   2       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [ 5604]     0  5604    31684       23   1       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [ 5606] 8701801  5606    30202       15   1       0             0 bash
+Oct 29 16:46:47 alv621 kernel: [ 5630] 8701801  5630    31684       50   1       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [ 5631] 8701801  5631    18463       14   1       0             0 sftp-server
+Oct 29 16:46:47 alv621 kernel: [ 5632]     0  5632    53500       15   2       0             0 sudo
+Oct 29 16:46:47 alv621 kernel: [ 5636]     0  5636    27121       13   2       0             0 bash
+Oct 29 16:46:47 alv621 kernel: [ 5692] 300002  5692    11303      392   0       0             0 python
+Oct 29 16:46:47 alv621 kernel: [ 5699] 300002  5699   245267     4537   0       0             0 python
+Oct 29 16:46:47 alv621 kernel: [ 5704] 300002  5704   310931     3748   1       0             0 python
+Oct 29 16:46:47 alv621 kernel: [ 5710] 300002  5710   116118     9130   1       0             0 python
+Oct 29 16:46:47 alv621 kernel: [ 5711] 300002  5711   518079   410055   1       0             0 python
+Oct 29 16:46:47 alv621 kernel: [ 5712] 300002  5712   115045     5818   1       0             0 python
+Oct 29 16:46:47 alv621 kernel: [ 5713] 300002  5713   116611     7360   1       0             0 python
+Oct 29 16:46:47 alv621 kernel: [ 5714] 300002  5714   116611    20597   2       0             0 python
+Oct 29 16:46:47 alv621 kernel: [ 5715] 300002  5715   131429    32059   1       0             0 python
+Oct 29 16:46:47 alv621 kernel: [ 5716] 300002  5716   165762    16813   2       0             0 python
+Oct 29 16:46:47 alv621 kernel: [ 5717] 300002  5717   500604   395171   1       0             0 python
+Oct 29 16:46:47 alv621 kernel: [ 5721] 300002  5721   116892     3831   0       0             0 python
+Oct 29 16:46:47 alv621 kernel: [ 5753]    97  5753    19196       15   1       0             0 auth
+Oct 29 16:46:47 alv621 kernel: [ 5754] 8701801  5754     6682       65   2       0             0 imap
+Oct 29 16:46:47 alv621 kernel: [ 6694]     0  6694    31684       23   1       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [ 6710] 300036  6710    31684       47   1       0             0 sshd
+Oct 29 16:46:47 alv621 kernel: [ 6711] 300036  6711     2309       13   1       0             0 bash
+Oct 29 16:46:47 alv621 kernel: [ 6734] 300036  6734    21154      377   1       0             0 python
+Oct 29 16:46:47 alv621 kernel: [ 7476] 300002  7476   147238    35708   2       0             0 css2proc
+Oct 29 16:46:47 alv621 kernel: [ 7477] 300002  7477   113659     2967   2       0             0 css2inv
+Oct 29 16:46:47 alv621 kernel: [ 7628] 300002  7628  1247949   937822   2       0             0 css2proc
+Oct 29 16:46:47 alv621 kernel: Out of memory: Kill process 7628 (css2proc) score 472 or sacrifice child
+Oct 29 16:46:47 alv621 kernel: Killed process 7628, UID 300002, (css2proc) total-vm:4991796kB, anon-rss:3751196kB, file-rss:92kB
+Oct 29 16:46:48 alv621 ctbt.msgsys.production_engine: SeisCompHelper - 5713/JobPicker-4 - INFO - SeisComp sub process exited, exit value -9
+Oct 29 16:46:48 alv621 ctbt.msgsys.production_engine: SHIAutomaticArrivalSeiscompDataCollector - 5713/JobPicker-4 - WARNING - 16:44:38 [notice] Converted 158820 arrivals
+Oct 29 16:46:48 alv621 ctbt.msgsys.production_engine: SHIAutomaticArrivalSeiscompDataCollector - 5713/JobPicker-4 - WARNING - 
+Oct 29 16:46:49 alv621 ctbt.msgsys.production_engine: tracer - 5713/JobPicker-4 - WARNING - 16:44:38 [notice] Converted 158820 arrivals
+Oct 29 16:46:49 alv621 ctbt.msgsys.production_engine: tracer - 5713/JobPicker-4 - WARNING - 
+Oct 29 16:46:49 alv621 ctbt.msgsys.production_engine: tracer - 5713/JobPicker-4 - INFO - Job 58298728: job status has changed to: ABORTED
+
+
+9. The following request does not return any results. A mnual call of the wavereader returns data
+BEGIN IMS2.0
+  MSG_TYPE REQUEST
+  MSG_ID ED_H02S_TEST1_07208
+  TIME 2017/05/11 00:00:00.000 to 2017/05/11 00:00:10.000
+  STA_LIST H02S
+  CHAN_LIST *
+  WAVEFORM IMS2.0:CM6
+  STOP
+
+BEGIN IMS2.0
+MSG_TYPE DATA
+MSG_ID 44635665 CTBT_IDC
+REF_ID ED_H02S_TEST1_07208
+DATA_TYPE LOG
+Info - 44635665 - IMSLANGUAGE request successfully parsed
+Info - 44635665 - Job 58298746: job status has changed to: QUEUED
+Info - 44635665 - Request submitted successfully, request id 44635665
+Info - 44635665 - Job 58298746: job status has changed to: RUNNING
+Info - 44635665 - Your request did not return any results.
+Info - 44635665 - You have 4095.98M left out of your daily 4194304.00M quota
+STOP
+
+The syslog does not show any call of the waveready, while when changing the request to H04S it works
+
+For H04 we see in the log:
+Oct 30 15:14:49 alv621 ctbt.msgsys.production_engine: WaveReaderHelper - 5869/JobPicker-4 - INFO - Command: ['/ops/software/shared/nms/usr/bin/waveReader', '-p', '/ops/software/shared/nms/usr/conf/waveReader.par', '-n', u'H04S1:EDH,H04S2:EDH,H04S3:EDH', '-b', '2017/05/11 00:00:00.000', '-e', '2017/05/11 00:00:10.000', '-f', 'CM6']
+
+
+
+10. in the syslog i see: Oct 29 16:43:41 alv621 css2inv: (140462340626400) ResponseFeatures(): error with response file: /ops/software/shi/config/station_specs/rsp/ESDC_sp.1u
+several times. What does it mean?
+
+From: KIANICKA Jan <Jan.KIANICKA@CTBTO.ORG> 
+Sent: Wednesday, October 30, 2019 10:59 AM
+To: Fabian, Thomas <thomas.fabian@atos.net>
+Subject: my error log of investigations on devlan
+
+Hi Thomas,
+Just to exchange experience to collect final issues report for Edward and Cyrille:
+Issues observed.
+Perhaps could you compile the relevant list which might be interesting for Cyrille to discuss – may be tomorrow and eventually to record the problems of VDMS itself.
+Thank you very much
+Jan
+
+
+# Issue encountered during configuration of regresive smoke tests for devlab05 - 29.11.2019:
+On devlan as well as on devlab05 request message: sc3xml_arrival.msg was excluded - failing on both
+new subdirectory was created 'MailRequestsSuccess':
+This set has succeeded on devlan:
+vdms_email_requests_smoke_test_dvl-msgsys/122
+but has failed on devlab05:
+job/vdms_email_requests_smoke_test_smtp_imap_devlab05/975
+with the following errors:
+---
+2019-11-28 16:57:34,231 [ERROR] run_vdms_mail_requests: Count of all received mails does not match to expected number - expected: 124, received: 122
+...
+2019-11-28 16:57:34,236 [ERROR] run_vdms_mail_requests: Confirmation mail not received:Re:alv621_28-11-2019_20170606NDC81_85641
+2019-11-28 16:57:34,372 [ERROR] run_vdms_mail_requests: Find error state ABORT in the file: /home/misc/cats/cats/mailTemp/New_Message_Subsystem_Response_to_Bug_334_85641
+2019-11-28 16:57:35,009 [ERROR] run_vdms_mail_requests: Data request mail not received:New Message Subsystem Response to 20170606NDC81_85641
 
 
