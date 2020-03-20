@@ -72,6 +72,28 @@ NAME2=('value1' 'value2' 'value3')
 # in csh - % set -A array_name value1 value2 ... valuen
 echo "All elements of NAME2 at once: ${NAME2[@]}"
 
+# concatenating and splitting arrays-string
+# adding comma to the string
+NAME2_STRING=$(IFS=, ; echo "${NAME2[*]}")
+echo "NAME2_STRING: $NAME2_STRING"
+# bach to array
+NAME2_NEWARR=(${NAME2_STRING//,/ })
+echo "Back to array NAME2_NEWARR: ${NAME2_NEWARR[@]}"
+
+# Hash map (dictionary) in bash
+declare -A animals
+animals=( ["moo"]="cow" ["woof"]="dog")
+# setting new value
+animals['caa']='cat'
+# getting value
+echo "${animals[moo]}"
+# getting all values
+echo "All values of hash-map: ${animals[@]}"
+# getting all keys
+echo "All keys of hash-map: ${!animals[@]}"
+
+# Shell does not support nested arrays - arrays of arrays!
+
 # Bourne shell basic operators
 # originally we have to use awk or expr 
 # there must be spaces: 2 + 2 (not 2+2)
