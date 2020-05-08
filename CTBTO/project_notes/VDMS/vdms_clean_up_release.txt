@@ -130,3 +130,1696 @@ SSREB IMS2.0:HTML
 STOP
 
 I attach a sample response.
+
+
+# Fixes detected during devlab05 troubelshooting
+
+1. Fix and actuall first real delivery of NEB/NSEB products - need more focused verificaiton
+(provide requests samples)
+2. Fix of memory leak for 'long bulletins'
+(checked by long_bulletin.msg in Edward's smoke tests set)
+3. Fox of Oracle error - maximum number of expressions for bulletin
+(checked with mulwa.msg in Edward's smoke tests)
+
+
+
+
+
+
+
+# Back up of content of DCR-3313
+File versions:
+
+VDMS python packages:
+new-message-subsystem - tag 'new-message-subsystem-3.2.0rc01', commit id: 81cdb0cd7178f8d540cfff1407d24154e626bfaf
+
+
+VDMS THIRD-PARTY - seiscomp3:
+
+INSCUCCESFUL (due to tome constraint I did not test this particular combination which has used slightly different
+versions bind to latest released tags).
+github.com:ctbtosa/cbase  - branch: master, tag: LAST_STABLE_DEVELOPMENT - commit id: 192cfa13865df44aa03aeb09ce542abea0192e5a
+github.com:ctbtosa/idcmodel - branch: master, commit id: 4c376174f0bac6f688ae771833a590c51c1b3582
+github.com:ctbtosa/sbase - branch: master, commit id: 5d6e30d906a3a7135a8d60b194991134e54061a6
+github.com:ctbtosa/libcd - branch: master, commit id: 491357851ac4dc298e78292ce2691b2ccb73f8a0
+github.com:ctbtosa/gbase.git - branch: master, commit id: 9cbee496e0c63b52a567dfdbd85ca99f4710bc64
+github.com:ctbtosa/ibase - branch: master, commit id: a21172ff4d6b47ba6bd7e5d8aaeb84099a9f1b99
+github.com:ctbtosa/dfx - branch: master, commit id; 0a5bdaefc4969c7e7552c3bd08362ab65b00740f
+github.com:ctbtosa/eniab.git - branch: master, commit id: 570f3e2d015657572b85da22f75e18ad42432492
+github.com:SeisComP3/seiscomp3.git - branch: build/jakarta/2018.327, tag: release/jakarta/2018.327.17, commit id:  3191171b083f8e4f3b7547baa54bc5aa26952509
+
+Please use this exact versions which I have used for troubleshooting for now.
+We have to figure out right combination - compatible versions for future maintainenance
+and find out what is going on in repositories of ENIAB and how to integrate them properly.
+github.com:ctbtosa/cbase  - branch: master, commit id: fbd0c21c185dd4e34d5a70fa303b2aa0312748ca
+github.com:ctbtosa/idcmodel - branch: master, commit id: 4c376174f0bac6f688ae771833a590c51c1b3582
+github.com:ctbtosa/sbase - branch: master, commit id: 5d6e30d906a3a7135a8d60b194991134e54061a6
+github.com:ctbtosa/libcd - branch: master, commit id: 491357851ac4dc298e78292ce2691b2ccb73f8a0
+github.com:ctbtosa/gbase.git - branch: master, commit id: 9cbee496e0c63b52a567dfdbd85ca99f4710bc64
+github.com:ctbtosa/ibase - branch: master, commit id: a21172ff4d6b47ba6bd7e5d8aaeb84099a9f1b99
+github.com:ctbtosa/dfx - branch: master, commit id; 0a5bdaefc4969c7e7552c3bd08362ab65b00740f
+github.com:ctbtosa/eniab.git - branch: master, commit id: 570f3e2d015657572b85da22f75e18ad42432492
+github.com:SeisComP3/seiscomp3.git - branch: build/jakarta/2018.327, commit id: c40741b8dea7909fdc6b457d2d51e21c297f635c
+
+
+(We use fixed versions to have record about dependency tree and can not anyomore build seiscomp3 and eniab of 'operations' branches due to backward incompatible refactoring done in ibase and gbase repositories)
+
+VDMS THIRD-PARTY - SEISAN norims:
+github.com:ctbtosa/eniab.git - branch: master, commit id: 570f3e2d015657572b85da22f75e18ad42432492
+
+VDMS THIRD-PARTY - SHI evsc_drv:
+github.com:ctbtosa/cbase  - branch: master, tag: LAST_STABLE_DEVELOPMENT - commit id: 192cfa13865df44aa03aeb09ce542abea0192e5a
+github.com:ctbtosa/idcmodel - branch: master, commit id: 4c376174f0bac6f688ae771833a590c51c1b3582
+github.com:ctbtosa/sbase - branch: master, commit id: 5d6e30d906a3a7135a8d60b194991134e54061a6
+github.com:ctbtosa/libcd - branch: master, commit id: 491357851ac4dc298e78292ce2691b2ccb73f8a0
+github.com:ctbtosa/ibase - branch: master, commit id: a21172ff4d6b47ba6bd7e5d8aaeb84099a9f1b99
+github.com:ctbtosa/ibase-widgets - branch: master, commit id: 6b3d03b5ab990691771fa95a430fb7bccd72f590
+
+VDMS THIDR_PARY are binaries not owned by VDMS project, therefore we stick to current latest version and fixes are provided through the owners projects. Particularly:
+SHI repositories are owned and maintained by SHI project (SHI interactive and automatic maintenance projects).
+eniab, gbase and seiscomp3 are maintained via ENIAB project.
+
+
+
+Description:
+
+h4. Content of the release
+
+New deliveries:
+ * NORDIC format for bulletins - requirements documented in the attachment "NORDIC - SEISAN products requirements.pdf"  and the format is documented here [https://www.geosig.com/files//GS_SEISAN_9_0_1.pdf] - Appendix A
+ * DLSEED format for STA_INFO - "dataless SEED" format, Seiscomp3 is used for conversion: [https://www.seiscomp3.org/doc/seattle/2014.084/apps/inv2dlsv.html], SEED format including dataless SEED form is specified e.g. here: [http://www.fdsn.org/pdf/SEEDManual_V2.4.pdf]
+ * new Category criteria for some radionuclide products (ARR, RRR, ARR_html, RRR_html, SPHD, SPHF).  Important here is that ARR, RRR, SPHD and SPHF are particulate products, while ARR_html and RRR_html are noble gaz products (their output are in HTML, hence the name).
+ These products list events which have a category. This category denotes how important the event is.
+ For particulate products (ARR, RRR, SPHD, SPHF), the categories are numbers (1,2,3,4,5) whereas for noble gaz products (ARR_html, RRR_html) there are letters (A,B,C).
+ In the request of these products, one can now add a Category criteria and result is restricted.
+
+Fixes:
+ * removal of regional screening - requested by Elena to completely remove section "Regional Screening" in SEB and SSEB bulletins
+ * Fix and actually first real delivery of NEB/NSEB products dependent on evsc_drv
+ * Fix of memory leak for 'long bulletins'
+ * Fox of Oracle error - maximum number of expressions in the query for bulletins
+
+Removals:
+ * removed current implementation of EXECUSM product (see conclusion of DCR-3238)
+
+Comment:
+ * VDMS CLI ported to python3 was not ready and new EXECSUM based on "elastic search" was not yet developed. 
+
+h4. Preparation of Git (Configuration Manager):
+
+Create protected *_devlan, testbed_* branches from correct *_operations_* branch.
+h4. Build part (Configuration Manager):
+
+Python packages - new_message_subsystem:
+{noformat}
+bash
+export GIT_ADM=dellis
+cd /gitadm/$GIT_ADM/new-message-subsystem
+export NMS_PROJECTS_HOME=/gitadm/$GIT_ADM/new-message-subsystem
+export GIT_INSTALL_DIRNAME=/gitadm/$GIT_ADM/install/nms
+export LAN=dvl
+export GIT_REPO_DIR=/gitadm/cmss/$LAN
+source /dvl/software/shared/nms/nms_home/env/nms_bashrc{noformat}
+build VDMS REQ-SUBS python packages
+{noformat}
+git fetch --tags
+git checkout <tag_from_file_versions>
+cd /gitadm/$GIT_ADM/new-message-subsystem
+./scripts/build_nms.sh dlv019{noformat}
+tag the repository on devlan branch by the DCR tag.
+
+VDMS THIRD-PARTY - seiscomp3 binaries:
+
+    build SHI software repositories
+{noformat}
+cd <path_to>
+mkdir install
+cd cbase 
+./build IDC
+cd ..
+cd idcmodel 
+./build IDC
+cd ..
+cd libcd 
+./build IDC
+cd ..
+cd sbase 
+./build IDC
+cd ..
+cd gbase 
+./build IDC
+cd ..
+cd ibase 
+./build IDC
+cd ..
+cd dfx 
+./build IDC
+cd ..{noformat}
+    build eniab and seiscomp3 VDMS reosurces
+
+ 
+{noformat}
+cd seiscomp3
+# important - eniab repository must be cloned exactly into this path inside of seiscomp3 repo
+git clone git@github.com:ctbtosa/eniab.git
+cd src
+ln -s ../eniab/ctbto ctbto
+ls
+   arclink  CMakeLists.txt  ctbto  gui-qt4  ipgp  nettab  sed  seedlink  system  trunk  utils
+cd ..
+# cmake and make to build
+
+mkdir build
+cd build/
+cmake ../ \
+-DCMAKE_INSTALL_PREFIX=<path_to>install/seicomp3 \
+-DENIAB_CBASE_INCLUDE=<path_to>install/cbase/include -DENIAB_CBASE_LIBDIR=<path_to>install/cbase/lib \
+-DENIAB_SBASE_INCLUDE=<path_to>install/sbase/include -DENIAB_SBASE_LIBDIR=<path_to>install/sbase/lib \
+-DENIAB_IDCMODEL_INCLUDE=<path_to>install/idcmodel/include -DENIAB_IDCMODEL_LIBDIR=<path_to>install/idcmodel/lib \
+-DENIAB_IBASE_INCLUDE=<path_to>install/ibase/include -DENIAB_IBASE_LIBDIR=<path_to>install/ibase/lib \
+-DENIAB_DFX_INCLUDE=<path_to>install/dfx/include -DENIAB_DFX_LIBDIR=<path_to>install/dfx/lib \
+-DENIAB_GBASE_INCLUDE=<path_to>install/gbase/include -DENIAB_GBASE_LIBDIR=<path_to>install/gbase/lib \
+-DSC_TRUNK_DB_POSTGRESQL=ON \
+-DSC_TRUNK_DB_MYSQL=OFF \
+-DSC_GLOBAL_GUI=OFF
+
+cd src/ctbto
+make
+
+make install DESTDIR=<path_to>/install/seiscomp3
+{noformat}
+VDMS THIRD-PARTY - SEISAN norims:
+
+    we build only one single API module - 'norims' - see _eniab/SEISAN/README.md_
+{noformat}
+cd <path_to>
+cd eniab
+# 1. Build seisan.a```
+cd ./LIB
+setenv SEISARCH linux64
+make seisan.a
+# 2. Build norims
+cd ../PRO
+make norims
+{noformat}
+ 
+
+VDMS THIRD-PARTY - evsc_drv:
+
+h4. Storing VDMS resources to install repository (Configuration Manager):
+
+Python packages:
+
+# From
+/gitadm/$GIT_ADM/install/nms
+# copy content
+nms_server_dist
+nms_server_dist.3.2.0rc01-py2.6.tar.gz
+# to
+# branch RHEL610_devlan
+install/nms
+
+VDMS THIRD-PARTY:
+1. In the brannch RHEL610_devlan of the install repository
+# create directory structure
+nms/usr
+nms/usr/bin
+nms/usr/lib64
+
+2. Publish waveReader binary
+{noformat}
+cp <path_to_repo>/libidcwf/test/waveReader install/nms/usr/bin
+{noformat}
+
+3. Publish seiscomp3 executables/binaries and dynamically shared libraries
+{noformat}
+# copy these binaries to install repo nms/usr/bin
+<path_to>/install/seiscomp3/bin/css2inv
+<path_to>/install/seiscomp3/bin/css2proc
+<path_to>/install/seiscomp3/bin/inv2css
+<path_to>/install/seiscomp3/bin/nms2proc
+<path_to>/install/seiscomp3/bin/proc2css
+<path_to>/install/seiscomp3/bin/inv2dlsv
+{noformat}
+
+{noformat}
+# copy these libraries to install repo nms/usr/lib64
+<path_to>/install/seicomp3/lib/libtspread-core.so.3
+<path_to>/install/seicomp3/lib/libseiscomp3_core.so
+<path_to>/install/seicomp3/lib/libseiscomp3_config.so
+<path_to>/install/seicomp3/lib/libmseed.so.2.19
+<path_to>/install/seicomp3/lib/libseiscomp3_client.so
+<path_to>/install/seicomp3/lib/libseiscomp3_idccss.so
+<path_to>/install/seicomp3/lib/libbson-1.0.so
+
+{noformat}
+
+{noformat}
+# copy required seiscomp3 python packages
+<path_to>/install/seiscomp3/lib/python nms/usr/lib64
+
+{noformat}
+
+/dvl/software/shared/nms/usr/lib64/libstring.so.0.0.0 is not comming from seiscomp3,
+let us see whether is needed and where it comes from.
+libmseed.so.2.19 is newer version.
+
+4. Publish SEISAN norims
+
+{noformat}
+# just copy the compiled binary to the install repo
+cp <path_to_repo>/eniab/PRO/norims <path_to_repo>/install/nms/usr/bin
+
+{noformat}
+
+
+5. Publish evsc_drv for VDMS
+{noformat}
+# copy the binary to repo install to nms/usr/bin
+<path_to>/install/shi-automatic/bin/evsc_drv
+
+{noformat}
+
+5. Tag the install repository with the DCR and release candidate tag
+
+h4. Deployment part (Processing Engineer):
+
+1. Stop VDMS REQ-SUBS system (user auto)
+{noformat}
+bash
+source /dvl/software/shared/nms/nms_home/env/nms_bashrc
+# Stop NMS
+$NMS_HOME/bin/stop_nms.sh
+
+# Check that the processes are running:
+ps -fu auto | grep nms | grep -v acq
+{}
+
+{noformat}
+
+2. Deploy VDMS REQ-SUBS resources (user cmss):
+2.1 Python packages:
+{noformat}
+# Move the current version of VDMS to a backup directory
+mv $NMS_HOME /dvl/software/shared/nms/nms_home_Pre_DCR_<dcr_number>
+# IMPORTANT: Liase with the Evangelos and use his GIT_INSTALL_DIRNAME
+# The following ENV VARS are required to be set before proceeding
+export GIT_ADM=dellis
+export NMS_PROJECTS_HOME=/gitadm/$GIT_ADM/new-message-subsystem
+export GIT_INSTALL_DIRNAME=/gitadm/$GIT_ADM/install/nms
+export LAN=dvl
+export GIT_ROOT_DIR=gitadm
+export GIT_REPO_DIR=/$GIT_ROOT_DIR/cmss/$LAN
+
+source $GIT_REPO_DIR/config/nms_config/nms/env/nms_bashrc
+
+cd /$GIT_ROOT_DIR/$GIT_ADM/new-message-subsystem
+./scripts/install_nms.sh
+{noformat}
+
+2.2 VDMS THIRD-PARTY - all currently changes resources:
+
+{noformat}
+# backup whole nms/usr to a back up
+cp /dvl/software/shared/nms/usr /dvl/software/shared/nms/usr_back_DCR-3313
+
+# copy new binaries
+cp <install_repo>/nms/usr/bin/* /dvl/software/shared/nms/usr/bin
+
+# remove obsolete old versions of dynamically shared libraries
+rm /dvl/software/shared/nms/usr/lib64/libmseed.so*
+
+# copy dynamically shared libraries
+cp <install_repo>/nms/usr/lib64/* /dvl/software/shared/nms/usr/lib64
+
+# copy seiscomp3 python packages
+cp -r <install_repo>/nms/usr/lib64/python /dvl/software/shared/nms/usr/lib64
+
+{noformat}
+
+3. DB changes:
+
+    dropping of _MSG_EXECSUM_METRICS_ 
+    execute attached script: db_migration_execsum.sql
+
+4. Configuration changes:
+
+   evsc_drv configuration amendment 
+   - check and deploy configuration changes from DCR-3298
+   
+   new binaries configuration for processing engine
+   
+   inv2dlsv entry in nms_home/conf/nms_production_engine.conf
+   {noformat}
+   [seiscomp_sta_info]
+   command=%(ENV[NMS_THIRD_PARTY])/bin/css2inv
+   inv2dlsv_command=%(ENV[NMS_THIRD_PARTY])/bin/inv2dlsv
+   ...
+   {noformat}
+   
+   SEISAN norims entry in nms_home/conf/nms_production_engine.conf
+   {noformat}
+   [te_format_shi_bulletin]
+   template_dir=%(ENV[NMS_HOME])/etc/templates
+   storage_dir=%(ENV[NMS_DATA])/nms_te_store
+   nordic_executable=%(ENV[NMS_THIRD_PARTY])/bin/norims
+   ...
+   {noformat}
+
+   python path extension for running inv2dlsv, it is a python script
+   {noformat}
+   # exand PYTHONPATH to cover also seiscomp3 dependencies
+   change in env/msgsys.env
+   export PYTHONPATH=/$LAN/software/shi/rel/lib/python:/$LAN/software/shared/nms/usr/lib64/python
+   
+   {noformat}
+   
+   Implement changes in repository nms_config in devlan branch.
+
+   Copy version from _nms_conf.devlan_ to DVL runtime:
+   {noformat}
+   cp -f $GIT_REPO_DIR/config/nms_config/nms/conf/* /$LAN/software/shared/nms/nms_home/conf
+   cp -f $GIT_REPO_DIR/config/nms_config/nms/env/* /$LAN/software/shared/nms/nms_home/env
+   {noformat}
+
+5. Publishing of new version of VDMC CLI - package and documentation
+   {noformat}
+   cp -f /gitadm/dellis/documentation/nms/docs/* /$LAN/software/shared/nms/nms_home/etc/docs
+   cp -f /gitadm/dellis/documentation/nms/client/* /$LAN/software/shared/nms/nms_home/etc/client
+   {noformat}
+   
+6. Start the system (user auto)
+   {noformat}
+   $NMS_HOME/bin/start_nms.sh
+   # check launching processes
+   ps -fu auto | grep nms | grep -v acq
+   # Restart the apache server on dlv019
+   sudo /sbin/service httpd restart
+   {noformat}
+
+h4. Verification part (Processing Engineer, supported by developer):
+
+verify new deliveries,
+ * NORDIC format for bulletins
+ New format of bulletines - example VDMS request:
+ {noformat}
+ BEGIN IMS2.0
+ MSG_TYPE REQUEST
+ MSG_ID SC3_BULLETIN
+ TIME 2019/04/24 08:00 to 2019/04/24 16:00
+ BULL_TYPE REB
+ BULLETIN IMS2.0:NORDIC
+ STOP
+
+ {noformat}
+
+ Example reply
+ {noformat}
+ 2019 0424 0800 15.5 R  54.134  86.489  0.0F IDC  426.0 2.7LIDC                1
+ ACTION:REG 19-06-31 11:50 OP:nims STATUS:               ID:20190424080015     I
+ IDC: ellipse   21.0   13.4  53 MB sd+-   0.0            Event ID 17262340     3
+ *  17262340 SOUTHWESTERN SIBERIA, RUSSIA            ***                       3
+ $ KURK  ML 2.30                                                               3
+ $       mb 2.90                                                               3
+ $ MKAR  ML 3.00                                                               3
+ $       mb 3.00                                                               3
+ STAT SP IPHASW D HRMM SECON CODA AMPLIT PERI AZIMU VELO AIN AR TRES W  DIS CAZ7
+ ZALV     Pg   A  0800 33.97     .90      0.3  75.5 18.3 7.1 -3 -0.8    111 259 
+ ZALV     Lg   A  0800 48.80     1.4      0.3  74.6 27.817.5 -4  0.1    111 259 
+ I46RU    I    A  0804 50.00                   80.4324.4 7.3  2-68.7    111 260 
+ KURK     Pn   A  0801 46.65     .10      0.3  55.3 13.8 6.1  4  0.7    668 237 
+                  0000 00.00     .60      0.5                    0.0      0     
+ KURK     Lg   A  0803 27.59                   51.8 34.4 6.2  1  1.1    668 237 
+ MKAR     Pn   A  0802 11.41     .20      0.3  23.3 11.310.6  5 -0.2    869 201 
+                  0000 00.00     .30      0.3                    0.0      0     
+ MKAR     Lg   A  0804 22.40     .10      0.3  23.3 30.9 7.1  5 -1.7    869 201 
+                                                                                
+ 2019 0424 0809 56.0 R  56.677  46.107  0.0F IDC  3****                        1
+ ACTION:REG 19-06-31 11:50 OP:nims STATUS:               ID:20190424080955     I
+ IDC: ellipse  157.3  106.5 101 MB sd+-   0.0            Event ID 17263039     3
+ *  17263039 BALTICS-BELARUS-NW RUSSIA REG.          ***                       3
+ STAT SP IPHASW D HRMM SECON CODA AMPLIT PERI AZIMU VELO AIN AR TRES W  DIS CAZ7
+ I43RU    I    A  0839 10.00     .40      0.6  84.4325.6 2.6 -2-98.4    545 274 
+ I37NO    I    A  1002 45.00                  128.5327.2 4.7  7518.3   1940 326 
+ I46RU    I    A  1017 40.00                  294.0326.4 1.0  1-22.7   2448  80 
+
+ {noformat}
+
+ Test various time slots, request message types and all types of bulletins. Use Formats and Protocols
+ chapter: 4.6.8 BULLETIN
+ Bulletine types
+ - SEL1 (Standard Event List 1)
+ - SEL2 (Standard Event List 2)
+ - SEL3 (Standard Event List 3)
+ - REB (Reviewed Event Bulletin)
+ - SEB (Standard Event Bulletin)
+ - SSEB (Standard Screened Event Bulletin)
+ - NEB (National Event Bulletin
+ - NSEB (National Screened Event Bulletin)
+
+
+ * DLSEED format for STA_INFO
+ Example request
+ {noformat}
+ BEGIN IMS2.0
+ MSG_TYPE REQUEST
+ MSG_ID test_dlseed
+ STA_LIST ARCES
+ CHAN_LIST BHF
+ STA_INFO IMS2.0:DLSEED
+ STOP
+ {noformat}
+ Expected to be returned - see attachment: sample_dlseed.txt
+
+
+ * new Category criteria for some radionuclide products
+ Examples of requests
+ - categories for particulate products - numbers (1,2,3,4,5)
+ {noformat}
+ begin ims1.0
+ msg_type request
+ msg_id ex026
+ time 1999/07/01 to 2000/08/01
+ sta_list AU*
+ CATEGORY 4,5
+ sphdf rms2.0
+ sphdp rms2.0
+ stop
+ {noformat}
+
+ - noble gaz products - letters (A,B,C)
+ {noformat}
+ begin ims1.0
+ msg_type request
+ msg_id ex027
+ time 1999/07/01 to 2000/08/01
+ sta_list AU*
+ CATEGORY A,B,C
+ ARR_html rms2.0
+ stop
+ {noformat}
+
+ * recently delivered product to ops - SSREB (Standard Screened Radionuclide Event Bulletin)
+ {noformat}
+ BEGIN IMS2.0
+ MSG_TYPE REQUEST
+ MSG_ID test_ssreb2
+ TIME 2019/12/01 to 2019/12/30
+ STA_LIST *
+ SSREB IMS2.0:HTML
+ STOP
+ {noformat}
+
+ * correct removal of obsolete EXECSUM product
+ EXECSUM
+ {noformat}
+ BEGIN IMS1.0
+ MSG_TYPE REQUEST
+ MSG_ID req_execsum
+ TIME 2011/04/01 to 2011/04/04
+ EXECSUM
+ STOP 
+ {noformat}
+
+ should return an error: _"The EXECSUM product is not supported at the moment"_
+ The request:
+ {noformat} 
+ BEGIN IMS1.0
+ MSG_TYPE REQUEST
+ MSG_ID req_eds
+ TIME 2011/04/01 to 2011/04/04
+ EDS
+ STOP
+ {noformat}
+ 
+ should return an error: _"The EDS product is not supported at the moment"_
+
+ The request:
+ {noformat} 
+ BEGIN IMS1.0
+ MSG_TYPE REQUEST
+ MSG_ID req_epss
+ TIME 2011/04/01 to 2011/04/04
+ EPS
+ STOP
+ {noformat} 
+ should return an error: _"The EPS product is not supported at the moment"_
+
+ The request:
+ {noformat} 
+ BEGIN IMS1.0
+ MSG_TYPE REQUEST
+ MSG_ID req_epos
+ TIME 2011/04/01 to 2011/04/04
+ EPOS
+ STOP
+ {noformat}
+ 
+ should return an error: "The EPOS product is not supported at the moment"
+
+ The subscription request:
+ {noformat} 
+ BEGIN IMS1.0
+ MSG_TYPE SUBSCRIPTION
+ MSG_ID subs_execsum
+ FREQ IMMEDIATE
+ EXECSUM
+ STOP
+ {noformat}
+ 
+ should return an error: "The EXECSUM product is not supported at the moment"
+ 
+verify fixes
+ * removal of regional screening
+ Prepare several SEB and SSEB bulletin requests and check if Regional Screening
+ section was removed.
+ * NEB/NSEB products
+ Check yet NEB and NSEB products, examples:
+ {noformat}
+ begin ims2.0
+ msg_type request
+ msg_id test_neb
+ time 2019/06/10 to 2019/06/14
+ bull_type NEB
+ depth_conf 0.99
+ mbms_conf 0.99
+ bulletin ims2.0
+ stop 
+ {noformat}
+
+ {noformat}
+ begin ims2.0
+ msg_type request
+ msg_id test_nseb
+ time 2019/06/10 to 2019/06/14
+ bull_type NSEB
+ depth_conf 0.99
+ mbms_conf 0.99
+ bulletin ims2.0
+ stop
+ {noformat}
+ 
+ * memory leak for 'long bulletins'
+ Try
+ {noformat}
+ begin ims2.0
+ msg_type request
+ msg_id LongSeb1
+ time 2018/12/25 to 2018/12/29
+ bull_type SEB
+ bulletin ims2.0:long
+ stop
+ {noformat}
+
+ 
+ * maximum number of expressions in the query for bulletins
+ Try
+ {noformat}
+ BEGIN IMS2.0
+ MSG_TYPE REQUEST
+ MSG_ID BigBulletin
+ BULL_TYPE REB
+ TIME 2017/09/01 00:00:00 to 2017/09/18 00:00:00
+ ORIGIN IMS2.0
+ STOP
+ {noformat}
+ 
+ * new fixed css2inv addressing DCR-3058
+ Try the request which was failing
+ {noformat}
+ BEGIN IMS2.0
+ MSG_TYPE REQUEST
+ MSG_ID ED_SC3_STA_INFO
+ TIME 2013/02/12 00:00:00 TO 2013/02/12 00:30:00
+ STA_LIST H11N
+ STA_INFO IMS2.0:SC3XML
+ STOP 
+ {noformat}
+ 
+verify whole system by regression tests fix all issues to have smoke tests for email request types without failures - green
+
+|!http://dlv020.idc.ctbto.org:8080/static/e9ccb01c/images/32x32/red.png!|[!http://dlv020.idc.ctbto.org:8080/static/e9ccb01c/images/32x32/health-00to19.png!|http://dlv020.idc.ctbto.org:8080/view/DEV%20CATS%20-%20VDMS/job/COD_vdms_email_requests_smoke_tests_accept_dvl_msgsys_extadb/lastBuild]|[COD_vdms_email_requests_smoke_tests_accept_dvl_msgsys_extadb|http://dlv020.idc.ctbto.org:8080/view/DEV%20CATS%20-%20VDMS/job/COD_vdms_email_requests_smoke_tests_accept_dvl_msgsys_extadb/]|N/A|5 hr 56 min - [#50|http://dlv020.idc.ctbto.org:8080/view/DEV%20CATS%20-%20VDMS/job/COD_vdms_email_requests_smoke_tests_accept_dvl_msgsys_extadb/lastFailedBuild/]|1 hr 1 min| | |
+|!http://dlv020.idc.ctbto.org:8080/static/e9ccb01c/images/32x32/red.png!|[!http://dlv020.idc.ctbto.org:8080/static/e9ccb01c/images/32x32/health-00to19.png!|http://dlv020.idc.ctbto.org:8080/view/DEV%20CATS%20-%20VDMS/job/COD_vdms_email_requests_smoke_tests_accept_dvl_msgsys_extodb/lastBuild]|[COD_vdms_email_requests_smoke_tests_accept_dvl_msgsys_extodb|http://dlv020.idc.ctbto.org:8080/view/DEV%20CATS%20-%20VDMS/job/COD_vdms_email_requests_smoke_tests_accept_dvl_msgsys_extodb/]|N/A|6 hr 58 min - [#53|http://dlv020.idc.ctbto.org:8080/view/DEV%20CATS%20-%20VDMS/job/COD_vdms_email_requests_smoke_tests_accept_dvl_msgsys_extodb/lastFailedBuild/]|1 hr 1 min| | |
+|!http://dlv020.idc.ctbto.org:8080/static/e9ccb01c/images/32x32/red.png!|[!http://dlv020.idc.ctbto.org:8080/static/e9ccb01c/images/32x32/health-60to79.png!|http://dlv020.idc.ctbto.org:8080/view/DEV%20CATS%20-%20VDMS/job/COD_vdms_email_requests_smoke_tests_clean_nmsunittest_imap/lastBuild]|[COD_vdms_email_requests_smoke_tests_clean_nmsunittest_imap|http://dlv020.idc.ctbto.org:8080/view/DEV%20CATS%20-%20VDMS/job/COD_vdms_email_requests_smoke_tests_clean_nmsunittest_imap/]|1 day 4 hr - [#67|http://dlv020.idc.ctbto.org:8080/view/DEV%20CATS%20-%20VDMS/job/COD_vdms_email_requests_smoke_tests_clean_nmsunittest_imap/lastSuccessfulBuild/]|4 hr 54 min - [#68|http://dlv020.idc.ctbto.org:8080/view/DEV%20CATS%20-%20VDMS/job/COD_vdms_email_requests_smoke_tests_clean_nmsunittest_imap/lastFailedBuild/]|1 min 11 sec| | |
+|!http://dlv020.idc.ctbto.org:8080/static/e9ccb01c/images/32x32/red.png!|[!http://dlv020.idc.ctbto.org:8080/static/e9ccb01c/images/32x32/health-60to79.png!|http://dlv020.idc.ctbto.org:8080/view/DEV%20CATS%20-%20VDMS/job/COD_vdms_email_requests_smoke_tests_dvl_msgsys_extadb/lastBuild]|[COD_vdms_email_requests_smoke_tests_dvl_msgsys_extadb|http://dlv020.idc.ctbto.org:8080/view/DEV%20CATS%20-%20VDMS/job/COD_vdms_email_requests_smoke_tests_dvl_msgsys_extadb/]|1 day 8 hr - [#66|http://dlv020.idc.ctbto.org:8080/view/DEV%20CATS%20-%20VDMS/job/COD_vdms_email_requests_smoke_tests_dvl_msgsys_extadb/lastSuccessfulBuild/]|8 hr 29 min - [#67|http://dlv020.idc.ctbto.org:8080/view/DEV%20CATS%20-%20VDMS/job/COD_vdms_email_requests_smoke_tests_dvl_msgsys_extadb/lastFailedBuild/]|1 hr 32 min| | |
+|!http://dlv020.idc.ctbto.org:8080/static/e9ccb01c/images/32x32/red.png!|[!http://dlv020.idc.ctbto.org:8080/static/e9ccb01c/images/32x32/health-60to79.png!|http://dlv020.idc.ctbto.org:8080/view/DEV%20CATS%20-%20VDMS/job/COD_vdms_email_requests_smoke_tests_dvl_msgsys_extodb/lastBuild]|[COD_vdms_email_requests_smoke_tests_dvl_msgsys_extodb|http://dlv020.idc.ctbto.org:8080/view/DEV%20CATS%20-%20VDMS/job/COD_vdms_email_requests_smoke_tests_dvl_msgsys_extodb/]|1 day 10 hr - [#77|http://dlv020.idc.ctbto.org:8080/view/DEV%20CATS%20-%20VDMS/job/COD_vdms_email_requests_smoke_tests_dvl_msgsys_extodb/lastSuccessfulBuild/]|10 hr - [#78|http://dlv020.idc.ctbto.org:8080/view/DEV%20CATS%20-%20VDMS/job/COD_vdms_email_requests_smoke_tests_dvl_msgsys_extodb/lastFailedBuild/]|1 hr 32 min|
+
+h4. Accomplish release (Configuration Manager):
+
+After accomplishing all verification on devlan and addressing all fixes close the release by tagging it with Release tag and DCR tag:
+
+and merging the master branch to devlan branch.
+
+
+# Troubleshooting - collecting of issues on 27.20.2020
+
+http://its.ctbto.org/browse/ESI-244 VDMS 3.2.0 release - verification of new features
+
+Among others we have now this error:
+BEGIN IMS2.0
+MSG_TYPE REQUEST
+MSG_ID sc3stainfo_polzer2
+TIME 2018/11/14 14:50 to 2018/11/14 16:30 STA_LIST KEST
+STA_INFO IMS2.0:DLSEED
+STOP
+
+Causes ABORT and this error:
+
+2020-02-27T12:23:53+00:00 dlv018/172.27.48.48 [user.info] ctbt.msgsys.production_engine[]: SeisCompStaInfoHelper - 15445/JobPicker-4 - INFO - Command: /dvl/shi/nms/usr/bin/css2inv --osdb padd1_s     34 hi:#####@extodb --schemas STATIC KEST KEST | /dvl/shi/nms/usr/bin/inv2dlsv
+     35 2020-02-27T12:23:53+00:00 dlv018/172.27.48.48 [user.info] ctbt.msgsys.production_engine[]: SeisCompStaInfoHelper - 15445/JobPicker-4 - INFO - SeisComp sub process 21788 started, timeout 10800 s
+     36 2020-02-27T12:23:53+00:00 dlv018/172.27.48.48 [user.info] ctbt.msgsys.production_engine[]: SeisCompStaInfoHelper - 15445/JobPicker-4 - INFO - SeisComp sub process exited, exit value 1
+     37 2020-02-27T12:23:53+00:00 dlv018/172.27.48.48 [user.warning] ctbt.msgsys.production_engine[]: SHIStaInfoSeiscompDataCollector - 15445/JobPicker-4 - WARNING - Traceback (most recent call last):
+     38 2020-02-27T12:23:53+00:00 dlv018/172.27.48.48 [user.warning] ctbt.msgsys.production_engine[]: SHIStaInfoSeiscompDataCollector - 15445/JobPicker-4 - WARNING -
+     39 2020-02-27T12:23:53+00:00 dlv018/172.27.48.48 [user.warning] ctbt.msgsys.production_engine[]: tracer - 15445/JobPicker-4 - WARNING - Traceback (most recent call last):
+     40 2020-02-27T12:23:53+00:00 dlv018/172.27.48.48 [user.warning] ctbt.msgsys.production_engine[]: tracer - 15445/JobPicker-4 - WARNING -
+     41 2020-02-27T12:23:53+00:00 dlv018/172.27.48.48 [user.info] ctbt.msgsys.production_engine[]: tracer - 15445/JobPicker-4 - INFO - Job 2268207: job status has changed to: ABORTED
+     42 2020-02-27T12:23:53+00:00 dlv018/172.27.48.48 [user.err] ctbt.msgsys.production_engine[]: JobExecutor - 15445/JobPicker-4 - ERROR - Technical exception css2inv found no data : Error 1#012Traceba     42 ck (most recent call last):#012  File "build/bdist.linux-x86_64/egg/nms_production_engine/production_engine.py", line 293, in execute#012    te_data_nms_result = te_data.execute(product, executi     42 on_context)#012  File "build/bdist.linux-x86_64/egg/springpython/aop/__init__.py", line 199, in dispatch#012    return invocation.__getattr__(name)(*args, **kwargs)#012  File "build/bdist.linux-     42 x86_64/egg/springpython/aop/__init__.py", line 75, in __call__#012    return self.proceed()#012  File "build/bdist.linux-x86_64/egg/springpython/aop/__init__.py", line 61, in proceed#012    retu     42 rn interceptor.invoke(self)#012  File "build/bdist.linux-x86_64/egg/nms_common/utils/springpython_aspect.py", line 101, in invoke#012    return invocation.proceed()#012  File "build/bdist.linux-     42 x86_64/egg/springpython/aop/__init__.py", line 61, in proceed#012    return interceptor.invoke(self)#012  File "build/bdist.linux-x86_64/egg/nms_common/utils/stats.py", line 34, in invoke#012        42  result = invocation.proceed()#012  File "build/bdist.linux-x86_64/egg/springpython/aop/__init__.py", line 61, in proceed#012    return interceptor.invoke(self)#012  File "build/bdist.linux-x86_     42 64/egg/springpython/aop/__init__.py", line 162, in invoke#012    return getattr(invocation.instance, invocation.method_name)(*invocation.args, **invocation.kwargs)#012  File "build/bdist.linux-x     42 86_64/egg/idc_products/shi/data_collector/shi_data_sta_info.py", line 130, in execute#012    raise Exception("css2inv found no data : Error %d" % retval)#012Exception: css2inv found no data : Er     42 ror 1
+
+But executing the same command returns DLSEED data.
+/dvl/software/shared/nms/usr/bin/css2inv --osdb padd_d_shi:****@extodb --schemas STATIC KEST KEST | /dvl/software/shared/nms/usr/bin/inv2dlsv
+
+But for example this request:
+begin ims2.0 
+msg_type request 
+msg_id kianicka_resp10
+e-mail jan.kianicka@ctbto.org 
+time 1999/01/01 to 1999/02/01 
+sta_list ZA* 
+chan_list * 
+sta_info  ims2.0:DLSEED
+stop
+
+Returns tared data. Cals this command internally:
+dvl/software/shared/nms/usr/bin/css2inv --osdb padd_d_shi:****@extodb --schemas STATIC --channels ln,BHZ,be,le,BDF,fsb,LDA,MWS,wko,LRH,fcb,SHN,BH1,sp,HHN,BWD,azb,ed,he,hz,wwd,wws,LEM,LGD,LGS,LKI,se,BHN,fkb,MH1,vlb,LWD,hn,LEV,EDH,HH2,fp  21209 b,LHN,MHE,MHZ,cb,ib,sl,MH2,SH2,HHZ,LKO,ee,MDA,MWD,LEI,bd,mz,sn,SHE,bn,hb,mx,LWS,ez,md,MKO,fb,lz,me,MHN,sd,EHE,EHN,en,bzl,LIO,bm,BHE,LHZ,SHZ,BH2,bz,SH1,HHE,BDA,BKO,bnl,HH1,szl,ucb,mn,sz,LHE,az,BW  21209 S,EHZ,LEA,bel ZAA0 ZAA0 ZAA0B ZAA0B ZAA1 ZAA1 ZAA2 ZAA2 ZAA3 ZAA3 ZAB1 ZAB1 ZAB2 ZAB2 ZAB3 ZAB3 ZAB4 ZAB4 ZAB5 ZAB5 ZAL ZAL ZALV ZALV | /dvl/software/shared/nms/usr/bin/inv2dlsv
+
+This issue is present also on dvl018.
+
+
+We have to create set of new features request and configure Jenkins job to verify
+the new features against dlv018, dlv019 and devlab05 installations respectivelly.
+Inspiration:
+The bulletin type NSEB_FR03 is not supported, supported values are ['SEL1', 'SEL2', 'SEL3', 'REB', 'LEB', 'SEB', 'SSEB', 'IDC_REB', 'IDC_SEL1', 'IDC_SEL2', 'IDC_SEL3', 'IDC_SEB', 'IDC_LEB', 'IDC_SSEB', 'NEB', 'NSEB', 'IDC_NEB', 'IDC_NSEB'].
+
+# When deploying 3.2.0rc04 perfom also perfomance tests of the too big requests, but the ones which will be used.
+Also send them multiply times as special test case - 8 concurrent such requests.
+Find out also about ORACLE_HOME and LD_LIBRARY_PATH and ADMIN_TNS variables for auto, and for CM to build
+SHI repositories with correct runtime variable.
+(Find out also about tst and ops - that we do not have surprices)
+
+begin ims2.0
+msg_type request
+msg_id kianicka_z_resp2
+e-mail jan.kianicka@ctbto.org
+time 2018/01/01 to 2018/02/01
+sta_list *
+chan_list *
+response ims2.0
+stop
+
+(processing of this requests took about 40 minutes and then on devlan failed with memory error)
+
+---
+about the killed production engine, I think I know what it is: we have implemented a feature in the Watch Dog Monitor that ensures that, once a job is finished, the Production Engine releases its memory properly.
+We had problems with calling external binaries and the Production Engines were holding too much memory.
+So, now, if the Production Engine keeps too much memory, it is killed and a new one is automatically restarted.
+You can see it in the Watch Dog logs:
+[nmsgsys@dlv018 2] 2020-03-05 > grep "Killing production engine" ctbt.msgsys.nms_watch_dog 
+2020-03-05T00:27:54+00:00 dlv019/172.27.48.48 [user.info] ctbt.msgsys.nms_watch_dog[]: '2020-03-05 00:27:54':NMSJobPickersMonitor:11442:INFO:Killing production engine 20231, because it is using 286.47 Mb, which is over the maximum allowed amount: 200 Mb
+2020-03-05T02:14:34+00:00 dlv019/172.27.48.48 [user.info] ctbt.msgsys.nms_watch_dog[]: '2020-03-05 02:14:34':NMSJobPickersMonitor:11442:INFO:Killing production engine 25826, because it is using 339.13 Mb, which is over the maximum allowed amount: 200 Mb
+2020-03-05T04:33:07+00:00 dlv019/172.27.48.48 [user.info] ctbt.msgsys.nms_watch_dog[]: '2020-03-05 04:33:07':NMSJobPickersMonitor:11442:INFO:Killing production engine 3926, because it is using 314.18 Mb, which is over the maximum allowed amount: 200 Mb
+2020-03-05T04:42:43+00:00 dlv019/172.27.48.48 [user.info] ctbt.msgsys.nms_watch_dog[]: '2020-03-05 04:42:43':NMSJobPickersMonitor:11442:INFO:Killing production engine 26783, because it is using 1539.12 Mb, which is over the maximum allowed amount: 200 Mb
+2020-03-05T12:51:48+00:00 dlv019/172.27.48.48 [user.info] ctbt.msgsys.nms_watch_dog[]: '2020-03-05 12:51:48':NMSJobPickersMonitor:11442:INFO:Killing production engine 5498, because it is using 637.34 Mb, which is over the maximum allowed amount: 200 Mb
+
+Note that the threshold can be changed in nms_watch_dog.conf:
+max_memory_in_megabytes=200
+Regards,
+Cyrille
+----
+
+
+BEGIN IMS2.0
+MSG_TYPE REQUEST
+MSG_ID sc3stainfo_polzer4
+TIME 2018/11/14 14:50 to 2018/11/14 16:30
+STA_LIST *
+STA_INFO IMS2.0:DLSEED
+STOP
+
+(again it was failing very likelly with memory error - retest it once more - including downloading of data)
+Link also DCR with memory extension for these types of requests.
+
+# 11.3.2020 - deployment of VDMS 3.2.0rc04 to devlab05.
+First we need to manually launch the jobs to publish resources to Nexus.
+vdms-github-master - for new-message-subsystem
+vdms-seisan-master - for norims
+vdms-evscr_drv-master - for evscr_drv - failed, we need to adjust to latest due to change in interface of the build scripts.
+(MIssing in the view are 3db party - seiscomp3 and wavereader job - should be consolidated)
+
+vdms_wavereader_master - copied over the job libidcwf-master-unit-deploy from OPS CATS
+vdms_sc3_master -  compiled and published only waveReader for VDMS
+
+# Deployment
+deployed vdms 3.2.0rc04
+and tested error handling for norims. Successful for SEB using the old norims:
+---
+Mar 11 13:44:30 alv621 ctbt.msgsys.production_engine: tracer - 18023/JobPicker-4 - INFO - For dates between 2019-04-24 08:00:00+00:00 and 2019-04-24 16:00:00+00:00, SEB produc
+ts have been retrieved from archives
+Mar 11 13:44:30 alv621 ctbt.msgsys.production_engine: TEFormatNordicBulletin - 18023/JobPicker-4 - ERROR - Error: NORIMS returned non-zero exit code: 2 and error: At line 706
+of file norims.for
+Mar 11 13:44:30 alv621 ctbt.msgsys.production_engine: TEFormatNordicBulletin - 18023/JobPicker-4 - ERROR - Fortran runtime error: Bad integer for item 1 in list input
+Mar 11 13:44:30 alv621 ctbt.msgsys.production_engine: TEFormatNordicBulletin - 18023/JobPicker-4 - ERROR -
+Mar 11 13:44:30 alv621 ctbt.msgsys.production_engine: tracer - 18023/JobPicker-4 - INFO - Job 58384439: job status has changed to: ABORTED
+---
+But the return message contains just 'Due to a technical error, your request cannot be completed.'
+Fine.
+
+# Now let us deploy norims, evcs_driver, sc3 using the scripts.
+# After this we have norims working for SEB, SSEB.
+# We have to consider yet extension of python path for VDMS sub-processes. This is to be checked.
+# But from devlan installation we know that inv2dlsv does not work due to syntax error.
+
+# 18.3.2020 - due to Corona we work at home and at 11:00 we go with Barborka out into forest for walk.
+
+# Local build and checking of css2inv and inv2dlsv for chosen cases
+
+cd /dvlscratch/SHI/kianicka/seiscomp3_built
+ldd ./install/seiscomp3/bin/css2inv |grep not
+	libseiscomp3_client.so => not found
+	libseiscomp3_idccss.so => not found
+	libtspread-core.so.3 => not found
+	libseiscomp3_core.so => not found
+	libbson-1.0.so.0 => not found
+	libseiscomp3_config.so => not found
+	libmseed.so.2.19 => not found
+setenv LD_LIBRARY_PATH /cots/oracle/c201.oic/lib:/dvl/software/shi/rel/lib/Linux-2.6.32-754.15.3.el6.x86_64-x86_64:/cots/RabbitMQ/rabbitmq-c/0.5.0/lib64:/cots/WorldWind/1.5.1:/dvl/software/shi/scripts/lib:/usr/lib:/dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/lib/
+setenv PYTHONPATH /dvl/software/shi/aux/lib/python2.6/site-packages:/dvl/software/shi/rel/lib/python:/dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/lib/python
+
+Successful example:
+/dvl/software/shared/nms/usr/bin/css2inv --osdb padd_d_shi:dvl-vdms123@extodb --schemas STATIC --channels ln,BHZ,be,le,BDF,fsb,LDA,MWS,wko,LRH,fcb,SHN,BH1,sp,HHN,BWD,azb,ed,he,hz,wwd,wws,LEM,LGD,LGS,LKI,se,BHN,fkb,MH1,vlb,LWD,hn,LEV,EDH,HH2,fpb,LHN,MHE,MHZ,cb,ib,sl,MH2,SH2,HHZ,LKO,ee,MDA,MWD,LEI,bd,mz,sn,SHE,bn,hb,mx,LWS,ez,md,MKO,fb,lz,me,MHN,sd,EHE,EHN,en,bzl,LIO,bm,BHE,LHZ,SHZ,BH2,bz,SH1,HHE,BDA,BKO,bnl,HH1,szl,ucb,mn,sz,LHE,az,BWS,EHZ,LEA,bel NAO00 NAO01 NAO02 NAO03 NAO04 NAO05 NB200 NB201 NB202 NB203 NB204 NB205 NBO00 NBO01 NBO02 NBO03 NBO04 NBO05 NC200 NC201 NC202 NC203 NC204 NC205 NC300 NC301 NC302 NC303 NC304 NC305 NC400 NC401 NC402 NC403 NC404 NC405 NC600 NC601 NC602 NC603 NC604 NC605 NOA NOA | /dvl/software/shared/nms/usr/bin/inv2dlsv
+
+/dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/css2inv --osdb padd_d_shi:dvl-vdms123@extodb --schemas STATIC --channels ln,BHZ,be,le,BDF,fsb,LDA,MWS,wko,LRH,fcb,SHN,BH1,sp,HHN,BWD,azb,ed,he,hz,wwd,wws,LEM,LGD,LGS,LKI,se,BHN,fkb,MH1,vlb,LWD,hn,LEV,EDH,HH2,fpb,LHN,MHE,MHZ,cb,ib,sl,MH2,SH2,HHZ,LKO,ee,MDA,MWD,LEI,bd,mz,sn,SHE,bn,hb,mx,LWS,ez,md,MKO,fb,lz,me,MHN,sd,EHE,EHN,en,bzl,LIO,bm,BHE,LHZ,SHZ,BH2,bz,SH1,HHE,BDA,BKO,bnl,HH1,szl,ucb,mn,sz,LHE,az,BWS,EHZ,LEA,bel NAO00 NAO01 NAO02 NAO03 NAO04 NAO05 NB200 NB201 NB202 NB203 NB204 NB205 NBO00 NBO01 NBO02 NBO03 NBO04 NBO05 NC200 NC201 NC202 NC203 NC204 NC205 NC300 NC301 NC302 NC303 NC304 NC305 NC400 NC401 NC402 NC403 NC404 NC405 NC600 NC601 NC602 NC603 NC604 NC605 NOA NOA | /dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/inv2dlsv
+
+/dvl/software/shared/nms/usr/bin/css2inv --osdb padd_d_shi:dvl-vdms123@extodb --schemas STATIC --channels ln,BHZ,be,le,BDF,fsb,LDA,MWS,wko,LRH,fcb,SHN,BH1,sp,HHN,BWD,azb,ed,he,hz,wwd,wws,LEM,LGD,LGS,LKI,se,BHN,fkb,MH1,vlb,LWD,hn,LEV,EDH,HH2,fpb,LHN,MHE,MHZ,cb,ib,sl,MH2,SH2,HHZ,LKO,ee,MDA,MWD,LEI,bd,mz,sn,SHE,bn,hb,mx,LWS,ez,md,MKO,fb,lz,me,MHN,sd,EHE,EHN,en,bzl,LIO,bm,BHE,LHZ,SHZ,BH2,bz,SH1,HHE,BDA,BKO,bnl,HH1,szl,ucb,mn,sz,LHE,az,BWS,EHZ,LEA,bel DAV DAV DAVOS DAVOS DAVOX DAVOX DBIC DBIC DLBC DLBC DLI01 DLI01 DLI02 DLI02 DLI03 DLI03 DLI04 DLI04 DLIAR DLIAR DLIWH DLIWH DZM DZM | /dvl/software/shared/nms/usr/bin/inv2dlsv
+...
+SC3XML conversion created 58 warnings
+Error: unsupported operand type(s) for *=: 'float' and 'NoneType'dlw077.idc.ctbto.org.-107% 
+
+/dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/css2inv --osdb padd_d_shi:dvl-vdms123@extodb --schemas STATIC --channels ln,BHZ,be,le,BDF,fsb,LDA,MWS,wko,LRH,fcb,SHN,BH1,sp,HHN,BWD,azb,ed,he,hz,wwd,wws,LEM,LGD,LGS,LKI,se,BHN,fkb,MH1,vlb,LWD,hn,LEV,EDH,HH2,fpb,LHN,MHE,MHZ,cb,ib,sl,MH2,SH2,HHZ,LKO,ee,MDA,MWD,LEI,bd,mz,sn,SHE,bn,hb,mx,LWS,ez,md,MKO,fb,lz,me,MHN,sd,EHE,EHN,en,bzl,LIO,bm,BHE,LHZ,SHZ,BH2,bz,SH1,HHE,BDA,BKO,bnl,HH1,szl,ucb,mn,sz,LHE,az,BWS,EHZ,LEA,bel DAV DAV DAVOS DAVOS DAVOX DAVOX DBIC DBIC DLBC DLBC DLI01 DLI01 DLI02 DLI02 DLI03 DLI03 DLI04 DLI04 DLIAR DLIAR DLIWH DLIWH DZM DZM | /dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/inv2dlsv
+The same error - fixed was not provided
+...
+SC3XML conversion created 58 warnings
+Error: unsupported operand type(s) for *=: 'float' and 'NoneType'dlw077.idc.ctbto.org.-107%
+
+/dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/css2inv --osdb padd_d_shi:dvl-vdms123@extodb --schemas STATIC --channels BHZ,bn,sz,bzl,sd,hz,azb,LWD,MDA,LIO,MH1,BHE,cb,fkb,le,me,bel,szl,wwd,LEV,LEI,LGS,fb,ez,SH1,MHN,MHZ,sn,lz,bnl,LHE,sl,fsb,LWS,LRH,MH2,se,mz,HHN,HHZ,wws,hn,LEA,LDA,MKO,MWD,LKI,bd,HH1,BHN,SHE,SHN,SHZ,mn,mx,he,EHZ,MWS,LEM,LGD,fpb,HH2,md,bz,hb,ln,wko,BDF,bm,fcb,ucb,ee,sp,ib,BH2,MHE,LHN,HHE,EDH,EHE,EHN,BKO,BWD,BWS,vlb,be,BH1,ed,LHZ,az,BDA,LKO,en,SH2 AAK AAK ABKT ABKT AFI AFI AK01 AK01 AK02 AK02 AK03 AK03 AK04 AK04 AK05 AK05 AK06 AK06 AK07 AK07 AK08 AK08 AK09 AK09 AK10 AK10 AK11 AK11 AK12 AK12 AK13 AK13 AK14 AK14 AK15 AK15 AK16 AK16 AK17 AK17 AK18 AK18 AK19 AK19 AK20 AK20 AK21 AK21 AK22 AK22 AK23 AK23 AKASG AKASG AKBB AKBB AKTO AKTO AL31 AL32 AL33 AL34 AL35 AL36 AL37 ALQ ALQ ANMO ANMO APG APG ARA0 ARA0 ARA1 ARA1 ARA2 ARA2 ARA3 ARA3 ARB1 ARB1 ARB2 ARB2 ARB3 ARB3 ARB4 ARB4 ARB5 ARB5 ARC1 ARC1 ARC2 ARC2 ARC3 ARC3 ARC4 ARC4 ARC5 ARC5 ARC6 ARC6 ARC7 ARC7 ARCES ARCES ARD1 ARD1 ARD2 ARD2 ARD3 ARD3 ARD4 ARD4 ARD5 ARD5 ARD6 ARD6 ARD7 ARD7 ARD8 ARD8 ARD9 ARD9 ARTI ARTI ARU ARU AS01 AS01 AS02 AS02 AS03 AS03 AS04 AS04 AS05 AS05 AS06 AS06 AS07 AS07 AS08 AS08 AS09 AS09 AS10 AS10 AS11 AS11 AS12 AS12 AS13 AS13 AS14 AS14 AS15 AS15 AS16 AS16 AS17 AS17 AS18 AS18 AS19 AS19 AS31 AS31 ASAR ASAR ASC23 ASC23 ASC24 ASC24 ASC25 ASC25 ASC26 ASC26 ASF ASF ATAH ATAH ATD ATD ATTU ATTU | /dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/inv2dlsv
+
+/dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/css2inv --osdb padd_p_shi:dvl-vdms123@extodb --schemas STATIC --channels BHZ,bn,sz,bzl,sd,hz,azb,LWD,MDA,LIO,MH1,BHE,cb,fkb,le,me,bel,szl,wwd,LEV,LEI,LGS,fb,ez,SH1,MHN,MHZ,sn,lz,bnl,LHE,sl,fsb,LWS,LRH,MH2,se,mz,HHN,HHZ,wws,hn,LEA,LDA,MKO,MWD,LKI,bd,HH1,BHN,SHE,SHN,SHZ,mn,mx,he,EHZ,MWS,LEM,LGD,fpb,HH2,md,bz,hb,ln,wko,BDF,bm,fcb,ucb,ee,sp,ib,BH2,MHE,LHN,HHE,EDH,EHE,EHN,BKO,BWD,BWS,vlb,be,BH1,ed,LHZ,az,BDA,LKO,en,SH2 BATI BATI BBB BBB BBTS BBTS BDFB BDFB BELG BELG BGCA BGCA BJT BJT BORG BORG BOSA BOSA BR101 BR101 BR102 BR102 BR103 BR103 BR104 BR104 BR105 BR105 BR106 BR106 BR131 BR131 BR231 BR232 BR233 BR234 BR235 BR236 BR237 BRDH BRDH BRTR BRTR BVA0 BVA0 BVA1 BVA1 BVA2 BVA2 BVA3 BVA3 BVA4 BVA4 BVAR BVAR BVB5 BVB5 BVB6 BVB6 BVB7 BVB7 BVB8 BVB8 BVB9 BVB9 | /dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/inv2dlsv
+
+/dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/css2inv --osdb padd_p_shi:dvl-vdms123@extodb --schemas STATIC --channels BHZ,bn,sz,bzl,sd,hz,azb,LWD,MDA,LIO,MH1,BHE,cb,fkb,le,me,bel,szl,wwd,LEV,LEI,LGS,fb,ez,SH1,MHN,MHZ,sn,lz,bnl,LHE,sl,fsb,LWS,LRH,MH2,se,mz,HHN,HHZ,wws,hn,LEA,LDA,MKO,MWD,LKI,bd,HH1,BHN,SHE,SHN,SHZ,mn,mx,he,EHZ,MWS,LEM,LGD,fpb,HH2,md,bz,hb,ln,wko,BDF,bm,fcb,ucb,ee,sp,ib,BH2,MHE,LHN,HHE,EDH,EHE,EHN,BKO,BWD,BWS,vlb,be,BH1,ed,LHZ,az,BDA,LKO,en,SH2 DAV DAV DAVOS DAVOS DAVOX DAVOX DBIC DBIC DLBC DLBC DLI01 DLI01 DLI02 DLI02 DLI03 DLI03 DLI04 DLI04 DLIAR DLIAR DLIWH DLIWH DZM DZM | /dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/inv2dlsv
+
+/dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/css2inv --osdb padd_d_shi:dvl-vdms123@extodb --schemas STATIC --channels BHZ,bn,sz,bzl,sd,hz,azb,LWD,MDA,LIO,MH1,BHE,cb,fkb,le,me,bel,szl,wwd,LEV,LEI,LGS,fb,ez,SH1,MHN,MHZ,sn,lz,bnl,LHE,sl,fsb,LWS,LRH,MH2,se,mz,HHN,HHZ,wws,hn,LEA,LDA,MKO,MWD,LKI,bd,HH1,BHN,SHE,SHN,SHZ,mn,mx,he,EHZ,MWS,LEM,LGD,fpb,HH2,md,bz,hb,ln,wko,BDF,bm,fcb,ucb,ee,sp,ib,BH2,MHE,LHN,HHE,EDH,EHE,EHN,BKO,BWD,BWS,vlb,be,BH1,ed,LHZ,az,BDA,LKO,en,SH2 FIA0 FIA0 FIA1 FIA1 FIA2 FIA2 FIA3 FIA3 FIB1 FIB1 FIB2 FIB2 FIB3 FIB3 FIB4 FIB4 FIB5 FIB5 FIB6 FIB6 FIC1 FIC1 FIC2 FIC2 FIC3 FIC3 FIC4 FIC4 FIC5 FIC5 FIC6 FIC6 FINES FINES FITZ FITZ FRB FRB FURI FURI | /dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/inv2dlsv
+
+/dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/css2inv --osdb padd_d_shi:dvl-vdms123@extodb --schemas STATIC --channels BHZ,bn,sz,bzl,sd,hz,azb,LWD,MDA,LIO,MH1,BHE,cb,fkb,le,me,bel,szl,wwd,LEV,LEI,LGS,fb,ez,SH1,MHN,MHZ,sn,lz,bnl,LHE,sl,fsb,LWS,LRH,MH2,se,mz,HHN,HHZ,wws,hn,LEA,LDA,MKO,MWD,LKI,bd,HH1,BHN,SHE,SHN,SHZ,mn,mx,he,EHZ,MWS,LEM,LGD,fpb,HH2,md,bz,hb,ln,wko,BDF,bm,fcb,ucb,ee,sp,ib,BH2,MHE,LHN,HHE,EDH,EHE,EHN,BKO,BWD,BWS,vlb,be,BH1,ed,LHZ,az,BDA,LKO,en,SH2 H01C1 H01C1 H01W1 H01W1 H01W2 H01W2 H01W3 H01W3 H02N1 H02N1 H02S1 H02S1 H02S2 H02S2 H03C1 H03C1 H03C2 H03C2 H03N1 H03N1 H03N2 H03N2 H03N3 H03N3 H03S1 H03S1 H03S2 H03S2 H03S3 H03S3 H04N1 H04N1 H04N2 H04N2 H04N3 H04N3 H04S1 H04S1 H04S2 H04S2 H04S3 H04S3 H05N1 H05N1 H05S1 H05S1 H06E1 H06E1 H06N1 H06N1 H06S1 H06S1 H07N1 H07N1 H07S1 H07S1 H08C1 H08C1 H08C2 H08C2 H08N1 H08N1 H08N2 H08N2 H08N3 H08N3 H08S1 H08S1 H08S2 H08S2 H08S3 H08S3 H09N1 H09N1 H09W1 H09W1 H10C1 H10C1 H10C2 H10C2 H10N1 H10N1 H10N2 H10N2 H10N3 H10N3 H10S1 H10S1 H10S2 H10S2 H10S3 H10S3 H11C1 H11C1 H11C2 H11C2 H11N1 H11N1 H11N2 H11N2 H11N3 H11N3 H11S1 H11S1 H11S2 H11S2 H11S3 H11S3 HFA0 HFA0 HFA1 HFA1 HFA2 HFA2 HFA3 HFA3 HFB1 HFB1 HFB2 HFB2 HFB3 HFB3 HFB4 HFB4 HFB5 HFB5 HFC2 HFC2 HFS HFS HFSA1 HFSA1 HFSB1 HFSB1 HFSB2 HFSB2 HFSB3 HFSB3 HFSB4 HFSB4 HFSB5 HFSB5 HFSC1 HFSC1 HFSC2 HFSC2 HIA HIA HIA0 HIA0 HIA1 HIA1 HIA2 HIA2 HIA3 HIA3 HIAB HIAB HIB1 HIB1 HIB1B HIB2 HIB2 HIB3 HIB3 HIB4 HIB4 HIB5 HIB5 HIBB HIBB HILR HILR HNR HNR | /dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/inv2dlsv
+
+/dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/css2inv --osdb padd_d_shi:dvl-vdms123@extodb --schemas STATIC --channels BHZ,bn,sz,bzl,sd,hz,azb,LWD,MDA,LIO,MH1,BHE,cb,fkb,le,me,bel,szl,wwd,LEV,LEI,LGS,fb,ez,SH1,MHN,MHZ,sn,lz,bnl,LHE,sl,fsb,LWS,LRH,MH2,se,mz,HHN,HHZ,wws,hn,LEA,LDA,MKO,MWD,LKI,bd,HH1,BHN,SHE,SHN,SHZ,mn,mx,he,EHZ,MWS,LEM,LGD,fpb,HH2,md,bz,hb,ln,wko,BDF,bm,fcb,ucb,ee,sp,ib,BH2,MHE,LHN,HHE,EDH,EHE,EHN,BKO,BWD,BWS,vlb,be,BH1,ed,LHZ,az,BDA,LKO,en,SH2 H01C1 H01C1 H01W1 H01W1 H01W2 H01W2 H01W3 H01W3 H02N1 H02N1 H02S1 H02S1 H02S2 H02S2 H03N1 H03N1 H03N2 H03N2 H03N3 H03N3 H03S1 H03S1 H03S2 H03S2 H03S3 H03S3 H04N1 H04N1 H04N2 H04N2 H04N3 H04N3 H04S1 H04S1 H04S2 H04S2 H04S3 H04S3 H05N1 H05N1 H05S1 H05S1 H06E1 H06E1 H06N1 H06N1 H06S1 H06S1 H07N1 H07N1 H07S1 H07S1 H08C1 H08C1 H08C2 H08C2 H08N1 H08N1 H08N2 H08N2 H08N3 H08N3 H08S1 H08S1 H08S2 H08S2 H08S3 H08S3 H09N1 H09N1 H09W1 H09W1 H10C1 H10C1 H10C2 H10C2 H10N1 H10N1 H10N2 H10N2 H10N3 H10N3 H10S1 H10S1 H10S2 H10S2 H10S3 H10S3 H11C1 H11C1 H11C2 H11C2 H11N1 H11N1 H11N2 H11N2 H11N3 H11N3 H11S1 H11S1 H11S2 H11S2 H11S3 H11S3 HFA0 HFA0 HFA1 HFA1 HFA2 HFA2 HFA3 HFA3 HFB1 HFB1 HFB2 HFB2 HFB3 HFB3 HFB4 HFB4 HFB5 HFB5 HFC2 HFC2 HFS HFS HFSA1 HFSA1 HFSB1 HFSB1 HFSB2 HFSB2 HFSB3 HFSB3 HFSB4 HFSB4 HFSB5 HFSB5 HFSC1 HFSC1 HFSC2 HFSC2 HIA HIA HIA0 HIA0 HIA1 HIA1 HIA2 HIA2 HIA3 HIA3 HIAB HIAB HIB1 HIB1 HIB1B HIB2 HIB2 HIB3 HIB3 HIB4 HIB4 HIB5 HIB5 HIBB HIBB HILR HILR HNR HNR | /dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/inv2dlsv
+
+/dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/css2inv --osdb padd_d_shi:dvl-vdms123@extodb --schemas STATIC --channels BHZ,bn,sz,bzl,sd,hz,azb,LWD,MDA,LIO,MH1,BHE,cb,fkb,le,me,bel,szl,wwd,LEV,LEI,LGS,fb,ez,SH1,MHN,MHZ,sn,lz,bnl,LHE,sl,fsb,LWS,LRH,MH2,se,mz,HHN,HHZ,wws,hn,LEA,LDA,MKO,MWD,LKI,bd,HH1,BHN,SHE,SHN,SHZ,mn,mx,he,EHZ,MWS,LEM,LGD,fpb,HH2,md,bz,hb,ln,wko,BDF,bm,fcb,ucb,ee,sp,ib,BH2,MHE,LHN,HHE,EDH,EHE,EHN,BKO,BWD,BWS,vlb,be,BH1,ed,LHZ,az,BDA,LKO,en,SH2 I01AR I01AR I01H1 I01H1 I01H2 I01H2 I01H3 I01H3 I01H4 I01H4 I01H5 I01H5 I01H6 I01H6 I01H7 I01H7 I01H8 I01H8 I02AR I02AR I02H1 I02H1 I02H2 I02H2 I02H3 I02H3 I02H4 I02H4 I02H5 I02H5 I03AU I03AU I03H1 I03H1 I03H2 I03H2 I03H3 I03H3 I03H4 I03H4 I03H5 I03H5 I03H6 I03H6 I03H7 I03H7 I03M1 I03M1 I04AU I04AU I04H1 I04H1 I04H2 I04H2 I04H3 I04H3 I04H4 I04H4 I04H5 I04H5 I04H6 I04H6 I04H7 I04H7 I04H8 I04H8 I05AU I05AU I05H1 I05H1 I05H2 I05H2 I05H3 I05H3 I05H4 I05H4 I05H5 I05H5 I05H6 I05H6 I05H7 I05H7 I05H8 I05H8 I06AU I06AU I06H1 I06H1 I06H2 I06H2 I06H3 I06H3 I06H4 I06H4 I06H5 I06H5 I06H6 I06H6 I06H7 I06H7 I06H8 I06H8 I07AU I07AU I07H1 I07H1 I07H2 I07H2 I07H3 I07H3 I07H4 I07H4 I07H5 I07H5 I07H6 I07H6 I07H7 I07H7 I07H8 I07H8 I07L1 I07L1 I07L2 I07L2 I07L3 I07L3 I07L4 I07L4 I08BO I08BO I08H1 I08H1 I08H2 I08H2 I08H3 I08H3 I08H4 I08H4 I09BR I09BR I09H1 I09H1 I09H2 I09H2 I09H3 I09H3 I09H4 I09H4 I10CA I10CA I10H1 I10H1 I10H2 I10H2 I10H3 I10H3 I10H4 I10H4 I11CV I11CV I11L1 I11L1 I11L2 I11L2 I11L3 I11L3 I11L4 I11L4 I11L5 I11L5 I11L6 I11L6 I11L7 I11L7 I11L8 I11L8 I13CL I13CL I13H1 I13H1 I13H2 I13H2 I13H3 I13H3 I13H4 I13H4 I13H5 I13H5 I13H6 I13H6 I13H7 I13H7 I13H8 I13H8 I14CL I14CL I14H1 I14H1 I14H2 I14H2 I14H3 I14H3 I14H4 I14H4 I14H5 I14H5 I14H6 I14H6 I14H7 I14H7 I14H8 I14H8 I17CI I17CI I17H1 I17H1 I17H2 I17H2 I17H3 I17H3 I17H4 I17H4 I18DK I18DK I18H1 I18H1 I18H2 I18H2 I18H3 I18H3 I18H4 I18H4 I18L1 I18L1 I18L2 I18L2 I18L3 I18L3 I18L4 I18L4 I19DJ I19DJ I19L1 I19L1 I19L2 I19L2 I19L3 I19L3 I19L4 I19L4 I19L5 I19L5 I19L6 I19L6 I19L7 I19L7 I19L8 I19L8 I20EC I20EC I20H1 I20H1 I20H2 I20H2 I20H3 I20H I20H4 I20H4 I20H5 I20H5 I20H6 I20H6 I20H7 I20H7 I20H8 I20H8 I21FR I21FR I21H1 I21H1 I21H2 I21H2 I21H3 I21H3 I21H4 I21H4 I22FR I22FR I22H1 I22H1 I22H2 I22H2 I22H3 I22H3 I22H4 I22H4 I2301 I2301 I2302 I2302 I2303 I2303 I2304 I2304 I2305 I2305 I2306 I2306 I2307 I2307 I2308 I2308 I2309 I2309 I2310 I2310 I2311 I2311 I2312 I2312 I2313 I2313 I2314 I2314 I2315 I2315 I23FR I23FR I24FR I24FR I24H1 I24H1 I24H2 I24H2 I24H3 I24H3 I24H4 I24H4 I24H5 I24H5 I26DE I26DE I26H1 I26H1 I26H2 I26H2 I26H3 I26H3 I26H4 I26H4 I26H5 I26H5 I26H6 I26H6 I26H7 I26H7 I26H8 I26H8 I27DE I27DE I27L1 I27L1 I27L2 I27L2 I27L3 I27L3 I27L4 I27L4 I27L5 I27L5 I27L6 I27L6 I27L7 I27L7 I27L8 I27L8 I27L9 I27L9 I30H1 I30H1 I30H2 I30H2 I30H3 I30H3 I30H4 I30H4 I30H5 I30H5 I30H6 I30H6 I30JP I30JP I31H1 I31H1 I31H2 I31H2 I31H3 I31H3 I31H4 I31H4 I31H5 I31H5 I31H6 I31H6 I31H7 I31H7 I31H8 I31H8 I31H9 I31H9 I31KZ I31KZ I31L1 I31L1 I31L2 I31L2 I31L3 I31L3 I31L4 I31L4 I32H1 I32H1 I32H2 I32H2 I32H3 I32H3 I32H4 I32H4 I32H5 I32H5 I32H6 I32H6 I32H7 I32H7 I32KE I32KE I33H1 I33H1 I33H2 I33H2 I33H3 I33H3 I33H4 I33H4 I33MG I33MG I34H1 I34H1 I34H2 I34H2 I34H3 I34H3 I34H4 I34H4 I34H5 I34H5 I34H6 I34H6 I34H7 I34H7 I34H8 I34H8 I34MN I34MN I35H1 I35H1 I35H2 I35H2 I35H3 I35H3 I35H4 I35H4 I35H5 I35H5 I35H6 I35H6 I35H7 I35H7 I35NA I35NA I36H1 I36H1 I36H2 I36H2 I36H3 I36H3 I36H4 I36H4 I36H5 I36H5 I36H6 I36H6 I36H7 I36H7 I36H8 I36H8 I36NZ I36NZ I37H0 I37H0 I37H1 I37H1 I37H2 I37H2 I37H3 I37H3 I37H4 I37H4 I37H5 I37H5 I37H6 I37H6 I37H7 I37H7 I37H8 I37H8 I37H9 I37H9 I37NO I37NO I39H1 I39H1 I39H2 I39H2 I39H3 I39H3 I39H4 I39H4 I39H5 I39H5 I39H6 I39H6 I39H7 I39H7 I39PW I39PW I40H1 I40H1 I40H2 I40H2 I40H3 I40H3 I40H4 I40H4 I40H5 I40H5 I40H6 I40H6 I40H7 I40H7 I40H8 I40H8 I40PG I40PG I41H1 I41H1 I41H2 I41H2 I41H3 I41H3 I41H4 I41H4 I41PY I41PY I42H1 I42H1 I42H2 I42H2 I42H3 I42H3 I42H4 I42H4 I42H5 I42H5 I42H6 I42H6 I42H7 I42H7 I42H8 I42H8 I42PT I42PT I43H1 I43H1 I43H2 I43H2 I43H3 I43H3 I43H4 I43H4 I43H5 I43H5 I43H6 I43H6 I43RU I43RU I44H1 I44H1 I44H2 I44H2 I44H3 I44H3 I44H4 I44H4 I44RU I44RU I45H1 I45H1 I45H2 I45H2 I45H3 I45H3 I45H4 I45H4 I45RU I45RU I46H1 I46H1 I46H2 I46H2 I46H3 I46H3 I46H4 I46H4 I46RU I46RU I47L1 I47L1 I47L2 I47L2 I47L3 I47L3 I47L4 I47L4 I47L5 I47L5 I47L6 I47L6 I47L7 I47L7 I47L8 I47L8 I47ZA I47ZA I48H1 I48H1 I48H2 I48H2 I48H3 I48H3 I48H4 I48H4 I48H5 I48H5 I48H6 I48H6 I48H7 I48H7 I48L1 I48L1 I48L2 I48L2 I48L3 I48L3 I48L4 I48L4 I48L5 I48L5 I48L6 I48L6 I48L7 I48L7 I48TN I48TN I49GB I49GB I49H1 I49H1 I49H2 I49H2 I49H3 I49H3 I49H4 I49H4 I49H5 I49H5 I50GB I50GB I50H1 I50H1 I50H2 I50H2 I50H3 I50H3 I50H4 I50H4 I50H5 I50H5 I50H6 I50H6 I50H7 I50H7 I50H8 I50H8 I50L1 I50L1 I50L2 I50L2 I50L3 I50L3 I50L4 I50L4 I51GB I51GB I51H1 I51H1 I51H2 I51H2 I51H3 I51H3 I51H4 I51H4 I52GB I52GB I52H1 I52H1 I52H2 I52H2 I52H3 I52H3 I52H4 I52H4 I52H5 I52H5 I52H6 I52H6 I52H7 I52H7 I53H1 I53H1 I53H2 I53H2 I53H3 I53H3 I53H4 I53H4 I53H5 I53H5 I53H6 I53H6 I53H7 I53H7 I53H8 I53H8 I53US I53US I55H1 I55H1 I55H2 I55H2 I55H3 I55H3 I55H4 I55H4 I55H5 I55H5 I55H6 I55H6 I55H7 I55H7 I55H8 I55H8 I55US I55US I56H1 I56H1 I56H2 I56H I56H3 I56H3 I56H4 I56H4 I56US I56US I57H1 I57H1 I57H2 I57H2 I57H3 I57H3 I57H4 I57H4 I57H5 I57H5 I57H6 I57H6 I57H7 I57H7 I57H8 I57H8 I57L1 I57L1 I57L2 I57L2 I57L3 I57L3 I57L4 I57L4 I57US I57US I58H1 I58H1 I58H2 I58H2 I58H3 I58H3 I58H4 I58H4 I58US I58US I59H1 I59H1 I59H2 I59H2 I59H3 I59H3 I59H4 I59H4 I59US I59US I60H1 I60H1 I60H2 I60H2 I60H3 I60H3 I60H4 I60H4 I60H5 I60H5 I60H6 I60H6 I60H7 I60H7 I60H8 I60H8 I60US I60US IDI IDI IL01 IL01 IL02 IL02 IL03 IL03 IL04 IL04 IL05 IL05 IL06 IL06 IL07 IL07 IL08 IL08 IL09 IL09 IL10 IL10 IL11 IL11 IL12 IL12 IL13 IL13 IL14 IL14 IL15 IL15 IL16 IL16 IL17 IL17 IL18 IL18 IL19 IL19 IL31 IL31 ILAR ILAR INK INK ISM ISM ISM1 ISM1 ISM2 ISM2 ISM3 ISM3 ISM4 ISM4 | /dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/inv2dlsv
+
+
+/dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/css2inv --osdb padd_d_shi:dvl-vdms123@extodb --schemas STATIC --channels BHZ bn sz bzl sd hz azb LWD MDA LIO MH1 BHE cb fkb le me bel szl wwd LEV LEI LGS fb ez SH1 MHN MHZ sn lz bnl LHE sl fsb LWS LRH MH2 se mz HHN HHZ wws hn LEA LDA MKO MWD LKI bd HH1 BHN SHE SHN SHZ mn mx he EHZ MWS LEM LGD fpb HH2 md bz hb ln wko BDF bm fcb ucb ee sp ib BH2 MHE LHN HHE EDH EHE EHN BKO BWD BWS vlb be BH1 ed LHZ az BDA LKO en SH2 | /dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/inv2dlsv
+
+
+/dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/css2inv --osdb padd_d_shi:dvl-vdms123@extodb --schemas STATIC --channels BHZ,bn,sz,bzl,sd,hz,azb,LWD,MDA,LIO,MH1,BHE,cb,fkb,le,me,bel,szl,wwd,LEV,LEI,LGS,fb,ez,SH1,MHN,MHZ,sn,lz,bnl,LHE,sl,fsb,LWS,LRH,MH2,se,mz,HHN,HHZ,wws,hn,LEA,LDA,MKO,MWD,LKI,bd,HH1,BHN,SHE,SHN,SHZ,mn,mx,he,EHZ,MWS,LEM,LGD,fpb,HH2,md,bz,hb,ln,wko,BDF,bm,fcb,ucb,ee,sp,ib,BH2,MHE,LHN,HHE,EDH,EHE,EHN,BKO,BWD,BWS,vlb,be,BH1,ed,LHZ,az,BDA,LKO,en,SH2 JAY JAY JCJ JCJ JHJ JHJ JKA JKA JMIC JMIC JNU JNU JOW JOW JTS JTS | /dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/inv2dlsv
+
+/dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/css2inv --osdb padd_d_shi:dvl-vdms123@extodb --schemas STATIC --channels BHZ,bn,sz,bzl,sd,hz,azb,LWD,MDA,LIO,MH1,BHE,cb,fkb,le,me,bel,szl,wwd,LEV,LEI,LGS,fb,ez,SH1,MHN,MHZ,sn,lz,bnl,LHE,sl,fsb,LWS,LRH,MH2,se,mz,HHN,HHZ,wws,hn,LEA,LDA,MKO,MWD,LKI,bd,HH1,BHN,SHE,SHN,SHZ,mn,mx,he,EHZ,MWS,LEM,LGD,fpb,HH2,md,bz,hb,ln,wko,BDF,bm,fcb,ucb,ee,sp,ib,BH2,MHE,LHN,HHE,EDH,EHE,EHN,BKO,BWD,BWS,vlb,be,BH1,ed,LHZ,az,BDA,LKO,en,SH2 TEIG TEIG TGY TGY THR THR TIXI TIXI TKL TKL TLY TLY TOA0 TOA0 TOA1 TOA1 TOA2 TOA2 TOA3 TOA3 TOB1 TOB1 TOB2 TOB2 TOB3 TOB3 TOB4 TOB4 TOB5 TOB5 TOC1 TOC1 TOC2 TOC2 TOC3 TOC3 TOC4 TOC4 TOC5 TOC5 TOC6 TOC6 TOC7 TOC7 TORD TORD TSUM TSUM TX01 TX01 TX02 TX02 TX03 TX03 TX04 TX04 TX06 TX06 TX07 TX07 TX08 TX08 TX09 TX09 TX10 TX10 TX31 TX31 TXAR TXAR | /dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/inv2dlsv
+
+/dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/css2inv --osdb padd_d_shi:dvl-vdms123@extodb --schemas STATIC --channels BHZ,bn,sz,bzl,sd,hz,azb,LWD,MDA,LIO,MH1,BHE,cb,fkb,le,me,bel,szl,wwd,LEV,LEI,LGS,fb,ez,SH1,MHN,MHZ,sn,lz,bnl,LHE,sl,fsb,LWS,LRH,MH2,se,mz,HHN,HHZ,wws,hn,LEA,LDA,MKO,MWD,LKI,bd,HH1,BHN,SHE,SHN,SHZ,mn,mx,he,EHZ,MWS,LEM,LGD,fpb,HH2,md,bz,hb,ln,wko,BDF,bm,fcb,ucb,ee,sp,ib,BH2,MHE,LHN,HHE,EDH,EHE,EHN,BKO,BWD,BWS,vlb,be,BH1,ed,LHZ,az,BDA,LKO,en,SH2 ZAA0B | /dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/inv2dlsv
+
+/dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/css2inv --osdb padd_d_shi:dvl-vdms123@extodb --schemas STATIC --channels ln,BHZ,be,le,BDF,fsb,LDA,MWS,wko,LRH,fcb,SHN,BH1,sp,HHN,BWD,azb,ed,he,hz,wwd,wws,LEM,LGD,LGS,LKI,se,BHN,fkb,MH1,vlb,LWD,hn,LEV,EDH,HH2,fpb,LHN,MHE,MHZ,cb,ib,sl,MH2,SH2,HHZ,LKO,ee,MDA,MWD,LEI,bd,mz,sn,SHE,bn,hb,mx,LWS,ez,md,MKO,fb,lz,me,MHN,sd,EHE,EHN,en,bzl,LIO,bm,BHE,LHZ,SHZ,BH2,bz,SH1,HHE,BDA,BKO,bnl,HH1,szl,ucb,mn,sz,LHE,az,BWS,EHZ,LEA,bel RAO RAO RAR RAR RCBR RCBR RES RES ROSC ROSC RPN RPN RPZ RPZ | /dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/inv2dlsv
+...
+SC3XML conversion created 63 warnings
+Error (IM,ROSC,,be): unknown sensor: 
+Error (IM,ROSC,,cb): unknown sensor: 
+Error (IM,ROSC,,bn): unknown sensor: 
+Error (IM,ROSC,,hb): unknown sensor: 
+Error (IM,ROSC,,ib): unknown sensor: 
+Error (IM,ROSC,,fkb): unknown sensor: 
+Error (IM,ROSC,,bz): unknown sensor: 
+Error: unsupported operand type(s) for *=: 'float' and 'NoneType'
+
+# Jan Becker provided fix on 25.3.2020 - we verify it already in the installation
+where we build whole VDMS THIRD-PARTY dependencies.
+
+We try these ones, plus Wolfgangs station, plus all stations.  Only if
+thes succeed we deliver to Cyrille, deploy to devlab05 and redeliver
+the DCR-3313 - after having implemented the scripts for
+deployment. Only then - and then we update the CATS jobs accordingly.
+
+setenv LD_LIBRARY_PATH /cots/oracle/c201.oic/lib:/dvl/software/shi/rel/lib/Linux-2.6.32-754.15.3.el6.x86_64-x86_64:/cots/RabbitMQ/rabbitmq-c/0.5.0/lib64:/cots/WorldWind/1.5.1:/dvl/software/shi/scripts/lib:/usr/lib:/dvlscratch/SHI/kianicka/vdms_third-party-build/continuous-delivery/scripts/install_sc3_eniab/vdms-3rd-SC3/lib/
+setenv PYTHONPATH /dvl/software/shi/aux/lib/python2.6/site-packages:/dvl/software/shi/rel/lib/python:/dvlscratch/SHI/kianicka/vdms_third-party-build/continuous-delivery/scripts/install_sc3_eniab/vdms-3rd-SC3/lib/python
+
+/dvlscratch/SHI/kianicka/vdms_third-party-build/continuous-delivery/scripts/install_sc3_eniab/vdms-3rd-SC3/bin/css2inv --osdb padd_d_shi:dvl-vdms123@extodb --schemas STATIC --channels ln,BHZ,be,le,BDF,fsb,LDA,MWS,wko,LRH,fcb,SHN,BH1,sp,HHN,BWD,azb,ed,he,hz,wwd,wws,LEM,LGD,LGS,LKI,se,BHN,fkb,MH1,vlb,LWD,hn,LEV,EDH,HH2,fpb,LHN,MHE,MHZ,cb,ib,sl,MH2,SH2,HHZ,LKO,ee,MDA,MWD,LEI,bd,mz,sn,SHE,bn,hb,mx,LWS,ez,md,MKO,fb,lz,me,MHN,sd,EHE,EHN,en,bzl,LIO,bm,BHE,LHZ,SHZ,BH2,bz,SH1,HHE,BDA,BKO,bnl,HH1,szl,ucb,mn,sz,LHE,az,BWS,EHZ,LEA,bel DAV DAV DAVOS DAVOS DAVOX DAVOX DBIC DBIC DLBC DLBC DLI01 DLI01 DLI02 DLI02 DLI03 DLI03 DLI04 DLI04 DLIAR DLIAR DLIWH DLIWH DZM DZM | /dvlscratch/SHI/kianicka/vdms_third-party-build/continuous-delivery/scripts/install_sc3_eniab/vdms-3rd-SC3/bin/inv2dlsv
+Failed with the same error still.
+
+/dvlscratch/SHI/kianicka/vdms_third-party-build/continuous-delivery/scripts/install_sc3_eniab/vdms-3rd-SC3/bin/css2inv --osdb padd_d_shi:dvl-vdms123@extodb --schemas STATIC INK | /dvlscratch/SHI/kianicka/vdms_third-party-build/continuous-delivery/scripts/install_sc3_eniab/vdms-3rd-SC3/bin/inv2dlsv
+SUCCEEDED.
+
+/dvlscratch/SHI/kianicka/vdms_third-party-build/continuous-delivery/scripts/install_sc3_eniab/vdms-3rd-SC3/bin/css2inv --osdb padd_d_shi:dvl-vdms123@extodb --schemas STATIC --channels ln,BHZ,be,le,BDF,fsb,LDA,MWS,wko,LRH,fcb,SHN,BH1,sp,HHN,BWD,azb,ed,he,hz,wwd,wws,LEM,LGD,LGS,LKI,se,BHN,fkb,MH1,vlb,LWD,hn,LEV,EDH,HH2,fpb,LHN,MHE,MHZ,cb,ib,sl,MH2,SH2,HHZ,LKO,ee,MDA,MWD,LEI,bd,mz,sn,SHE,bn,hb,mx,LWS,ez,md,MKO,fb,lz,me,MHN,sd,EHE,EHN,en,bzl,LIO,bm,BHE,LHZ,SHZ,BH2,bz,SH1,HHE,BDA,BKO,bnl,HH1,szl,ucb,mn,sz,LHE,az,BWS,EHZ,LEA,bel DAV DAV DAVOS DAVOS DAVOX DAVOX DBIC DBIC DLBC DLBC DLI01 DLI01 DLI02 DLI02 DLI03 DLI03 DLI04 DLI04 DLIAR DLIAR DLIWH DLIWH DZM DZM | /dvlscratch/SHI/kianicka/vdms_third-party-build/continuous-delivery/scripts/install_sc3_eniab/vdms-3rd-SC3/bin/inv2dlsv
+P  Array DLIAR
+A  Array DLIAR
+A   Site DLI04
+A   Site DLI01
+A   Site DLI02
+A   Site DLI03
+A   Site DLIAR
+A   Site DLIWH
+
+[SC3XML]
+Networks      : 1
+Stations      : 14
+StationGroups : 0
+Channels      : 71
+
+SC3XML conversion created 58 warnings
+Error: unsupported operand type(s) for *=: 'float' and 'NoneType'
+
+/dvlscratch/SHI/kianicka/vdms_third-party-build/continuous-delivery/scripts/install_sc3_eniab/vdms-3rd-SC3/bin/css2inv --osdb padd_d_shi:dvl-vdms123@extodb --schemas STATIC --channels ln,BHZ,be,le,BDF,fsb,LDA,MWS,wko,LRH,fcb,SHN,BH1,sp,HHN,BWD,azb,ed,he,hz,wwd,wws,LEM,LGD,LGS,LKI,se,BHN,fkb,MH1,vlb,LWD,hn,LEV,EDH,HH2,fpb,LHN,MHE,MHZ,cb,ib,sl,MH2,SH2,HHZ,LKO,ee,MDA,MWD,LEI,bd,mz,sn,SHE,bn,hb,mx,LWS,ez,md,MKO,fb,lz,me,MHN,sd,EHE,EHN,en,bzl,LIO,bm,BHE,LHZ,SHZ,BH2,bz,SH1,HHE,BDA,BKO,bnl,HH1,szl,ucb,mn,sz,LHE,az,BWS,EHZ,LEA,bel RAO RAO RAR RAR RCBR RCBR RES RES ROSC ROSC RPN RPN RPZ RPZ | /dvlscratch/SHI/kianicka/vdms_third-party-build/continuous-delivery/scripts/install_sc3_eniab/vdms-3rd-SC3/bin/inv2dlsv
+SUCCEEDED
+
+# 23.4.2020 - further verification of the tools - check of historical channels:
+I quickly checked your observation and can confirm, when I execute css2inv just with historical channel we get nothing - css2inv is not capable directly process historical channels:
+/dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/css2inv --osdb padd_d_shi:dvl-vdms123@extodb I52H1 --schemas STATIC --channels sd
+[CSS]
+Affiliations : 4789
+Sites        : 2215
+SiteChans    : 25
+Sensors      : 5712
+Instruments  : 5255
+Stations     : 1495
+Networks     : 63
+P  IM.I52H1
+   +  epoch 2002-12-17T00:00:00.0000Z ~ 2002-12-17T00:00:00.0000Z
+P  IM.I52H1
+   +  epoch 2002-12-18T00:00:00.0000Z ~
+
+[SC3XML]
+Networks      : 1
+Stations      : 2
+StationGroups : 0
+Channels      : 0
+
+SC3XML conversion created 1 warnings
+<?xml version="1.0" encoding="UTF-8"?>
+<seiscomp xmlns="http://geofon.gfz-potsdam.de/ns/seiscomp3-schema/0.11" version="0.11"><Inventory><network publicID="Network/20200423095948.913465.2" code="IM"><start>1999-06-08T00:00:00.0000Z</start><description>IMS network</description><station publicID="Station/20200423095948.913645.3" code="I52H1"><start>2002-12-17T00:00:00.0000Z</start><end>2002-12-17T00:00:00.0000Z</end><description>DIEGO GARCIA INFRASONIC ARRAY, UNITED KINGDOM</description><latitude>-7.37781</latitude><longitude>72.484161</longitude><elevation>1000</elevation><type>ss</type><remark>dnorth:0,deast:0,refsta:I52H1</remark></station><station publicID="Station/20200423095948.913855.4" code="I52H1"><start>2002-12-18T00:00:00.0000Z</start><description>BIOT/Chagos Archipel</description><latitude>-7.37781</latitude><longitude>72.484161</longitude><elevation>1</elevation><type>ss</type><remark>dnorth:0,deast:0,refsta:I52H1</remark></station></network></Inventory></seiscomp>
+
+But your request has used mapping of sd->BDF channel and correctly retrieved content of BDF station response file from:
+
+/tst/software/shi/config/station_specs/rsp/I25H1_BDF.1
+
+and we can see it in your attached content.
+
+# and pertaining issues
+/dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/css2inv --osdb padd_d_shi:dvl-vdms123@extodb --schemas STATIC --channels ln,BHZ,be,le,BDF,fsb,LDA,MWS,wko,LRH,fcb,SHN,BH1,sp,HHN,BWD,azb,ed,he,hz,wwd,wws,LEM,LGD,LGS,LKI,se,BHN,fkb,MH1,vlb,LWD,hn,LEV,EDH,HH2,fpb,LHN,MHE,MHZ,cb,ib,sl,MH2,SH2,HHZ,LKO,ee,MDA,MWD,LEI,bd,mz,sn,SHE,bn,hb,mx,LWS,ez,md,MKO,fb,lz,me,MHN,sd,EHE,EHN,en,bzl,LIO,bm,BHE,LHZ,SHZ,BH2,bz,SH1,HHE,BDA,BKO,bnl,HH1,szl,ucb,mn,sz,LHE,az,BWS,EHZ,LEA,bel JAY JHJ JKA JMIC JNU JOW JTS | /dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/inv2dlsv
+
+
+
+/dvlscratch/SHI/kianicka/vdms_third-party-build/continuous-delivery/scripts/install_sc3_eniab/vdms-3rd-SC3/bin/css2inv --osdb padd_d_shi:dvl-vdms123@extodb --schemas STATIC AAK AAK ABKT ABKT AFI AFI AK01 AK01 AK02 AK02 AK03 AK03 AK04 AK04 AK05 AK05 AK06 AK06 AK07 AK07 AK08 AK08 AK09 AK09 AK10 AK10 AK11 AK11 AK12 AK12 AK13 AK13 AK14 AK14 AK15 AK15 AK16 AK16 AK17 AK17 AK18 AK18 AK19 AK19 AK20 AK20 AK21 AK21 AK22 AK22 AK23 AK23 AKASG AKASG AKBB AKBB AKTO AKTO AL31 AL32 AL33 AL34 AL35 AL36 AL37 ALQ ALQ ANMO ANMO APG APG ARA0 ARA0 ARA1 ARA1 ARA2 ARA2 ARA3 ARA3 ARB1 ARB1 ARB2 ARB2 ARB3 ARB3 ARB4 ARB4 ARB5 ARB5 ARC1 ARC1 ARC2 ARC2 ARC3 ARC3 ARC4 ARC4 ARC5 ARC5 ARC6 ARC6 ARC7 ARC7 ARCES ARCES ARD1 ARD1 ARD2 ARD2 ARD3 ARD3 ARD4 ARD4 ARD5 ARD5 ARD6 ARD6 ARD7 ARD7 ARD8 ARD8 ARD9 ARD9 ARTI ARTI ARU ARU AS01 AS01 AS02 AS02 AS03 AS03 AS04 AS04 AS05 AS05 AS06 AS06 AS07 AS07 AS08 AS08 AS09 AS09 AS10 AS10 AS11 AS11 AS12 AS12 AS13 AS13 AS14 AS14 AS15 AS15 AS16 AS16 AS17 AS17 AS18 AS18 AS19 AS19 AS31 AS31 ASAR ASAR ASC23 ASC23 ASC24 ASC24 ASC25 ASC25 ASC26 ASC26 ASF ASF ATAH ATAH ATD ATD ATTU ATTU BATI BATI BBB BBB BBTS BBTS BDFB BDFB BELG BELG BGCA BGCA BJT BJT BORG BORG BOSA BOSA BR101 BR101 BR102 BR102 BR103 BR103 BR104 BR104 BR105 BR105 BR106 BR106 BR131 BR131 BR231 BR232 BR233 BR234 BR235 BR236 BR237 BRDH BRDH BRTR BRTR BVA0 BVA0 BVA1 BVA1 BVA2 BVA2 BVA3 BVA3 BVA4 BVA4 BVAR BVAR BVB5 BVB5 BVB6 BVB6 BVB7 BVB7 BVB8 BVB8 BVB9 BVB9 CFA CFA CFAA CFAA CM01 CM01 CM02 CM02 CM03 CM03 CM04 CM04 CM05 CM05 CM06 CM06 CM07 CM07 CM08 CM08 CM09 CM09 CM10 CM10 CM11 CM11 CM12 CM12 CM13 CM13 CM14 CM14 CM15 CM15 CM16 CM16 CM17 CM17 CM18 CM18 CM31 CM31 CM32 CM32 CM33 CM33 CM34 CM34 CM35 CM35 CM36 CM36 CMAR CMAR CMIG CMIG CPUP CPUP CTA CTA DAV DAV DAVOS DAVOS DAVOX DAVOX DBIC DBIC DLBC DLBC DLI01 DLI01 DLI02 DLI02 DLI03 DLI03 DLI04 DLI04 DLIAR DLIAR DLIWH DLIWH DZM DZM EIL EIL EKA EKA EKB EKB EKB1 EKB1 EKB10 EKB10 EKB2 EKB2 EKB3 EKB3 EKB4 EKB4 EKB5 EKB5 EKB6 EKB6 EKB7 EKB7 EKB8 EKB8 EKB9 EKB9 EKR1 EKR1 EKR10 EKR10 EKR2 EKR2 EKR3 EKR3 EKR4 EKR4 EKR5 EKR5 EKR6 EKR6 EKR7 EKR7 EKR8 EKR8 EKR9 EKR9 ELK ELK ES01 ES01 ES02 ES02 ES03 ES03 ES04 ES04 ES05 ES05 ES06 ES06 ES07 ES07 ES08 ES08 ES09 ES09 ES10 ES10 ES11 ES11 ES12 ES12 ES13 ES13 ES14 ES14 ES15 ES15 ES16 ES16 ES17 ES17 ES18 ES18 ES19 ES19 ESBB ESBB ESDC ESDC ESLA ESLA ESLB ESLB ESLC ESLC ESLD ESLD ESLE ESLE ESLF ESLF ESLG ESLG FIA0 FIA0 FIA1 FIA1 FIA2 FIA2 FIA3 FIA3 FIB1 FIB1 FIB2 FIB2 FIB3 FIB3 FIB4 FIB4 FIB5 FIB5 FIB6 FIB6 FIC1 FIC1 FIC2 FIC2 FIC3 FIC3 FIC4 FIC4 FIC5 FIC5 FIC6 FIC6 FINES FINES FITZ FITZ FRB FRB FURI FURI GEA0 GEA0 GEA1 GEA1 GEA2 GEA2 GEA3 GEA3 GEB1 GEB1 GEB2 GEB2 GEB3 GEB3 GEB4 GEB4 GEB5 GEB5 GEC1 GEC1 GEC2 GEC2 GEC2A GEC2A GEC2B GEC2B GEC3 GEC3 GEC4 GEC4 GEC5 GEC5 GEC6 GEC6 GEC7 GEC7 GED1 GED1 GED2 GED2 GED3 GED3 GED4 GED4 GED5 GED5 GED6 GED6 GED7 GED7 GED8 GED8 GED9 GED9 GERES GERES GEYT GEYT GNI GNI GUMO GUMO GYA0 GYA0 GYA0B GYA0B GYA1 GYA1 GYA2 GYA2 GYA3 GYA3 GYB1 GYB1 GYB2 GYB2 GYB3 GYB3 GYB4 GYB4 GYB5 GYB5 H01C1 H01C1 H01W1 H01W1 H01W2 H01W2 H01W3 H01W3 H02N1 H02N1 H02S1 H02S1 H02S2 H02S2 H03C1 H03C1 H03C2 H03C2 H03N1 H03N1 H03N2 H03N2 H03N3 H03N3 H03S1 H03S1 H03S2 H03S2 H03S3 H03S3 H04N1 H04N1 H04N2 H04N2 H04N3 H04N3 H04S1 H04S1 H04S2 H04S2 H04S3 H04S3 H05N1 H05N1 H05S1 H05S1 H06E1 H06E1 H06N1 H06N1 H06S1 H06S1 H07N1 H07N1 H07S1 H07S1 H08C1 H08C1 H08C2 H08C2 H08N1 H08N1 H08N2 H08N2 H08N3 H08N3 H08S1 H08S1 H08S2 H08S2 H08S3 H08S3 H09N1 H09N1 H09W1 H09W1 H10C1 H10C1 H10C2 H10C2 H10N1 H10N1 H10N2 H10N2 H10N3 H10N3 H10S1 H10S1 H10S2 H10S2 H10S3 H10S3 H11C1 H11C1 H11C2 H11C2 H11N1 H11N1 H11N2 H11N2 H11N3 H11N3 H11S1 H11S1 H11S2 H11S2 H11S3 H11S3 HFA0 HFA0 HFA1 HFA1 HFA2 HFA2 HFA3 HFA3 HFB1 HFB1 HFB2 HFB2 HFB3 HFB3 HFB4 HFB4 HFB5 HFB5 HFC2 HFC2 HFS HFS HFSA1 HFSA1 HFSB1 HFSB1 HFSB2 HFSB2 HFSB3 HFSB3 HFSB4 HFSB4 HFSB5 HFSB5 HFSC1 HFSC1 HFSC2 HFSC2 HIA HIA HIA0 HIA0 HIA1 HIA1 HIA2 HIA2 HIA3 HIA3 HIAB HIAB HIB1 HIB1 HIB1B HIB2 HIB2 HIB3 HIB3 HIB4 HIB4 HIB5 HIB5 HIBB HIBB HILR HILR HNR HNR I01AR I01AR I01H1 I01H1 I01H2 I01H2 I01H3 I01H3 I01H4 I01H4 I01H5 I01H5 I01H6 I01H6 I01H7 I01H7 I01H8 I01H8 I02AR I02AR I02H1 I02H1 I02H2 I02H2 I02H3 I02H3 I02H4 I02H4 I02H5 I02H5 I03AU I03AU I03H1 I03H1 I03H2 I03H2 I03H3 I03H3 I03H4 I03H4 I03H5 I03H5 I03H6 I03H6 I03H7 I03H7 I03M1 I03M1 I04AU I04AU I04H1 I04H1 I04H2 I04H2 I04H3 I04H3 I04H4 I04H4 I04H5 I04H5 I04H6 I04H6 I04H7 I04H7 I04H8 I04H8 I05AU I05AU I05H1 I05H1 I05H2 I05H2 I05H3 I05H3 I05H4 I05H4 I05H5 I05H5 I05H6 I05H6 I05H7 I05H7 I05H8 I05H8 I06AU I06AU I06H1 I06H1 I06H2 I06H2 I06H3 I06H3 I06H4 I06H4 I06H5 I06H5 I06H6 I06H6 I06H7 I06H7 I06H8 I06H8 I07AU I07AU I07H1 I07H1 I07H2 I07H2 I07H3 I07H3 I07H4 I07H4 I07H5 I07H5 I07H6 I07H6 I07H7 I07H7 I07H8 I07H8 I07L1 I07L1 I07L2 I07L2 I07L3 I07L3 I07L4 I07L4 I08BO I08BO I08H1 I08H1 I08H2 I08H2 I08H3 I08H3 I08H4 I08H4 I09BR I09BR I09H1 I09H1 I09H2 I09H2 I09H3 I09H3 I09H4 I09H4 I10CA I10CA I10H1 I10H1 I10H2 I10H2 I10H3 I10H3 I10H4 I10H4 I11CV I11CV I11L1 I11L1 I11L2 I11L2 I11L3 I11L3 I11L4 I11L4 I11L5 I11L5 I11L6 I11L6 I11L7 I11L7 I11L8 I11L8 I13CL I13CL I13H1 I13H1 I13H2 I13H2 I13H3 I13H3 I13H4 I13H4 I13H5 I13H5 I13H6 I13H6 I13H7 I13H7 I13H8 I13H8 I14CL I14CL I14H1 I14H1 I14H2 I14H2 I14H3 I14H3 I14H4 I14H4 I14H5 I14H5 I14H6 I14H6 I14H7 I14H7 I14H8 I14H8 I17CI I17CI I17H1 I17H1 I17H2 I17H2 I17H3 I17H3 I17H4 I17H4 I18DK I18DK I18H1 I18H1 I18H2 I18H2 I18H3 I18H3 I18H4 I18H4 I18L1 I18L1 I18L2 I18L2 I18L3 I18L3 I18L4 I18L4 I19DJ I19DJ I19L1 I19L1 I19L2 I19L2 I19L3 I19L3 I19L4 I19L4 I19L5 I19L5 I19L6 I19L6 I19L7 I19L7 I19L8 I19L8 I20EC I20EC I20H1 I20H1 I20H2 I20H2 I20H3 I20H3 I20H4 I20H4 I20H5 I20H5 I20H6 I20H6 I20H7 I20H7 I20H8 I20H8 I21FR I21FR I21H1 I21H1 I21H2 I21H2 I21H3 I21H3 I21H4 I21H4 I22FR I22FR I22H1 I22H1 I22H2 I22H2 I22H3 I22H3 I22H4 I22H4 I2301 I2301 I2302 I2302 I2303 I2303 I2304 I2304 I2305 I2305 I2306 I2306 I2307 I2307 I2308 I2308 I2309 I2309 I2310 I2310 I2311 I2311 I2312 I2312 I2313 I2313 I2314 I2314 I2315 I2315 I23FR I23FR I24FR I24FR I24H1 I24H1 I24H2 I24H2 I24H3 I24H3 I24H4 I24H4 I24H5 I24H5 I26DE I26DE I26H1 I26H1 I26H2 I26H2 I26H3 I26H3 I26H4 I26H4 I26H5 I26H5 I26H6 I26H6 I26H7 I26H7 I26H8 I26H8 I27DE I27DE I27L1 I27L1 I27L2 I27L2 I27L3 I27L3 I27L4 I27L4 I27L5 I27L5 I27L6 I27L6 I27L7 I27L7 I27L8 I27L8 I27L9 I27L9 I30H1 I30H1 I30H2 I30H2 I30H3 I30H3 I30H4 I30H4 I30H5 I30H5 I30H6 I30H6 I30JP I30JP I31H1 I31H1 I31H2 I31H2 I31H3 I31H3 I31H4 I31H4 I31H5 I31H5 I31H6 I31H6 I31H7 I31H7 I31H8 I31H8 I31H9 I31H9 I31KZ I31KZ I31L1 I31L1 I31L2 I31L2 I31L3 I31L3 I31L4 I31L4 I32H1 I32H1 I32H2 I32H2 I32H3 I32H3 I32H4 I32H4 I32H5 I32H5 I32H6 I32H6 I32H7 I32H7 I32KE I32KE I33H1 I33H1 I33H2 I33H2 I33H3 I33H3 I33H4 I33H4 I33MG I33MG I34H1 I34H1 I34H2 I34H2 I34H3 I34H3 I34H4 I34H4 I34H5 I34H5 I34H6 I34H6 I34H7 I34H7 I34H8 I34H8 I34MN I34MN I35H1 I35H1 I35H2 I35H2 I35H3 I35H3 I35H4 I35H4 I35H5 I35H5 I35H6 I35H6 I35H7 I35H7 I35NA I35NA I36H1 I36H1 I36H2 I36H2 I36H3 I36H3 I36H4 I36H4 I36H5 I36H5 I36H6 I36H6 I36H7 I36H7 I36H8 I36H8 I36NZ I36NZ I37H0 I37H0 I37H1 I37H1 I37H2 I37H2 I37H3 I37H3 I37H4 I37H4 I37H5 I37H5 I37H6 I37H6 I37H7 I37H7 I37H8 I37H8 I37H9 I37H9 I37NO I37NO I39H1 I39H1 I39H2 I39H2 I39H3 I39H3 I39H4 I39H4 I39H5 I39H5 I39H6 I39H6 I39H7 I39H7 I39PW I39PW I40H1 I40H1 I40H2 I40H2 I40H3 I40H3 I40H4 I40H4 I40H5 I40H5 I40H6 I40H6 I40H7 I40H7 I40H8 I40H8 I40PG I40PG I41H1 I41H1 I41H2 I41H2 I41H3 I41H3 I41H4 I41H4 I41PY I41PY I42H1 I42H1 I42H2 I42H2 I42H3 I42H3 I42H4 I42H4 I42H5 I42H5 I42H6 I42H6 I42H7 I42H7 I42H8 I42H8 I42PT I42PT I43H1 I43H1 I43H2 I43H2 I43H3 I43H3 I43H4 I43H4 I43H5 I43H5 I43H6 I43H6 I43RU I43RU I44H1 I44H1 I44H2 I44H2 I44H3 I44H3 I44H4 I44H4 I44RU I44RU I45H1 I45H1 I45H2 I45H2 I45H3 I45H3 I45H4 I45H4 I45RU I45RU I46H1 I46H1 I46H2 I46H2 I46H3 I46H3 I46H4 I46H4 I46RU I46RU I47L1 I47L1 I47L2 I47L2 I47L3 I47L3 I47L4 I47L4 I47L5 I47L5 I47L6 I47L6 I47L7 I47L7 I47L8 I47L8 I47ZA I47ZA I48H1 I48H1 I48H2 I48H2 I48H3 I48H3 I48H4 I48H4 I48H5 I48H5 I48H6 I48H6 I48H7 I48H7 I48L1 I48L1 I48L2 I48L2 I48L3 I48L3 I48L4 I48L4 I48L5 I48L5 I48L6 I48L6 I48L7 I48L7 I48TN I48TN I49GB I49GB I49H1 I49H1 I49H2 I49H2 I49H3 I49H3 I49H4 I49H4 I49H5 I49H5 I50GB I50GB I50H1 I50H1 I50H2 I50H2 I50H3 I50H3 I50H4 I50H4 I50H5 I50H5 I50H6 I50H6 I50H7 I50H7 I50H8 I50H8 I50L1 I50L1 I50L2 I50L2 I50L3 I50L3 I50L4 I50L4 I51GB I51GB I51H1 I51H1 I51H2 I51H2 I51H3 I51H3 I51H4 I51H4 I52GB I52GB I52H1 I52H1 I52H2 I52H2 I52H3 I52H3 I52H4 I52H4 I52H5 I52H5 I52H6 I52H6 I52H7 I52H7 I53H1 I53H1 I53H2 I53H2 I53H3 I53H3 I53H4 I53H4 I53H5 I53H5 I53H6 I53H6 I53H7 I53H7 I53H8 I53H8 I53US I53US I55H1 I55H1 I55H2 I55H2 I55H3 I55H3 I55H4 I55H4 I55H5 I55H5 I55H6 I55H6 I55H7 I55H7 I55H8 I55H8 I55US I55US I56H1 I56H1 I56H2 I56H2 I56H3 I56H3 I56H4 I56H4 I56US I56US I57H1 I57H1 I57H2 I57H2 I57H3 I57H3 I57H4 I57H4 I57H5 I57H5 I57H6 I57H6 I57H7 I57H7 I57H8 I57H8 I57L1 I57L1 I57L2 I57L2 I57L3 I57L3 I57L4 I57L4 I57US I57US I58H1 I58H1 I58H2 I58H2 I58H3 I58H3 I58H4 I58H4 I58US I58US I59H1 I59H1 I59H2 I59H2 I59H3 I59H3 I59H4 I59H4 I59US I59US I60H1 I60H1 I60H2 I60H2 I60H3 I60H3 I60H4 I60H4 I60H5 I60H5 I60H6 I60H6 I60H7 I60H7 I60H8 I60H8 I60US I60US IDI IDI IL01 IL01 IL02 IL02 IL03 IL03 IL04 IL04 IL05 IL05 IL06 IL06 IL07 IL07 IL08 IL08 IL09 IL09 IL10 IL10 IL11 IL11 IL12 IL12 IL13 IL13 IL14 IL14 IL15 IL15 IL16 IL16 IL17 IL17 IL18 IL18 IL19 IL19 IL31 IL31 ILAR ILAR INK INK ISM ISM ISM1 ISM1 ISM2 ISM2 ISM3 ISM3 ISM4 ISM4 JAY JAY JCJ JCJ JHJ JHJ JKA JKA JMIC JMIC JNU JNU JOW JOW JTS JTS KAPI KAPI KBZ KBZ KDAK KDAK KEST KEST KIRV KIRV KIV0 KIV0 KIV1 KIV1 KIV2 KIV2 KIV3 KIV3 KIVB KIVB KLR KLR KMBO KMBO KOWA KOWA KRVT KRVT KS01 KS01 KS01 KS02 KS02 KS02 KS03 KS03 KS03 KS04 KS04 KS04 KS05 KS05 KS05 KS06 KS06 KS06 KS07 KS07 KS07 KS08 KS08 KS08 KS09 KS09 KS09 KS10 KS10 KS10 KS11 KS11 KS11 KS12 KS12 KS12 KS13 KS13 KS13 KS14 KS14 KS14 KS15 KS15 KS15 KS16 KS16 KS16 KS17 KS17 KS17 KS18 KS18 KS18 KS19 KS19 KS19 KS31 KS31 KS31 KS32 KS32 KS32 KS33 KS33 KS33 KS34 KS34 KS34 KS35 KS35 KS35 KS36 KS36 KS36 KS37 KS37 KS37 KSAR KSAR KSRS KSRS KUR01 KUR01 KUR02 KUR02 KUR03 KUR03 KUR04 KUR04 KUR05 KUR05 KUR06 KUR06 KUR07 KUR07 KUR08 KUR08 KUR09 KUR09 KUR10 KUR10 KUR11 KUR11 KUR12 KUR12 KUR13 KUR13 KUR14 KUR14 KUR15 KUR15 KUR16 KUR16 KUR17 KUR17 KUR18 KUR18 KUR19 KUR19 KUR20 KUR20 KURBB KURBB KURK KURK KVAR KVAR LBTB LBTB LEM LEM LPAZ LPAZ LPIG LPIG LS01 LS01 LS02 LS02 LS03 LS03 LS04 LS04 LSAR LSAR LSZ LSZ LVC LVC LZA0 LZA0 LZA1 LZA1 LZA2 LZA2 LZA3 LZA3 LZAB LZAB LZB1 LZB1 LZB2 LZB2 LZB3 LZB3 LZB4 LZB4 LZB5 LZB5 LZBB LZBB LZDM LZDM MA2 MA2 MATP MATP MAW MAW MBAR MBAR MDP MDP MDT MDT MJA0 MJA0 MJA1 MJA1 MJA2 MJA2 MJA3 MJA3 MJA4 MJA4 MJAR MJAR MJB1 MJB1 MJB2 MJB2 MJB3 MJB3 MJB4 MJB4 MJB5 MJB5 MJB6 MJB6 MJB7 MJB7 MJB8 MJB8 MJB9 MJB9 MJB9B MJB9B MK01 MK01 MK02 MK02 MK03 MK03 MK04 MK04 MK05 MK05 MK06 MK06 MK07 MK07 MK08 MK08 MK09 MK09 MK31 MK31 MK32 MK32 MKAR MKAR MLR MLR MMA0 MMA0 MMA0B MMA0B MMA1 MMA1 MMA2 MMA2 MMA3 MMA3 MMA4 MMA4 MMAI MMAI MMB1 MMB1 MMB2 MMB2 MMB3 MMB3 MMB4 MMB4 MMC1 MMC1 MMC2 MMC2 MMC3 MMC3 MMC4 MMC4 MMC5 MMC5 MMC6 MMC6 MMC7 MMC7 MRNI MRNI MSEY MSEY MSKU MSKU MSVF MSVF NAO00 NAO00 NAO01 NAO01 NAO02 NAO02 NAO03 NAO03 NAO04 NAO04 NAO05 NAO05 NB200 NB200 NB201 NB201 NB202 NB202 NB203 NB203 NB204 NB204 NB205 NB205 NBO00 NBO00 NBO01 NBO01 NBO02 NBO02 NBO03 NBO03 NBO04 NBO04 NBO05 NBO05 NC200 NC200 NC201 NC201 NC202 NC202 NC203 NC203 NC204 NC204 NC205 NC205 NC300 NC300 NC301 NC301 NC302 NC302 NC303 NC303 NC304 NC304 NC305 NC305 NC400 NC400 NC401 NC401 NC402 NC402 NC403 NC403 NC404 NC404 NC405 NC405 NC600 NC600 NC601 NC601 NC602 NC602 NC603 NC603 NC604 NC604 NC605 NC605 NEW NEW NIL NIL NNA NNA NOA NOA NRIK NRIK NRIS NRIS NV01 NV01 NV01 NV02 NV02 NV02 NV03 NV03 NV03 NV04 NV04 NV04 NV05 NV05 NV06 NV06 NV07 NV07 NV08 NV08 NV09 NV09 NV10 NV10 NV11 NV11 NV31 NV31 NVAR NVAR NVIAR NVIAR NWAO NWAO OBN OBN OPO OPO PALK PALK PCRV PCRV PD01 PD01 PD02 PD02 PD03 PD03 PD04 PD04 PD05 PD05 PD06 PD06 PD07 PD07 PD08 PD08 PD09 PD09 PD10 PD10 PD11 PD11 PD12 PD12 PD13 PD13 PD31 PD31 PD32 PD32 PDAR PDAR PDI01 PDI01 PDI02 PDI02 PDI03 PDI03 PDI04 PDI04 PDIAR PDIAR PDY PDY PDY01 PDY01 PDY02 PDY02 PDY03 PDY03 PDY04 PDY04 PDY05 PDY05 PDY06 PDY06 PDY07 PDY08 PDY08 PDY09 PDY09 PDY31 PDY31 PDYAR PDYAR PEA0 PEA0 PEA0B PEA0B PEA1 PEA1 PEA2 PEA2 PEA3 PEA3 PEB1 PEB1 PEB2 PEB2 PEB3 PEB3 PEB4 PEB4 PEB5 PEB5 PES2 PES2 PETK PETK PFO PFO PLCA PLCA PMG PMG PMSA PMSA PPT PPT PSI PSI PSUR PSUR PSUR0 PSUR0 PTGA PTGA QSPA QSPA RAO RAO RAR RAR RCBR RCBR RES RES ROSC ROSC RPN RPN RPZ RPZ SADO SADO SCHQ SCHQ SDV SDV SEY SEY SFJD SFJD SG01 SG01 SG02 SG02 SG03 SG03 SG04 SG04 SGAR SGAR SHEM SHEM SIJI SIJI SIV SIV SJG SJG SNAA SNAA SO31 SO32 SO33 SO34 SO35 SO36 SO37 SONA0 SONA0 SONA1 SONA1 SONA2 SONA2 SONA3 SONA3 SONA4 SONA4 SONB1 SONB1 SONB2 SONB2 SONB3 SONB3 SONB4 SONB4 SONB5 SONB5 SONM SONM SPA0 SPA0 SPA1 SPA1 SPA2 SPA2 SPA3 SPA3 SPB1 SPB1 SPB2 SPB2 SPB3 SPB3 SPB4 SPB4 SPB5 SPB5 SPITS SPITS STKA STKA SUR SUR TEIG TEIG TGY TGY THR THR TIXI TIXI TKL TKL TLY TLY TOA0 TOA0 TOA1 TOA1 TOA2 TOA2 TOA3 TOA3 TOB1 TOB1 TOB2 TOB2 TOB3 TOB3 TOB4 TOB4 TOB5 TOB5 TOC1 TOC1 TOC2 TOC2 TOC3 TOC3 TOC4 TOC4 TOC5 TOC5 TOC6 TOC6 TOC7 TOC7 TORD TORD TSUM TSUM TX01 TX01 TX02 TX02 TX03 TX03 TX04 TX04 TX06 TX06 TX07 TX07 TX08 TX08 TX09 TX09 TX10 TX10 TX31 TX31 TXAR TXAR UKR01 UKR01 UKR02 UKR02 UKR03 UKR03 UKR04 UKR04 UKR05 UKR05 UKR06 UKR06 UKR07 UKR07 UKR08 UKR08 UKR09 UKR09 UKR10 UKR10 UKR11 UKR11 UKR12 UKR12 UKR13 UKR13 UKR14 UKR14 UKR16 UKR16 UKR17 UKR17 UKR18 UKR18 UKR19 UKR19 UKR20 UKR20 UKR21 UKR21 UKR22 UKR22 UKR23 UKR23 UKR25 UKR25 UKR26 UKR26 ULM ULM URZ URZ USA0 USA0 USA0B USA0B USA1 USA1 USA2 USA2 USA3 USA3 USB1 USB1 USB2 USB2 USB3 USB3 USB4 USB4 USB5 USB5 USHA USHA USRK USRK VAE VAE VIB VIB VNDA VNDA VRAC VRAC WB0 WB0 WB1 WB1 WB10 WB10 WB2 WB2 WB3 WB3 WB4 WB4 WB5 WB5 WB6 WB6 WB7 WB7 WB8 WB8 WB9 WB9 WC1 WC1 WC2 WC2 WC3 WC3 WC4 WC4 WK30 WK30 WK31 WK31 WR0 WR0 WR1 WR1 WR10 WR10 WR2 WR2 WR3 WR3 WR4 WR4 WR5 WR5 WR6 WR6 WR7 WR7 WR8 WR8 WR9 WR9 WRA WRA WRAI WRAI WRAI1 WRAI1 WRAI2 WRAI2 WRAI3 WRAI3 WRAI4 WRAI4 WRAI5 WRAI5 WRAI6 WRAI6 WRAI7 WRAI7 WSAR WSAR YAK YAK YBH YBH YKA YKA YKAB0 YKAB0 YKAB1 YKAB1 YKAB2 YKAB2 YKAB3 YKAB3 YKAB4 YKAB4 YKAB6 YKAB6 YKAB7 YKAB7 YKAB8 YKAB8 YKAB9 YKAB9 YKAR1 YKAR1 YKAR2 YKAR2 YKAR3 YKAR3 YKAR4 YKAR4 YKAR5 YKAR5 YKAR6 YKAR6 YKAR7 YKAR7 YKAR8 YKAR8 YKAR9 YKAR9 YKAW1 YKAW1 YKAW3 YKAW3 YKB0 YKB0 YKB1 YKB1 YKB2 YKB2 YKB3 YKB3 YKB4 YKB4 YKB6 YKB6 YKB7 YKB7 YKB8 YKB8 YKB9 YKB9 YKR1 YKR1 YKR2 YKR2 YKR3 YKR3 YKR4 YKR4 YKR5 YKR5 YKR6 YKR6 YKR7 YKR7 YKR8 YKR8 YKR9 YKR9 YKW1 YKW1 YKW1 YKW2 YKW2 YKW2 YKW3 YKW3 YKW3 YKW4 YKW4 YKW4 ZAA0 ZAA0 ZAA0B ZAA0B ZAA1 ZAA1 ZAA2 ZAA2 ZAA3 ZAA3 ZAB1 ZAB1 ZAB2 ZAB2 ZAB3 ZAB3 ZAB4 ZAB4 ZAB5 ZAB5 ZAL ZAL ZALV ZALV | /dvlscratch/SHI/kianicka/vdms_third-party-build/continuous-delivery/scripts/install_sc3_eniab/vdms-3rd-SC3/bin/inv2dlsv
+
+(And on Friday store my notes to the github repository.)
+
+# On 6.4.2020 after the issue with SADO station was fixed. These were some investigated logs
+1. /ops/software/shi/config/station_specs/rsp/AKASG_1C_bb_response_20021001
+1. /ops/software/shi/config/station_specs/rsp/AKASG_1C_bb_response_20030530
+1. /ops/software/shi/config/station_specs/rsp/AKASG_3C_bb_response_20021001
+1. /ops/software/shi/config/station_specs/rsp/AKASG_3C_bb_response_20030530
+
+Please see more detailed information in the log file /home/kianicka/.seiscomp3/log/css2inv_errors.log
+Error (IM,ASC24,,ed): cannot find response for sensor Sensor/20200406130433.990039.4451
+Error (IM,ASC25,,ed): cannot find response for sensor Sensor/20200406130433.990039.4451
+Error (IM,ASC26,,ed): cannot find response for sensor Sensor/20200406130433.990039.4451
+Error (IM,ASC23,,ed): cannot find response for sensor Sensor/20200406130433.990039.4451
+Error (IM,ASAR,,hb): unknown sensor: 
+Error (IM,ASAR,,cb): unknown sensor: 
+Error (IM,ASAR,,fkb): unknown sensor: 
+Error (IM,ASAR,,ib): unknown sensor: 
+Error (IM,ASAR,,hb): unknown sensor: 
+Error (IM,ASAR,,cb): unknown sensor: 
+Error (IM,ASAR,,fkb): unknown sensor: 
+Error (IM,ASAR,,ib): unknown sensor: 
+Error (IM,ARCES,,hb): unknown sensor: 
+Error (IM,ARCES,,cb): unknown sensor: 
+Error (IM,ARCES,,fkb): unknown sensor: 
+Error (IM,ARCES,,ib): unknown sensor: 
+Error (IM,ARCES,,hb): unknown sensor: 
+Error (IM,ARCES,,cb): unknown sensor: 
+Error (IM,ARCES,,fkb): unknown sensor: 
+Error (IM,ARCES,,ib): unknown sensor: 
+Error (IM,AKASG,,hb): unknown sensor: 
+Error (IM,AKASG,,cb): unknown sensor: 
+Error (IM,AKASG,,fkb): unknown sensor: 
+Error (IM,AKASG,,ib): unknown sensor: 
+Error (IM,AKASG,,hb): unknown sensor: 
+Error (IM,AKASG,,cb): unknown sensor: 
+Error (IM,AKASG,,fkb): unknown sensor: 
+Error (IM,AKASG,,ib): unknown sensor: 
+Error: a float is required24.057u 0.303s 0:29.56 82.3%	0+0k 0+144io 0pf+0w
+
+
+SC3XML conversion created 172 warnings
+Error (IM,BVAR,,hb): unknown sensor: 
+Error (IM,BVAR,,cb): unknown sensor: 
+Error (IM,BVAR,,fkb): unknown sensor: 
+Error (IM,BVAR,,ib): unknown sensor: 
+Error (IM,BRTR,,hb): unknown sensor: 
+Error (IM,BRTR,,cb): unknown sensor: 
+Error (IM,BRTR,,fkb): unknown sensor: 
+Error (IM,BRTR,,ib): unknown sensor: 
+Error: blockette 52 has invalid length: 149 instead of 147
+
+
+SC3XML conversion created 210 warnings
+Error (IM,HILR,,fpb): unknown sensor: 
+Error (IM,HILR,,bm): unknown sensor: 
+Error (IM,HILR,,fkb): unknown sensor: 
+Error (IM,HILR,,fcb): unknown sensor: 
+Error (IM,HILR,,fb): unknown sensor: 
+Error (IM,HILR,,ucb): unknown sensor: 
+Error (IM,HILR,,cb): unknown sensor: 
+Error (IM,HILR,,hb): unknown sensor: 
+Error (IM,HILR,,ib): unknown sensor: 
+Error (IM,H11S2,,EDH): cannot find response for sensor Sensor/20200406134755.175249.904
+Error (IM,H11S2,,EDH): cannot find response for sensor Sensor/20200406134755.175249.904
+Error (IM,H11S2,,EDH): cannot find response for sensor Sensor/20200406134755.175249.904
+Error (IM,H11S2,,EDH): cannot find response for sensor Sensor/20200406134755.175249.904
+Error (IM,H03C2,,LEA): cannot find response for sensor Sensor/20200406134750.806459.112
+Error (IM,H03C2,,LEV): cannot find response for sensor Sensor/20200406134750.806459.112
+Error (IM,H03C1,,LEA): cannot find response for sensor Sensor/20200406134750.806459.112
+Error (IM,H03C1,,LEV): cannot find response for sensor Sensor/20200406134750.806459.112
+Error (IM,H11S1,,EDH): cannot find response for sensor Sensor/20200406134755.059952.890
+Error (IM,H11S1,,EDH): cannot find response for sensor Sensor/20200406134755.059952.890
+Error (IM,H11S1,,EDH): cannot find response for sensor Sensor/20200406134755.059952.890
+Error (IM,H11S3,,EDH): cannot find response for sensor Sensor/20200406134755.297826.922
+Error (IM,H11S3,,EDH): cannot find response for sensor Sensor/20200406134755.297826.922
+Error (IM,H11S3,,EDH): cannot find response for sensor Sensor/20200406134755.297826.922
+Error (IM,H11S3,,EDH): cannot find response for sensor Sensor/20200406134755.297826.922
+Error (IM,HFSC1,,SHZ): cannot find response for sensor Sensor/20200406134757.265876.1235
+Error (IM,HFSC2,,LHE): cannot find response for sensor Sensor/20200406134758.068909.1270
+Error (IM,HFSC2,,LHN): cannot find response for sensor Sensor/20200406134758.068909.1270
+Error (IM,HFSC2,,SHZ): cannot find response for sensor Sensor/20200406134757.270005.1239
+Error (IM,HFSC2,,SHE): cannot find response for sensor Sensor/20200406134757.270005.1239
+Error (IM,HFSC2,,LHZ): cannot find response for sensor Sensor/20200406134758.072046.1274
+Error (IM,HFSC2,,SHN): cannot find response for sensor Sensor/20200406134757.270005.1239
+Error (IM,HFSB4,,SHZ): cannot find response for sensor Sensor/20200406134757.270005.1239
+Error (IM,HFSB5,,SHZ): cannot find response for sensor Sensor/20200406134757.270005.1239
+Error (IM,HFSB2,,SHZ): cannot find response for sensor Sensor/20200406134757.265876.1235
+Error (IM,HFSB3,,SHZ): cannot find response for sensor Sensor/20200406134757.270005.1239
+Error (IM,HFSB1,,SHZ): cannot find response for sensor Sensor/20200406134757.265876.1235
+Error (IM,HFS,,hb): unknown sensor: 
+Error (IM,HFS,,hb): unknown sensor: 
+Error (IM,HFS,,cb): unknown sensor: 
+Error (IM,HFS,,cb): unknown sensor: 
+Error (IM,HFS,,fkb): unknown sensor: 
+Error (IM,HFS,,ib): unknown sensor: 
+Error (IM,HFS,,ib): unknown sensor: 
+Error (IM,HFS,,hb): unknown sensor: 
+Error (IM,HFS,,cb): unknown sensor: 
+Error (IM,HFS,,fkb): unknown sensor: 
+Error (IM,HFS,,ib): unknown sensor: 
+Error (IM,HFSA1,,SHZ): cannot find response for sensor Sensor/20200406134757.270005.1239
+Error: blockette 52 has invalid length: 148 instead of 147
+
+
+
+/dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/css2inv --osdb padd_d_shi:***@extodb --schemas STATIC H03C2 | /dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/inv2dlsv
+SC3XML conversion created 6 warnings
+Error (IM,H03C2,,LEA): cannot find response for sensor Sensor/20200406141101.512899.7
+Error (IM,H03C2,,LEV): cannot find response for sensor Sensor/20200406141101.512899.7
+Error: blockette 52 has invalid length: 127 instead of 125
+
+/dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/css2inv --osdb padd_d_shi:***@extodb --schemas STATIC H03C1 | /dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/inv2dlsv
+SC3XML conversion created 6 warnings
+Error (IM,H03C1,,LEA): cannot find response for sensor Sensor/20200406141126.141479.7
+Error (IM,H03C1,,LEV): cannot find response for sensor Sensor/20200406141126.141479.7
+Error: blockette 52 has invalid length: 127 instead of 125
+
+/dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/css2inv --osdb padd_d_shi:***@extodb --schemas STATIC H01W1 | /dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/inv2dlsv
+[SC3XML]
+Networks      : 1
+Stations      : 2
+StationGroups : 0
+Channels      : 3
+Error: blockette 52 has invalid length: 148 instead of 147
+
+
+/dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/css2inv --osdb padd_d_shi:***@extodb --schemas STATIC H01W2 | /dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/inv2dlsv
+[SC3XML]
+Networks      : 1
+Stations      : 3
+StationGroups : 0
+Channels      : 4
+Error: blockette 52 has invalid length: 148 instead of 147
+
+/dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/css2inv --osdb padd_d_shi:***@extodb --schemas STATIC H01W3 | /dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/inv2dlsv
+[SC3XML]
+etworks      : 1
+Stations      : 3
+StationGroups : 0
+Channels      : 4
+Error: blockette 52 has invalid length: 148 instead of 147
+
+/dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/css2inv --osdb padd_d_shi:***@extodb --schemas STATIC H01W | /dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/inv2dlsv
+[SC3XML]
+Networks      : 1
+Stations      : 9
+StationGroups : 0
+Channels      : 11
+
+SC3XML conversion created 1 warnings
+Error: blockette 52 has invalid length: 148 instead of 147
+
+-------------
+
+# 24.4.2020 - performance verification of css2inv
+After having inv2dlsv fixes on place and corrected --schemas for 'Fourth pass', when was found that
+by each new station all previous stations are verified.
+
+We run the new devlan version locally built:
+--
+SC3 css2inv without inv2dlsv duraiton was 24 [min]
+output file:
+   22M Apr 24 08:17 SC3XML_all_valid_stations_with_fourth_pass.xml
+
+dlw077.idc.ctbto.org.-656% top -b -d 30 |grep css2inv
+ 29011 kianicka  20   0  446m  65m  37m S 36.6  0.4   3:06.37 css2inv
+ 29011 kianicka  20   0  446m  66m  37m R 49.6  0.4   3:21.27 css2inv 
+ 29011 kianicka  20   0  446m  66m  37m S 44.0  0.4   3:34.51 css2inv 
+ 29011 kianicka  20   0  447m  67m  37m R 39.6  0.4   3:46.40 css2inv 
+ 29011 kianicka  20   0  447m  67m  37m R 40.0  0.4   3:58.41 css2inv 
+ 29011 kianicka  20   0  448m  67m  37m S 41.9  0.4   4:11.00 css2inv 
+ 29011 kianicka  20   0  448m  68m  37m R 36.5  0.4   4:21.97 css2inv 
+ 29011 kianicka  20   0  449m  68m  37m S 35.4  0.4   4:32.60 css2inv 
+ 29011 kianicka  20   0  449m  69m  37m R 37.0  0.4   4:43.72 css2inv 
+ 29011 kianicka  20   0  449m  69m  37m R 45.9  0.4   4:57.51 css2inv 
+ 29011 kianicka  20   0  450m  70m  37m R 40.5  0.4   5:09.67 css2inv 
+ 29011 kianicka  20   0  450m  70m  37m S 42.0  0.4   5:22.30 css2inv 
+ 29011 kianicka  20   0  451m  70m  37m R 41.3  0.5   5:34.69 css2inv 
+ 29011 kianicka  20   0  451m  71m  37m S 41.4  0.5   5:47.12 css2inv 
+ 29011 kianicka  20   0  452m  71m  37m S 43.0  0.5   6:00.03 css2inv 
+ 29011 kianicka  20   0  452m  72m  37m R 40.9  0.5   6:12.33 css2inv 
+ 29011 kianicka  20   0  452m  72m  37m R 43.6  0.5   6:25.43 css2inv 
+ 29011 kianicka  20   0  453m  72m  37m R 43.7  0.5   6:38.56 css2inv 
+ 29011 kianicka  20   0  453m  73m  37m S 44.2  0.5   6:51.83 css2inv 
+ 29011 kianicka  20   0  454m  73m  37m S 39.4  0.5   7:03.68 css2inv 
+ 29011 kianicka  20   0  454m  74m  37m R 42.7  0.5   7:16.51 css2inv 
+ 29011 kianicka  20   0  455m  74m  37m R 38.3  0.5   7:28.07 css2inv 
+ 29011 kianicka  20   0  455m  75m  37m S 40.1  0.5   7:40.15 css2inv 
+ 29011 kianicka  20   0  456m  75m  37m S 42.9  0.5   7:53.07 css2inv 
+ 29011 kianicka  20   0  456m  76m  37m S 39.4  0.5   8:04.91 css2inv 
+ 29011 kianicka  20   0  457m  77m  37m R 48.2  0.5   8:19.39 css2inv 
+ 29011 kianicka  20   0  457m  77m  37m R 44.1  0.5   8:32.63 css2inv 
+ 29011 kianicka  20   0  458m  78m  37m R 40.9  0.5   8:44.92 css2inv 
+ 29011 kianicka  20   0  458m  78m  37m S 37.9  0.5   8:56.33 css2inv 
+ 29011 kianicka  20   0  459m  79m  37m R 39.7  0.5   9:08.26 css2inv 
+ 29011 kianicka  20   0  460m  79m  37m R 45.3  0.5   9:21.88 css2inv 
+ 29011 kianicka  20   0  460m  80m  37m S 41.4  0.5   9:34.31 css2inv 
+ 29011 kianicka  20   0  460m  80m  37m R 41.5  0.5   9:46.77 css2inv 
+ 29011 kianicka  20   0  461m  81m  37m R 46.2  0.5  10:00.66 css2inv 
+ 29011 kianicka  20   0  461m  81m  37m R 46.5  0.5  10:14.63 css2inv 
+ 29011 kianicka  20   0  462m  81m  37m S 42.7  0.5  10:27.45 css2inv  
+
+Now try to disable the Forth loop by break command.
+output file:
+    SC3 css2inv without inv2dlsv duraiton was 2 [min]
+
+dlw077.idc.ctbto.org.-658% top -b -d 30 | grep css2inv
+ 44208 kianicka  20   0  436m  55m  37m R 85.5  0.4   0:23.67 css2inv 
+ 44208 kianicka  20   0  439m  59m  37m R 96.8  0.4   0:52.72 css2inv 
+ 44208 kianicka  20   0  444m  64m  37m R 97.0  0.4   1:21.85 css2inv 
+ 44208 kianicka  20   0  447m  67m  37m R 96.7  0.4   1:50.91 css2inv 
+ 44208 kianicka  20   0  450m  70m  37m R 97.2  0.4   2:20.10 css2inv
+
+But the output XML not the same, but much smaller.
+-rw-rw-r--. 1 kianicka kianicka 7.4M Apr 24 08:48 SC3XML_all_valid_stations_without_fourth_pass.xml
+-rw-rw-r--. 1 kianicka kianicka  22M Apr 24 08:17 SC3XML_all_valid_stations_with_fourth_pass.xml
+
+Introduced error into the SQL query as it was before:
+   SC3 css2inv with inv2dlsv duraiton was 23 [min]
+
+So there is side effect - I will try yet if it is entering this block
+-rw-rw-r--. 1 kianicka kianicka  22M Apr 24 09:28 SC3XML_all_valid_stations_with_error_fourth_pass.xml
+
+Memory usage of inv2dlsv for all stations
+100991 kianicka  20   0  484m 315m  24m R 99.9  2.0   0:20.78 python
+about 300 MB of physical memory.
+
+The dlseed output has the exactly same size - with the input XML from
+with and withou fourth pass:
+-rw-rw-r--. 1 kianicka kianicka 95232000 Apr 24 12:06 SC3XML_all_valid_stations_without_fourth_pass.dlseed
+-rw-rw-r--. 1 kianicka kianicka 95232000 Apr 24 12:05 SC3XML_all_valid_stations_with_fourth_pass.dlseed
+
+When considering piping and still running css2inv with about 400 MB of
+Virtual Memory, 10mb of physical memory.
+
+And we yet try the version in TST - let us see the difference.
+# Menachem did conduct this test
+tlv105.test.ctbto.org.-107% top -b -d 10 | grep css2inv
+13346 auto      20   0  431m  52m  36m R 88.3  0.4   0:08.85 1 -         css2inv
+13346 auto      20   0  431m  52m  36m R 97.7  0.4   0:18.64 1 -         css2inv
+13346 auto      20   0  433m  54m  36m R 95.5  0.5   0:28.21 1 -         css2inv
+13346 auto      20   0  434m  55m  36m R 96.7  0.5   0:37.90 1 -         css2inv
+13346 auto      20   0  435m  56m  36m R 96.7  0.5   0:47.59 1 -         css2inv
+13346 auto      20   0  436m  57m  36m R 97.3  0.5   0:57.34 1 -         css2inv
+13346 auto      20   0  437m  59m  36m R 97.6  0.5   1:07.11 1 -         css2inv
+13346 auto      20   0  438m  59m  36m R 96.1  0.5   1:16.74 1 -         css2inv
+13346 auto      20   0  439m  60m  36m R 94.8  0.5   1:26.24 1 -         css2inv
+13346 auto      20   0  440m  61m  36m R 96.2  0.5   1:35.88 1 -         css2inv
+13346 auto      20   0  440m  62m  36m D 97.2  0.5   1:45.63 1 -         css2inv
+13346 auto      20   0  441m  63m  36m R 96.0  0.5   1:55.25 1 -         css2inv
+13346 auto      20   0  442m  64m  36m R 96.0  0.5   2:04.87 1 -         css2inv
+13346 auto      20   0  443m  64m  36m R 96.0  0.5   2:14.49 1 -         css2inv
+13346 auto      20   0  444m  65m  36m R 96.6  0.6   2:24.17 1 -         css2inv
+13346 auto      20   0  444m  66m  36m R 96.5  0.6   2:33.84 1 -         css2inv
+
+
+Geralds issue with NV01 station.
+When I sent request it succeeded in VDMS. This was the command:
+/dvl/software/shared/nms/usr/bin/css2inv --osdb padd_d_shi:dvl-vdms123@extodb --schemas STATIC NV01
+
+And this command also succeeded on devlan:
+/dvl/software/shared/nms/usr/bin/css2inv --osdb padd_d_shi:dvl-vdms123@extodb NV01 --schema affiliation:STATIC,site:static,sitechan:static,sensor:static,instrument:static
+
+This means that the issue is with static tables in the QANDEF database - we need to create issue addressing this.
+
+# 9.4.2020 - disussion with Radek about station responce issues
+INK malformed responce:
+https://itscore.ctbto.org/browse/EN-700
+---
+There is no gain specified for each response stage. There is no way
+for css2inv to figure it out. Check the reference response file at
+IRIS:
+https://service.iris.edu/irisws/resp/1/query?net=CN&sta=INK&loc=--&cha=BHZ&starttime=2007-10-10T00:00:00&endtime=2599-12-31T23:59:59.
+
+With your stripped down response files many of the response stage
+information is more or less lost. We can just provide an overall gain
+for the channel.
+
+How to proceed? IDC is using stripped down response information for
+their specific use case with many relevant information removed. Also
+the analog responses are modified to describe the conversion to
+displacement rather than the native sensor unit. To convert forth and
+back lossless is a task like converting from a compressed JPG image
+back to RAW camera format. Almost impossible and at least not
+accurate.
+---
+I can fully understand the request and it might work for some stations
+for which station information is restricted. But in cases such as INK
+which is available at IRIS with accurate information it does not make
+much sense to restore information from the existing response
+files. Although conversion to SeisComP XML might work (many fields are
+optional), conversion to subsequent formats will probably fail. Even
+if we convert to StationXML then the gain is missing and subsequent
+processing modules will not produce any results with it. So the
+converted station information is actually meaningless. The solution is
+to change your source of information to a format that can handle all
+use cases, e.g. fully compliant export of DLSEED and FDSN
+StationXML. I know, I know
+---
+
+I looked for another solution which is probably better in terms of
+support and maintenance. IRIS provides a StationXML to SEED converter
+[1]. This is much better maintained that the inv2dlsv in SeisComP. The
+reason for that is simple. inv2dlsv is a small wrapper for a "library"
+to generate full SEED. This library is not used anywhere in SeisComP
+and has been added years ago for Arclink to optionally generate
+SEED. Codes were not developed by gempa but by GFZ. Please note again,
+Arclink and inv2dlsv will be dropped in future SeisComP releases in
+favour of fdsnws and StationXML. Because our StationXML converters are
+actively maintained and will be in future I would suggest the
+following tool chain:
+
+1. css2inv -> SeisComP XML
+2. fdsnxml2inv --to-staxml -> StationXML
+3. IRIS stationxml converter -> SEED
+
+The IRIS converter is probably much more stable with respect to SEED
+and is actively maintained. The last commit was 28 days ago. If there
+are issues with SeisComP StationXML converter then our interest is
+very high to fix them in contrast to SEED.
+
+That does not solve the issue of incomplete information but at least
+the conversion works for the files given in this issue.
+
+Would that be an option for you?
+
+Regards,
+Jan
+
+[1] https://github.com/iris-edu/stationxml-seed-converter
+---
+I am sorry to having ignored your release schedule. I have pushed a
+quick fix to the converter. That is not a proper fix and does not
+solve any underlying issue. It just fixes the exception given in this
+issue for the given input file. A proper fix would:
+
+    Log errors
+    Remove invalid stations and channels
+    Remove sensitivity stages if a stage gain is not present
+
+All of that needs an almost complete rewrite of the converter as it is
+not designed to work like this. In particular it is setting the stage
+gain to 1 if not present which is wrong! As you are just interested in
+this quick fix, please go ahead and test it.
+
+I have been outlining all the involved issues for 5 years and I have
+been ignored. So I state it a very last time: your meta data that you
+distribute with SEED is most likely not correct and won't be correct
+until the underlying response format will be changed to what is
+standard for more than 2 decades. I can't support that procedure with
+a clear conscience.
+
+
+
+
+
+SADO responce issue:
+https://itscore.ctbto.org/browse/EN-708
+---
+Stage gains for various response stages were not set and caused the
+conversion to fail when multiplying None. I have hot-fixed those
+places by skipping the multiplication which effectively assumes a gain
+of 1.
+
+As I also stated a proper fix would require a rewrite of the
+conversion script which is currently not possible. A better solution
+would be to leave out the sensitivity blockette in SEED if the
+information is not present.
+---
+
+# 7.5.2020 - deep check of content of the SC3XML
+We have chosen three seismic stations - array, 3C included:
+/dvlscratch/SHI/kianicka/seiscomp3_built/install/seiscomp3/bin/css2inv --osdb padd_d_shi:dvl-vdms123@extodb --schemas STATIC AAK AKASG AKTO
+And ran it twice once with error in the fourth pass, once with no error.
+There is one point - sc3xml is not possible to compare effectivelly.
+They contain in every block indicator of date-time of execution like e.g. this:
+<sensorLocation publicID="SensorLocation/20200427155755.021434.1129" code="">
+
+The only difference was that for station AKASG
+after sensorLocation elements:
+    stream code="cb">
+    .. <description>coherent beam, 4-8 Hz, 8.1 km/s</description>
+    <stream code="fkb">
+    .. <description>detection beam, 0.8-3.5 Hz</description>
+    <stream code="hb">
+    .. <description>horizontal incoherent beam, 2-4 Hz</description>
+    <stream code="ib">
+    .. <description>vertical incoherent beam, 2-4 Hz</description> 
+were added the following blocks:
+- <idc-ext>
+- <instrument sensor="Sensor/20200427155750.709083.100" datalogger="Datalogger/20200427155756.640302.1463">
+      <code>BHZ</code> 
+      <time>2002-03-08T00:00:00.0000Z</time> 
+      <endTime>2006-11-09T00:00:00.0000Z</endTime> 
+      <ncalib>0.0295</ncalib> 
+       <ncalper>1</ncalper> 
+  </instrument>
+- <instrument sensor="Sensor/20200427155750.709083.100" datalogger="Datalogger/20200427155756.640302.1463">
+  <code>BHZ</code> 
+       <time>2002-03-08T00:00:00.0000Z</time> 
+       <endTime>2006-11-09T00:00:00.0000Z</endTime> 
+       <ncalib>0.0295</ncalib> 
+       <ncalper>1</ncalper> 
+  </instrument>
+- <instrument sensor="Sensor/20200427155750.709083.100" datalogger="Datalogger/20200427155756.640302.1463">
+  <code>BHZ</code> 
+      <time>2002-03-08T00:00:00.0000Z</time> 
+      <endTime>2006-11-09T00:00:00.0000Z</endTime> 
+      <ncalib>0.0295</ncalib> 
+      <ncalper>1</ncalper> 
+  </instrument>
+  </idc-ext>
+  
+
+Where these comes from? So the difference is only for station AKASG
+and we have triplicate the same records in <idc-ext> block:
+ISSUE - triplicate same records in SC3XML for array stations.
+
++ <instrument sensor="Sensor/20200427155750.709083.100" datalogger="Datalogger/20200427155756.640302.1463">
++ <instrument sensor="Sensor/20200427155756.964562.1524" datalogger="Datalogger/20200427155756.99154.1534">
++ <instrument sensor="Sensor/20200427155756.991864.1536" datalogger="Datalogger/20200427155750.835067.135">
++ <instrument sensor="Sensor/20200427155750.709083.100" datalogger="Datalogger/20200427155756.640302.1463">
++ <instrument sensor="Sensor/20200427155756.964562.1524" datalogger="Datalogger/20200427155757.154445.1598">
++ <instrument sensor="Sensor/20200427155756.991864.1536" datalogger="Datalogger/20200427155750.835067.135">
++ <instrument sensor="Sensor/20200427155750.709083.100" datalogger="Datalogger/20200427155756.640302.1463">
++ <instrument sensor="Sensor/20200427155756.964562.1524" datalogger="Datalogger/20200427155757.154445.1598">
++ <instrument sensor="Sensor/20200427155756.991864.1536" datalogger="Datalogger/20200427155750.835067.135">
+
+select * from static.affiliation where net like 'AKASG'
+select * from static.sitechan where sta like 'AKASG'
+select * from static.sitechan where sta in (select sta from static.affiliation where net like 'AKASG')
+select * from static.sensor where sta like 'AKASG';
+select * from static.sensor where sta in (select sta from static.sitechan where sta in (select sta from static.affiliation where net like 'AKASG'))
+
+select * from static.instrument where inid in (select inid from static.sensor where sta like 'AKASG')
+select * from static.instrument where inid in (
+  select inid from static.sensor where sta in (select sta from static.sitechan where sta in (select sta from static.affiliation where net like 'AKASG'))
+)
+-- all information for sc3xml for arrays which are retrieved using reduntant polling of static tables can be e.g. for array AKASG retrieved by
+-- simple and single nested SQL query. ncalib and ncalper values which I found published for AKASG via 'four pass'
+Result of getting nculper and ncalib for just AKASG station give this INSTRUMENT results:
+
+212300	Guralp CMG3-ESPV+SAIC SAN2001 Digitizer	CMG-3E	b	d	40	0.0295	1	/tst/software/shi/config/station_specs/rsp	AKASG_1C_bb_response_20021001	pazfir	17-OCT-02
+1116690	Guralp CMG-3T+SAIC SAN2003	CMG-3T	b	d	40	0.00656	1	/tst/software/shi/config/station_specs/rsp	AKASG_3C_bb_response_20030530	pazfir	14-SEP-06
+1118986	Guralp CMG-3T+Guralp DM24	CMG-3T	b	d	40	0.005711454	1	/tst/software/shi/config/station_specs/rsp	AKASG_3C_bb_response_20160414	paz	15-APR-16
+
+# List of AKASG instrument response files:
+ls /tst/software/shi/config/station_specs/rsp/AKASG* -1
+/tst/software/shi/config/station_specs/rsp/AKASG_1C_bb_response_20021001
+/tst/software/shi/config/station_specs/rsp/AKASG_1C_bb_response_20030530
+/tst/software/shi/config/station_specs/rsp/AKASG_1C_bb_response_20151116
+/tst/software/shi/config/station_specs/rsp/AKASG_1C_bb_response_20160414
+/tst/software/shi/config/station_specs/rsp/AKASG_1C_bb_rsp_20090710
+/tst/software/shi/config/station_specs/rsp/AKASG_1C_bb_rsp_20090710.txt
+/tst/software/shi/config/station_specs/rsp/AKASG_3C_bb_response_20021001
+/tst/software/shi/config/station_specs/rsp/AKASG_3C_bb_response_20030530
+/tst/software/shi/config/station_specs/rsp/AKASG_3C_bb_response_20120214
+/tst/software/shi/config/station_specs/rsp/AKASG_3C_bb_response_20160414
+-- all metadata and links to them can be retrieved by a single well design SQL query.
+Add there yet this diagram:
+Z:\Projects\VDMS\SEISAN_cleanup_release_preparation\sc3xml_a_chosen\static_tables_sensor_diagram.jpg
+
+# And now transform to DLSEED and try to read its content and compare.
+Generated - tkdiff nor meld was capable effectivelly compare these files.
+Just in Notepad++ I could check that DLSEED did not contain ncalib and ncalper filled
+in in the fourth pass.
+We try to convert using rseed applicaiton.
+
+cd /home/Jan/repo/rdseed
+./rdseed -h
+<< IRIS SEED Reader, Release 5.3 >>
+Usage:  rdseed -f inputfile -{a | d [list] | l | s | t}
+	where inputfile = name of input file or device;
+	 a = retrieve abbreviation dictionaries;
+	 b = set the seismogram input buffer size (bytes);
+	 c = retrieve volume table of contents;
+	 C = retrieve the comments where arg is either STN or CHN;
+	 d = read data from tape;
+	 e = extract event/station data;
+	 E = output filename includes endtime;
+	 f = input filename;
+	 g = alternate response file(s);
+	 h = help (this list);
+	 i = ignore location codes;
+	 k = strip records from output which have a zero sample count. (miniseed and seed only);
+	 l = list contents of each block in volume;
+	 o = specify output format (1=SAC, 2=AH, 3=CSS, 4=MINISEED, 5=SEED, 6=SAC ASCII, 7=SEGY, 8=Simple ASCII(SLIST), 9=Simple ASCII(TSPAIR) [default=1]);
+	 p = output poles and zeros;
+	 q = specify the output directory;
+	 Q = specify data type (E=Everything, D=Data of undetermined state, M=Merged Data, R=Raw waveform data, Q=QC'd data);
+	 R = print response data;
+	 s = retrieve all station header information;
+	 S = retrieve station summary information;
+	 t = show start/stop times, start blocks of events;
+	 u = usage (this list);
+	 v = select volume number;
+	 x = use summary file;
+	 z = check for reversals;
+
+./rdseed -f ~/projects/VDMS/SC3XML_A_chosen_forth_pass.dlseed -a > rdseed.abreavations
+- output brief description of sensors and instruments in the DLSEED file.
+./rdseed -f ~/projects/VDMS/SC3XML_A_chosen_forth_pass.dlseed -c > rdseed.table_of_content
+- output brief table of content - list of records per instrument
+./rdseed -f ~/projects/VDMS/SC3XML_A_chosen_forth_pass.dlseed -l
+<< IRIS SEED Reader, Release 5.3 >>
+	l = list contents of each logical record
+	Taking input from /home/Jan/projects/VDMS/SC3XML_A_chosen_forth_pass.dlseed
+000001 Volume header record
+000002 000003
+
+./rdseed -f ~/projects/VDMS/SC3XML_A_chosen_forth_pass.dlseed -p
+- prints out poles and zeros into many files
+-rw-rw-r-- 1 Jan Jan    1273 May  8 15:00 SAC_PZs_IM_AAK_BHE__2007.065.18.16.54.0000_2007.232.24.60.60.99999
+-rw-rw-r-- 1 Jan Jan    1247 May  8 15:00 SAC_PZs_IM_AAK_BHN__2007.299.00.00.00.0000_2008.325.24.60.60.99999
+-rw-rw-r-- 1 Jan Jan    1273 May  8 15:00 SAC_PZs_IM_AAK_BHN__2007.065.18.16.54.0000_2007.232.24.60.60.99999
+-rw-rw-r-- 1 Jan Jan    1369 May  8 15:00 SAC_PZs_IM_AAK_BHE__2014.255.00.00.00.0000_2599.365.23.59.59.99999
+-rw-rw-r-- 1 Jan Jan    1367 May  8 15:00 SAC_PZs_IM_AAK_BHE__2008.325.00.00.00.0000_2014.255.24.60.60.99999
+-rw-rw-r-- 1 Jan Jan    1247 May  8 15:00 SAC_PZs_IM_AAK_BHE__2007.299.00.00.00.0000_2008.325.24.60.60.99999
+-rw-rw-r-- 1 Jan Jan    1367 May  8 15:00 SAC_PZs_IM_AAK_BHZ__2008.325.00.00.00.0000_2014.255.24.60.60.99999
+
+cat SAC_PZs_IM_AKTO_BH2__2005.290.00.00.00.0000_2016.305.24.60.60.99999
+* **********************************
+* NETWORK   (KNETWK): IM
+* STATION    (KSTNM): AKTO
+* LOCATION   (KHOLE): 
+* CHANNEL   (KCMPNM): BH2
+* CREATED           : 2020-05-08T13:00:36
+* START             : 2005-10-17T00:00:00
+* END               : 2016-10-31T24:60:60
+* DESCRIPTION       : AKTYUBINSK, KAZAKHSTAN
+* LATITUDE          : 50.434800 
+* LONGITUDE         : 58.016400  
+* ELEVATION         : 379.0  
+* DEPTH             : 65.0 
+* DIP               : 90.0 
+* AZIMUTH           : 25.2 
+* SAMPLE RATE       : 40.0
+* INPUT UNIT        : M
+* OUTPUT UNIT       : COUNTS
+* INSTTYPE          : Guralp CMG-3TB + Nanometrics Europa-T
+* INSTGAIN          : 1.000000e+04 (M/S)
+* COMMENT           : N/A
+* SENSITIVITY       : 9.947180e+09 (M/S)
+* A0                : 7.612564e+12
+* **********************************
+ZEROS	3
+	+0.000000e+00	+0.000000e+00
+	+0.000000e+00	+0.000000e+00
+	+0.000000e+00	+0.000000e+00
+POLES	6
+	-1.004800e+03	+0.000000e+00
+	-5.024000e+02	+0.000000e+00
+	-1.130400e+03	+0.000000e+00
+	-4.439960e-02	-4.439960e-02
+	-4.439960e-02	+4.439960e-02
+	-1.333890e+04	+0.000000e+00
+CONSTANT	+7.572354e+22
+-------------------------------------------------------------
+
+./rdseed -f ~/projects/VDMS/SC3XML_A_chosen_forth_pass.dlseed -R
+- written out many stations response information
+-rw-rw-r-- 1 Jan Jan   70708 May  8 15:04 RESP.IM.AAK..BHE
+-rw-rw-r-- 1 Jan Jan   70708 May  8 15:04 RESP.IM.AAK..BHN
+-rw-rw-r-- 1 Jan Jan   70708 May  8 15:04 RESP.IM.AAK..BHZ
+-rw-rw-r-- 1 Jan Jan   37600 May  8 15:04 RESP.IM.AAK..SHE
+-rw-rw-r-- 1 Jan Jan   37600 May  8 15:04 RESP.IM.AAK..SHN
+-rw-rw-r-- 1 Jan Jan   37600 May  8 15:04 RESP.IM.AAK..SHZ
+
+As example RESP.IM.AAK..BHE contains:
+#               << IRIS SEED Reader, Release 5.3 >>
+#               
+#               ======== CHANNEL RESPONSE DATA ========
+B050F03     Station:     AAK
+B050F16     Network:     IM
+B052F03     Location:    ??
+B052F04     Channel:     BHN
+B052F22     Start date:  2007,065,18:16:54.0000
+B052F23     End date:    2007,232,00:00:00.0000
+#               =======================================
+#               +               +--------------------------------------------+                +
+#               +               |   Response (Poles & Zeros),   AAK ch BHN   |                +
+#               +               +--------------------------------------------+                +
+#               
+B053F03     Transfer function type:                A [Laplace Transform (Rad/sec)]
+B053F04     Stage sequence number:                 1
+B053F05     Response in units lookup:              M/S - Velocity in Meters per Second
+B053F06     Response out units lookup:             V - Volts
+B053F07     A0 normalization factor:               6.66821E+10
+B053F08     Normalization frequency:               1
+B053F09     Number of zeroes:                      6
+B053F14     Number of poles:                       8
+
+#               +                  +---------------------------------------+                  +
+#               +                  |       Channel Gain,   AAK ch BHN      |                  +
+#               +                  +---------------------------------------+                  +
+#               
+B058F03     Stage sequence number:                 1
+B058F04     Gain:                                  1.232000E+03
+B058F05     Frequency of gain:                     5.000000E-02 HZ
+B058F06     Number of calibrations:                0
+
+#               +               +-------------------------------------------+                 +
+#               +               |   Response (Coefficients),   AAK ch BHN   |                 +
+#               +               +-------------------------------------------+                 +
+#               
+B054F03     Transfer function type:                D
+B054F04     Stage sequence number:                 2
+B054F05     Response in units lookup:              V - Volts
+B054F06     Response out units lookup:             COUNTS - Digital Counts
+B054F07     Number of numerators:                  0
+B054F10     Number of denominators:                0
+#               
+#               +                      +------------------------------+                       +
+#               +                      |   Decimation,   AAK ch BHN   |                       +
+#               +                      +------------------------------+                       +
+#               
+B057F03     Stage sequence number:                 2
+B057F04     Input sample rate:                     1.000000E+02
+B057F05     Decimation factor:                     1
+B057F06     Decimation offset:                     0
+B057F07     Estimated delay (seconds):             0.000000E+00
+B057F08     Correction applied (seconds):          0.000000E+00
+#               
+#               +                  +---------------------------------------+                  +
+#               +                  |       Channel Gain,   AAK ch BHN      |                  +
+#               +                  +---------------------------------------+                  +
+#               
+B058F03     Stage sequence number:                 2
+B058F04     Gain:                                  6.911600E+05
+B058F05     Frequency of gain:                     0.000000E+00 HZ
+B058F06     Number of calibrations:                0
+#               
+#               +                     +--------------------------------+                      +
+#               +                     |   FIR response,   AAK ch BHN   |                      +
+#               +                     +--------------------------------+                      +
+#               
+B061F03     Stage sequence number:                 3
+B061F05     Symmetry type:                         A
+B061F06     Response in units lookup:              COUNTS - Digital Counts
+B061F07     Response out units lookup:             COUNTS - Digital Counts
+B061F08     Number of numerators:                  99
+#               Numerator coefficients:
+#                 i, coefficient
+B061F09       0 -3.377410E-07
+B061F09       1 -8.629090E-07
+B061F09       2 -1.549420E-06
+B061F09       3 -2.040370E-06
+B061F09       4 -1.603610E-06
+B061F09       5  8.767010E-07
+B061F09       6  6.730390E-06
+B061F09       7  1.709000E-05
+...
+
+./rdseed -f ~/projects/VDMS/SC3XML_A_chosen_forth_pass.dlseed -s > rdseed.stations_headers
+- stores all stations(sites) header information
+
+
+# And then one hydro station and one infrasound station - to understand it.
+Infrasound station I31KZ - array in Kazakhstan
+./vdms_clean_u_release_I_chosen.sh | & tee I_chosen_css2inv.log
+- checking the content - there is no idc-ext block with ncalib and ncalper values
+
+Checking why, because there are no instrument records directly linked with
+stations I31KZ. But there are array sites which are linked to
+instrument records which are being actually processed and which points
+to the instrument response files and contain ncalib, ncalper records.
+
+select * from static.instrument where inid in (select inid from static.sensor where sta like 'I31KZ')
+-- gives not records
+
+select * from static.instrument where inid in (
+  select inid from static.sensor where sta in (select sta from static.sitechan where sta in (select sta from static.affiliation where net like 'I31KZ'))
+)
+-- resurns many records - e.g. this files is correctly read by css2inv, but reading of ncalib, ncalper values
+from the instrument table is missing.
+
+select * from static.instrument where dfile like 'I31KZ_BDF.1'
+---
+212402	DASE microbarometer	MB2000	s	d	20	0.000095367	10	/tst/software/shi/config/station_specs/rsp	I31KZ_BDF.1	paz	22-MAY-03
+212407	DASE microbarometer	MB2000	s	d	20	0.000095367	10	/tst/software/shi/config/station_specs/rsp	I31KZ_BDF.1	paz	22-MAY-03
+...
+---
+
+We will report this as a strange issue - might be I do not correctly understand.
+
+Now let us check the content of particular poles/zeros and coeaficients.
+
+./rdseed -f ~/projects/VDMS/SC3XML_I_chosen_forth_pass.dlseed -a > rdseed.abrevations
+./rdseed -f ~/projects/VDMS/SC3XML_I_chosen_forth_pass.dlseed -p
+- for several blockets there were warnings:
+<< IRIS SEED Reader, Release 5.3 >>
+	p = output poles and zeros
+	Taking input from /home/Jan/projects/VDMS/SC3XML_I_chosen_forth_pass.dlseed
+Writing SAC poles and zeros file:SAC_PZs_IM_I31H1_BDF__2002.335.00.00.00.0000_2006.130.24.60.60.99999
+WARNING - couldn't find - blockette (58/48) stage one!!
+WARNING - Unable to annotate the INSTGAIN, setting to zero
+For station: I31H1; channel: BDF
+	Channel effective time: 2002,335,00:00:00.0000 to 2006,130,00:00:00.0000
+Writing SAC poles and zeros file:SAC_PZs_IM_I31H1_BDF__2006.131.00.00.00.0000_2017.272.24.60.60.99999
+WARNING - couldn't find - blockette (58/48) stage one!!
+WARNING - Unable to annotate the INSTGAIN, setting to zero
+For station: I31H1; channel: BDF
+...
+but many were written out correctly.
+
+Checked content of:
+SAC_PZs_IM_I31H2_BDF__2019.296.00.00.00.0000_2019.321.24.60.60.99999
+poles and zeros where found in this file:
+/tst/software/shi/config/station_specs/rsp/I31KZ_BDF_rsp_20190204
+
+
+# 19.3.2020 - design of one single build script for VDMS Third party for DCR-3313
+which implements functions which might be integrated into COD scripts.
+
+We have these layers:
+- build scripts of the repositories which can be either IDC/CATS and can run unit/db_unit tests
+- important is that in eniab we have build script which should be maintend by Wolfgang and
+  builds only parts for VDMS - but needs various tricks currently implemented there.
+- Jenkins jobs contain big scripts which publishes artifacts into a standard structure
+  and wrap them into tar.gz balls and publishes them to Nexus.
+  Structure is like this:
+  |-> lib
+  |-> bin
+  |-> libexec
+  `-> share
+  (at least we have this structure for eniab)
+  During deployment are copied whole directories - all files.
+  Selection is done during publishing to Nexus in the Jenkins job.
+  Mapping to target VDMS nms/usr structure is implemented in the deployVdms-3rf.sh
+  as input variables in this structure:
+  INSTALLPATH
+  SCRIPTPATH
+  BINPATH
+  LIBPATH
+  SHAREPATH
+
+- Would be good if can share functions for:
+  lookup table for input resources - publish to Nexus tar bal.
+  Mapping to target VDMS installation used in the deployment script.
+
+  Probably would be good to have two stages - scripts.
+  One for build - publish to TEMPINSTALLPATH.
+  Second stage for publishing to target INSTALL (install repo).
+  Lookup we can keep in continuous_delivery repo.
+  In cats repo we should build whole repositories for various purposes.
+  (seiscomp3 for VDMS as well as for ENIAB project).
+
+When this is done I move the job for seiscomp3 - ctbto sub-dir into seprate job.
+Look up table will be used by its name there.
+
+# Detail design
+(after we test Cyrilles script for evsc_drv and integrate it all.)
+- what about running unit tests?
+Build:
+    build_VDMS-THIRD-PARTY.sh
+    deploy_VDMS-THIRD-PARTY.sh
+    # lookups
+    waveReaderResources.txt
+    seiscomp3Resources.txt
+    norimsResources.txt
+    evsc_drvResources.txt
+
+We should support different buils for different THIRD-PARTY and thus different
+directories. Different local directories - different out directories.
+
+This will go to the preliminary checks
+export JAVA_HOME=/usr/lib/jvm/java-1.8.0
+#export LD_LIBRARY_PATH=/var/tmp/cats/bin/oracle/product/12.2/lib:/apps/bin/opencv/install/lib/
+export ORACLE_HOME=/var/tmp/cats/bin/oracle/product/12.2
+export SCHEMEPATH=/tmp/evsc_drv_build/ibase/scheme
+
+Controlled from outside:
+BUILD_TYPE - IDC/CATS
+
+# COD - testing for guys on devlab05
+It is possible to send request emails from cats and cmss users.
+From linux or from mutt - for cmss it is configured (probably for linux account, not for IMAP/SMTP).
+Sent today the email to guys.
+
