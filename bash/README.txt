@@ -73,6 +73,47 @@ File operators for bash:
 -s file	Checks if file has size greater than 0; if yes, then condition becomes true.		[ -s $file ] is true.
 -e file	Checks if file exists; is true even if file is a directory but exists.			[ -e $file ] is true.
 
+Loops - simple nested, control over loops
+Substitions:
+
+\\ backslash
+\a alert (BEL)
+\b backspace
+\c suppress trailing newline
+\f form feed
+\n new line
+\r carriage return
+\t horizontal tab
+\v vertical tab
+
+You can use the -E option to disable the interpretation of the backslash escapes (default).
+You can use the -n option to disable the insertion of a new line.
+
+Substituting variables based on their state:
+${var} Substitute the value of var.
+${var:-word} If var is null or unset, word is substituted for var. The value of var does not change.
+${var:=word} If var is null or unset, var is set to the value of word.
+${var:?message} If var is null or unset, message is printed to standard error. This checks that variables are set correctly.
+${var:+word} If var is set, word is substituted for var. The value of var does not change.
+
+Metacharcters
+Here is a list of most of the shell special characters (also called metacharacters)
+* ? [ ] ' " \ $ ; & ( ) | ^ < > new-line space tab
+
+Quoting & Description
+
+Single quote     All special characters between these quotes lose their special meaning.
+Double quote     Most special characters between these quotes lose their special meaning with these exceptions −
+    $
+    `
+    \$
+    \'
+    \"
+    \\
+Backslash       Any character immediately following the backslash loses its special meaning.
+Back quote      Anything in between back quotes would be treated as a command and would be executed.
+
+Ended in IO redirection
 
 
 Operatos for c-shell:

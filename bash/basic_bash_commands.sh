@@ -214,3 +214,101 @@ for FILE in $HOME/*
 do
    echo $FILE
 done
+
+# Here is a simple example which shows that loop terminates as soon as a becomes 5 
+echo "Here is a simple example which shows that loop terminates as soon as a becomes 5"
+
+a=0
+while [ $a -lt 10 ]
+do
+   echo $a
+   if [ $a -eq 5 ]
+   then
+      break
+   fi
+   a=`expr $a + 1`
+done
+
+# Break in the inner, and outer loop
+echo "Break in the inner, and outer loop"
+for var1 in 1 2 3
+do
+   for var2 in 0 5
+   do
+      if [ $var1 -eq 2 -a $var2 -eq 0 ]
+      then
+         break 2
+      else
+         echo "$var1 $var2"
+      fi
+   done
+done
+
+# Usage of continue to break one iteration of the loop
+echo 'Usage of continue to break one iteration of the loop'
+
+NUMS="1 2 3 4 5 6 7"
+
+for NUM in $NUMS
+do
+   Q=`expr $NUM % 2`
+   if [ $Q -eq 0 ]
+   then
+      echo "Number is an even number!!"
+      continue
+   fi
+   echo "Found odd number"
+done
+
+# Substitions. Here the -e option enables the interpretation of backslash escapes.
+echo -e "\nSubstitutions."
+echo -e "Value of a is $a \n"
+
+# Command substituton
+echo "Command substituton"
+DATE=`date`
+echo "Date is $DATE"
+
+USERS=`who | wc -l`
+echo "Logged in user are $USERS"
+
+UP=`date ; uptime`
+echo "Uptime is $UP"
+
+# Substituting variables based on their state and content
+unset var
+echo ${var:-"Variable is not set"}
+echo "1 - Value of var is ${var}"
+
+echo ${var:="Variable is not set"}
+echo "2 - Value of var is ${var}"
+
+unset var
+echo ${var:+"This is default value"}
+echo "3 - Value of var is $var"
+
+var="Prefix"
+echo ${var:+"This is default value"}
+echo "4 - Value of var is $var"
+
+echo ${var:?"Print this message"}
+echo "5 - Value of var is ${var}"
+
+# Quoting metacharcters
+echo "Quoting metacharcters"
+
+echo Hello\; Word
+echo "I have \$1200"
+
+# putting backslah in front of each is tedious work
+echo \<-\$1500.\*\*\>\; \(update\?\) \[y\|n\]
+
+# Put a single quote (') at the beginning and at the end of the string
+echo '<-$1500.**>; (update?) [y|n]'
+
+# But
+echo It\'s Shell Programming
+
+VAR=ZARA
+echo '$VAR owes <-$1500.**>; [ as of (`date +%m/%d`) ]'
+echo "$VAR owes <-\$1500.**>; [ as of (`date +%m/%d`) ]"
