@@ -1147,4 +1147,130 @@ We will test yet following:
 1. Adding me as user dlv019 instance and test couple of requests - various ones and watch adjacent logs and tables.
 2. Create a subscription and recieve some SHI data products.
 
+# 3.62020 - issue with parsing of output of the IMAP listing command
 
+The issue was that parsing was too primite and wired to the output observed
+in the IMAP servers in use.
+
+Code which I was using for parsing:
+for mailbox in mailboxes:
+    mailbox.split('"/"')[1].strip()[1:-1]
+    or
+    mailbox.split('"."')[1].strip()[1:-1]
+
+Have change it such that it will only remove " - double quota
+for mailbox in mailboxes:
+    mailbox.split('"/"')[1].strip().replace('"','')
+    mailbox.split('"."')[1].strip().replace('"','')
+
+But it really seems that format of output from the server has changed from - probably:
+['(\\HasChildren) "." "INBOX"', '(\\HasNoChildren) "." "INBOX.Drafts"', '(\\HasNoChildren) "." "INBOX.Sent"', '(\\HasNoChildren) "." "Junk E-mail"', '(\\HasNoChildren) "." "Trash"']
+to the current:
+['(\\HasChildren) "." INBOX', '(\\HasNoChildren) "." INBOX.Drafts', '(\\HasNoChildren) "." INBOX.Sent', '(\\HasNoChildren) "." "Junk E-mail"', '(\\HasNoChildren) "." Trash']
+and this had happend on 1.July 2020.
+And right after this provided names for wiping out did not match to the listing of INBOXES.
+And very likelly this had happend on the server side of imap.ctbto.org.
+I know this is subtle change, but whereas I am responsible for VDMS - I at least create a ticket 
+to double check whether connection code is compatible.
+
+Deatils of connecting to various IMAP which I have tried - with your code for parsing.
+(You see that the output might be different, with different delimiter and slightly different format
+for various IMAP servers.)
+
+dlw077.idc.ctbto.org.-1002% python
+Python 2.6.6 (r266:84292, Aug  9 2016, 06:11:56) 
+[GCC 4.4.7 20120313 (Red Hat 4.4.7-17)] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import imaplib
+>>> imaplib.__version__
+'2.58'
+>>> imaplib.__file__   
+'/usr/lib64/python2.6/imaplib.pyc'
+>>> imapClient = imaplib.IMAP4_SSL('imap.ctbto.org', 993)
+>>> rv, data = imapClient.login('nmsunittest', 'XXX')
+>>> rv, mailboxes = imapClient.list()
+>>> print mailboxes
+['(\\HasChildren) "." INBOX', '(\\HasNoChildren) "." INBOX.Drafts', '(\\HasNoChildren) "." INBOX.Sent', '(\\HasNoChildren) "." "Junk E-mail"', '(\\HasNoChildren) "." Trash']
+>>> for mailbox in mailboxes:
+...     print mailbox.split(None,2)[-1]
+... 
+INBOX
+INBOX.Drafts
+INBOX.Sent
+"Junk E-mail"
+Trash
+
+DEVLAB machine - user cats
+-bash-4.1$ python
+Python 2.6.6 (r266:84292, Aug  9 2016, 06:11:56) 
+[GCC 4.4.7 20120313 (Red Hat 4.4.7-17)] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import imaplib
+>>> imapClient = imaplib.IMAP4('localhost', 143)
+>>> imaplib.__version__
+'2.58'
+>>> imaplib.__file__
+'/usr/lib64/python2.6/imaplib.pyc'
+>>> imapClient.login('cats', 'password')
+('OK', ['Logged in'])
+>>> rv, mailboxes = imapClient.list()
+>>> print mailboxes
+['(\\NoInferiors \\UnMarked) "/" "INBOX"']
+>>> for mailbox in mailboxes:
+...     print mailbox.split(None,2)[-1]
+... 
+"/" "INBOX"
+
+Our nmsunittest gmail:
+Python 2.6.6 (r266:84292, Aug  9 2016, 06:11:56) 
+[GCC 4.4.7 20120313 (Red Hat 4.4.7-17)] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import imaplib
+>>> imaplib.__version__
+'2.58'
+>>> imaplib.__file__
+'/usr/lib64/python2.6/imaplib.pyc'
+>>> imapClient = imaplib.IMAP4_SSL('imap.gmail.com', 993)
+>>> imapClient.login('nmsunittest@gmail.com','XXX')
+('OK', ['nmsunittest@gmail.com authenticated (Success)'])
+>>> rv, mailboxes = imapClient.list()
+>>> print mailboxes
+['(\\HasNoChildren) "/" "INBOX"', '(\\HasChildren \\Noselect) "/" "[Gmail]"', '(\\All \\HasNoChildren) "/" "[Gmail]/All Mail"', '(\\HasNoChildren \\Trash) "/" "[Gmail]/Bin"', '(\\Drafts \\HasNoChildren) "/" "[Gmail]/Drafts"', '(\\HasNoChildren \\Important) "/" "[Gmail]/Important"', '(\\HasNoChildren \\Sent) "/" "[Gmail]/Sent Mail"', '(\\HasNoChildren \\Junk) "/" "[Gmail]/Spam"', '(\\Flagged \\HasNoChildren) "/" "[Gmail]/Starred"']
+>>> for mailbox in mailboxes:
+...     print mailbox.split(None,2)[-1]
+... 
+"INBOX"
+"/" "[Gmail]"
+"/" "[Gmail]/All Mail"
+"/" "[Gmail]/Bin"
+"/" "[Gmail]/Drafts"
+"/" "[Gmail]/Important"
+"/" "[Gmail]/Sent Mail"
+"/" "[Gmail]/Spam"
+"/" "[Gmail]/Starred"
+>>> imapClient.list("INBOX")
+('OK', ['(\\HasNoChildren) "/" "INBOX"'])
+
+My malta25 impa connection:
+dlw077.idc.ctbto.org.-1003% python
+Python 2.6.6 (r266:84292, Aug  9 2016, 06:11:56) 
+[GCC 4.4.7 20120313 (Red Hat 4.4.7-17)] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import imaplib
+>>> M = imaplib.IMAP4_SSL('malta25.office.ctbto.org')
+>>> rv, data = M.login('jan.kianicka@ctbto.org', 'XXX')
+>>> print rv
+OK
+>>> M.list()
+('OK', ['(\\Marked \\HasNoChildren) "/" Calendar', '(\\HasChildren) "/" Contacts', '(\\Marked \\HasNoChildren \\Trash) "/" "Deleted Items"', '(\\HasNoChildren \\Drafts) "/" Drafts', '(\\Marked \\HasChildren) "/" INBOX', '(\\HasChildren) "/" INBOX/ACQ', '(\\HasNoChildren) "/" INBOX/ACQ/automatic', '(\\Marked \\HasNoChildren) "/" INBOX/administration', '(\\HasChildren) "/" INBOX/buyrocracy', '(\\HasNoChildren) "/" INBOX/buyrocracy/adoption', '(\\HasNoChildren) "/" INBOX/buyrocracy/tax_accounting', '(\\HasChildren) "/" INBOX/CATS', '(\\HasNoChildren) "/" INBOX/CATS/admin', '(\\HasNoChildren) "/" INBOX/CATS/ATM', '(\\Marked \\HasNoChildren) "/" INBOX/CATS/automatic', '(\\HasNoChildren) "/" INBOX/CATS/dtk-pmcc', '(\\HasNoChildren) "/" INBOX/CATS/geotool', '(\\HasNoChildren) "/" INBOX/CATS/geotoolqt', '(\\HasNoChildren) "/" INBOX/CATS/NetVisa', '(\\HasNoChildren) "/" INBOX/CATS/RH7', '(\\HasNoChildren) "/" INBOX/CATS/slack', '(\\HasNoChildren) "/" INBOX/CATS/VDMS', '(\\Marked \\HasChildren) "/" INBOX/COD', '(\\HasNoChildren) "/" INBOX/COD/admin', '(\\Marked \\HasNoChildren) "/" INBOX/COD/automatic', '(\\HasNoChildren) "/" INBOX/COD/radionuclide', '(\\HasNoChildren) "/" INBOX/COD/VDMS_automatic', '(\\HasNoChildren) "/" INBOX/ECS', '(\\Marked \\HasNoChildren) "/" INBOX/general_important', '(\\Marked \\HasNoChildren) "/" INBOX/general_unrelated', '(\\HasNoChildren) "/" INBOX/IDCReeingineering', '(\\HasNoChildren) "/" INBOX/personal', '(\\Marked \\HasChildren) "/" INBOX/PKI_C&-C', '(\\HasNoChildren) "/" INBOX/PKI_C&-C/automatic', '(\\HasNoChildren) "/" INBOX/Research', '(\\HasChildren) "/" INBOX/SHI_support_prj', '(\\HasNoChildren) "/" INBOX/SHI_support_prj/automatic', '(\\Marked \\HasChildren) "/" INBOX/study', '(\\HasNoChildren) "/" INBOX/study/ProjectManagement', '(\\HasNoChildren) "/" INBOX/study/Terraform', '(\\HasNoChildren) "/" INBOX/vDec', '(\\Marked \\HasChildren) "/" INBOX/VDMS', '(\\HasNoChildren) "/" INBOX/VDMS/admin', '(\\HasNoChildren) "/" INBOX/VDMS/Artal_people', '(\\Marked \\HasNoChildren) "/" INBOX/VDMS/automatic', '(\\HasNoChildren) "/" INBOX/VDMS/mail_tests', '(\\HasNoChildren) "/" INBOX/VDMS/not_important', '(\\HasNoChildren) "/" INBOX/VDMS/RN_special', '(\\HasNoChildren) "/" INBOX/VDMS/support', '(\\Marked \\HasNoChildren) "/" INBOX/VDMS/wo_billing', '(\\HasNoChildren) "/" Journal', '(\\HasNoChildren \\Junk) "/" "Junk E-mail"', '(\\HasNoChildren) "/" Koncepty', '(\\HasNoChildren) "/" Notes', '(\\HasNoChildren) "/" "Odoslan&AOE- po&AWE-ta"', '(\\Marked \\HasNoChildren) "/" Outbox', '(\\HasNoChildren) "/" "RSS Feeds"', '(\\HasNoChildren) "/" Sent', '(\\Marked \\HasNoChildren \\Sent) "/" "Sent Items"', '(\\HasChildren) "/" "Spam Mail"', '(\\HasNoChildren) "/" "Spam Mail/Approved Sender List"', '(\\HasNoChildren) "/" "Suggested Contacts"', '(\\HasChildren) "/" "Sync Issues"', '(\\HasNoChildren) "/" "Sync Issues/Conflicts"', '(\\HasNoChildren) "/" "Sync Issues/Local Failures"', '(\\HasNoChildren) "/" "Sync Issues/Server Failures"', '(\\HasNoChildren) "/" Tasks', '(\\HasChildren) "/" Trash', '(\\HasNoChildren) "/" Trash/general_unrelated'])
+
+
+# 4.9.2020 - generation and requesting certificate for dlv018 installation
+nmsgsys
+> cd ${HOME}/pki-keys/
+> openssl ecparam -name prime256v1 -genkey -noout -out IDC-DVL2-ECDSA.key
+> openssl req -new -sha256 -key IDC-DVL2-ECDSA.key -subj '/O=CTBTO/OU=IMS/OU=Data Authenticators/L=IDCDVL/CN=WS02-IDC-DVL' -out ec_cert_req_dvl2.csr
+This was then attached to the DCR and assigned to Security Officer - Florin.
+> ...
+
+> ldapsearch -x -h pkildap13.ops.ctbto.org -b "l=IDC-DVL,ou=Data Authenticators,ou=IMS,o=ctbto" objectclass=*

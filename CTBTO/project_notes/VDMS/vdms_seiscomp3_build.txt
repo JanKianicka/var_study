@@ -57,6 +57,19 @@ cmake ../ \
 -DSC_GLOBAL_GUI=OFF
 make
 
+cmake ../ \
+-DCMAKE_INSTALL_PREFIX=<path_to>install/seicomp3 \
+-DENIAB_CBASE_INCLUDE=<path_to>install/cbase/include -DENIAB_CBASE_LIBDIR=<path_to>install/cbase/lib \
+-DENIAB_SBASE_INCLUDE=<path_to>install/sbase/include -DENIAB_SBASE_LIBDIR=<path_to>install/sbase/lib \
+-DENIAB_IDCMODEL_INCLUDE=<path_to>install/idcmodel/include -DENIAB_IDCMODEL_LIBDIR=<path_to>install/idcmodel/lib \
+-DENIAB_IBASE_INCLUDE=<path_to>install/ibase/include -DENIAB_IBASE_LIBDIR=<path_to>install/ibase/lib \
+-DENIAB_DFX_INCLUDE=<path_to>install/dfx/include -DENIAB_DFX_LIBDIR=<path_to>install/dfx/lib \
+-DENIAB_GBASE_INCLUDE=<path_to>install/gbase/include -DENIAB_GBASE_LIBDIR=<path_to>install/gbase/lib \
+-DSC_TRUNK_DB_POSTGRESQL=ON \
+-DSC_TRUNK_DB_MYSQL=OFF \
+-DSC_GLOBAL_GUI=OFF
+make
+
 The first build attempt ended up with the compilation error:
 ---
 /git/kianicka_new/install/ibase/lib/libgdi.a(ora_fetch.o): In function `ora_fetch':
@@ -136,7 +149,7 @@ cmake ../ \
 -DSC_TRUNK_DB_POSTGRESQL=ON \
 -DSC_TRUNK_DB_MYSQL=OFF \
 -DSC_GLOBAL_GUI=OFF
-make
+make install
 
 We can not build seicomp3 binaries using the operations version.
 We have compilation error:

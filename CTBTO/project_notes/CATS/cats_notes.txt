@@ -579,4 +579,17 @@ checking for pkg-config... /usr/bin/pkg-config
 
 ERROR: Command errored out with exit status 1: /home/cats/python/bin/python -u -c 'import sys, setuptools, tokenize; sys.argv[0] = '"'"'/tmp/pip-install-dmIi9B/wxpython/setup.py'"'"'; __file__='"'"'/tmp/pip-install-dmIi9B/wxpython/setup.py'"'"';f=getattr(tokenize, '"'"'open'"'"', open)(__file__);code=f.read().replace('"'"'\r\n'"'"', '"'"'\n'"'"');f.close();exec(compile(code, __file__, '"'"'exec'"'"'))' install --record /tmp/pip-record-2VD5IJ/install-record.txt --single-version-externally-managed --compile --install-headers /home/cats/python/include/site/python2.7/wxpython Check the logs for full command output.
 
+# I am all the time missing procedure for manual execution of bbox tests:
+export WORKSPACE=~/workspace
+#export CMS_MODE=analysis
+export CMS_MODE=process
+export CMS_HOME=${WORKSPACE}/install/shi-automatic
+export CMS_SCRIPTS=${WORKSPACE}/shiscripts
+export CATS_DATA_ROBOT_REPO_COMMITTISH=github-master-reference-quick
+
+~/cats/oracle/load-schema.sh
+# then in order to run GA black box test
+cd ~/cats/blackbox/tests/shi-automatic/GA
+./run.sh
+
 

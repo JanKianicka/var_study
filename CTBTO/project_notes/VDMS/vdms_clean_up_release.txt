@@ -1,4 +1,4 @@
-# Notes about the cleanup release preparation - Januray 2020
+﻿# Notes about the cleanup release preparation - Januray 2020
 ---
 1. VDMS
 SEISAN integration:
@@ -1299,6 +1299,116 @@ tlv105.test.ctbto.org.-107% top -b -d 10 | grep css2inv
 13346 auto      20   0  444m  65m  36m R 96.6  0.6   2:24.17 1 -         css2inv
 13346 auto      20   0  444m  66m  36m R 96.5  0.6   2:33.84 1 -         css2inv
 
+# after having fixed SIGTERM sedning we have these records - prodution engines do not release memory
+top - 07:56:07 up 10 days, 20:25,  1 user,  load average: 1.10, 1.14, 1.09
+Tasks: 183 total,   1 running, 182 sleeping,   0 stopped,   0 zombie
+Cpu(s): 45.3%us,  2.7%sy,  0.0%ni, 51.9%id,  0.0%wa,  0.0%hi,  0.1%si,  0.0%st
+Mem:  12196064k total, 10971476k used,  1224588k free,    93504k buffers
+Swap:  1023996k total,    75408k used,   948588k free,  2788128k cached
+
+  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+ 4443 auto      20   0 1807m 1.4g 5500 S  0.7 12.4 213:41.97 python
+ 4445 auto      20   0 1608m 1.2g 5500 S  0.0 10.5 123:22.57 python
+ 4440 auto      20   0 1608m 1.2g 5500 S  0.0 10.2  84:37.98 python
+ 4444 auto      20   0 1416m 1.0g 5500 S 100.0  8.8 185:09.06 python
+ 4446 auto      20   0 1416m 1.0g 5500 S  0.3  8.6 150:28.08 python
+ 4439 auto      20   0  954m 596m 5500 S  0.3  5.0  98:14.40 python
+ 4441 auto      20   0  566m 224m 5492 S  0.7  1.9  58:33.82 python
+ 4442 auto      20   0  575m 195m 5492 S  0.3  1.6  52:19.45 python
+ 6792 auto      20   0  957m 178m 5740 S  0.7  1.5 237:24.90 python
+12376 auto      20   0  445m  65m  38m S 30.2  0.6   2:16.63 css2inv
+12377 auto      20   0  230m  64m  23m S  0.0  0.5   0:00.45 python
+ 4421 auto      20   0 1567m  58m 5512 S  0.3  0.5  39:26.90 python
+ 4526 auto      20   0  456m  43m 5796 S  0.7  0.4 127:14.97 python
+ 1924 root      20   0  150m  42m 1912 S  0.0  0.4   1:44.02 puppet
+ 4389 auto      20   0  958m  33m 5344 S  0.3  0.3  65:33.35 python
+ 6717 auto      20   0  727m  29m 5804 S  0.0  0.2  16:32.51 python
+ 6743 auto      20   0  257m  27m 5136 S  0.0  0.2  15:17.47 python
+
+
+
+dlv019.idc.ctbto.org.-799% free -h
+             total       used       free     shared    buffers     cached
+Mem:           11G        10G       1.2G       232K        91M       2.7G
+-/+ buffers/cache:       7.7G       3.9G
+Swap:         999M        73M       926M
+
+
+After accomlishing all STA_LIST * and smoke tests and idle process we remain
+to have not release memory:
+
+top - 09:46:33 up 10 days, 22:16,  2 users,  load average: 0.14, 0.13, 0.14
+Tasks: 187 total,   1 running, 186 sleeping,   0 stopped,   0 zombie
+Cpu(s):  3.4%us,  3.0%sy,  0.0%ni, 93.4%id,  0.0%wa,  0.0%hi,  0.1%si,  0.0%st
+Mem:  12196064k total, 10868396k used,  1327668k free,    98384k buffers
+Swap:  1023996k total,    75408k used,   948588k free,  2745092k cached
+
+  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+ 4443 auto      20   0 1807m 1.4g 5500 S  0.3 12.4 214:14.63 python
+ 4445 auto      20   0 1608m 1.2g 5500 S  0.3 10.5 123:40.09 python
+ 4440 auto      20   0 1608m 1.2g 5500 S  0.7 10.2  84:55.60 python
+ 4444 auto      20   0 1416m 1.0g 5500 S  0.0  8.8 195:26.62 python
+ 4446 auto      20   0 1416m 1.0g 5500 S  0.3  8.6 150:46.16 python
+ 4439 auto      20   0  954m 596m 5500 S  0.3  5.0  98:31.68 python
+ 4441 auto      20   0  566m 224m 5492 S  0.3  1.9  58:52.46 python
+ 4442 auto      20   0  575m 195m 5492 S  0.3  1.6  52:37.94 python
+ 6792 auto      20   0  957m 179m 5740 S  1.0  1.5 239:06.76 python
+ 4421 auto      20   0 1567m  58m 5512 S  0.7  0.5  39:57.90 python
+ 4526 auto      20   0  456m  44m 5796 S  1.3  0.4 128:52.36 python
+ 1924 root      20   0  150m  42m 1912 S  0.0  0.4   1:44.77 puppet
+ 4389 auto      20   0  958m  33m 5344 S  1.0  0.3  66:26.24 python
+ 6717 auto      20   0  727m  29m 5804 S  0.0  0.2  16:39.29 python
+ 6743 auto      20   0  257m  27m 5136 S  0.0  0.2  15:23.93 python
+
+dlv019.idc.ctbto.org.-806% free -h
+             total       used       free     shared    buffers     cached
+Mem:           11G        10G       1.3G       544K        96M       2.6G
+-/+ buffers/cache:       7.7G       4.0G
+Swap:         999M        73M       926M
+
+But no SIGTERM sent over weekend:
+dlv019.idc.ctbto.org.-807% grep SIG /dvl/syslog/2020-05-[0,1][8,9]/ctbt.msgsys.production_engine
+
+- 12.5.2020 - after smoke tests - system is generally idle
+top - 10:47:43 up 11 days, 23:17,  3 users,  load average: 0.40, 0.21, 0.33
+Tasks: 191 total,   2 running, 189 sleeping,   0 stopped,   0 zombie
+Cpu(s): 12.1%us,  2.2%sy,  0.0%ni, 85.7%id,  0.0%wa,  0.0%hi,  0.0%si,  0.0%st
+Mem:  12196064k total, 10277448k used,  1918616k free,    38084k buffers
+Swap:  1023996k total,  1004820k used,    19176k free,  2241840k cached
+
+  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+ 4443 auto      20   0 1935m 1.2g 3300 S  0.3 10.2 239:30.68 python 
+ 4440 auto      20   0 1608m 1.2g 3256 S  0.3 10.0 167:50.46 python 
+ 4445 auto      20   0 1608m 1.0g 2928 S  0.3  8.6 129:43.52 python 
+ 4446 auto      20   0 1416m 1.0g 3312 S  0.3  8.4 156:55.67 python 
+ 4444 auto      20   0 1416m 881m 2860 S  0.7  7.4 215:36.14 python 
+ 4439 auto      20   0  954m 503m 2936 S  0.3  4.2 117:00.62 python 
+ 4421 auto      20   0 1978m 473m 3024 S  0.7  4.0  64:36.55 python 
+ 4441 auto      20   0  706m 329m 3252 S  0.3  2.8  76:13.86 python 
+ 4442 auto      20   0  575m 215m 2764 S  0.0  1.8  74:35.74 python 
+ 6792 auto      20   0  959m 188m 2980 S  1.0  1.6 261:52.38 python 
+31166 auto      20   0  455m  75m  38m R 31.2  0.6   5:37.38 css2inv     
+
+dlv019.idc.ctbto.org.-824% free -h
+             total       used       free     shared    buffers     cached
+Mem:           11G       9.8G       1.8G       524K        37M       2.1G
+-/+ buffers/cache:       7.6G       4.0G
+Swap:         999M       981M        18M
+
+No SIGTERM.
+
+
+These syslog errors remained there:
+dlv019.idc.ctbto.org.-801% grep Error /dvl/syslog/2020-05-11/ctbt.msgsys.production_engine
+2020-05-11T01:31:03+00:00 dlv019/172.27.48.48 [user.err] ctbt.msgsys.production_engine[]: IMS2Formatter - 4440/JobPicker-4 - ERROR - [Errno 2] No such file or directory: '/dvl/msgsys_cache/nms_te_store/RNPS_None1.bul'#012Traceback (most recent call last):#012  File "build/bdist.linux-x86_64/egg/nms_result_manager/publisher.py", line 847, in format#012    content += self._read_data(file_desc.content)#012  File "build/bdist.linux-x86_64/egg/nms_result_manager/publisher.py", line 737, in _read_data#012    with open(file_desc, 'r') as file_2_read:#012IOError: [Errno 2] No such file or directory: '/dvl/msgsys_cache/nms_te_store/RNPS_None1.bul'
+2020-05-11T04:20:35+00:00 dlv019/172.27.48.48 [user.err] ctbt.msgsys.production_engine[]: ResultDao - 4442/JobPicker-4 - ERROR - SQL request failed with following error: (IntegrityError) ORA-00001: unique constraint (PADD.PK_MSG_RES_ITEM_FILE_DESC) violated
+dlv019.idc.ctbto.org.-802% grep Error /dvl/syslog/2020-05-10/ctbt.msgsys.production_engine
+2020-05-10T01:31:03+00:00 dlv019/172.27.48.48 [user.err] ctbt.msgsys.production_engine[]: IMS2Formatter - 4445/JobPicker-4 - ERROR - [Errno 2] No such file or directory: '/dvl/msgsys_cache/nms_te_store/RNPS_None1.bul'#012Traceback (most recent call last):#012  File "build/bdist.linux-x86_64/egg/nms_result_manager/publisher.py", line 847, in format#012    content += self._read_data(file_desc.content)#012  File "build/bdist.linux-x86_64/egg/nms_result_manager/publisher.py", line 737, in _read_data#012    with open(file_desc, 'r') as file_2_read:#012IOError: [Errno 2] No such file or directory: '/dvl/msgsys_cache/nms_te_store/RNPS_None1.bul'
+2020-05-10T04:20:33+00:00 dlv019/172.27.48.48 [user.err] ctbt.msgsys.production_engine[]: ResultDao - 4443/JobPicker-4 - ERROR - SQL request failed with following error: (IntegrityError) ORA-00001: unique constraint (PADD.PK_MSG_RES_ITEM_FILE_DESC) violated
+dlv019.idc.ctbto.org.-803% grep Error /dvl/syslog/2020-05-09/ctbt.msgsys.production_engine
+2020-05-09T01:31:02+00:00 dlv019/172.27.48.48 [user.err] ctbt.msgsys.production_engine[]: IMS2Formatter - 4440/JobPicker-4 - ERROR - [Errno 2] No such file or directory: '/dvl/msgsys_cache/nms_te_store/RNPS_None1.bul'#012Traceback (most recent call last):#012  File "build/bdist.linux-x86_64/egg/nms_result_manager/publisher.py", line 847, in format#012    content += self._read_data(file_desc.content)#012  File "build/bdist.linux-x86_64/egg/nms_result_manager/publisher.py", line 737, in _read_data#012    with open(file_desc, 'r') as file_2_read:#012IOError: [Errno 2] No such file or directory: '/dvl/msgsys_cache/nms_te_store/RNPS_None1.bul'
+2020-05-09T04:20:26+00:00 dlv019/172.27.48.48 [user.err] ctbt.msgsys.production_engine[]: ResultDao - 4446/JobPicker-4 - ERROR - SQL request failed with following error: (IntegrityError) ORA-00001: unique constraint (PADD.PK_MSG_RES_ITEM_FILE_DESC) violated
+
 
 Geralds issue with NV01 station.
 When I sent request it succeeded in VDMS. This was the command:
@@ -1729,7 +1839,7 @@ select * from static.instrument where dfile like 'I31KZ_BDF.1'
 
 We will report this as a strange issue - might be I do not correctly understand.
 
-Now let us check the content of particular poles/zeros and coeaficients.
+Now let us check the content of particular poles/zeros and coefficients.
 
 ./rdseed -f ~/projects/VDMS/SC3XML_I_chosen_forth_pass.dlseed -a > rdseed.abrevations
 ./rdseed -f ~/projects/VDMS/SC3XML_I_chosen_forth_pass.dlseed -p
@@ -1753,6 +1863,138 @@ Checked content of:
 SAC_PZs_IM_I31H2_BDF__2019.296.00.00.00.0000_2019.321.24.60.60.99999
 poles and zeros where found in this file:
 /tst/software/shi/config/station_specs/rsp/I31KZ_BDF_rsp_20190204
+OK
+
+Checking of processing of response block for I31KZ station:
+./rdseed -f ~/projects/VDMS/SC3XML_I_chosen_forth_pass.dlseed -R
+Generated without warnings/errors several station response files:
+Chosen poles and zeros found here:
+/tst/software/shi/config/station_specs/rsp/I31KZ_BDF.1
+/tst/software/shi/config/station_specs/rsp/I31KZ_BDF_rsp_20191113_C
+
+And chosen response coefficient for B061F06 found here:
+/tst/software/shi/config/station_specs/rsp/I31KZ_BDF_rsp_20190204
+
+
+# Hydroacoustic station H08N, H08S in the middle of Indian ocean - Chagos Archipelago
+Hydrophone
+Also here we do not have idc-ext block with ncalib, ncalp from the instrument table:
+but we have instruments records to all array sites being processed.
+E.g.:
+select * from static.instrument where dfile like 'H08C1_LEA_Response.txt'
+select * from static.instrument where inid in (
+  select inid from static.sensor where sta in (select sta from static.sitechan where sta in (select sta from static.affiliation where net like 'H08%'))
+)
+Have several records:
+1116161	SAIC_current_sensor	-	h	d	1	0.001634	1	/tst/software/shi/config/station_specs/rsp	H08C1_LEA_Response.txt	fap	15-JUL-04
+1116162	SAIC_voltage_sensor	-	h	d	1	0.5882	1	/tst/software/shi/config/station_specs/rsp	H08C1_LEV_Response.txt	fap	15-JUL-04
+1116163	SAIC_current_sensor	-	h	d	1	0.001634	1	/tst/software/shi/config/station_specs/rsp	H08C2_LEA_Response.txt	fap	15-JUL-04
+1116164	SAIC_voltage_sensor	-	h	d	1	0.5882	1	/tst/software/shi/config/station_specs/rsp	H08C2_LEV_Response.txt	fap	15-JUL-04
+212075	USAEDS_H08N1_HITECH	HITECH	e	d	250	541.96271	0.1	/tst/software/shi/config/station_specs/rsp	USAEDS_H08N1_HITECH	fap	21-SEP-01
+212076	USAEDS_H08N2_EDO	EDO	e	d	250	541.96271	0.1	/tst/software/shi/config/station_specs/rsp	USAEDS_H08N2_EDO	fap	21-SEP-01
+212077	USAEDS_H08N3_HITECH	HITECH	e	d	250	541.96271	0.1	/tst/software/shi/config/station_specs/rsp	USAEDS_H08N3_HITECH	fap	21-SEP-01
+212078	USAEDS_H08S1_HITECH	HITECH	e	d	250	541.96271	0.1	/tst/software/shi/config/station_specs/rsp	USAEDS_H08S1_HITECH	fap	21-SEP-01
+212079	USAEDS_H08S2_EDO	EDO	e	d	250	541.96271	0.1	/tst/software/shi/config/station_specs/rsp	USAEDS_H08S2_EDO	fap	21-SEP-01
+212080	USAEDS_H08S3_HITECH	HITECH	e	d	250	541.96271	0.1	/tst/software/shi/config/station_specs/rsp	USAEDS_H08S3_HITECH	fap	21-SEP-01
+1116924	USAEDS_H08S1_HITECH	HITECH	e	d	250.00089	541.96271	0.1	/tst/software/shi/config/station_specs/rsp	USAEDS_H08S1_HITECH	fap	01-JUN-07
+1116925	USAEDS_H08S2_EDO	EDO	e	d	250.00089	541.96271	0.1	/tst/software/shi/config/station_specs/rsp	USAEDS_H08S2_EDO	fap	01-JUN-07
+1116926	USAEDS_H08S3_HITECH	HITECH	e	d	250.00089	541.96271	0.1	/tst/software/shi/config/station_specs/rsp	USAEDS_H08S3_HITECH	fap	01-JUN-07
+
+Checking the content of dlseed using rdseed software:
+./rdseed -f ~/projects/VDMS/SC3XML_H_chosen_forth_pass.dlseed -a > rdseed.abrevations
+no warnings/errors
+
+poles and zeros
+./rdseed -f ~/projects/VDMS/SC3XML_H_chosen_forth_pass.dlseed -p
+No poles and zeros were read using rdseed application:
+This is the error log:
+Writing SAC poles and zeros file:SAC_PZs_IM_H08C1_LEA__2004.194.00.00.00.0000_2599.365.23.59.59.99999
+Warning - couldn't find the Poles and Zeros!!
+For station: H08C1; channel: LEA
+Writing SAC poles and zeros file:SAC_PZs_IM_H08C1_LEV__2004.194.00.00.00.0000_2599.365.23.59.59.99999
+Warning - couldn't find the Poles and Zeros!!
+For station: H08C1; channel: LEV
+Writing SAC poles and zeros file:SAC_PZs_IM_H08C2_LEA__2004.194.00.00.00.0000_2599.365.23.59.59.99999
+Warning - couldn't find the Poles and Zeros!!
+For station: H08C2; channel: LEA
+...
+
+Files remained without values:
+* **********************************
+* NETWORK   (KNETWK): IM
+* STATION    (KSTNM): H08C1
+* LOCATION   (KHOLE): 
+* CHANNEL   (KCMPNM): LEV
+* CREATED           : 2020-05-11T14:06:05
+* START             : 2004-07-12T00:00:00
+* END               : 2599-12-31T23:59:59
+* DESCRIPTION       : Diego Garcia
+* LATITUDE          : -7.266630 
+* LONGITUDE         : 72.353250  
+* ELEVATION         : 3.0    
+* DEPTH             : 0.0  
+* DIP               : 90.0 
+* AZIMUTH           : 0.0  
+* SAMPLE RATE       : 1.0
+* INPUT UNIT        : M
+* OUTPUT UNIT       : V
+* INSTTYPE          : SAIC voltage sensor
+* INSTGAIN          : 1.000000e+00 (:)
+* COMMENT           : N/A
+* SENSITIVITY       : 0.000000e+00 (:)
+* A0                : -1.000000e+00
+* **********************************
+ZEROS   1
+        +0.000000e+00   +0.000000e+00
+POLES   0
+CONSTANT        -0.000000e+00
+--- cat ---
+
+Writing down response files:
+Responces were written down without warnings/errors - no poles and zeros.
+(Looks like hydroacoustic technology does not contain this block)
+
+Response coefficients:
+./rdseed -f ~/projects/VDMS/SC3XML_H_chosen_forth_pass.dlseed -R
+Important - devlan table for this statation points to OPS station response files,
+not to the ones deployed to devlan.
+
+Second - looks like values are being transformed
+from unit to unit and from input:
+IN: theoretical  0   instrument    fap
+DLSEED out: frequency      amplitude       amp error          phase        phase error
+Approximatelly corresponding values were identified between input file:
+/ops/software/shi/config/station_specs/rsp/USAEDS_H08N1_HITECH
+and output of rdseed:
+RESP.IM.H08N1..EDH
+Check OK.
+
+# Summary and collection of issues from DLSEED deep check:
+1. <idc-ext> elements are not transformed into DLSEED by inv2dlsv script. - conent of instrument table, ncalp, ncalib.
+
+2. <idc-ext> containing content of the INSTRUMENT table is read and written by css2inv 'Fourth pass'
+whereas it could be easily retrieved in during reading Instrument metadata - polling of tables in another loop
+is waste of performance.
+
+3. Only records directly linked to net identified are retrieved - not the ones linked through array site
+'sta' identifiers. 
+
+4. There are duplicate or even triplicate same elements in <idc-ext> with exactly same records.
+Suspicious is that testing 3 seismic stations create three sets of the same elements.
+
+5. For tested infrasound and hydroacoustic stations css2inv did not retrieve
+<idc-ext> records even though adjacent insrument table records for particular
+station response files exist, were read and contain valid ncalib, ncalper values.
+
+6. For processing of zero/poles for station I31KZ using rdseed printed a lot
+of warnings for many channels.
+
+My conslusions:
+Chosen channels, zero/poles and station response content and mapping was checked - and is OK.
+Observed issues are a bit ugly issues of SC3XML product, but it has only performance
+impact on DLSEED. But in any case major part of SC3XML is working well.
+Therefore my recommendation is to know/consider/investigate my findings,
+but not include further fixing in this release.
 
 
 # 19.3.2020 - design of one single build script for VDMS Third party for DCR-3313
@@ -1822,4 +2064,779 @@ BUILD_TYPE - IDC/CATS
 It is possible to send request emails from cats and cmss users.
 From linux or from mutt - for cmss it is configured (probably for linux account, not for IMAP/SMTP).
 Sent today the email to guys.
+
+
+# 8.6.2020 - in course of installation of client and docs web pages
+# it was found that the installation is total mass, because it
+# was deploying from the locally merged version of particular CM.
+# client web page was installed even though the build has failed.
+
+# Changing of this procedure has opened Pandora's box and we found
+# out that psutils is missing, that autogenerated wsgi files are corrupted.
+# And over weekend also one of smoke tests started to fail.
+
+Assessment of wsgi python scripts installation.
+
+1. Files that play important role
+Deafult cmss .bashrc file sources this locally installed file:
+/home/misc/cmss/.bashrc_nms
+this defines e.g. DB_HOST based on hostname.
+and then sources /$LAN/software/shared/nms/nms_home/env/msgsys.env
+the installed msgsys.env (not nms_bashrc where actually are runtime specific variables).
+
+2. We have files with VDMS(NMS) passwords for runtime and
+due to genration of wsgi also for cmss user.
+
+Runtime owned by auto:
+ls /home/misc/auto/nms/ -1
+afiedt.buf
+nms_auto.env
+nms_auto.env.20180130
+nms_auto.env.20180924
+nms_auto.env.20181207
+nms_auto.env.exchange
+nms_auto.env.linux
+nms_auto.env~
+
+Build/install environment owned by cmss:
+ls /home/misc/cmss/nms/ -1
+dvl_auto.env
+nms_auto.env
+tst_auto.env
+
+3. Following the procedure originally used in the DCR, we do:
+source $GIT_REPO_DIR/config/nms_config/nms/env/nms_bashrc
+where $GIT_REPO_DIR is /gitadm/cmss/dvl
+thus during build we override environment from this
+nms_bashrc which again is sourcing local nmsgsys.env - very likelly.
+(I can not check version nor content here - I do not have access).
+
+4. I assume the passwords which were generated into
+the wsgi files are comming from 
+/home/misc/cmss/nms/nms_auto.env
+
+5. Autogenerated wsgi files of current installation have
+replaced variables only in:
+/dvl/software/shared/nms/nms_home/bin/nms_access.wsgi
+/dvl/software/shared/nms/nms_home/bin/nms_user_services.wsgi
+
+variables remained in:
+/dvl/software/shared/nms/nms_home/bin/nms_admin.wsgi
+/dvl/software/shared/nms/nms_home/bin/nms_authentication.wsgi
+
+Are the ones with variables only in use?
+If yes, are they using auto (or some other) environment?
+If yes, why nms_access.wsgi and nms_user_services.wsgi
+cannot share also runtime environment of VDMS and
+have to be patched even with the password from cmss password files?
+
+Now overall mapping of the three chosen variables during build under cmss:
+# nms_user_services.wsgi - DB_HOST
+1. First is define by 
+/home/misc/cmss/.bashrc_nms
+as 'ptsdev'
+2. Then it is again based on hostname redefined from
+$GIT_REPO_DIR/config/nms_config/nms/env/nms_bashrc
+(which I do not see)
+
+# nms_user_services.wsgi - NMS_USER_DB_USER
+1. Sourcing of
+/$LAN/software/shared/nms/nms_home/env/msgsys.env
+in /home/misc/cmss/.bashrc_nms is setting it to:
+'padd_in'
+
+2. Then it is again based on hostname redefined from
+$GIT_REPO_DIR/config/nms_config/nms/env/msgsys.env
+(which I do not see - but is very likelly the same)
+
+# nms_user_services.wsgi - NMS_USER_DB_PW
+1. When just logging into cmss it is not set - nms_bashrc is sourcing
+proper password file.
+
+2. Then sourcing of
+$GIT_REPO_DIR/config/nms_config/nms/env/nms_bashrc
+very likelly is sourcing 
+/home/misc/cmss/nms/nms_auto.env
+which is setting PADD_IN_PW variable.
+
+3. This one is mapped via:
+/dvl/software/shared/nms/nms_home/env/msgsys.env
+to NMS_USER_DB_PW.
+
+Checking of cmss password files:
+> diff /home/misc/cmss/nms/nms_auto.env /home/misc/cmss/nms/dvl_auto.env
+identicall
+> diff /home/misc/cmss/nms/nms_auto.env /home/misc/cmss/nms/tst_auto.env
+different - for ACQ system
+
+Questions:
+Why we can not have one single password file for runtime and
+installation (cmss/nms vs. auto/nms)?
+Having shared runtime with wsgi scripts in Apache WSGI gateway would
+simplify the installation.
+
+Concusions:
+I assume that we can use DVL runtime NMS environment to generate all
+variables, devations for build comming from
+$GIT_REPO_DIR/config/nms_config would be dangerous.
+
+This assessment I will add to a followup VDMS realse user story for
+streamling and overall simplification and automation.
+
+# 11.6.2020 - New RRR on devlan - used are outputs of OPS
+# Info from Hakim
+---
+Dear Jan,
+ 
+I guess VDMS is identifying requested data and products from idcx.fileproduct combined with RMSMAN.GARDS_SAMPLE and idcx.fpdescription.
+The DB table idcx.fileproduct includes:
+DIR: product directory
+DFILE: filename
+STA: station
+CHAN: to_char(sample_id) used for joining GARDS_SAMPLE(_DATA) table (view)
+TYPEID: used for joining idcx.fpdescription for PRODTYPE
+ 
+ARR products for noble gas are stored in /$lan/products/rn/ARR_html/yyyy/mm/dd/<ARR_filename>
+RRR products for noble gas are stored in /$lan/products/rn/RRR_html/yyyy/mm/dd/<RRR_filename>
+Where /yyyy/mm/dd is sample collect_stop (parsed from VDMS request message):
+BEGIN IMS2.0
+MSG_TYPE REQUEST
+MSG_ID new_ARR_sauna
+STA_LIST AUX04,GBX66
+TIME 2020/06/01 00:00:00 to 2020/06/02 00:00:00
+ARR IMS2.0:HTML
+STOP
+ 
+I am available for further discussion (on Teams !).
+ 
+Best regards,
+Hakim
+---
+
+Investigation of VDMS production engine configuration.  For
+radionuclide products we use two DB configuration parameters:
+RN_HOST=extodb.ctbto.org
+NMS_RN_ARCH_HOST=extodb.ctbto.org
+with adjacent DB user 'padd_d_rn' with fine tuned permissions.
+
+Production engine uses to serve different products 9 different Oracle
+users, but in all isntallations we use wholy extodb and extadb
+databases.
+
+As far as I know, there is no infrastructure on place which would
+allow us to point VDMS to use different database e.g. ptsdev for production engine
+- component which actually generates the products.
+
+So in detail:
+VDMS on all three LANs is connecting to:
+server: limbo.ctbto.org
+service: extodb.ctbto.org
+and dedicated user for RN product has permission to read-only data from:
+idcx.FILEPRODUCT
+RMSMAN.GARDS_SAMPLE
+idcx.fpdescription
+tables.
+
+Sample of the records is for example this: select * from
+idcx.FILEPRODUCT inner join RMSMAN.GARDS_SAMPLE on
+idcx.FILEPRODUCT.chan = (to_char(RMSMAN.GARDS_SAMPLE.sample_id)) where
+RMSMAN.GARDS_SAMPLE.sample_id = 9462;
+
+58876	8	/archive/ops/rms/2000/176/	RMSARC.DATA.961804800	103494	102750	961885279	961970800	CKP23	9462	rms_input	1	1	0	26-NOV-02	CKP23_001      	9462	513	CKP23	429	CKP23_001	sample/2000/179/768689.msg
+58877	14	/archive/ops/rms/2000/176/	RMSARC.REPORTS.961804800	60893	10616	961885279	961970800	CKP23	9462	rms_armr_report	1	1	0	14-APR-03	CKP23_001      	9462	513	CKP23	429	CKP23_001	sample/2000/179/768689.msg
+58995	6	/archive/ops/rms/2000/176/	RMSARC.REPORTS.961804800	9635	12763	961885279	961970800	CKP23	9462	rms_inspectra	1	1	0	14-APR-03	CKP23_001      	9462	513	CKP23	429	CKP23_001	sample/2000/179/768689.msg
+395830	29	/archive/ops/rms/2000/178/	RMSARC.SPECTHIST.961977600	800132	99946	962057934	962143445	CKP23	9462	LABAN	1	1	0	26-NOV-02	CKP23_001      	9462	513	CKP23	429	CKP23_001	sample/2000/179/768689.msg
+
+So according my knowledge, it is not easy to trick VDMS to point to
+different data products databases. In spring 2020 processing
+engineers, due to issue with extodb replication, attempted to switch
+the system to odb database having all Oracle users on place. In
+several days they did not succeed due to many permission issues on
+Oracle level.
+
+But I see option how we can utilize our COD project to conduct
+your test.
+We are in parallel deploying latest deliveries to our COD
+'maintainers staging area' - devlab05. Where we have
+QANDEF snapshot of whole VDMS database including copies of content
+of extodb.
+NFS shares for RN prodcuts are mounted there:
+ls /dvl/products/rn -1
+ARR
+ARR_html
+HART
+REVSAMP_xml
+RNPS
+RRR
+RRR_html
+SAMPML_xml
+SSREB
+SSREB_html
+StaPro
+archiver
+baseline
+delete_me
+histogram
+lc
+msg
+notes_on_world_writes
+projection
+rebqc
+rebrevise
+scac
+spectrum
+tempREVSAMP_xml
+tempRRR_html
+tempSSREB_html
+temp_REVSAMP_xml
+temp_RRR
+temp_RRR_html
+temp_RRR_html2010
+temp_SSREB
+temp_SSREB_html
+
+QANDEF technology allows us to make modification
+of data in this snaphot - locally and temporally.
+
+So I belive if there are no other dependencies, just
+pointing of DIR in the idcx.FILEPRODUCT to different directory,
+this might be possible.
+
+The only unpleasant issue is, that due to security reasons devlab
+machines can not connect to our official IMAP, SMTP server, so we are
+just running local mail server - and requests can be served only
+locally.
+(This is one of points to really amend for COD, that we
+can have public mail accounts, that testers can conduct
+special tests from outside on COD deployed VDMS)
+
+But if we agree on a set of test cases, we can execute the test.
+Or even arrange access to devlab05 and you can with our assistance try
+mail request or also VDMS CLI - command line client which is also configured there.
+
+It might be done in 1-2 hours I believe.
+
+The only plannig problem is now, that I have next week whole week vacation except of Monday.
+But we work closelly with ATOS contractor Thomas Fabian,
+he knows devlab05 very well and could support you too.
+Let us discuss this on tomorrows meeting.
+Kind regards
+Jan Kianicka
+
+
+# 6.15.2020 - conducting testing on devlab05:
+Procedure:
+This query is pointing to this file:
+select * from idcx.FILEPRODUCT inner join RMSMAN.GARDS_SAMPLE on idcx.FILEPRODUCT.chan = (to_char(RMSMAN.GARDS_SAMPLE.sample_id)) where idcx.FILEPRODUCT.sta like 'DEX33' and 
+idcx.FILEPRODUCT.dir like '/ops/products/rn/ARR_html/2020/06/10%';
+
+/ops/products/rn/ARR_html/2020/06/10/ARR-DEX33-5685539.html
+
+This file is retrieved by this call:
+BEGIN IMS2.0
+MSG_TYPE REQUEST
+MSG_ID newARRSauna_DEX33_1
+STA_LIST DEX33
+TIME 2020/06/10 00:00:00 to 2020/06/11 00:00:00
+ARR IMS2.0:HTML
+STOP
+
+I did not found how to modify content of idcx.FILEPRODUCT
+on DBA1257.qandef database on devlab05,
+(we do not have created dedicated user which can modify the data in idcx tables),
+but I could manipulate layover filesystem on
+/ops/products/rn/ARR_html
+
+As root:
+> cp /ops/products/rn/ARR_html/2020/06/10/ARR-DEX33-5685539.html /ops/products/rn/ARR_html/2020/06/10/ARR-DEX33-5685539_back.htm
+> rm /ops/products/rn/ARR_html/2020/06/10/ARR-DEX33-5685539.html
+> cp /dvl/products/rn/ARR_html/2020/06/10/ARR-DEX33-20288605.html /ops/products/rn/ARR_html/2020/06/10/ARR-DEX33-5685539.html
+Check the correct content:
+> ls -l /ops/products/rn/ARR_html/2020/06/10/
+
+# Conduct the test with VDMS CLI and mail request
+Then as root:
+> rm /ops/products/rn/ARR_html/2020/06/10/ARR-DEX33-5685539.html
+as auto
+> cp /ops/products/rn/ARR_html/2020/06/10/ARR-DEX33-5685539_back.html /ops/products/rn/ARR_html/2020/06/10/ARR-DEX33-5685539.html
+as root
+> rm /ops/products/rn/ARR_html/2020/06/10/ARR-DEX33-5685539_back.html
+
+VDMS CLI py3 successful.
+
+######################################################################################
+# Preparation of rollout to TST -
+ICR-1523 Deploy VDMS '3.2.0' to Testbed - cleanup, fixes, plus NORDIC bulletins, STA_INFO in DLSEED and removed obsolete EXECSUM implementation
+
+(We will draft ICR also for OPS with DB changes valid only for OPS
+database - let it to be reviewed by:
+- Yuriy - for Secure Web Portal
+- Woflgang Sommer for PRTool (some KPI tables ... eventually)
+
+Sections:
+2. Preparation of Git (Configuration Manager):
+- create and tag testbed branch in new-message-subsystem repository
+
+3. Build part (Configuration Manager):
+- if nothing unexcpected will occur, we will not have to build
+VDMS resources them self, nor VDMS THIRD-PARTY resources
+
+4. Storing VDMS resources to install repository (Configuration Manager):
+Whereas no building of resoruces takes place, software resources have to manually copied over
+in the install repository from RHEL6.10_devlan -> RHEL6.10_testbed branch.
+
+4.1. Fully clean old version:
+Breanch RHEL6.10_testbed
+git rm -rf nms/nms_server_dist
+
+4.2. Copy over from RHEL6.10_devlan the following resources:
+nms/nms_client3
+nms/cli_client
+nms/nms_server_dist
+nms/usr
+nms_server_dist.3.2.0-py2.6.tar.gz
+
+5. Deployment part (Processing Engineer) - as of VDMS 3.2.0 release on devlan
+- use procedure as was successfully used in devlan
+
+5.1 VDMS resoruces it self
+
+5.2 VDMS THIRD-PARTY
+
+5.3 DB changes
+
+5.4 Configuration changes
+- from DCR-3313
+
+evsc_drv configuraiton (from DCR-3298)
+
+In nms_config create new files by coping from devlan version:
+evsc_drv/evsc_drv.par
+evsc_drv/evsc_drv_archive.conf
+
+Adjust database connections to use Testbed credentials
+of production engine to extodb, extabd respectivelly.
+
+database=<user>/<password>@extodb.ctbto.org
+database_dev=<user>/<password>@extodb.ctbto.org
+radionuclide_db=<user>/<password>@maui
+
+Deploy them and store them into testbed branch of nms_config repository.
+
+
+5.5 Manual redeployment of VDMS CLI py including actual index page
+- copy over part of DCR-3361 which have to executed each time after
+new-message-subsystem has been deployed.
+Link also this DCR and ICR that they should go to TST first.
+
+5.5 If VDMS CLI py3 client was already deployed to TST - redeployment is needed
+ICR-1520 is manually deploying VDMS CLI py3 resources and updates client and docs web page. It is a semi-automated process.
+Each new installation from new-message-subsystem removes VDMS CLI py3.
+Therefore repeated execution from ICR-1520 (DCR-3361) shall be repeated.
+(Full automation shall be addressed in the follow up release).
+
+Set up the environment variable:
+
+#This is where the VDMS server is located
+export NMS_HOME=/$LAN/software/shared/nms/nms_home
+Copy the Python 3 client archive from the "install" directory to the client page of the VDMS server:
+
+cp $GIT_INSTALL_DIRNAME/nms_client3.1.3.1py3.tar.gz $NMS_HOME/etc/client/
+The final step is to copy the docs and client files (note that the initial backslash is important to avoid the aliasing of cp):
+
+\cp -Rf $GIT_INSTALL_DIRNAME/client/* $NMS_HOME/etc/client/
+\cp -Rf $GIT_INSTALL_DIRNAME/docs/* $NMS_HOME/etc/docs/
+
+6. Deployment part which should cleanly deliver older VDMS releases
+
+6.1 DB changes of older releases
+- DBA create backup of whole PADD schema on Oracle level.
+- Processing Enginner - create local backup of afected DB tables:
+MSG_ERROR_MESSAGES
+MSG_HISTORY_JOB
+MSG_HISTORY_REQUEST
+MSG_JOB
+MSG_REQUEST
+MSG_RESULT
+MSG_SUBSCRIPTION
+MSG_USER
+MSG_SUB_NOTIFIER
+
+Implement these changes:
+Complete DB implementation of VDMS 1.1_rc7 release - replace MSG_USER with USER_ID
+
+Step 1: Check existence of the user, if does not exists create a user for the subscription engine
+INSERT INTO PADD.MSG_USER(USER_ID, USERNAME, FIRSTNAME, LASTNAME) VALUES(PADD.MSG_USER_SEQ.NEXTVAL, 'subscription_engine', 'Subscription', 'Engine');
+(on devlan database this entry exists)
+
+Step 2: check that all requests below return no rows (if they do, the returned rows will need to be updated to a user name that exists or deleted) - scratch it - was implemented already
+SELECT MSG_USER FROM NMSGSYS.MSG_ERROR_MESSAGES WHERE MSG_USER NOT IN (SELECT USERNAME FROM NMSGSYS.MSG_USER);
+SELECT MSG_USER FROM NMSGSYS.MSG_HISTORY_JOB WHERE MSG_USER NOT IN (SELECT USERNAME FROM NMSGSYS.MSG_USER);
+SELECT MSG_USER FROM NMSGSYS.MSG_HISTORY_REQUEST WHERE MSG_USER NOT IN (SELECT USERNAME FROM NMSGSYS.MSG_USER);
+SELECT MSG_USER FROM NMSGSYS.MSG_JOB WHERE MSG_USER NOT IN (SELECT USERNAME FROM NMSGSYS.MSG_USER);
+SELECT MSG_USER FROM NMSGSYS.MSG_REQUEST WHERE MSG_USER NOT IN (SELECT USERNAME FROM NMSGSYS.MSG_USER);
+SELECT MSG_USER FROM NMSGSYS.MSG_RESULT WHERE MSG_USER NOT IN (SELECT USERNAME FROM NMSGSYS.MSG_USER);
+SELECT MSG_USER FROM NMSGSYS.MSG_SUBSCRIPTION WHERE MSG_USER NOT IN (SELECT USERNAME FROM NMSGSYS.MSG_USER);
+(This step was very likelly executed when USER_ID was started to be in use)
+
+Step 3: Add column USER_ID where needed - was implemented already
+ALTER TABLE NMSGSYS.MSG_ERROR_MESSAGES ADD (USER_ID INTEGER);
+ALTER TABLE NMSGSYS.MSG_HISTORY_JOB ADD (USER_ID INTEGER);
+ALTER TABLE NMSGSYS.MSG_HISTORY_REQUEST ADD (USER_ID INTEGER);
+ALTER TABLE NMSGSYS.MSG_JOB ADD (USER_ID INTEGER);
+ALTER TABLE NMSGSYS.MSG_REQUEST ADD (USER_ID INTEGER);
+ALTER TABLE NMSGSYS.MSG_RESULT ADD (USER_ID INTEGER);
+ALTER TABLE NMSGSYS.MSG_SUBSCRIPTION ADD (USER_ID INTEGER);
+(USER_ID was added everywhere where it was needed)
+
+Step 4: Transfer information from MSG_USER to USER_ID for all tables - was implemented already
+UPDATE NMSGSYS.MSG_ERROR_MESSAGES SET USER_ID = (SELECT u.USER_ID FROM NMSGSYS.MSG_USER u WHERE UPPER(u.USERNAME) = UPPER(MSG_ERROR_MESSAGES.MSG_USER));
+UPDATE NMSGSYS.MSG_HISTORY_JOB SET USER_ID = (SELECT u.USER_ID FROM NMSGSYS.MSG_USER u WHERE UPPER(u.USERNAME) = UPPER(MSG_HISTORY_JOB.MSG_USER));
+UPDATE NMSGSYS.MSG_HISTORY_REQUEST SET USER_ID = (SELECT u.USER_ID FROM NMSGSYS.MSG_USER u WHERE UPPER(u.USERNAME) = UPPER(MSG_HISTORY_REQUEST.MSG_USER));
+UPDATE NMSGSYS.MSG_JOB SET USER_ID = (SELECT u.USER_ID FROM NMSGSYS.MSG_USER u WHERE UPPER(u.USERNAME) = UPPER(MSG_JOB.MSG_USER));
+UPDATE NMSGSYS.MSG_REQUEST SET USER_ID = (SELECT u.USER_ID FROM NMSGSYS.MSG_USER u WHERE UPPER(u.USERNAME) = UPPER(MSG_REQUEST.MSG_USER));
+UPDATE NMSGSYS.MSG_RESULT SET USER_ID = (SELECT u.USER_ID FROM NMSGSYS.MSG_USER u WHERE UPPER(u.USERNAME) = UPPER(MSG_RESULT.MSG_USER));
+UPDATE NMSGSYS.MSG_SUBSCRIPTION SET USER_ID = (SELECT u.USER_ID FROM NMSGSYS.MSG_USER u WHERE UPPER(u.USERNAME) = UPPER(MSG_SUBSCRIPTION.MSG_USER));
+(Transfer of data very likelly also took place)
+
+Step 5: Remove MSG_USER
+alter table PADD.MSG_ERROR_MESSAGES drop column MSG_USER
+alter table PADD.MSG_HISTORY_JOB drop column MSG_USER
+alter table PADD.MSG_HISTORY_REQUEST drop column MSG_USER
+alter table PADD.MSG_JOB drop column MSG_USER
+alter table PADD.MSG_REQUEST drop column MSG_USER
+alter table PADD.MSG_RESULT drop column MSG_USER
+alter table PADD.MSG_SUBSCRIPTION drop column MSG_USER
+
+3.0-RC01
+Implement missing foreigner keys and indexes of this release for TST database:
+ALTER TABLE PADD.msg_delivery_user_publication ADD CONSTRAINT msg_delivery_user_pub_fk1 FOREIGN KEY (result_id) REFERENCES PADD.msg_result (result_id);
+
+ALTER TABLE PADD.msg_error_messages ADD CONSTRAINT msg_error_messages_fk1 FOREIGN KEY (user_id) REFERENCES PADD.msg_user (user_id);
+ALTER TABLE PADD.msg_error_messages MODIFY (user_id INTEGER NOT NULL);
+
+ALTER TABLE PADD.msg_subscription ADD CONSTRAINT msg_subscription_fk1 FOREIGN KEY (user_id) REFERENCES PADD.msg_user (user_id);
+CREATE INDEX msg_subscription_user_id ON PADD.msg_subscription(user_id);
+
+ALTER TABLE PADD.msg_sub_delivery ADD CONSTRAINT msg_sub_delivery_fk1 FOREIGN KEY (job_id) REFERENCES PADD.msg_job (job_id);
+CREATE INDEX msg_sub_delivery_job_id ON PADD.msg_sub_delivery(job_id);
+
+3.0-RC11 (missing implementation of primary key in the release notes, but confirmed by developer
+that it should have been implemented)
+
+ALTER TABLE PADD.MSG_SUB_NOTIFIER
+ADD CONSTRAINT PK_MSG_SUB_NOTIFIER PRIMARY KEY ( EVENT_ID );
+
+TODO here - try to find your UDP credentials and verify these SQL
+statements they they are verifed and syntactically correct.
+
+7. Verificaiton part (Processing Engineer, external testers):
+
+7.0 Verify installation
+- verify VDMS processes for start-up errors and errors in syslog
+- verify content of:
+  https://tst-msgsys.ctbto.org/client/
+  https://tst-msgsys.ctbto.org/docs/
+- verify correct deployment of VDMS THIRD-PARTY in $NMS_HOME/usr
+
+7.1 Regression test for basic use cases - VDMS CLI
+
+7.2 Successful execution of CATS smoke tests for different
+tests sets:
+- possibility to configure special set of CATS Jenkins
+jobs or manual execution using petest account.
+Clarify with Menachem what would suit him.
+
+Tests for:
+  Edward's set of test cases - extodb
+  Edward's set of test cases - extabd
+  ~270 test cases from acceptance tests - extodb
+  ~270 test cases from acceptance tests - extadb
+  special set of 3.2.0 test cases for new products - extodb
+  special set of 3.2.0 test cases for new products - extadb
+  special performance test of 3.2.0 new products
+
+
+7.3 Special test cases for 3.2.0 release
+ - verify new products
+
+ - verify provided fixes
+
+ - manual light performance test
+
+7.4 Verification of new products by external testers
+
+ - we let Danish NDC to quickly check
+   NORDIC format, and DLSEED format by email requests
+
+8. Clean the backups
+- drop backup tables from the PADD schema
+
+
+Test plan:
+- regression tests
+- tests of mail requests, subscriptions and VDMS CLI py2 and py3
+- running of automated smoke tests from the CATS system
+
+Testing done:
+- describe all testing done- link issue tickets for that
+(but do not link them directly - just reference in the field)
+
+Attachments - copy them also in your file system to have some order in it:
+3.2.0 release notes
+db_migration_execsum.sql
+NORDIC - SEISAN products
+sample_dlseed.txt
+
+
+----------------------
+# 17.7.2020 - retrospective for VDMS 3.2.0 release
+
+Dear VDMS Colleagues,
+On 3.July 2020 we have closed DCR-3313 deliverying VDMS 3.2.0 release
+to devlan as successfully deployed.  This release should deliver
+NORDIC, DLSEED products, several improvements, fixes, configuration of
+national bulletins, and it should be the first stage of the 'cleanup
+release' of VDMS.
+
+Recently we have submitted ICR-1523 to CCB and we go to OPS.
+
+In last six months we spent about ~100 days of Artal in 6 montly work
+orders, spent several days of Atos developer on supporting VDMS
+THIRD-PARTY and COD development, spent many days on
+troubleshooting/fixing of internal stuff - Quality Assurance - Jan,
+ENIAB support - Wolfgang, installations - Menachem - 10 release
+candidates were developed in new-message-susbsytem repository, several
+fixes were delivered for ENIAB converters
+
+I count about ~500 normal emails just for VDMS project since January, and about 700 notifications
+from its.ctbto.org and itscore.ctbto.org Jira systems.
+These were tasks and subtasks of our SCRUM management which relate to VDMS
+see atached: Retrospective_export_VDMS_SCRUM_board_done_by_17.7.2020.xlsx
+(Export of VDMS board including also PKI C&C stories, order by date when they were created)
+
+Major achievements:
+- fully integrated NORDIC, DLSEED products
+- finally made functional national bulletines -NEB, NSEB
+- removed EXECSUM
+- delivered several pending improvements and fixes
+- rebuild whole VDMS THIRD-PARTY from the known source code and known dependencies - tested
+
+Side achievements:
+- clean master branch and established IDC standard in the new-message-susbsystem repository (devlan,-> testbed, operations branches)
+- fixed VDMS runtimes in dlv018, dlv019 (e.g. Apache server installations, clean and up to date VDMS THIRD-PARTY on dlv018)
+- practically full integration of VDMS REQ-SUBS subsystem into COD pipeline and built devlab installation activelly used for various verifications already
+(e.g. new html reports for ARR/RRR)
+- CATS smoke tests used for verification
+
+First of all big thank you for all your great work, cooperation and
+problems solving - it was a challange, but great experience to work
+with you and I am looking forward for another releases of VDMS.
+
+In last six month we have been working mainly on:
+
+- January, February, March - main focus on the new SEISAN, ENIAB dependent products - fixes and missing integration
+(several bulletins not developed, not fully integrated sub-processes, defects in converters)
+
+- April, May, June - improving deployment of VDMS python code part, cleaning
+
+Lessons learned:
+- We made quite some order in python code, representative testing,
+  fully understood requirements
+
+- verificaiton of eniab was mostly done on behalf of VDMS team - for
+  the future we might consider Test Driven Methodology -
+  What about: VDMS team designs and implements failing tests for
+  devlan (thus learning about proper interfaces to THIRD-PARTY), ENIAB
+  team fixes the tests them returns final product which is already
+  ready-to-go
+
+- ENIAB/SeisComp3 is for VDMS a conglomerate of various tools of
+  various versions - it was essential to understand it, and we should
+  consider this aspect for the future - for example to implement as
+  mentioned before automated/semiautomated tests in CATS before
+  wrapping to VDMS super-system (for 3.2.0 we had to switch from older
+  stable relase of SeisComp3, to the master branch - build and
+  install only essential parts of big third party source code
+  repositories)
+
+- when finalizing parts from new-message-susbsystem, release
+  candidates often failed in spite developer conducted internal
+  testing - good reason to automate and use overall integration tests
+  from CATS and use dlv018 installation and keep it clean, before
+  re-submitting the DCR.  (Interesting case was for example breaking
+  VDMS CLI by subtle modificaiton in xmlrpc library not detected by a
+  developer)
+
+Remained open and painful things:
+- DCR-3313 grew - would be good yet to streamline VDMS configuration
+  delivery, automate fully deployment from two/three repositories
+  (including nms_config) - original build, deployment procedures from
+  new-message-subsystem/scripts were full of traps
+- not fixed performance perhaps functional bugs in css2inv, not robust
+  enough inv2dlsv (error reports only low level not understandable by
+  PEs) and we know this script is not supported and shall be replaced
+  by different converting tools in SeisComp3
+- memory leaks in production engine and other detected vulnerabities
+- not addressed all syslog errors, not fully and properly tested
+  subscriptions and expet more to be improved there (when CATS
+  subscriptins tests were prototyped by Pavel much more errors were
+  popping up in syslog, in the DB there are many suspicious entries in
+  the subscription module from this period - many nulls in the records
+  of subscription DB tables)
+
+Kind regards
+Jan
+
+
+# 13.8.2020 - Investigation of unique constraint issue in TST
+from nms_result_manager/src/nms_result_manager/dao/nms_dao.py
+---
+RESULT_ITEM_FILE_DESC = Table("msg_res_item_file_desc", RESULT_TABLE_METADATA,
+    Column("result_file_descriptor_id", Integer,  ForeignKey("msg_result_file_descriptor.result_file_descriptor_id")),
+    Column("result_item_id", Integer, ForeignKey("msg_result_item.result_item_id")),
+    Column("publisher_file_descriptor_id", Integer, ForeignKey("msg_publisher_file_descriptor.publisher_file_descriptor_id")),
+    PrimaryKeyConstraint("result_file_descriptor_id", "result_item_id") 
+)
+
+FILE_DESCRIPTOR_ID_SEQ = Sequence('MSG_RESULT_FILE_DESC_SEQ')
+FILE_DESCRIPTOR_TABLE = Table("msg_result_file_descriptor", RESULT_TABLE_METADATA,
+    Column("result_file_descriptor_id", Integer, FILE_DESCRIPTOR_ID_SEQ, primary_key=True),
+    Column("file_descriptor", String(600), nullable=False, unique=True),
+    Column("generated", Boolean, nullable=True),
+    Column("file_size", Integer, nullable=True),
+)
+
+----
+nms_result_manager/src/nms_result_manager/result_manager.py
+publish() -> self._result_dao.store_new_result() -> result_dao.add_result_item()
+
+# 2020-09-30 was deployed 3.2.0 release to OPS and there are severe issues yet
+
+Errors in the error log:
+1. Non existent email addresses and expired accounts, expired subscriptions
+
+Before release deployment
+grep "Error while sending email" /ops/syslog/2020-09-27/ctbt.msgsys.production_engine |wc -l
+72
+After release deployment:
+grep "Error while sending email" /ops/syslog/2020-10-01/ctbt.msgsys.production_engine |wc -l
+51
+as of afternoon.
+
+Examples:
+ERROR - %s{u'Elena.Tomuta@CTBTO.ORG': (550, '5.1.1 <Elena.Tomuta@CTBTO.ORG>... Account expired on Frida   4209 y August 31 2018')}
+Email - 23949/JobPicker-4 - ERROR - %s{u'lucrezia.terzi@CTBTO.ORG': (550, '5.1.1 <lucrezia.terzi@CTBTO.ORG>... No such User')}
+
+2. Unhandled properly error of some subscriptions
+---
+2020-10-01T02:17:04+00:00 olv105/172.27.48.17 [user.err] ctbt.msgsys.production_engine[]: ShiProductDefinition - 23945/JobPicker-4 - ERROR - Did not find collector for te_data_reviewed_shi
+2020-10-01T02:17:04+00:00 olv105/172.27.48.17 [user.err] ctbt.msgsys.production_engine[]: springpython.context.ApplicationContext - 23945/JobPicker-4 - ERROR - Object 'te_data_reviewed_shi' has no definition!
+2020-10-01T02:17:04+00:00 olv105/172.27.48.17 [user.info] ctbt.msgsys.production_engine[]: tracer - 23945/JobPicker-4 - INFO - Job 72293280: job status has changed to: ABORTED
+2020-10-01T02:17:04+00:00 olv105/172.27.48.17 [user.err] ctbt.msgsys.production_engine[]: JobExecutor - 23945/JobPicker-4 - ERROR - Technical exception 'te_data_reviewed_shi'#012Traceback (most recent call last):#012  File "build/bdist.linux-x86_64/egg/nms_production_engine/production_engine.py", line 290, in execute#012    te_data = self._resolve_te_data(product)#012  File "build/bdist.linux-x86_64/egg/nms_production_engine/production_engine.py", line 227, in _resolve_te_data#012    return product_definition.get_te_data(product_dict)#012  File "build/bdist.linux-x86_64/egg/idc_products_api/shi_product_definition.py", line 85, in get_te_data#012    te_data = self._app_context.get_object(self._default_data_name())#012  File "build/bdist.linux-x86_64/egg/springpython/container/__init__.py", line 85, in get_object#012    raise e#012KeyError: 'te_data_reviewed_shi'
+2020-10-01T02:17:04+00:00 olv105/172.27.48.17 [user.info] ctbt.msgsys.production_engine[]: tracer - 23945/JobPicker-4 - INFO - Due to a technical error, your request cannot be completed
+2020-10-01T02:17:04+00:00 olv105/172.27.48.17 [user.info] ctbt.msgsys.production_engine[]: tracer - 23945/JobPicker-4 - INFO - Please contact: support@ctbto.org
+
+---
+Due to limited effort devoted to deeper testing of subscriptions on DVL, TST
+these errors were not detected and addressed.
+VDMS 3.2.0 release did not bring this error, but unfortunatelly did not resolve it.
+
+Before release deployment:
+> grep "Object 'te_data_reviewed_shi'" /ops/syslog/2020-09-27/ctbt.msgsys.production_engine |wc -l
+67
+> grep "Object 'te_data_reviewed_shi'" /ops/syslog/2020-09-28/ctbt.msgsys.production_engine |wc -l
+60
+> grep "Object 'te_data_reviewed_shi'" /ops/syslog/2020-09-29/ctbt.msgsys.production_engine |wc -l
+68
+
+After release deployment:
+> grep "Object 'te_data_reviewed_shi'" /ops/syslog/2020-10-01/ctbt.msgsys.production_engine |wc -l
+44
+as of afternoon.
+
+Investigation of details of some of these failures.
+
+
+We need to understand more about circumstances of these errors.
+Let us identify:
+- products and subscriptions which are causing it
+Explain us all - I will create ticket for developer Cyrille Bonnet and please
+work closelly together to investigate it.Then we will create development tickets which should amend the behaviour
+or fix these issues.
+
+Examples:
+/ops/syslog/2020-10-01/ctbt.msgsys.production_engine
+23943/JobPicker-4 - INFO - Job 72290016: job status has changed to: ABORTED
+/ops/syslog/2020-10-01/ctbt.msgsys.nms_watch_dog
+Dataready id 147665363, Job 72290016 queued for deliveries (product, delivery) (7287, -1)
+
+INFO - Job 72290595: job status has changed to: ABORTED
+Dataready id 147665737, Job 72290595 queued for deliveries (product, delivery) (7287, -1)
+
+INFO - Job 72291013: job status has changed to: ABORTED
+Dataready id 147666046, Job 72291013 queued for deliveries (product, delivery) (7287, -1)
+
+INFO - Job 72291585: job status has changed to: ABORTED
+Dataready id 147666400, Job 72291585 queued for deliveries (product, delivery) (7287, -1)
+
+INFO - Job 72292210: job status has changed to: ABORTED
+Dataready id 147666760, Job 72292210 queued for deliveries (product, delivery) (7287, -1)
+
+INFO - Job 72292904: job status has changed to: ABORTED
+Dataready id 147667119, Job 72292904 queued for deliveries (product, delivery) (7287, -1)
+
+INFO - Job 72293280: job status has changed to: ABORTED
+Dataready id 147667377, Job 72293280 queued for deliveries (product, delivery) (7287, -1)
+
+We can see that first 7 cases under investigation relates to product number 7287.
+Please Menachem, Cyrille,
+could you please find out:
+- What is this product
+- What are subcriptions which are not being served
+- Why this error is not handled properly in VDMS, but just key error is raised.
+
+3. Issue with changed waveReader for incomplete data
+We have CATS smoke tests which are running 12 hours pipeline
+and many products provided by Edward, stripped out of the automated acceptance tests.
+None of them revealed this issue.
+And we have many incomplete cases per day:
+> grep "Data not complete available" /ops/syslog/2020-09-27/ctbt.msgsys.production_engine |wc -l
+7927
+
+> grep "Data not complete available" /ops/syslog/2020-09-28/ctbt.msgsys.production_engine |wc -l
+7966
+
+> grep "Data not complete available" /ops/syslog/2020-09-29/ctbt.msgsys.production_engine |wc -l
+7742
+
+I have tested some cases, e.g.:
+/dvl/software/shared/nms/usr/bin/waveReader -p /home/smd/nmsgsys/nms/usr/conf/waveReader.par -n "KIRV:BH1/BH2/BHZ" -b "2020/09/29 09:05:50.000" -e "2020/09/29 09:15:30.000" -f CM6
+- ERROR, exit code 1
+
+Ten minutes shifted ahead
+/dvl/software/shared/nms/usr/bin/waveReader -p /home/smd/nmsgsys/nms/usr/conf/waveReader.par -n "KIRV:BH1/BH2/BHZ" -b "2020/09/29 09:10:50.000" -e "2020/09/29 09:25:30.000" -f CM6
+- OK
+
+Ten minutes shifted back
+/dvl/software/shared/nms/usr/bin/waveReader -p /home/smd/nmsgsys/nms/usr/conf/waveReader.par -n "KIRV:BH1/BH2/BHZ" -b "2020/09/29 08:55:50.000" -e "2020/09/29 09:05:30.000" -f CM6
+- OK
+
+And tried couple of more time slots and did not encounter this particular error.
+It looks some bug fixing in libidcwf has this side effect,
+and we were missing representative test case.
+We have reported the issue already to Gerald, but he is out of office today.
+We have restored the old waveReader, but we will need to address this issue soon
+and use latest waveReader and latest libidcwf.
+What we will do, is to find out all about circumstances of this issue,
+create special dedicated CATS smoke test from the failing requests, and configure it
+- it will fail. Then either as hotfix, or quick fix release just deliver
+latest and working version of waveReader for VDMS.
+(Hotfix - directly thorugh TST -> OPS, quick fix DVL,TST-> OPS)
+
+
+
+
+
+
 

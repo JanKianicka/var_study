@@ -1,4 +1,4 @@
-# Notes during take over of the PKI C&C project
+﻿# Notes during take over of the PKI C&C project
 
 PKI C&C is a Django/Python server that manages the lifecycle of new
 PKI certificates for stations. It is in final testing (it works with
@@ -145,7 +145,7 @@ This was the command supposed to be executed by Cyrille:
 > source /apps/pkicc/env/cc_portal.env && export CONF_FILE=/apps/pkicc/conf/start_keypair_daemon.conf && /apps/pkicc/bin/python /apps/pkicc/bin/start_keypair_daemon_runner.py
 
 Listing of certificates stored in the local server:
-> ldapsearch -x -h pkildap16.test.ctbto.org -b "l=VIP00,ou=Data Authenticators,ou=IMS,o=ctbto" objectclass=*
+> ldapsearch -x -h pkildap16.test.ctbto.org -b "l=VIP00,ou=Data Authenticators,ou=IMS,o=ctbto" objectcla
 Testing of validity of the certificate:
 > openssl x509 -in ~/VIP00_cert -inform PEM -text
 
@@ -220,3 +220,403 @@ Imediate follow up SCRUM tickets in the VMDS Jira board:
 
 Drafted stories for follow up:
 <list>
+
+
+# Integration test of Friday 31.1.2020
+- first let us go through all workflow driven by Cyrille (add me to all recepients email addreses)
+- record the statuses, components and logs of each component and per role
+
+Fixed start_keypair_daemon
+/apps/pkicc/logs/start_keypair_daemon.log
+(looks for the latest cerificate)
+
+Bug1. Bootstrapping does not work - need fix (when previous key-pairt started was not yet confirmed there is a nasty non handled error).
+Bug2. I did not recieve email address as a notifier for the VIP00 station after boostrapping ? may be requriement
+Bug3. Crontab for running start_keypair_daemon does not work, has to be investigated.
+As agreed Cyrille please check it and work with Balazs if there is neede admin support.
+
+Bug4. From email address is not provided (config issue).
+
+apache log files - /apps/pkicc/LOG/apache.log.1 is older log file from 2019.
+apache.log is the current one.
+It does not log actions of cc_port very much - in info level it sould log each loop.
+But it does log for example whole message including the certificate request:
+---
+'2020-01-31 11:04:53' - PostgresqlCnxProvider - 31408/MainThread - DEBUG - Provider pkicc_connection_provider ===> Pool size: 5  Connections in pool: 0 Current Overflow: -4 Current Checked out connections
+: 1
+'2020-01-31 11:04:53' - CCModule - 31408/MainThread - INFO - Calling _create_pkicc_message_content with additional: -----BEGIN CERTIFICATE REQUEST-----
+'2020-01-31 11:04:53' - CCModule - 31408/MainThread - INFO - MIICZTCCAiMCAQAwYTEOMAwGA1UEChMFQ1RCVE8xDDAKBgNVBAsTA0lNUzEcMBoGA1UECxMTRGF0
+'2020-01-31 11:04:53' - CCModule - 31408/MainThread - INFO - YSBBdXRoZW50aWNhdG9yczEOMAwGA1UEBxMFVklQMDAxEzARBgNVBAMTCndzMDEtdmlwMDAwggG3
+'2020-01-31 11:04:53' - CCModule - 31408/MainThread - INFO - MIIBLAYHKoZIzjgEATCCAR8CgYEA+CLe0wD7GOMVjzjg3Sww/oLZE09QdzWe6El+Z5QxW3MHn3bR
+'2020-01-31 11:04:53' - CCModule - 31408/MainThread - INFO - GuJCS4Vz2sjYMNCl4EctTCrNrvrNk+1GcALx9X1cCXbQY0/Afqf/wMVuriLFPQSNsZEgPiRa9kiT
+'2020-01-31 11:04:53' - CCModule - 31408/MainThread - INFO - 7i8Z4HOvKXp5EDPql5P/ilfLnovM/JnDsdN/0T3GXDM7ZFsCFQDBd2bz2O5NvtVCHEBoPZTF8SBh
+'2020-01-31 11:04:53' - CCModule - 31408/MainThread - INFO - PwKBgQCdHja+TXSPUXtN4Q4ZEncPJf7D6p0WrSPYO+khjM4Vgr25/TKjX1Dc9WAhRs2dLaiJgh17
+'2020-01-31 11:04:53' - CCModule - 31408/MainThread - INFO - rpbbLQMbZU/xKkR2Fks+r5yF0FmwvAWg46+NXZmocT5nDzerwuJvUTw1CUInO7oODv8l232rKkgK
+'2020-01-31 11:04:53' - CCModule - 31408/MainThread - INFO - Xkkg9l5t2dcbhNagU1+l2dR/8gOBhAACgYAInCHvtnuLJyMvv3sKJtPv5Alww34024r8xcal+5s9
+'2020-01-31 11:04:53' - CCModule - 31408/MainThread - INFO - wU0xLFeKAqQw8FVyVbPF7fTzg9G78FIgBvHc2NX+7b8ghgecOrc3UqmLBv3sMduzCBqgS+3G6f8L
+'2020-01-31 11:04:53' - CCModule - 31408/MainThread - INFO - IbpKIVdV6CwNi8biY9c3y76LiwM5skmMcL1PBsQjfEo+KMXChhuZUaAAMAkGByqGSM44BAMDMQAw
+'2020-01-31 11:04:53' - CCModule - 31408/MainThread - INFO - LgIVAIFwyXoSdDqVGL+JhuiDoTh+okYpAhUAkevR8j/hoVQStAMzs1kZMxYsjHM=
+'2020-01-31 11:04:53' - CCModule - 31408/MainThread - INFO - -----END CERTIFICATE REQUEST-----
+'2020-01-31 11:04:53' - CCModule - 31408/MainThread - INFO -
+'2020-01-31 11:04:53' - CCModule - 31408/MainThread - INFO - mail_content: BEGIN IMS2.0
+'2020-01-31 11:04:53' - CCModule - 31408/MainThread - INFO - MSG_TYPE COMMAND_RESPONSE
+'2020-01-31 11:04:53' - CCModule - 31408/MainThread - INFO - MSG_ID VIP00_110453447561
+'2020-01-31 11:04:53' - CCModule - 31408/MainThread - INFO - DATA_TYPE COMMENT IMS2.0
+'2020-01-31 11:04:53' - CCModule - 31408/MainThread - INFO - ------------------------------------------------------------------------------------------
+'2020-01-31 11:04:53' - CCModule - 31408/MainThread - INFO - Please take the appropriate action. Once you are done, open None and click on the START_KEYPAIR link on the screen.
+---
+And it did not log to which addresses actually each action has sent the emails, when it communicates with LDAP - only few debug messages.
+Would be good in info level to log usefull information about the successful action from cc_portal.
+Important are e.g. unique identifiers - transaction id, station ids etc. for quick troubleshooting.
+
+Improvement 1:Missing logout button which would loggout from the portal and SSO.
+
+Another test loop with the same CSR.
+Bug 5. It was successful up to Keypair statered use case which was blocked by the non running 'start_keypair_daemon'.
+ldapsearch has confirmed that the certificate was actually requested in the UPI server.
+Should be investigated whether this is desired behaviour.
+
+Outcomming VDMS board subtasks:
+------------------------------
+VDMS-250 Fix all issues of current PKI C&C installation to have workflow functional
+1.Bootstrapping does not work - need fix (when previous key-pairt started was not yet confirmed there is a nasty non handled error)	Sub-task	TO DO	BONNET-GONNET Cyrille
+2.Crontab for running start_keypair_daemon does not work, has to be investigated.	Sub-task	TO DO	BONNET-GONNET Cyrille 
+3.From email address is not provided (config issue)	Sub-task	TO DO	BONNET-GONNET Cyrille
+4.Submission of the same CSR for VIP00 was not blocked nor checked	Sub-task	TO DO	BONNET-GONNET Cyrille
+
+VDMS-252 Implement more robust error handling for malformed CSR files
+VDMS-259 Improve logging of cc_module, cc_portal into apache.log 
+VDMS-260 PKI C&C Missing logout button which would loggout from the portal and SSO
+
+
+# Essential information about Certificates and its issuance for VDMS in summer 2020:
+http://its.ctbto.org/browse/GCP-18
+http://its.ctbto.org/browse/ICR-1517
+
+and reading about CSRs:
+https://en.wikipedia.org/wiki/Certificate_signing_request
+
+# About certificates usage in CDtools from Gerald:
+http://confluence.ctbto.org/display/~sudakov/PKI+CDTools
+
+
+# Succesfull connection to DOTS - test instance
+desc DOTS.vw_pki_filteredoperators;
+select * from DOTS.vw_pki_filteredoperators where family_name like 'Gelash%';
+select * from DOTS.vw_pki_filteredoperators where family_name like 'Mala%';
+select * from DOTS.vw_pki_authorizedstations where family_name like 'Gelash%';
+select * from DOTS.vw_pki_authorizedstations where family_name like 'Ma%';
+select * from DOTS.vw_pki_alloperators where family_name like 'Gelash%';
+select * from DOTS.vw_pki_alloperators where family_name like 'Gal%';
+
+PKI Operator (Station Operator) role for Vlado does not work.
+
+# 16.9.2020 - hand over testing of PKI C&C portal with different stations
+I have tried to retrieve the certificates from the
+pkildap16.test.ctbto.org
+with Edward's script or dirrectly with ldap search but it did not work for me.
+Also I did not manage to generate certificate with known valid date using openssl.
+Latter found option to use '-days' argument to override default validity.
+
+However here is procedure for DSA key:
+> openssl dsaparam -genkey 2048 | openssl dsa -out ws01-vip00-DSA.key
+> chmod 700 privatekey
+> openssl req -key ws01-vip00-DSA.key -new -days 365 -subj '/O=CTBTO/OU=IMS/OU=Data Authenticators/L=VIP00/CN=WS01-VIP00' -out ws01-vip00-ws01-dsa.csr
+-- This is valid DSA CSR for the portal and UPI server.
+
+If we want to generate ECDSA key there is the following procedure:
+> openssl ecparam -name prime256v1 -genkey -noout -out ws01-vip00-ECDSA.key
+> openssl req -new -sha256 -key ws01-vip00-ECDSA.key -subj '/O=CTBTO, OU=IMS, OU=Data Authenticators, L=VIP00, CN=WS01-VIP00' -out ws01-vip00-ecdsa.csr
+-- this is valid ECDSA CSR for the portal and UPI server.
+-- observe the difference in dname format for these two types of CSRs.
+
+But automatic approval works only for ws01-vip00, not for other stations:
+I will generate - 1. correct DSA CSRs and 2. malformed DSA CSRs for the following stations:
+   TORD
+   VIP00
+   KWP40
+   I18DK
+   DEX33
+   H05N
+   MBAR
+
+This command has found for me several certificates:
+ldapsearch -x -h pkildap16.test.ctbto.org -b "cn=ws01-vip00,l=VIP00,ou=Data Authenticators,ou=IMS,o=ctbto" objectclass=* | less
+However, this is still not the one with latest validity.
+All looks like the automatic generation of the certificate for ws01-vip00 always just returns the same cerificate.
+For full test we need to include Salim and test different stations yet.
+
+Successfull download of CA certificates from LDAP - all
+> ldapsearch -x -t -h pkildap16.test.ctbto.org -LLL -b "cn=ws01-vip00,l=VIP00,ou=Data Authenticators,ou=IMS,o=ctbto" "(cn=ws01-vip00)" usercertificate
+dn: cn=ws01-vip00,l=VIP00,ou=Data Authenticators,ou=IMS,o=ctbto
+userCertificate;binary:< file:///tmp/ldapsearch-userCertificate;binary-evluqI
+userCertificate;binary:< file:///tmp/ldapsearch-userCertificate;binary-aBKulL
+userCertificate;binary:< file:///tmp/ldapsearch-userCertificate;binary-S3OwgO
+userCertificate;binary:< file:///tmp/ldapsearch-userCertificate;binary-ilGzbR
+userCertificate;binary:< file:///tmp/ldapsearch-userCertificate;binary-swyD6T
+userCertificate;binary:< file:///tmp/ldapsearch-userCertificate;binary-yX1I1W
+userCertificate;binary:< file:///tmp/ldapsearch-userCertificate;binary-Q6QQWZ
+userCertificate;binary:< file:///tmp/ldapsearch-userCertificate;binary-MYf1R2
+userCertificate;binary:< file:///tmp/ldapsearch-userCertificate;binary-IOrcN5
+userCertificate;binary:< file:///tmp/ldapsearch-userCertificate;binary-Y2upI8
+userCertificate;binary:< file:///tmp/ldapsearch-userCertificate;binary-qeADDb
+userCertificate;binary:< file:///tmp/ldapsearch-userCertificate;binary-ucqSye
+userCertificate;binary:< file:///tmp/ldapsearch-userCertificate;binary-Glo9th
+-- and conversion and test
+
+> openssl x509 -inform der -in "/tmp/ldapsearch-userCertificate;binary-Glo9th" -out ~/ws01-vip00-dcr.pem
+> openssl x509 -text -in ~/ws01-vip00-dcr.pem
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 9654 (0x25b6)
+    Signature Algorithm: dsaWithSHA1
+        Issuer: O=CTBTO, OU=PKI Test, OU=PKI Test Entities, CN=Test DSA CA 2010
+        Validity
+            Not Before: Sep  3 06:12:06 2020 GMT
+            Not After : Sep  3 06:12:06 2025 GMT
+        Subject: O=CTBTO, OU=IMS, OU=Data Authenticators, L=VIP00, CN=ws01-vip00
+        Subject Public Key Info:
+            Public Key Algorithm: dsaEncryption
+                pub:
+                    08:9c:21:ef:b6:7b:8b:27:23:2f:bf:7b:0a:26:d3:
+                    ef:e4:09:70:c3:7e:34:db:8a:fc:c5:c6:a5:fb:9b:
+                    3d:c1:4d:31:2c:57:8a:02:a4:30:f0:55:72:55:b3:
+                    c5:ed:f4:f3:83:d1:bb:f0:52:20:06:f1:dc:d8:d5:
+                    fe:ed:bf:20:86:07:9c:3a:b7:37:52:a9:8b:06:fd:
+                    ec:31:db:b3:08:1a:a0:4b:ed:c6:e9:ff:0b:21:ba:
+                    4a:21:57:55:e8:2c:0d:8b:c6:e2:63:d7:37:cb:be:
+                    8b:8b:03:39:b2:49:8c:70:bd:4f:06:c4:23:7c:4a:
+                    3e:28:c5:c2:86:1b:99:51
+                P:
+                    00:f8:22:de:d3:00:fb:18:e3:15:8f:38:e0:dd:2c:
+                    30:fe:82:d9:13:4f:50:77:35:9e:e8:49:7e:67:94:
+                    31:5b:73:07:9f:76:d1:1a:e2:42:4b:85:73:da:c8:
+                    d8:30:d0:a5:e0:47:2d:4c:2a:cd:ae:fa:cd:93:ed:
+                    46:70:02:f1:f5:7d:5c:09:76:d0:63:4f:c0:7e:a7:
+                    ff:c0:c5:6e:ae:22:c5:3d:04:8d:b1:91:20:3e:24:
+                    5a:f6:48:93:ee:2f:19:e0:73:af:29:7a:79:10:33:
+                    ea:97:93:ff:8a:57:cb:9e:8b:cc:fc:99:c3:b1:d3:
+                    7f:d1:3d:c6:5c:33:3b:64:5b
+                Q:
+                    00:c1:77:66:f3:d8:ee:4d:be:d5:42:1c:40:68:3d:
+                    94:c5:f1:20:61:3f
+                G:
+                    00:9d:1e:36:be:4d:74:8f:51:7b:4d:e1:0e:19:12:
+                    77:0f:25:fe:c3:ea:9d:16:ad:23:d8:3b:e9:21:8c:
+                    ce:15:82:bd:b9:fd:32:a3:5f:50:dc:f5:60:21:46:
+                    cd:9d:2d:a8:89:82:1d:7b:ae:96:db:2d:03:1b:65:
+                    4f:f1:2a:44:76:16:4b:3e:af:9c:85:d0:59:b0:bc:
+                    05:a0:e3:af:8d:5d:99:a8:71:3e:67:0f:37:ab:c2:
+                    e2:6f:51:3c:35:09:42:27:3b:ba:0e:0e:ff:25:db:
+                    7d:ab:2a:48:0a:5e:49:20:f6:5e:6d:d9:d7:1b:84:
+                    d6:a0:53:5f:a5:d9:d4:7f:f2
+        X509v3 extensions:
+            X509v3 Basic Constraints: critical
+                CA:FALSE
+            X509v3 Certificate Policies:
+                Policy: 2.23.132.1.0.5.1.0.0
+                  User Notice:
+                    Explicit Text: This certificate is for testing purposes only and may not be used for any other purpose. Do not derive any trust from this certificate or any certificates issued by this CA.
+                  CPS: http://test.pki.ctbto.org/cps/
+
+            X509v3 Key Usage: critical
+                Digital Signature, Non Repudiation
+            X509v3 Authority Key Identifier:
+                keyid:C4:05:82:5D:A9:6C:19:BF:C4:28:64:9A:EB:83:B3:FF:BC:B2:77:A8
+
+    Signature Algorithm: dsaWithSHA1
+         r:
+             2a:45:ae:18:84:ad:fe:71:4c:45:8d:a8:08:0e:3b:
+             d6:a2:74:f2:25
+         s:
+             50:af:4d:1d:88:a0:a2:e7:4b:be:b9:a1:c2:7a:44:
+             5c:45:4c:3f:08
+-----BEGIN CERTIFICATE-----
+MIIEQjCCBAKgAwIBAgICJbYwCQYHKoZIzjgEAzBaMQ4wDAYDVQQKEwVDVEJUTzER
+MA8GA1UECxMIUEtJIFRlc3QxGjAYBgNVBAsTEVBLSSBUZXN0IEVudGl0aWVzMRkw
+FwYDVQQDExBUZXN0IERTQSBDQSAyMDEwMB4XDTIwMDkwMzA2MTIwNloXDTI1MDkw
+MzA2MTIwNlowYTEOMAwGA1UECgwFQ1RCVE8xDDAKBgNVBAsMA0lNUzEcMBoGA1UE
+CwwTRGF0YSBBdXRoZW50aWNhdG9yczEOMAwGA1UEBwwFVklQMDAxEzARBgNVBAMM
+CndzMDEtdmlwMDAwggG3MIIBLAYHKoZIzjgEATCCAR8CgYEA+CLe0wD7GOMVjzjg
+3Sww/oLZE09QdzWe6El+Z5QxW3MHn3bRGuJCS4Vz2sjYMNCl4EctTCrNrvrNk+1G
+cALx9X1cCXbQY0/Afqf/wMVuriLFPQSNsZEgPiRa9kiT7i8Z4HOvKXp5EDPql5P/
+ilfLnovM/JnDsdN/0T3GXDM7ZFsCFQDBd2bz2O5NvtVCHEBoPZTF8SBhPwKBgQCd
+Hja+TXSPUXtN4Q4ZEncPJf7D6p0WrSPYO+khjM4Vgr25/TKjX1Dc9WAhRs2dLaiJ
+gh17rpbbLQMbZU/xKkR2Fks+r5yF0FmwvAWg46+NXZmocT5nDzerwuJvUTw1CUIn
+O7oODv8l232rKkgKXkkg9l5t2dcbhNagU1+l2dR/8gOBhAACgYAInCHvtnuLJyMv
+v3sKJtPv5Alww34024r8xcal+5s9wU0xLFeKAqQw8FVyVbPF7fTzg9G78FIgBvHc
+2NX+7b8ghgecOrc3UqmLBv3sMduzCBqgS+3G6f8LIbpKIVdV6CwNi8biY9c3y76L
+iwM5skmMcL1PBsQjfEo+KMXChhuZUaOCAVAwggFMMAwGA1UdEwEB/wQCMAAwggEJ
+BgNVHSAEggEAMIH9MIH6BglngQQBAAUBAAAwgewwgb0GCCsGAQUFBwICMIGwDIGt
+VGhpcyBjZXJ0aWZpY2F0ZSBpcyBmb3IgdGVzdGluZyBwdXJwb3NlcyBvbmx5IGFu
+ZCBtYXkgbm90IGJlIHVzZWQgZm9yIGFueSBvdGhlciBwdXJwb3NlLiBEbyBub3Qg
+ZGVyaXZlIGFueSB0cnVzdCBmcm9tIHRoaXMgY2VydGlmaWNhdGUgb3IgYW55IGNl
+cnRpZmljYXRlcyBpc3N1ZWQgYnkgdGhpcyBDQS4wKgYIKwYBBQUHAgEWHmh0dHA6
+Ly90ZXN0LnBraS5jdGJ0by5vcmcvY3BzLzAOBgNVHQ8BAf8EBAMCBsAwHwYDVR0j
+BBgwFoAUxAWCXalsGb/EKGSa64Oz/7yyd6gwCQYHKoZIzjgEAwMvADAsAhQqRa4Y
+hK3+cUxFjagIDjvWonTyJQIUUK9NHYigoudLvrmhwnpEXEVMPwg=
+-----END CERTIFICATE-----
+
+
+dlw077.idc.ctbto.org.-1107% openssl x509 -inform DER -outform PEM -in "/tmp/ldapsearch-userCertificate;binary-MYf1R2" -noout -startdate
+notBefore=Feb  6 14:49:31 2020 GMT
+dlw077.idc.ctbto.org.-1108% date
+Thu Sep 17 14:28:48 GMT 2020
+dlw077.idc.ctbto.org.-1109% openssl x509 -inform DER -outform PEM -in "/tmp/ldapsearch-userCertificate;binary-Q6QQWZ" -noout -startdate
+notBefore=Jan 31 12:21:39 2020 GMT
+dlw077.idc.ctbto.org.-1110% openssl x509 -inform DER -outform PEM -in "/tmp/ldapsearch-userCertificate;binary-S3OwgO" -noout -startdate
+notBefore=Nov 20 09:01:01 2019 GMT
+dlw077.idc.ctbto.org.-1111% openssl x509 -inform DER -outform PEM -in "/tmp/ldapsearch-userCertificate;binary-Y2upI8" -noout -startdate
+notBefore=Sep  3 06:12:10 2020 GMT
+dlw077.idc.ctbto.org.-1112% openssl x509 -inform DER -outform PEM -in "/tmp/ldapsearch-userCertificate;binary-Y2upI8" -noout -enddate
+notAfter=Sep  3 06:12:10 2025 GMT
+dlw077.idc.ctbto.org.-1113% openssl x509 -inform DER -outform PEM -in "/tmp/ldapsearch-userCertificate;binary-Y2upI8" -noout -startdate
+notBefore=Sep  3 06:12:10 2020 GMT
+dlw077.idc.ctbto.org.-1114% openssl x509 -inform DER -outform PEM -in "/tmp/ldapsearch-userCertificate;binary-aBKulL" -noout -startdate
+notBefore=Nov 19 13:55:03 2019 GMT
+dlw077.idc.ctbto.org.-1115% openssl x509 -inform DER -outform PEM -in "/tmp/ldapsearch-userCertificate;binary-evluqI" -noout -startdate
+notBefore=Nov 18 15:23:36 2019 GMT
+dlw077.idc.ctbto.org.-1116% openssl x509 -inform DER -outform PEM -in "/tmp/ldapsearch-userCertificate;binary-ilGzbR" -noout -startdate
+notBefore=Nov 20 14:54:03 2019 GMT
+dlw077.idc.ctbto.org.-1117% openssl x509 -inform DER -outform PEM -in "/tmp/ldapsearch-userCertificate;binary-qeADDb" -noout -startdate
+notBefore=Sep  3 06:12:14 2020 GMT
+dlw077.idc.ctbto.org.-1118% openssl x509 -inform DER -outform PEM -in "/tmp/ldapsearch-userCertificate;binary-swyD6T" -noout -startdate
+notBefore=Jan 29 09:23:51 2020 GMT
+dlw077.idc.ctbto.org.-1119% openssl x509 -inform DER -outform PEM -in "/tmp/ldapsearch-userCertificate;binary-ucqSye" -noout -startdate
+notBefore=Sep  3 06:12:16 2020 GMT
+dlw077.idc.ctbto.org.-1120% openssl x509 -inform DER -outform PEM -in "/tmp/ldapsearch-userCertificate;binary-yX1I1W" -noout -startdate
+notBefore=Jan 31 10:05:19 2020 GMT
+
+And this is the one:
+dlw077.idc.ctbto.org.-1119% openssl x509 -inform DER -outform PEM -in "/tmp/ldapsearch-userCertificate;binary-ucqSye" -noout -startdate
+notBefore=Sep  3 06:12:16 2020 GMT
+
+> dlw077.idc.ctbto.org.-1125% openssl x509 -inform der -in "/tmp/ldapsearch-userCertificate;binary-ucqSye" -out ~/ws01-vip00-dcr.pem
+dlw077.idc.ctbto.org.-1126% cat ~/ws01-vip00-dcr.pem
+-----BEGIN CERTIFICATE-----
+MIIEQzCCBAOgAwIBAgICJbkwCQYHKoZIzjgEAzBaMQ4wDAYDVQQKEwVDVEJUTzER
+MA8GA1UECxMIUEtJIFRlc3QxGjAYBgNVBAsTEVBLSSBUZXN0IEVudGl0aWVzMRkw
+FwYDVQQDExBUZXN0IERTQSBDQSAyMDEwMB4XDTIwMDkwMzA2MTIxNloXDTI1MDkw
+MzA2MTIxNlowYTEOMAwGA1UECgwFQ1RCVE8xDDAKBgNVBAsMA0lNUzEcMBoGA1UE
+CwwTRGF0YSBBdXRoZW50aWNhdG9yczEOMAwGA1UEBwwFVklQMDAxEzARBgNVBAMM
+CndzMDEtdmlwMDAwggG4MIIBLAYHKoZIzjgEATCCAR8CgYEA+CLe0wD7GOMVjzjg
+3Sww/oLZE09QdzWe6El+Z5QxW3MHn3bRGuJCS4Vz2sjYMNCl4EctTCrNrvrNk+1G
+cALx9X1cCXbQY0/Afqf/wMVuriLFPQSNsZEgPiRa9kiT7i8Z4HOvKXp5EDPql5P/
+ilfLnovM/JnDsdN/0T3GXDM7ZFsCFQDBd2bz2O5NvtVCHEBoPZTF8SBhPwKBgQCd
+Hja+TXSPUXtN4Q4ZEncPJf7D6p0WrSPYO+khjM4Vgr25/TKjX1Dc9WAhRs2dLaiJ
+gh17rpbbLQMbZU/xKkR2Fks+r5yF0FmwvAWg46+NXZmocT5nDzerwuJvUTw1CUIn
+O7oODv8l232rKkgKXkkg9l5t2dcbhNagU1+l2dR/8gOBhQACgYEA4QPxw4CrJGvm
+733dDC2QbNg8Xd0d9X+xFA7y1QIaFr8KSywO13KlOdpVMPMdBgYuV/GmK+YzaTaF
+FhGUNHJQ9qMFC1+ffjuS10CMSOXtOae2NPSuMRelxrewxcbgKCuhMGw8hTdM+IlW
+pdS2C0adXs6vvkTVa2LWfu1OTi2vw/+jggFQMIIBTDAMBgNVHRMBAf8EAjAAMIIB
+CQYDVR0gBIIBADCB/TCB+gYJZ4EEAQAFAQAAMIHsMIG9BggrBgEFBQcCAjCBsAyB
+rVRoaXMgY2VydGlmaWNhdGUgaXMgZm9yIHRlc3RpbmcgcHVycG9zZXMgb25seSBh
+bmQgbWF5IG5vdCBiZSB1c2VkIGZvciBhbnkgb3RoZXIgcHVycG9zZS4gRG8gbm90
+IGRlcml2ZSBhbnkgdHJ1c3QgZnJvbSB0aGlzIGNlcnRpZmljYXRlIG9yIGFueSBj
+ZXJ0aWZpY2F0ZXMgaXNzdWVkIGJ5IHRoaXMgQ0EuMCoGCCsGAQUFBwIBFh5odHRw
+Oi8vdGVzdC5wa2kuY3RidG8ub3JnL2Nwcy8wDgYDVR0PAQH/BAQDAgbAMB8GA1Ud
+IwQYMBaAFMQFgl2pbBm/xChkmuuDs/+8sneoMAkGByqGSM44BAMDLwAwLAIUbtd1
+Fy2qqJHlxpFQkm3rfX33AmoCFF1BQx9souA18Cf0Ibo2JKXfc+UU
+-----END CERTIFICATE-----
+
+And it is really the one with latest start date - from 3. September 2020.
+
+Edwards script does not take one neither the last one nor the newest one.
+Just one from Feb 6 14:49:31.
+It is not even one from top or bottom how they are ordered in LDAP.
+
+So it looks so far, LDAP search on PKI C&C works well, and malfunctional is Edward's script.
+But it can be fixed yet - may be.
+
+# Meesasges from PKI Portal from Marina.
+
+Dear Jan
+Please find the messages sent by the PKI Portal attached.
+The first message notifies RAO that a certificate request has been uploaded on the PKI portal.
+Second message notifies on the issued certificate [START_KEYPAIR C&C message].
+Thank you!
+Marina
+
+From: pki@ctbto.org
+Subject: PKI 2.0 System Notification: START_KEYPAIR
+Payload:
+
+BEGIN IMS2.0 
+MSG_TYPE command_request 
+MSG_ID PPS0006689
+EMAIL luke.preston@ctbto.org,marina.malakhova@ctbto.org,salim.chahin@ctbto.org,pki@ctbto.org 
+TIME_STAMP 2020/09/16 06:17:23 
+STA_LIST ws01-jka 
+AUTH_ID 7004203 
+START_TIME 2020/09/16 06:17:23 
+START_KEYPAIR 
+-----BEGIN CERTIFICATE----- 
+MIICRDCCAcqgAwIBAgIDauArMAoGCCqGSM49BAMCMFExDjAMBgNVBAoTBUNUQlRPMQwwCgYDVQQL 
+EwNQS0kxFTATBgNVBAsTDFBLSSBFbnRpdGllczEaMBgGA1UEAxMRT1BTIEVDRFNBIENBIDIwMTcw 
+HhcNMjAwOTE2MDYxNzI0WhcNMjUwOTE2MDYxNzI0WjBdMQ4wDAYDVQQKDAVDVEJUTzEMMAoGA1UE 
+CwwDSU1TMRwwGgYDVQQLDBNEYXRhIEF1dGhlbnRpY2F0b3JzMQwwCgYDVQQHDANKS0ExETAPBgNV 
+BAMMCHdzMDEtamthMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEHpLaPX0AifAXGqudVURBRh1T 
+OG1Tf9bYJcPrH8HKpUkVlbTB2lj0zgSR8hBW6itjA0WLwXQYwuAAnQlRpldBEqOBhDCBgTAMBgNV 
+HRMBAf8EAjAAMEAGA1UdIAQ5MDcwNQYJZ4EEAQECAQEBMCgwJgYIKwYBBQUHAgEWGmh0dHBzOi8v 
+cGtpLmN0YnRvLm9yZy9jcHMvMA4GA1UdDwEB/wQEAwIGwDAfBgNVHSMEGDAWgBQ9LlZcH1DXd0dq 
+evtNPtxvF10gjjAKBggqhkjOPQQDAgNoADBlAjEA+uUe8xHOQFBdspyJXexr9WVIL4w5M/3q21LD 
+LlQRMUg4x3mwMghnGwVP2tsGNKf3AjA/Rkvxh5qvexAUrJ5/SdWE0jV9IH7vUH6OmvRD6LqANzVz 
+2zeKACnz7767MFQEGRg= 
+-----END CERTIFICATE----- 
+STOP
+
+From: pki@ctbto.org
+Subject: PKI 2.0 System Notification: New Certificate Request Submitted through the PKI Portal
+Payload:
+
+The following certificate has been submitted : 
+
+Username	MOTOHASHI
+Request Date	16/09/2020 02:47:02
+Station	JKA
+Site/Workstation	ws01-jka
+Dname	CN=ws01-jka,L=JKA,OU=Data Authenticators,OU=IMS,O=CTBTO
+Request Format	PEM
+Request Dname	CN=WS01-JKA,L=JKA,OU=Data Authenticators,OU=IMS,O=CTBTO
+Dname Corrected	Y
+Request Key Algorithm	ECDSA
+Request Status	SUCCESS
+Request Transaction ID	3602
+
+
+# Inquiry about authentication@ctbto.org from Alexander Sudakov
+See below links, especially PES-1054.
+I have not touched this project for 7Y+.
+http://its.ctbto.org/browse/PES-1054
+http://its.ctbto.org/browse/ICR-401
+http://its.ctbto.org/browse/DCR-3074
+http://its.ctbto.org/browse/ESI-246
+
+dlv014.idc.ctbto.org-262% ssh auto@eldey
+eldey-101% cd /etc/mail
+eldey-102% grep auth aliases
+authentication: :include:/dvl/data/shared/messages/mail_include/authentication_users
+eldey-103% ls -l /dvl/data/shared/messages/mail_include/authentication_users
+-rw-r--r--   1 auto     auto         302 Apr  8  2013 /dvl/data/shared/messages/mail_include/authentication_users
+eldey-104% cat /dvl/data/shared/messages/mail_include/authentication_users
+"|/usr/bin/procmail /dvl/data/shared/messages/mail_include/msg_procmail_authentication.conf"
+Alexander.Sudakov@ctbto.org
+Raymond.Ankobia@CTBTO.ORG
+Salim.Chahin@CTBTO.ORG
+Marta.Galindo@CTBTO.ORG
+Gonzalo.Perez@CTBTO.ORG
+Marina.MALAKHOVA@Office.CTBTO.ORG
+Raluca.Granser@CTBTO.ORG
+ims-cnc@office.ctbto.org
+eldey-105%
+
+The authentication@ctbto.org was not mailbox it was distribution list, which probably is not working anymore.
+
+@Michaela, Would it be possible to check where/to whom/how emails for authentication@ctbto.org are landed?
+
+== she could not receive emails from this address
+Which SMTP server(s) was used for sending in both (success/failure) cases?
+
+----
+

@@ -1,0 +1,333 @@
+# Set of special test cases for all new features
+
+# Norims test cases for all bulletine types
+
+BEGIN IMS2.0
+MSG_TYPE REQUEST
+MSG_ID nord_reb1
+TIME 2019/04/24 08:00 to 2019/04/24 16:00
+BULL_TYPE REB
+BULLETIN IMS2.0:NORDIC
+STOP
+
+BEGIN IMS2.0
+MSG_TYPE REQUEST
+MSG_ID nord_sel11
+TIME 2019/04/24 08:00 to 2019/04/24 16:00
+BULL_TYPE SEL1
+BULLETIN IMS2.0:NORDIC
+STOP
+
+BEGIN IMS2.0
+MSG_TYPE REQUEST
+MSG_ID nord_sel21
+TIME 2019/04/24 08:00 to 2019/04/24 16:00
+BULL_TYPE SEL2
+BULLETIN IMS2.0:NORDIC
+STOP
+
+BEGIN IMS2.0
+MSG_TYPE REQUEST
+MSG_ID nord_sel31
+TIME 2019/04/24 08:00 to 2019/04/24 16:00
+BULL_TYPE SEL3
+BULLETIN IMS2.0:NORDIC
+STOP
+
+BEGIN IMS2.0
+MSG_TYPE REQUEST
+MSG_ID nord_seb1
+TIME 2019/04/24 08:00 to 2019/04/24 16:00
+BULL_TYPE SEB
+BULLETIN IMS2.0:NORDIC
+STOP
+
+BEGIN IMS2.0
+MSG_TYPE REQUEST
+MSG_ID nord_sseb1
+TIME 2019/04/24 08:00 to 2019/04/24 16:00
+BULL_TYPE SSEB
+BULLETIN IMS2.0:NORDIC
+STOP
+
+begin ims2.0
+msg_type request
+msg_id nordic_neb1
+time 2009/06/21 00:00:00 TO 2009/06/22 00:00:00
+bull_type NEB
+depth_kvalue 20.0
+hydro_cp_thresh 8.0
+hydro_te_thresh 15.0
+loc_conf 0.9
+reg_conf 0.99
+magpref_mb mb_mle
+magpref_ms ms_mle
+mb_err 0.34
+ms_err 0.35
+min_dp_snr_pp 2.0
+min_dp_snr_sp 2.0
+min_mb 3.5
+min_moveout_pp 1.5
+min_moveout_sp 1.5
+min_ndef 6
+min_ndp_pp 4
+min_ndp_sp 3
+min_wdepth_thresh 0.5
+mag_type mb
+mag 4.0 to 6.0
+depth_thresh 20.0
+depth_conf 0.99
+mbms_slope 1.5
+mbms_thresh 3.5
+mbms_conf 0.99
+min_nsta_ms 2
+bulletin ims2.0:NORDIC
+stop
+
+BEGIN ims2.0 
+msg_type request
+msg_id nord_nseb1
+TIME 2009/06/21 TO 2009/06/22 
+bull_type NSEB
+mag_type mb
+mag 4.0 to 6.0
+lat 60 to 90
+lon 45 to 75
+depth_thresh 20.0
+depth_conf 0.99
+mbms_slope 1.5
+mbms_thresh 3.5
+mbms_conf 0.99
+min_nsta_ms 2
+bulletin ims2.0:NORDIC
+STOP
+
+# Now let us try ims1.0 in combination with one day of data
+BEGIN IMS1.0
+MSG_TYPE REQUEST
+MSG_ID nord_reb2
+TIME 2019/04/24 08:00 to 2019/04/25 16:00
+BULL_TYPE REB
+BULLETIN IMS1.0:NORDIC
+STOP
+
+BEGIN IMS1.0
+MSG_TYPE REQUEST
+MSG_ID nord_sel12
+TIME 2019/04/24 08:00 to 2019/04/25 16:00
+BULL_TYPE SEL1
+BULLETIN IMS1.0:NORDIC
+STOP
+
+BEGIN IMS1.0
+MSG_TYPE REQUEST
+MSG_ID nord_sel22
+TIME 2019/04/24 08:00 to 2019/04/25 16:00
+BULL_TYPE SEL2
+BULLETIN IMS1.0:NORDIC
+STOP
+
+BEGIN IMS1.0
+MSG_TYPE REQUEST
+MSG_ID nord_sel32
+TIME 2019/04/24 08:00 to 2019/04/25 16:00
+BULL_TYPE SEL3
+BULLETIN IMS1.0:NORDIC
+STOP
+
+BEGIN IMS1.0
+MSG_TYPE REQUEST
+MSG_ID nord_seb2
+TIME 2019/04/24 08:00 to 2019/04/25 16:00
+BULL_TYPE SEB
+BULLETIN IMS1.0:NORDIC
+STOP
+
+BEGIN IMS1.0
+MSG_TYPE REQUEST
+MSG_ID nord_sseb2
+TIME 2019/04/24 08:00 to 2019/04/25 16:00
+BULL_TYPE SSEB
+BULLETIN IMS1.0:NORDIC
+STOP
+
+begin ims1.0
+msg_type request
+msg_id nordic_neb2
+time 2009/06/21 00:00:00 TO 2009/06/22 00:00:00
+bull_type NEB
+depth_kvalue 20.0
+hydro_cp_thresh 8.0
+hydro_te_thresh 15.0
+loc_conf 0.9
+reg_conf 0.99
+magpref_mb mb_mle
+magpref_ms ms_mle
+mb_err 0.34
+ms_err 0.35
+min_dp_snr_pp 2.0
+min_dp_snr_sp 2.0
+min_mb 3.5
+min_moveout_pp 1.5
+min_moveout_sp 1.5
+min_ndef 6
+min_ndp_pp 4
+min_ndp_sp 3
+min_wdepth_thresh 0.5
+mag_type mb
+mag 4.0 to 6.0
+depth_thresh 20.0
+depth_conf 0.99
+mbms_slope 1.5
+mbms_thresh 3.5
+mbms_conf 0.99
+min_nsta_ms 2
+bulletin ims1.0:NORDIC
+stop
+
+BEGIN ims1.0 
+msg_type request
+msg_id nord_nseb2
+TIME 2009/06/21 TO 2009/06/22 
+bull_type NSEB
+mag_type mb
+mag 4.0 to 6.0
+lat 60 to 90
+lon 45 to 75
+depth_thresh 20.0
+depth_conf 0.99
+mbms_slope 1.5
+mbms_thresh 3.5
+mbms_conf 0.99
+min_nsta_ms 2
+bulletin ims1.0:NORDIC
+STOP
+
+# DLSEED and various new features
+BEGIN IMS2.0
+MSG_TYPE REQUEST
+MSG_ID dlseed_1
+TIME 2019/04/24 08:00 to 2019/04/25 16:00
+STA_LIST A*
+CHAN_LIST *
+STA_INFO IMS2.0:DLSEED
+STOP
+
+BEGIN IMS2.0
+MSG_TYPE REQUEST
+MSG_ID dlseed_2
+TIME 2019/04/24 08:00 to 2019/04/25 16:00
+STA_LIST I*
+CHAN_LIST *
+STA_INFO IMS2.0:DLSEED
+STOP
+
+BEGIN IMS2.0
+MSG_TYPE REQUEST
+MSG_ID dlseed_2
+TIME 2019/04/24 08:00 to 2019/04/25 16:00
+STA_LIST N*
+CHAN_LIST *
+STA_INFO IMS2.0:DLSEED
+STOP
+
+BEGIN IMS2.0
+MSG_TYPE REQUEST
+MSG_ID dlseed_2
+STA_LIST Z*
+CHAN_LIST *
+STA_INFO IMS2.0:DLSEED
+STOP
+
+# Other pertaining features
+begin ims1.0
+msg_type request
+msg_id partic_cat1
+time 2000/07/01 to 2000/07/31
+sta_list AU*
+CATEGORY 4
+sphdf rms2.0
+sphdp rms2.0
+stop
+
+begin ims1.0
+msg_type request
+msg_id partic_cat2
+time 2000/07/01 to 2000/07/31
+sta_list *
+CATEGORY 4
+sphdf rms2.0
+sphdp rms2.0
+stop
+
+begin ims1.0
+msg_type request
+msg_id partic_cat3
+time 2000/07/01 to 2000/07/31
+sta_list *
+CATEGORY 1,2,3,4,5
+sphdf rms2.0
+sphdp rms2.0
+stop
+
+begin ims1.0
+msg_type request
+msg_id gaz_cat1
+time 1999/07/01 to 2000/08/01
+sta_list AU*
+CATEGORY A,B,C
+ARR html:rms2.0
+stop
+
+begin ims1.0
+msg_type request
+msg_id gaz_cat2
+time 1999/07/01 to 2000/08/01
+sta_list *
+CATEGORY C
+ARR html:rms2.0
+stop
+
+begin ims2.0
+msg_type request
+msg_id gaz_cat3
+time 1999/07/01 to 2000/08/01
+sta_list *
+CATEGORY A
+ARR html:rms2.0
+stop
+
+BEGIN IMS2.0
+MSG_TYPE REQUEST
+MSG_ID test_ssreb1
+TIME 2019/12/01 to 2019/12/30
+STA_LIST *
+SSREB IMS2.0:HTML
+STOP
+
+BEGIN IMS2.0
+MSG_TYPE REQUEST
+MSG_ID ED_SC3_STA_INFO
+TIME 2013/02/12 00:00:00 TO 2013/02/12 00:30:00
+STA_LIST H11*
+STA_INFO IMS2.0:SC3XML
+STOP
+
+BEGIN IMS2.0
+MSG_TYPE REQUEST
+MSG_ID ED_SC3_STA_INFO
+TIME 2013/02/12 00:00:00 TO 2013/02/12 00:30:00
+STA_LIST H11N*
+STA_INFO IMS2.0:SC3XML
+STOP
+
+
+
+SEL1 (Standard Event List 1)
+ - SEL2 (Standard Event List 2)
+ - SEL3 (Standard Event List 3)
+ - REB (Reviewed Event Bulletin)
+ - SEB (Standard Event Bulletin)
+ - SSEB (Standard Screened Event Bulletin)
+ - NEB (National Event Bulletin
+ - NSEB (National Screened Event Bulletin)

@@ -1,0 +1,26 @@
+# Collection of records from integration testing - end of September 2020
+
+When submitting DSA CSR with this DNAME:
+'/O=CTBTO, OU=IMS, OU=Data Authenticators, L=VIP00, CN=WS01-VIP00'
+
+We have this error from the UPI server:
+---
+'2020-09-23 16:23:25' - CCModule - 3990/Dummy-4 - INFO - Sending CSR to UPI server...
+'2020-09-23 16:23:26' - CCModule - 3990/Dummy-4 - ERROR - Cannot call UPI server (URL: http://localhost:9001/upi/, status: 500, reason: Internal Server Error) for PKI item ws01-VIP00 (ID = 168)
+None
+'2020-09-23 16:23:26' - CCPortal - 3990/Dummy-4 - INFO - User KIANICKA requested a certificate for item ws01-VIP00. An email was sent to the following addresses: cert_creator@ctbto.org, test01@ctbto.org, jan.kianicka@ctbto.org
+'2020-09-23 16:23:40' - Process - 3990/Dummy-4 - INFO - Sub process exited, exit value 0
+'2020-09-23 16:23:40' - Process - 3990/Dummy-4 - INFO - Sub process exited, exit value 0
+'2020-09-23 16:23:40' - Process - 3990/Dummy-4 - INFO - Sub process exited, exit value 0
+'2020-09-23 16:23:44' - Process - 3990/MainThread - INFO - Sub process exited, exit value 0
+'2020-09-23 16:23:44' - CCModule - 3990/MainThread - INFO - Sending CSR to UPI server...
+'2020-09-23 16:23:44' - CCModule - 3990/MainThread - ERROR - Cannot call UPI server (URL: http://localhost:9001/upi/, status: 500, reason: Internal Server Error) for PKI item ws01-VIP00 (ID = 168)
+None
+---
+
+And is handled like this - print screen.
+
+Write the reporting email to Luke, Cyrille, Vlado, Marina, Florin and record the observation to Jira.
+
+
+ 

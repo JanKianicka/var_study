@@ -1,4 +1,4 @@
-# Verification Data and Products Messaging System (VDMS)
+﻿# Verification Data and Products Messaging System (VDMS)
 # Collecting documentation and available information about the system
 # May 2019, June 2019
 
@@ -1233,6 +1233,8 @@ Action items:
    http://confluence.ctbto.org/display/COD/Handling+Configuration+Changes+with+a+Single+Production+Branch
    please provide us with your feedback.
    
+
+
 
 # Issues - bugs collected during ramp of to VDMS knowledge
 
