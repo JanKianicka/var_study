@@ -1,0 +1,78 @@
+# During certificaiton of dlv018 we have to deal with openssl, keys and ldap search.
+# These are commands collected by Menachem
+
+https://ldapwiki.com/wiki/Obtain%20a%20Certificate%20from%20Server
+
+
+openssl smime -verify -in /ops/data/shared/nms_acq/messages/rad_acquisition/signed_valid/2015-01-28/00261642.msg -CAfile ./ca_cert.pem
+
+dlv001.idc.ctbto.org.-257% foreach f ( `grep -a1 GBX66 /ops/data/shared/nms_acq/messages/rad_acquisition/signed_invalid/2015-01-28/* | grep DATA_TYPE | awk -F '-D' '{print $1}'` )
+foreach? echo $f
+foreach? openssl smime -verify -in $f -CAfile ./ca_cert.pem
+foreach? end
+
+
+Please get the CA Cert from /dvl/full/ca_cert.pem
+
+To view the certificate from an SMIME signed message:
+openssl smime -pk7out -in 51167243.msg | openssl pkcs7 -text -noout -print_certs
+
+To copy the certificate into a file
+openssl smime -pk7out -in 51167243.msg -out cert.pem
+
+To verify a signed message
+openssl smime -verify -in 51167243.msg -CAfile cacert.pem
+
+To SMIME sign a message
+openssl smime -sign -signer ~/certs/NMS/NMS.pem -inkey \
+/home/smd/wokabi/projects/keys/edward_dsa.key -in \
+/home/smd/wokabi/projects/messages/test_messages/unsigned_test_message.txt -to \
+nms-acq@ctbto.org -from edward.wokabi@ctbto.org -subject "Test"
+
+To extract certificate informatio
+openssl x509 -text -in cert.pem
+
+To extract the certificate issuer
+openssl x509 -noout -in cert.pem -issuer
+
+To extract to whom the certificate was issued to
+openssl x509 -noout -in cert.pem -subject
+
+To extract what dates the certificate is valid
+openssl x509 -noout -in cert.pem -dates
+
+To extract the issuer, whom it was issued to and the dates the certificate is valid
+openssl x509 -noout -in cert.pem -issuer -subject -dates
+
+To extract the certificate hash value
+openssl x509 -noout -in cert.pem -hash
+
+To extract the MD5 fingerprint?
+openssl x509 -noout -in cert.pem -fingerprint
+
+openssl smime -sign -signer ~/certs/NMS/NMS.pem -inkey
+/home/smd/wokabi/projects/keys/edward_dsa.key -in
+/home/smd/wokabi/projects/messages/test_messages/unsigned_test_message.txt -to
+nms-acq@ctbto.org -from edward.wokabi@ctbto.org -subject "Test"
+
+To create a certificate request
+openssl req -new -key privkey.pem -out cert.csr
+
+
+Generate a new private key and Certificate Signing Request
+openssl req -out CSR.csr -new -newkey rsa:2048 -nodes -keyout privateKey.key
+
+Generate a self-signed certificate (see How to Create and Install an
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout privateKey.key -out certificate.crt
+
+Generate a certificate signing request (CSR) for an existing private key
+openssl req -out CSR.csr -key privateKey.key -new
+
+Generate a certificate signing request based on an existing certificate
+openssl x509 -x509toreq -in certificate.crt -out CSR.csr -signkey privateKey.key
+
+Remove a passphrase from a private key
+openssl rsa -in privateKey.pem -out newPrivateKey.pem
+
+
+

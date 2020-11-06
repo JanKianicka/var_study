@@ -22,5 +22,190 @@ And is handled like this - print screen.
 
 Write the reporting email to Luke, Cyrille, Vlado, Marina, Florin and record the observation to Jira.
 
+# 29.10.2020 - Full cycle test after implemented and deployed new way of LDAP search
 
- 
+1. Checking of deployment of the new features
+/apps/pkicc/conf/cc_portal.conf
+-- cut --
+[daemon]
+start_keypair_daemon_user_id=1
+check_certificates_start_date=False
+get_latest=False
+
+/apps/etc/httpd/conf.d/pkicc.conf
+--- cut ---
+# DEBUG VARS
+SetEnv CC_PORTAL_DEBUG True
+SetEnv CC_PORTAL_FORCE_MAILTO jan.kianicka@ctbto.org
+
+# Connects as PBTEST05 which is PKIOperator for chosen statons.
+  DEX33
+  H05N
+  MBAR
+  I18DK
+  KWP40
+  TORD
+  VIP00
+
+# We will prepare afresh new CSRs with the new key-pair
+> openssl dsaparam -genkey 2048 | openssl dsa -out third-test-DSA.key
+> chmod 700 third-test-DSA.key
+
+> openssl req -key third-test-DSA.key -new -days 365 -subj '/O=CTBTO/OU=IMS/OU=Data Authenticators/L=VIP00/CN=WS01-VIP00' -out ws01-vip00-third-dsa.csr
+> openssl req -key third-test-DSA.key -new -days 365 -subj '/O=CTBTO/OU=IMS/OU=Data Authenticators/L=DEX33/CN=WS01-DEX33' -out ws01-dex33-third-dsa.csr
+> openssl req -key third-test-DSA.key -new -days 365 -subj '/O=CTBTO/OU=IMS/OU=Data Authenticators/L=H05N/CN=H05N1' -out H05N1-H05N-third-dsa.csr
+> openssl req -key third-test-DSA.key -new -days 365 -subj '/O=CTBTO/OU=IMS/OU=Data Authenticators/L=H05N/CN=WS01-H05N' -out ws01-H05N-third-dsa.csr
+> openssl req -key third-test-DSA.key -new -days 365 -subj '/O=CTBTO/OU=IMS/OU=Data Authenticators/L=H05N/CN=WS02-H05N' -out ws02-H05N-third-dsa.csr
+> openssl req -key third-test-DSA.key -new -days 365 -subj '/O=CTBTO/OU=IMS/OU=Data Authenticators/L=MBAR/CN=WS01-MBAR' -out ws01-MBAR-third-dsa.csr
+> openssl req -key third-test-DSA.key -new -days 365 -subj '/O=CTBTO/OU=IMS/OU=Data Authenticators/L=I18DK/CN=I18L4' -out I18L4-I18DK-third-dsa.csr
+> openssl req -key third-test-DSA.key -new -days 365 -subj '/O=CTBTO/OU=IMS/OU=Data Authenticators/L=I18DK/CN=WS03-I18DK' -out WS03-I18DK-third-dsa.csr
+> openssl req -key third-test-DSA.key -new -days 365 -subj '/O=CTBTO/OU=IMS/OU=Data Authenticators/L=TORD/CN=TOA0' -out TOA0-TORD-third-dsa.csr
+> openssl req -key third-test-DSA.key -new -days 365 -subj '/O=CTBTO/OU=IMS/OU=Data Authenticators/L=TORD/CN=WS01-TORD' -out WS01-TORD-third-dsa.csr
+
+Get matching certificate did not work properly and for TORD WS01 workstation, the wrong not matching
+certificate was retrieved from LDAP imediatelly.
+Also this functionality of getting the latest I would like to know more about.
+This should work properly - seems that it just seek and retrieve the last one on LDAP available.
+This should not work like this - it shlould retrieve the last one not yet processed -
+shall we support something like this?
+(I would say yes, when we implement something let it be correct and finished)
+
+We generate once more 'fourth' DSA key-pair and request for TORD, let us see.
+> openssl dsaparam -genkey 2048 | openssl dsa -out fourth-test-DSA.key
+> openssl req -key fourth-test-DSA.key -new -days 365 -subj '/O=CTBTO/OU=IMS/OU=Data Authenticators/L=TORD/CN=WS01-TORD' -out WS01-TORD-fourth-dsa.csr
+
+There was yet another - fifth request - pending.
+I will create sixth generated for VIP00 and TORD to check how it works.
+> openssl dsaparam -genkey 2048 | openssl dsa -out sixth-test-DSA.key
+
+> openssl req -key sixth-test-DSA.key -new -days 365 -subj '/O=CTBTO/OU=IMS/OU=Data Authenticators/L=TORD/CN=WS01-TORD' -out WS01-TORD-sixth-dsa.csr
+> openssl req -key sixth-test-DSA.key -new -days 365 -subj '/O=CTBTO/OU=IMS/OU=Data Authenticators/L=VIP00/CN=WS01-VIP00' -out ws01-vip00-sixth-dsa.csr
+
+What we do now, we test VIP00 with completelly new key-pair and CSR.
+Then we test with shasum algorithm with TORD.
+Then we turn to get latest and test again with sixth CSR for TORD - we record the results.
+
+For VIP00 - the test finally failed as expected - thus we have to figure out
+how to overcome this issue. UPI server does not automatically generate
+the certificate, but just returns all the time the same - not matching one.
+(Pending process was aborted)
+----
+'2020-11-03 11:46:08' - CCModule - 23313/MainThread - INFO - CSR content succesfully sent to the UPI server for PKI item ws01-VIP00 (ID = 222). The transaction ID is 12341
+'2020-11-03 11:46:08' - CCModule - 23313/MainThread - WARNING - [send mail] replace mail to CC_PORTAL_FORCE_MAILTO: jan.kianicka@ctbto.org, subject 'KEYPAIR_GENERATED_VIP00'
+'2020-11-03 11:46:08' - CCPortal - 23313/MainThread - INFO - User PBTEST03 requested a certificate for item ws01-VIP00. An email was sent to the following addresses: jan.kianicka@ctbto.org, romain.rouffy@artal.fr, romain.rouffy@artal.fr
+'2020-11-03 11:46:12' - CCPortal - 23313/Thread-1350 - INFO - Starting the start keypair daemon
+'2020-11-03 11:46:12' - StartKeypairDaemon - 23313/Thread-1350 - INFO - Retrieving matching shasum certificate for digitizer ws01-VIP00 and shasum 21275e3a4a29656cc32f5e2ed85c3916b3888531f74cadfba5d6a6ee0ca15600
+'2020-11-03 11:46:12' - LdapServer - 23313/Thread-1350 - INFO - Found 20 certificate(s) in LDAP for entry where cn=ws01-VIP00
+'2020-11-03 11:46:12' - Process - 23313/Thread-1350 - INFO - Sub process exited, exit value 0
+'2020-11-03 11:46:12' - LdapServer - 23313/Thread-1350 - INFO - Found a certificate with shasum 3279a2fe4a1c15a630539b32bce93a3fa8aee28c48949fa0fab69c47220ec7c3
+'2020-11-03 11:46:12' - Process - 23313/Thread-1350 - INFO - Sub process exited, exit value 0
+'2020-11-03 11:46:12' - LdapServer - 23313/Thread-1350 - INFO - Found a certificate with shasum 3279a2fe4a1c15a630539b32bce93a3fa8aee28c48949fa0fab69c47220ec7c3
+'2020-11-03 11:46:12' - Process - 23313/Thread-1350 - INFO - Sub process exited, exit value 0
+'2020-11-03 11:46:12' - LdapServer - 23313/Thread-1350 - INFO - Found a certificate with shasum 3279a2fe4a1c15a630539b32bce93a3fa8aee28c48949fa0fab69c47220ec7c3
+'2020-11-03 11:46:12' - Process - 23313/Thread-1350 - INFO - Sub process exited, exit value 0
+'2020-11-03 11:46:12' - LdapServer - 23313/Thread-1350 - INFO - Found a certificate with shasum 3279a2fe4a1c15a630539b32bce93a3fa8aee28c48949fa0fab69c47220ec7c3
+'2020-11-03 11:46:12' - Process - 23313/Thread-1350 - INFO - Sub process exited, exit value 0
+'2020-11-03 11:46:12' - LdapServer - 23313/Thread-1350 - INFO - Found a certificate with shasum 3279a2fe4a1c15a630539b32bce93a3fa8aee28c48949fa0fab69c47220ec7c3
+'2020-11-03 11:46:12' - Process - 23313/Thread-1350 - INFO - Sub process exited, exit value 0
+'2020-11-03 11:46:12' - LdapServer - 23313/Thread-1350 - INFO - Found a certificate with shasum c930d209555bc211e69092c334a605ce924a893ed13fefb990c89634336153c7
+'2020-11-03 11:46:12' - Process - 23313/Thread-1350 - INFO - Sub process exited, exit value 0
+'2020-11-03 11:46:12' - LdapServer - 23313/Thread-1350 - INFO - Found a certificate with shasum c930d209555bc211e69092c334a605ce924a893ed13fefb990c89634336153c7
+'2020-11-03 11:46:12' - Process - 23313/Thread-1350 - INFO - Sub process exited, exit value 0
+'2020-11-03 11:46:12' - LdapServer - 23313/Thread-1350 - INFO - Found a certificate with shasum 4406ab9edd61de07ba88a8166f24fe2c9e2bf8fd95afdd8a70c090432d1109ae
+'2020-11-03 11:46:13' - Process - 23313/Thread-1350 - INFO - Sub process exited, exit value 0
+'2020-11-03 11:46:13' - LdapServer - 23313/Thread-1350 - INFO - Found a certificate with shasum c930d209555bc211e69092c334a605ce924a893ed13fefb990c89634336153c7
+'2020-11-03 11:46:13' - Process - 23313/Thread-1350 - INFO - Sub process exited, exit value 0
+'2020-11-03 11:46:13' - LdapServer - 23313/Thread-1350 - INFO - Found a certificate with shasum c930d209555bc211e69092c334a605ce924a893ed13fefb990c89634336153c7
+'2020-11-03 11:46:13' - Process - 23313/Thread-1350 - INFO - Sub process exited, exit value 0
+'2020-11-03 11:46:13' - LdapServer - 23313/Thread-1350 - INFO - Found a certificate with shasum c930d209555bc211e69092c334a605ce924a893ed13fefb990c89634336153c7
+'2020-11-03 11:46:13' - Process - 23313/Thread-1350 - INFO - Sub process exited, exit value 0
+'2020-11-03 11:46:13' - LdapServer - 23313/Thread-1350 - INFO - Found a certificate with shasum e6adfaf20e807f7177490673738b6c514592f21cd0eab8c6b862c3a842b4119a
+'2020-11-03 11:46:13' - Process - 23313/Thread-1350 - INFO - Sub process exited, exit value 0
+'2020-11-03 11:46:13' - LdapServer - 23313/Thread-1350 - INFO - Found a certificate with shasum c930d209555bc211e69092c334a605ce924a893ed13fefb990c89634336153c7
+'2020-11-03 11:46:13' - Process - 23313/Thread-1350 - INFO - Sub process exited, exit value 0
+'2020-11-03 11:46:13' - LdapServer - 23313/Thread-1350 - INFO - Found a certificate with shasum f3c08d02bea6c3c8b0277327ceecb363206a9a4891b345a39f0abc75fdca303b
+'2020-11-03 11:46:13' - Process - 23313/Thread-1350 - INFO - Sub process exited, exit value 0
+'2020-11-03 11:46:13' - LdapServer - 23313/Thread-1350 - INFO - Found a certificate with shasum 7aa23eed205dce2803cf5925baf0f5fb0e913e82017e4af39ecfd24bd3cf5ae0
+'2020-11-03 11:46:13' - Process - 23313/Thread-1350 - INFO - Sub process exited, exit value 0
+'2020-11-03 11:46:13' - LdapServer - 23313/Thread-1350 - INFO - Found a certificate with shasum c930d209555bc211e69092c334a605ce924a893ed13fefb990c89634336153c7
+'2020-11-03 11:46:13' - Process - 23313/Thread-1350 - INFO - Sub process exited, exit value 0
+'2020-11-03 11:46:13' - LdapServer - 23313/Thread-1350 - INFO - Found a certificate with shasum c930d209555bc211e69092c334a605ce924a893ed13fefb990c89634336153c7
+'2020-11-03 11:46:13' - Process - 23313/Thread-1350 - INFO - Sub process exited, exit value 0
+'2020-11-03 11:46:13' - LdapServer - 23313/Thread-1350 - INFO - Found a certificate with shasum c930d209555bc211e69092c334a605ce924a893ed13fefb990c89634336153c7
+'2020-11-03 11:46:13' - Process - 23313/Thread-1350 - INFO - Sub process exited, exit value 0
+'2020-11-03 11:46:13' - LdapServer - 23313/Thread-1350 - INFO - Found a certificate with shasum c930d209555bc211e69092c334a605ce924a893ed13fefb990c89634336153c7
+'2020-11-03 11:46:13' - Process - 23313/Thread-1350 - INFO - Sub process exited, exit value 0
+'2020-11-03 11:46:13' - LdapServer - 23313/Thread-1350 - INFO - Found a certificate with shasum c930d209555bc211e69092c334a605ce924a893ed13fefb990c89634336153c7
+'2020-11-03 11:46:13' - LdapServer - 23313/Thread-1350 - INFO - Could not find a certificate for LDAP entry where cn=ws01-VIP00 matching shasum=21275e3a4a29656cc32f5e2ed85c3916b3888531f74cadfba5d6a6ee0ca15600
+---
+
+Now we try with new TORD CSR - sixth CSR
+(Again we abort pending process)
+
+---
+'2020-11-03 11:54:18' - StartKeypairDaemon - 23313/Thread-1359 - INFO - Retrieving matching shasum certificate for digitizer WS01-TORD and shasum 21275e3a4a29656cc32f5e2ed85c3916b3888531f74cadfba5d6a6ee0ca15600
+'2020-11-03 11:54:18' - LdapServer - 23313/Thread-1359 - INFO - Found 2 certificate(s) in LDAP for entry where cn=WS01-TORD
+'2020-11-03 11:54:18' - Process - 23313/Thread-1359 - INFO - Sub process exited, exit value 0
+'2020-11-03 11:54:18' - LdapServer - 23313/Thread-1359 - INFO - Found a certificate with shasum 7aa23eed205dce2803cf5925baf0f5fb0e913e82017e4af39ecfd24bd3cf5ae0
+'2020-11-03 11:54:18' - Process - 23313/Thread-1359 - INFO - Sub process exited, exit value 0
+'2020-11-03 11:54:18' - LdapServer - 23313/Thread-1359 - INFO - Found a certificate with shasum 4e2b36fdb06c71bc1d92a36e553c2bd7f3f82552bad6779aaf9dac38ce65ec41
+'2020-11-03 11:54:18' - LdapServer - 23313/Thread-1359 - INFO - Could not find a certificate for LDAP entry where cn=WS01-TORD matching shasum=21275e3a4a29656cc32f5e2ed85c3916b3888531f74cadfba5d6a6ee0ca15600
+---
+Correct test finally - but still only negative test.
+We did not have any positive test yet - we need to laise with Salim.
+
+And now we switch to getting the latest version and test VIP00 and TORD again.
+Starting with TORD
+When switching 'get_latest=true' imediatelly were matched the last
+certificates for VIP00 and TORD.
+But still no new certificate for VIP00 was automatically generated.
+
+Now we try to switch checking of start time and let us see how we succeed with
+VIP00.
+
+----
+'2020-11-03 12:13:17' - LdapServer - 21721/Thread-5 - INFO - Found a certificate with start date Mon Oct 19 15:10:28 2020
+'2020-11-03 12:13:17' - Process - 21721/Thread-5 - INFO - Sub process exited, exit value 0
+'2020-11-03 12:13:17' - LdapServer - 21721/Thread-5 - INFO - Found a certificate with start date Mon Oct 19 15:10:36 2020
+'2020-11-03 12:13:17' - Process - 21721/Thread-5 - INFO - Sub process exited, exit value 0
+'2020-11-03 12:13:17' - LdapServer - 21721/Thread-5 - INFO - Found a certificate with start date Mon Oct 19 15:10:48 2020
+'2020-11-03 12:13:17' - Process - 21721/Thread-5 - INFO - Sub process exited, exit value 0
+'2020-11-03 12:13:17' - LdapServer - 21721/Thread-5 - INFO - Found a certificate with start date Mon Oct 19 15:10:42 2020
+'2020-11-03 12:13:17' - Process - 21721/Thread-5 - INFO - Sub process exited, exit value 0
+'2020-11-03 12:13:17' - LdapServer - 21721/Thread-5 - INFO - Found a certificate with start date Mon Oct 19 15:10:58 2020
+'2020-11-03 12:13:17' - Process - 21721/Thread-5 - INFO - Sub process exited, exit value 0
+'2020-11-03 12:13:17' - LdapServer - 21721/Thread-5 - INFO - Found a certificate with start date Mon Oct 19 15:11:02 2020
+'2020-11-03 12:13:17' - Process - 21721/Thread-5 - INFO - Sub process exited, exit value 0
+'2020-11-03 12:13:17' - StartKeypairDaemon - 21721/Thread-5 - INFO - Latest certificate for digitizer: ws01-VIP00 starts on 2020-10-19 15:11:02+00:00, which is before the requested date: 2020-11-03 11:11:47.878997+00:00
+----
+This message I do not understand at all - what is actually implemented here.
+And we see that the automatically returned certificates have all the time almost
+the same start date - deviations might relate to fluctuation in system time on the
+testing UPI server.
+
+In this set up we can not test full cycle based on automatic return.
+But at least parameter:
+check_certificates_start_date=True
+works (in spite in capital for the first letter)
+
+Switching back to checking false and shasum use for searching.
+
+Yes, and we completelly overlooked that actually UPI server does not generate nor return any certificates for WS01-VIP00 nor for any other
+CSR. The testing policy does not work.
+All the time there is 20 certificates and PKI C&C portal was just returning the last one and
+pretended to be working.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

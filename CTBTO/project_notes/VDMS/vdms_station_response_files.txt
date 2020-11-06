@@ -1,0 +1,245 @@
+# 20.8.2020 - records of meeting with Benoit
+
+Essential notes from Benoit's presentaiton to anaysts
+
+System Response:
+- geophisical signal to counts
+- requirements of IMS/OM
+- description and formats
+- usage in IDC processing
+- quality assurance& control - calibration
+- MuTIP to explore responses
+
+Physical phenonema:
+seismic - displacement [m] -> digital counts [cnt] (in certain sample rate)
+infrasound - presure (Pa) -> digital counts [cnt]
+hydroacoustic - presure (Pa) -> digital counts [cnt]
+
+Detail:
+seismic
+Displacement[m] -> Sesimometer [V] (Poles and Zeros response function) ->
+ -> Analog to Digital Converter (FIR - finite impulse response function with timestamp)
+ -> Counts (Software SSI) -> Continuos Data 1.1 (CD) to Vienna
+
+Sesimometer response in 'amplitude [V/m/s]
+linear response with cut-off periods (low/high frequnecies)
+Two options:
+- poles and zeros
+- velocity accelaration
+
+Different seismometers have slightly different
+seismometer response curves.
+Eg. Guralp CMG3T, Strekeisn STS-2, Trillium 240
+
+Types: Short-period, Long-period, broad-band, accelerometer
+
+Hydroaccoustic and infrasound:
+Pascal via microbarometer transformed to cound with very high sampling rate.
+- this transformation expressed by Poles and Zeros.
+
+From poles and zeros is e.g. derive 'cut-off frequency' as period:
+T=2pi/(Re*(pole)^2 + Im*(pole)^2)
+e.g. 120 [sec] cut-off frequency
+
+Poles and zeros is defnition of the rational transformation function.
+e.g. https://zone.ni.com/reference/en-XX/help/371325F-01/lvdfdtconcepts/poles_and_zeroes/
+
+From very high sample rate, is being signal downsampled.
+In order to avoid aliasing, downsampling is realized
+through Anti-alias Finite Impulse Response functions.
+Starting:
+5120 samples-per-second [sps]
+320 [sps]
+80 [sps]
+40 [sps]
+20 [sps]
+Each low-pass is followed by decimation.
+(SSI software)
+
+This final sampling rate defines also the highest frequency signal
+which can be by give instrument detected.
+f_Nyquist = 10Hz.
+
+Whole this chaing is described by the 'Station response file',
+if contains in numbers the content of this graph:
+e.g. KMBO_bb_response_20020322.1
+<seismic_response_function.jpg>
+
+NCALIB and NCALPER are stored in the instrument table.
+
+The response file formats are as following:
+Standard for the Exchange of Earthquake Data (SEED) - published for external users by VDMS
+(https://ds.iris.edu/ds/nodes/dmc/data/formats/seed/)
+Seismic Analysis Code (SAC) - according this web page is supported by AutoDRM (http://ds.iris.edu/ds/nodes/dmc/manuals/)
+http://geophysics.eas.gatech.edu/people/zpeng/Teaching/SAC_Tutorial/
+
+[IDC6.2.4Rev1] Science Applications International Corporation, Configuration of
+PIDC Processing Data Files, Revision 1, SAIC-01/3050, 2002.
+
+Defines these types of the station response files:
+IDC6.2.4.Rev1_Table_A-1.jpg
+
+Most interesting is the section: Appendix: Instrument Response File Format
+'The version 1.0 response file format defines only three
+response groups: paz, fap, and fir'
+PAZ - poles and zeros
+FAP - frequency amplitude phase
+FIR - finite/infinite impulse response types.
+The fir group serves to represent both finite impulse response filters
+(with no denominator coefficients) and infinite impulse response
+filters (with denominator coefficients).
+
+/dvl/software/shi/config/station_specs/rsp/KMBO_bb_response_20020322.1
+There is whole block of comments
+# Seismometer type       = STS2
+# Data sample rate       = 40 s/s
+# Selected IIR frequency = 10 mHz corner frequency
+
+and then metadata about each low-pass filter
+In body the first are poles and zeros - 'normalized seismometer response'
+Then are filters of the digitizer - 'normalized digitizer responses'
+SensorGain * Digitizer Gain = NCALIB
+NCALPER defines time interval = e.g. 1[sec]
+
+So with NCALIB,NCALPER we can gain from the instrument response file
+'Frequency response normlized at NCALPER 1sec'
+
+<issue examples>
+
+The one of the issues is here, that some software reading
+the station response files - SeisComp3 in VDMS
+requires to parse also the comments.
+E.g. because physical unit of the output signal is
+stored only in the comments.
+
+And comments might be malformed.
+E.g.
+/dvl/software/shi/config/station_specs/rsp/KMBO_bb_response_20020322.1
+---
+#  stage-1  
+#     Response type:                            A [Laplace Transform (Rad/sec)]
+#     Response in units lookup:                 M/S - (null)
+#     Response out units lookup:                V - (null)
+#     A0 normalization factor:                  1
+#     Normalization frequency:                  1
+#     Sensitivity:                              1.500000E+03
+#     Frequency of sensitivity:                 1.000000E+00
+---
+
+/dvl/software/shi/config/station_specs/rsp/AKASG_1C_bb_response_20160414
+---
+#  stage-1  
+#     Response type:                            A [Laplace Transform (Rad/sec)]
+#     Response in units lookup:                 M/S/S - (null)
+#     Response out units lookup:                V - (null)
+#     A0 normalization factor:                  6.736033E+10
+#     Normalization frequency:                  1.000000E+00
+#     Sensitivity:                              7.500000E+02
+#     Frequency of sensitivity:                 1.000000E+00
+---
+In one case the input unit is velocity, in other it is accelaration.
+And this comment is actually the only place where this information is stored.
+
+Hydroacoustic sensors are generally defined in FAP format:
+frequency (Hz)/ amplitude (gain factor)/phase (deg) format
+/dvl/software/shi/config/station_specs/rsp/H04_EDH_Response_20161018
+---
+# Terminal Sensitivity Response for 
+# HA04 Crozet All Channels H04N1/EDH thru H04S3/EDH
+# UWS North Node L-3 MariPro
+# Effective: 16 October 2016
+# File name: H04_EDH_Response_20161016.txt
+# Source: Mario Zampolli, from L-3 MariPro 
+# Document 21408008C Crozet Draft Definition File, Rev C
+# System response: hydrophone and digitizer
+# The following response file is in 
+# frequency (Hz)/ amplitude (gain factor)/phase (deg) format
+# based on the response model provided in the 
+# Crozet Draft Definition File
+# Rev C, Appendix H (Frequency Response) Table in section 1.0
+# Columns 1 (frequency), 2 (amplitude), 3 (phase). 
+# Displacement (PRESSURE) response rel 
+# to the reciprocal of 560.6 uPa/count @ 10 Hz
+# Serial sn=0
+ theoretical  0   instrument    fap 
+107
+   0.100     0.0033029493  -147.4000000000 0.00 0.00 
+   0.109     0.0040860862  -151.1000000000 0.00 0.00 
+   0.200     0.0159466133   179.8000000000 0.00 0.00 
+   0.500     0.0760145900   134.8000000000 0.00 0.00 
+   1.000     0.1788768347   107.4000000000 0.00 0.00 
+   2.000     0.3623085375    85.3000000000 0.00 0.00 
+   3.000     0.5175406204    72.7000000000 0.00 0.00 
+   4.000     0.6441456969    63.2000000000 0.00 0.00 
+   5.000     0.7446865037    55.7000000000 0.00 0.00 
+   6.000     0.8233220737    49.6000000000 0.00 0.00 
+   7.000     0.8845061534    44.6000000000 0.00 0.00 
+   8.000     0.9324683965    40.3000000000 0.00 0.00 
+   9.000     0.9700640249    36.8000000000 0.00 0.00 
+  10.000     1.0000000000    33.7000000000 0.00 0.00 
+  11.000     1.0239269406    31.1000000000 0.00 0.00 
+  12.000     1.0431708225    28.9000000000 0.00 0.00 
+  13.000     1.0589346430    26.9000000000 0.00 0.00 
+  14.000     1.0720979155    25.2000000000 0.00 0.00 
+  15.000     1.0830757342    23.7000000000 0.00 0.00 
+---
+
+Station response files are read by various software,
+ibase-libresponse, geotool has its own library,
+in VDMS the convertes are reading the information as well.
+
+MuTIP project has developed its owen validation and reading utility.
+Here is information from Benoit:
+--
+Following our session this morning, you will find attached the
+presentation support, and below information on the lib-response python
+library that can be used for parsing/validating IDC and IMS2.0
+responses.
+
+Installation of libresponse in your python environment:
+
+Create a pip.conf file in your environment, with the following information:
+
+[global]
+index = https://pypi.python.org/pypi/
+index-url=https://pypi.python.org/simple/
+extra-index-url=http://USER:PASS@nexus01.test.ctbto.org:8081/repository/mutip-lib/simple
+trusted-host = nexus01.test.ctbto.org
+
+ 
+Install libresponse
+pip install lib-response
+
+Once it is installed, you can import it as follows. Call help(r) for documentation.
+doury@mlw044:~/PycharmProjects$ source Sta_in_processing/venv36/bin/activate
+(venv36) doury@mlw044:~/PycharmProjects$ python --version
+Python 3.6.5
+(venv36) doury@mlw044:~/PycharmProjects$ pip list installed | grep lib-response
+lib-response             1.0.0-SNAPSHOT
+(venv36) doury@mlw044:~/PycharmProjects$ python
+Python 3.6.5 (default, May 16 2018, 07:20:05)
+[GCC 4.4.7 20120313 (Red Hat 4.4.7-3)] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import response.response as r
+>>> help(r)
+
+---
+
+Test showed that this library can validate the station response files, read and output the
+information.
+However, it for example does not validate and parse the comments which
+e.g. css2inv uses, and particularly there are very likelly the troubles.
+
+If we want to experiment and integrate this library into VDMS, we would need
+source code, link it in, have unit-integrated tests.
+nexus01.test.ctbto.org is not anymore reachable.
+
+Links:
+MuTIP:
+http://confluence.ctbto.org/display/IWP/MuTIP+-+Multi+Technology+Integration+Portal
+
+
+
+
+
+

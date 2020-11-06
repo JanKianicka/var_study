@@ -620,3 +620,6 @@ Which SMTP server(s) was used for sending in both (success/failure) cases?
 
 ----
 
+# Searching in LDAP - various resources from Gerald.
+Send to Artal developers:
+/dvlscratch/SHI/Gerald/tmp/ldapGet.pl

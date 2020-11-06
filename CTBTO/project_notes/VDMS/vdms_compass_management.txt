@@ -1,0 +1,741 @@
+# on 23.10.2020 we need to close the old previous VDMS COMPASS project, which comprissed also
+# PKI C&C development and write the final report.
+
+Project details:
+Maintenance and Enhancements of VDMS Modules and PKI Command and Control Messaging Interface
+SWOTI115B
+
++------------------+-----------+--------------+-------------+-------------+
+|                  |HR [weeks] |HR cost [USD] |Fin.cost[USD]|Tot.cost[USD]|
+|Initial Estimate  |150.00     |540,000.00    |375,000.00   |915,000.00   |
+|Updated Estimate  |120.00     |432,000.00    |375,000.00   |807,000.00   |
+|Approved Estimate |162.00     |583,200.00    |730,000.00   |1,313,200.00 |
+|Actual Cost       |157.33     |566,388.00    |568,432.14   |1,134,820.14 |
+|                  |           |              |             |             |
++------------------+-----------+--------------+-------------+-------------+
+
+start: 01-12-2014 end:   30-11-2019
+
+Main roles
+Project executive: SLINKARD Megan
+Project manager:   KIANICKA Jan
+Project manager supervisor: MILJANOVIC TAMARIT Vera
+Senior user:       SUDAKOV Alexander
+Project support:   KRAYNOVA Mariya, YLO Jennifer
+
+Description:
+The Verification Data and Products Messaging Systems (VDMS) is a suite of software namely:
+
+The Acquisition Module” used to acquire data from the auxiliary SHI
+and RN stations and store data in the IDC GCI Data Repository. The
+data is then made available to the IDC automatic processing pipeline
+and to authorized external users.
+
+The Request and Subscription Module” used to accept, process and
+respond to requests for IMS data and IDC products from external
+authorized users.
+
+Products:
+VDMS Sprint #21
+to
+VDMS Sprint #63
+
+Reports:
+
+Highlight report (published)  10   26-11-2019
+Exception report (published)  1    04-06-2018
+Final report (published)      None
+Risk log                      7    23-01-2019
+Issues log                    None
+Quality log                   None
+Lessons learned log           None
+
+----------------------------
+Highlight reports:
+15-07-2015   Edward  VDMS Status Report
+VDMS Request and Subscription module version 2.5 is the latest version in Operations since January 2015.
+VDMS Acquisition version acq1.0-RC25 is the latest version in Operations since December 2014.
+Both of these modules are stable and no major issues have been reported except for minor bug fixes and enhancements.
+The PKI Command and control interface is in the design stage.
+
+20-10-2015  Edward   VDMS Highlight Report October 2015
+Are added, software enhanced and bug fixing of any identified issues.
+VDMS request and subscription module has been running in RHEL 5.3
+LINUX server and the Acquisition module has been running in RHEL 6
+LINUX server.
+The current version of the Request and Subscription module in Operations is VDMS 2.5-RC9.
+The current version of Acquisition module in Operations is acq1.0-RC25.
+The upgrade to these versions are expected to be deployed in Operations in the 4th quarter of 2015.
+These upgrades consists of bug fixes, software enhancements and support of new products.
+The upcoming Request and Subscription module is VDMS 3.0-RC3 and for Acquisition module is acq1.1-RC3.
+The project has been on course with no major deviations of the original project plan.
+
+15-01-2016  Edward  Project Status Report October  to December 2015 
+VDMS consists of two modules namely "Request and Subscription" and "Acquisition"
+These modules are both in Continual Service Improvement stage where new products are added, software enhanced
+and bug fixing of any identified issues.
+During the reporting period, the following major milestones were accomplished:
+VDMS request and subscription module was ported to LINUX RHEL 6
+VDMS request and subscription module version 2.5-RC11 was deployed in Operations
+VDMS request and subscription module major version 3.0 was deployed in Devlan
+Acquisition module version 1.1 was deployed in Testbed
+No major issues were identified during this period.
+
+25-05-2017  Edward  VDMS Maintenance
+During this period, issues raised and bugs identified by the users were investigated and resolved.
+No major issues were reported and the application has been stable providing data and products to member states.
+
+02-08-2017  Edward  VDMS Maintenance and PKI Command and Control Development June 2017
+During this period, issues raised and bugs identified by the users were investigated and resolved.
+No major issues were reported and the application has been stable providing data and products to member states.
+VDMS Version 3.0 RC10 and ACQ version acq1.1-RC7 were deployed in Operations during this period.
+Continued development of the PKI C&C application.
+Initial deployment of the first version was initiated but has not been successfully completed due to NSS server resources issue.
+
+05-12-2017  Edward  VDMS Maintenance and Enhancements PKI Command and Control Development and testing
+Continuous enhancements and maintenance were undertaken during this
+period. A new version VDMS 3.1-RC1 was deployed in Operations. No
+major issues reported during this period
+Development, deployment and testing of the PKI Command and Control
+application continued. First release was deployed in the DMZ. Testing
+was performed and issues raised were addressed.
+
+18-01-2018  Edward  VDMS and PKI Command and Control Q4 2017 Highlight Report
+Continuous enhancements and maintenance were undertaken during this
+period. No major issues reported during this period
+Development, deployment and testing of the PKI Command and Control
+application continued. Requirements were updated by the stake holders
+and development to include these new and updated requirements was done
+
+06-04-2018  Edward  VDMS and PKI Command and Control Development and Maintenance Q1 2018 Highlight Report
+Continuous enhancements and maintenance of VDMS were undertaken during
+this period. No major issues reported during this period
+Deployment and testing of the PKI Command and Control application
+continued.
+
+15-10-2018  Edward  VDMS and PKI command and control maintenance and development Q3 2018
+Project been progressing well​ during this period.
+Developed new EXECSUM product for use during the experiment 3.
+Continued developing the PKI Comand and control application.
+
+26-11-2019  Edward  VDMS and PKI command and control maintenance and development Q4 2018
+90% of the new EXECSUM product was developed for the Experiment 3
+tests. Some metrics were not available during the experiment
+period. Currently liaising with entities in charge of these
+metrics. Product expected to be completed end of October.
+
+IMAP servers for both VDMS and ACQ are being migrated from Solaris to
+Linux server. This is meant to address the issue of slow reading of
+messages especially when unread messages in IMAP is large. Code had to
+be fixed to accommodate the new Linux IMAP server and has been
+deployed and successfully tested in Devlan.
+
+Development of PKI C&C ongoing and hope to start deployment and
+testing this month. No handles and we have getting good support from
+Security office.
+
+----------------------------------------------------------
+One exception report
+04-06-2018   SHROPSHIRE, Karen   Exception Report for increased HR Weeks in project
+Issue and Cause:
+Title: Exception Report for increased HR Weeks in project ‘Maintenance
+and Enhancements of VDMS Modules and PKI Command and Control Messaging
+Interface’ – 01-Jun-2018
+Actual time spent on this project as-of the end of Q1-2018 was 124 HR weeks.
+In addition, 38 weeks more are estimated to be needed through the project’s completion on 6-Dec-2018. 
+
+Consequencies:
+The actual HR time spent so far was already entered on past time
+sheets and paid for, so there is no consequence to increasing the
+COMPASS project’s documentation of approved HR time to reflect the
+actual already spent.
+
+Available options and recommendations:
+Please approve the new estimate for HR Weeks:
+124 weeks actual-to-date + 38 weeks still needed for 2018 = 162 weeks new total recommended.
+
+-------------------------------------------------------------
+Risk log
+23-01-2019  Edward  PKI C&C Q4 2018
+Deployment and testing of the PKI Command and Control application still in progress.
+During this period, we may encounter some handles since we rely on
+external contractors who are partially assignd to provide any
+necessary information.
+
+05-12-2017  Edward  VDMS & PKI C&C Risk Log
+During this period continuous enhancements and maintenance were
+undertaken during this period. A new version VDMS 3.1-RC1 was deployed
+in Operations. No major issues reported during this period
+Development, deployment and testing of the PKI Command and Control
+application continued. First release was deployed in the DMZ. Testing
+was performed and issues raised were addressed.​
+
+15-01-2016  Edward  VDMS Risk Log December 2015
+VDMS Request and Subscription was recently ported from LINUX RHEL 5 to
+RHEL 6. In addition, the application was moved to a new server. These
+two changes may cause un-foreseen problems.
+In addition, the VDMS request and subscription versions were upgraded
+after bug fixes and enhancement.
+Risk owner: Menachem
+
+20-10-2015  Edward  VDMS Risk Log October 2015
+VDMS Request and Subscription module is currently being ported to LINUX RHEL 6 server.
+The RHEL 6 and RHEL 5 LINUX server runtime environment differ considerably.
+The RHEL 6 server will require to be configured to be able to run the
+software similar to the current runtime software in RHEL 5 server.
+There is a risk that the software might not run due to some
+un-foreseen dependancies between the hardware and the software.
+
+02-08-2017  Edward  VDMS and PKI C&C Risk Log June 2017
+PKI C&C is under development and testing stage.
+NSS is required to provide us with a configured server in the DMZ to host the application.
+So far, NSS have not provided us with a working server and the matter is being pursued.
+If we do not get a working server, the target data for operational application will be delayed.
+IDC/SA is working with NSS to resolve this issue.
+
+06-04-2018  Edward  VDMS and PKI Command and Control Q1 2018 Risk Log
+During this period continuous enhancements and maintenance for VDMS
+were undertaken during this period. No major issues reported during
+this period
+Deployment and testing of the PKI Command and Control application
+continued. Deployment was not completed due to lack of required
+technical resources from PKI external contractor
+
+Strategy for risk response:
+Setup a PKI test server​ to be used to test the PKI Command and Control System
+
+15-10-2018  Edward  VDSM and PKI Command and Control Risk Log Q3 2018
+Deployment and testing of the PKI Command and Control application still in progress.
+During this period, we may encounter some handles since we rely on
+external contractors who are partially assignd to provide any
+necessary information.
+
+---------------------------------------
+
+Release notes of VDMS REQ-SUBS subsystem - nms_server_dist in the new-message-subsystem repo.
+ - only from starting with 3.2.0 release work conducted as part of the new project in 2020
+ until version 2.5 which was starting point in 2015.
+
+3.1-RC3:
+--------
+For EXECSUM metrics to be populated, a script needs to be created and run every night, at your time of convenience (1am, for instance).
+Here is a sample script (for Devlan). Paths will need to be adjusted:
+
+------------------------------------------------------------------------------------------------------
+PYTHONPATH=/dvl/software/shi/aux/lib/python2.6/site-packages
+CX_ORACLE_LIB=/cots/oracle/c201/lib/libclntsh.so.12.1
+LD_LIBRARY_PATH=/usr/openv/pdde/pdopensource/lib:/usr/lib64:/cots/oracle/c201/lib:/dvl/shi/nms/nms_home/lib:/dvl/shi/nms/usr/lib64
+LD_RUN_PATH=/cots/oracle/c201/lib
+ORACLE_SID=oracle
+ORACLE_HOME=/cots/oracle/c201
+python /home/smd/nmsgsys/execsum_retrieval.py -f /home/smd/nmsgsys/execsum_retrieval.conf >> /home/smd/nmsgsys/execsum_retrieval.log 2>&1
+------------------------------------------------------------------------------------------------------
+
+Please note that a DATAREADY entry for EXECSUM products will need to be created after the script is run.
+The DATAREADY format for EXECSUM products is as follows:
+
+"tagname": "time-inst", "tablename" : 'msg_execsum_metrics', "account" : 'EXECSUM', "tagid": <start timestamp>, "tagid2" <end timestamp>
+
+The "start timestamp" and "end timestamp" will be the start/end for the EXECSUM product for the day before. So if the script
+is run on 10 March 2018 at 1am, the start timestamp will be 1520553600 (corresponding to 2018/03/09 00:00:00)
+and the end timestamp will be 1520639999 (corresponding to 2018/03/09 23:59:59)
+
+3.1-RC2:
+--------
+VDMS-95
+
+ALTER TABLE MSG_SUB_PRODUCT ADD json CLOB;
+
+Copy and run (with the Python from $NMS_HOME/bin) the script update_all_json.py located in GitHub: https://github.com/ctbtosa/new-message-subsystem/tree/master/nms_subscription_engine/src/nms_subscription/update_all_json.py 
+
+#566
+
+* Added parameter "seb_prod_id" in section [products] of nms_production_engine.conf (default: 27)
+* Added parameter "sseb_prod_id" in section [products] of nms_production_engine.conf (default: 28)
+
+3.1-RC1:
+--------
+
+NEB subscriptions:
+
+* added parameter max_per_country (default: 2) in new section [neb_subscriptions] of nms_watch_dog.conf
+
+ALTER TABLE msg_user ADD neb_subs_count INTEGER DEFAULT 0;
+
+3.0-RC11:
+--------
+
+CREATE TABLE msg_execsum_metrics (metric_name VARCHAR2(80 CHAR) NOT NULL, metric_value VARCHAR2(25 CHAR) NOT NULL, metric_date DATE NOT NULL, last_updated_at TIMESTAMP);
+CREATE INDEX msg_execsum_metrics_name ON msg_execsum_metrics(metric_name);
+CREATE INDEX msg_execsum_metrics_date ON msg_execsum_metrics(metric_date);
+
+3.0-RC9:
+--------
+
+#559
+
+* Added parameters sel1_lag (default: 1h), sel2_lag (default: 4h) and sel3_lag (default: 6h) in section [stable_time_lags] of nms_production_engine.conf
+
+NEB/NSEB bulletins
+
+* Added parameters working_dir, evsc_drv_exec, evsc_drv_map_dir, evsc_drv_config and evsc_drv_archive_config in new section [evsc_drv] of nms_production_engine.conf 
+
+#557
+
+* added parameter paleo_configuration_file to section [wave_reader] of wave_reader.conf
+
+3.0-RC6, 3.0-RC7, 3.0-RC8
+
+No changes needed
+
+3.0-RC5
+
+New RNPS subscriptions
+
+* Added parameters rnps_start_date_delay_in_days (default: 3) and rnps_end_date_delay_in_days (default: 2) in section [RNPS] of nms_watch_dog.conf
+
+3.0-RC4
+
+#505
+
+Added parameters max_processed_jobs and reprocess_interval_in_seconds to new section [job_reprocessor] in nms_watch_dog.conf
+
+Added section [reprocessing_file_poller] in nms_mail_adapter.conf. This section is optional and its parameters are the same as section [file_poller]
+
+Added parameter "reprocessing_poller" to section [poller_manager] in nms_mail_adapter.conf
+
+Added parameter "reprocessing_thread_number" to section [file_poller] in nms_mail_adapter.conf
+
+ALTER TABLE msg_job ADD reprocess SMALLINT CONSTRAINT msg_job_reprocess_ck CHECK (reprocess IN (0, 1));
+ALTER TABLE msg_job ADD reprocessed_job_id INTEGER;
+
+3.0-RC3
+
+#517
+
+Added parameter "with_headers" to section [Results] in nms_client.conf (default is False)
+
+Setting this parameter to True will return a new ims_xxxx.msg (where xxxx is the job ID). This new file will include all the non-attachable results with header/footer BEGIN...END, just like in an email.
+
+3.0-RC2
+
+#503
+Added parameter "unrecoverable_dir" in section [Acquisition] of nms_acquisition_receiver.conf (it defaults to /tmp/unrecoverable)
+
+#500
+
+ALTER TABLE MSG_ERROR_MESSAGES ADD (message_time TIMESTAMP);
+ALTER TABLE msg_trace_table MODIFY (log_date NUMERIC(20, 2) NOT NULL);
+ALTER TABLE msg_job_queue ADD CONSTRAINT msg_job_queue_fk1 FOREIGN KEY (job_id) REFERENCES msg_job (job_id);
+CREATE INDEX msg_job_queue_job_id ON msg_job_queue(job_id);
+ALTER TABLE msg_result ADD CONSTRAINT msg_result_fk1 FOREIGN KEY (job_id) REFERENCES msg_job (job_id);
+ALTER TABLE msg_result ADD CONSTRAINT msg_result_fk2 FOREIGN KEY (user_id) REFERENCES msg_user (user_id);
+CREATE INDEX msg_result_user_id ON msg_result(user_id);
+ALTER TABLE msg_result MODIFY (user_id INTEGER NOT NULL);
+ALTER TABLE msg_result_item MODIFY (result_id INTEGER NOT NULL);
+ALTER TABLE msg_job ADD CONSTRAINT msg_job_fk1 FOREIGN KEY (user_id) REFERENCES msg_user (user_id);
+CREATE INDEX msg_job_user_id ON msg_job(user_id);
+ALTER TABLE msg_job MODIFY (user_id INTEGER NOT NULL);
+ALTER TABLE msg_request ADD CONSTRAINT msg_request_fk1 FOREIGN KEY (user_id) REFERENCES msg_user (user_id);
+CREATE INDEX msg_request_user_id ON msg_request(user_id);
+ALTER TABLE msg_request MODIFY (user_id INTEGER NOT NULL);
+ALTER TABLE msg_request ADD CONSTRAINT msg_request_fk2 FOREIGN KEY (job_id) REFERENCES msg_job (job_id);
+CREATE INDEX msg_request_job_id ON msg_request(job_id);
+ALTER TABLE msg_sub_delivery ADD CONSTRAINT msg_sub_delivery_fk1 FOREIGN KEY (job_id) REFERENCES msg_job (job_id);
+CREATE INDEX msg_sub_delivery_job_id ON msg_sub_delivery(job_id);
+ALTER TABLE msg_subscription ADD CONSTRAINT msg_subscription_fk1 FOREIGN KEY (user_id) REFERENCES msg_user (user_id);
+CREATE INDEX msg_subscription_user_id ON msg_subscription(user_id);
+ALTER TABLE msg_sub_delivery MODIFY (product_id INTEGER NOT NULL);
+ALTER TABLE msg_res_item_file_desc MODIFY (result_item_id INTEGER NOT NULL);
+ALTER TABLE msg_smtp_metadata MODIFY (result_id INTEGER NOT NULL);
+ALTER TABLE msg_http_metadata MODIFY (result_id INTEGER NOT NULL);
+ALTER TABLE msg_error_messages ADD CONSTRAINT msg_error_messages_fk1 FOREIGN KEY (user_id) REFERENCES msg_user (user_id);
+ALTER TABLE msg_error_messages MODIFY (user_id INTEGER NOT NULL);
+ALTER TABLE msg_delivery_user_publication ADD CONSTRAINT msg_delivery_user_pub_fk1 FOREIGN KEY (result_id) REFERENCES msg_result (result_id);
+ALTER TABLE msg_sub_product_list MODIFY (subscription_id INTEGER NOT NULL);
+ALTER TABLE msg_sub_product_list MODIFY (sub_product_id INTEGER NOT NULL);
+ALTER TABLE msg_sub_publishing_info MODIFY (subscription_id INTEGER NOT NULL);
+
+Added support for Seiscomp STA_INFO product
+-------------------------------------------
+You will need to install css2inv executable from the eniab project.
+
+The [seiscomp_sta_info] section is added to nms_production_engine.conf. It is suggest to install css2inv in NMS_THIRD_PARTY/bin, but this can be changed.
+The parameter db_config needs to be configured.
+We suggest to use env vars SEISCOMP_USER, SEISCOMP_PW, SEISCOMP_HOST, SEISCOMP_ARCH_USER, SEISCOMP_ARCH_PW and SEISCOMP_ARCH_HOST.
+
+#493
+
+Removed parameter randpool_path from section [publish_service] in nms_production_engine.conf
+Removed parameter randpool_path from section [publish_service] in nms_watch_dog.conf
+
+#478
+
+Added parameter pass_in in section [publish_service] of nms_production_engine.conf.
+Added parameter pass_in in section [publish_service] of nms_watch_dog.conf.
+Made all signing arguments (randpool_path, public_key_path, private_key_path and pass_in) mandatory when signed_data is set to True in section [publish_service] of nms_production_engine.conf and nms_watch_dog.conf.
+
+The pass_in parameter can be of the forms:
+
+* pass:clear_text_password
+* env:ENV_VAR
+
+For more details, see the section "PASS PHRASE ARGUMENTS" in https://www.openssl.org/docs/apps/openssl.html
+
+#480
+
+Modified parameter nms_certificate from section [Signature] in nms_client.conf: it is now a reference to a writable file.
+
+#490
+
+* Added parameter schema in section [shi_archive_connection_provider] of nms_production_engine.conf
+* Removed sections [calibration_connection_provider] and [calibration_archive_connection_provider] from nms_production_engine
+
+3.0-RC1
+Added support for Seiscomp automatic arrivals
+---------------------------------------------
+
+You will need to install css2proc executable from the eniab project.
+
+The [seiscomp] section is added to nms_production_engine.conf. It is suggest to install css2proc in NMS_THIRD_PARTY/bin, but this can be changed.
+The parameters db_config_production and db_config_archive needs to be configured.
+We suggest to use env vars SEISCOMP_USER, SEISCOMP_PW, SEISCOMP_HOST, SEISCOMP_ARCH_USER, SEISCOMP_ARCH_PW and SEISCOMP_ARCH_HOST. 
+
+
+#444
+
+Modified waveReader.par to add PIDC datasource. New env vars NMS_WAVE_PIDC_HOST_ODBC, NMS_WAVE_PIDC_USER and NMS_WAVE_PIDC_PW must be defined.
+
+Added optional parameter "static_schema" (default is "static"). Can be added in sections [shi_connection_provider] and
+[shi_archiver_connection_provider]
+
+The new Paleo data source is used for data older than parameter "cut_off_date" from section [wave_reader] in nms_production_engine.conf.
+
+This new optional datasource is defined in section [paleo_connection_provider] in nms_production_engine.conf.
+
+2.5
+
+#489
+Move table PHASEAMPTYPE from STATIC to the schema defined in [shi_connection_provider] (in production: PADD)
+
+#416
+create unique index email_lower_idx on MSG_USER(lower(email));
+(please note that the index creation will fail if they are duplicate emails, possibly with different casings.
+You will need to remove the duplicates before creating the index)
+
+#Manual unsubscribe
+$NMS_HOME/bin/unsubscribe.sh -u myuser@here -s 1,2,3 -p 5,6,7
+
+#Lddate tracking
+ALTER TABLE MSG_DELIVERY_USER_PUBLICATION ADD (dataready_lddate TIMESTAMP)
+Usage example: For all subscriptions, get time between dataready line creation and publication:
+select  DATAREADY_LDDATE-DELIVERY_DATE from MSG_DELIVERY_USER_PUBLICATION; 
+
+#Mag type filtering
+In [te_format_shi_bulletin] of production engine conf file:
+filtered_mag=A, B, CD, EFG
+
+#externalization of help file location
+
+Added parameter help_file in section [request_service] of nms_user_services.conf and nms_mail_adapter.conf
+This parameter gives the full path of the text file that is sent back to users requesting help.
+
+#385
+Add support for time limit range for rad product
+Default value is set to 12 months
+Value can be overriden in production engine configuration in [product_time_limit] section as following:
+rad.bulletin.rnps=6m
+rad.data.rmssoh=4d
+rad.data.calibphd=12m
+rad.bulletin=8m
+rad.data=7m
+rad.alert=5m
+
+#386
+ALTER TABLE msg_user drop column remaining_quota;
+ALTER TABLE nms.msg_user ADD used_quota NUMERIC(10, 2) DEFAULT 0;
+
+Sensorcalib table creation:
+--------------------------
+DROP SEQUENCE sensorcalib_seq;
+DROP TABLE sensorcalib;
+CREATE SEQUENCE sensorcalib_seq;
+CREATE TABLE sensorcalib (sensorcalib_id INTEGER NOT NULL, calres_id INTEGER, sta VARCHAR2(6 CHAR), chan VARCHAR2(8 CHAR), calib FLOAT, calper FLOAT, upper VARCHAR2(1 CHAR), calib_start TIMESTAMP, calib_end TIMESTAMP, calib_method VARCHAR2(50 CHAR), dir VARCHAR2(64 CHAR), dfile VARCHAR2(64 CHAR), foff INTEGER, lddate TIMESTAMP, PRIMARY KEY (calres_id, calib_method));
+-> Privilegies
+
+Add connection provider in production engine configuration file:
+[calibration_connection_provider]
+host=TODO
+user=TODO
+password=TODO
+schema=TODO
+pool_size=1
+
+[calibration_archive_connection_provider]
+host=TODO
+user=TODO
+password=TODO
+schema=TODO
+pool_size=1
+
+Sync tool installation and deployment:
+-------------------------------------
+#build the package
+> cd nms_calibration_sync_dist
+> python setup.py dist
+# nms_calibration_dist.1.0-beta1-py2.6.tar.gz will be created
+> tar -zxf nms_calibration_dist.1.0-beta1-py2.6.tar.gz
+> cd nms_calibration_dist/bin
+> setenv CALIB_HOME /path/to/sync_tool_home
+> ./nms_virtualenv-bootstrap.py --no-site-packages -p $PYTHON $CALIB_HOME
+> cd $CALIB_HOME/conf
+#configure logger and access to oracle and postgre db
+>  ./calibration_sync.sh
+
+#397
+----
+In wave reader section of nms_production_engine.conf file, add following entry:
+cut_off_date=YYYY-MM-DD
+
+For test only:
+-------------
+Create sensor calib as for prod, grant all privilegies to nmsuser
+
+
+Postgre:
+-------
+creating postgresql db:
+CREATE DATABASE ops;
+CREATE TABLE sensorcalib(scid text, calres_id integer, sta text, chan text, calib real, calper real, upper text, calib_start date, calib_end date, calib_method text, dir text, dfile text, foff integer, lddate date);
+
+import nms_calibration_sync/resources/test/calibration.data to database
+
+Redhat 6.4 migration:
+---------------------
+
+LD_RUN_PATH must be set prior to deployment with value pointing on $ORACLE_HOME/lib
+PYTHON_EGG_CACHE is replaced by PYTHON_WSGI_EGG_CACHE and PYTHON_REWRITE_EGG_CACHE
+
+In env file:
+PYTHON_WSGI_EGG_CACHE must point to a rwx directory for apache user (/apps/nms_wsgi_cache)
+PYTHON_REWRITE_EGG_CACHE must point to a rwx directory for root user (/apps/nms_rewrite_cache)
+NMS_DATA must point to /apps/nms_data_cache
+
+In conf files:
+production engine conf:
+replace all storage_dir values by %(ENV[NMS_DATA])
+
+apache_django_service.conf
+--------------------------
+[DPI] flag must be added to RewriteRule . ${token_authorization:%{REQUEST_URI}}
+
+------------------------------------------------------------------------
+# My summary of 2015-2019 release notes per version increment
+VDMS 2.5 - commenced RH6.4 migration, implements component nms_calibration_sync,
+           time limits for RN products, 
+VDMS 3.0-RC1 - support for paleo (PIDC) data for waveReader, integrated SeisComp3, eniab converter css2prod
+               for extracting arrivals in SeisComp3XML format.
+VDMS 3.0-RC2 - integrated SeisComp3, eniab converted css2inv producting STA_INFO in Seiscomp3XML
+               product is SC3XML. Consistancy constrains in Request/Subscription Oracle DB tables
+	       - foreigner keys, unique constraints and indexes.
+VDMS 3.0-RC3 - just small fix for nms_client
+VDMS 3.0-RC4 - performance and reliability improvements in watch_dog and production engine
+VDMS 3.0-RC5 - implements RNPS subscription
+VDMS 3.0-RC6 - minor fixes
+VDMS 3.0-RC7 - minor fixes
+VDMS 3.0-RC8 - minor fixes
+VDMS 3.0-RC9 - implements time lags for SEL* bulletins, integrate evsc_drv for NEB, NSEB national
+               bulletins - request, subscriptions
+VDMS 3.0-RC10 - collected version for operations
+VDMS 3.0-RC11 - commenced EXECSUM implementation, created table 'msg_execsum_metrics'
+VDMS 3.1-RC1 - fix in NEB subscriptions
+VDMS 3.1-RC2 - added metadata in JSON formats about subscriptions products
+VDMS 3.1-RC3 - implements first version of EXECSUM family of products
+
+
+------------------------------------------------------------------------
+ACQ release notes - from version acq1.0-RC25 in 2015.
+
+acq1.1-RC5:
+----------
+
+* Removed new section [ca_certificates] created for issue #565: we only use the certificate directory and, as long as hash values to CA certificates are provided (see http://someguyontheinter.net/blog/ssl-root-certificate-hashes/), the CA certificates will be found.
+
+acq1.1-RC4:
+----------
+
+#565
+
+* Added section [ca_certificates] in nms_acquisition_receiver.conf where a list of issuer CN/certificate name is provided. For instance:
+[ca_certificates]
+#list your CA certificate names, based on the issuer string associated with them
+#You need at least one, and the first one is considered the default
+#(i.e. it will be used if the issuer string is not found)
+#IMPORTANT: the issuer string (the left part below) is case insensitive
+OPS DSA CA=pts_ca.pem
+OPS DSA CA 2017=pts_ca2017.pem
+
+* create index for better performance:
+
+CREATE INDEX "ACQ"."REQUEST_STARTT_IDX" ON "ACQ"."ACQ_REQUEST" ("START_TIME") TABLESPACE "ACQ";
+
+(note that this index has already been created on ODB, TODB and PTSDEV)
+
+acq1.1-RC3:
+----------
+
+#540
+
+* added parameter "folder_date_format" in section [Acquisition] of nms_acquisition_receiver.conf.
+  The parameter follows the strftime convention and the default value is %Y-%m-%d 
+
+acq1.1-RC1:
+----------
+
+#493
+
+* removed parameter "prng_file_path" from section [scheduler] in acq_scheduler.conf
+
+#486
+
+* Added parameter "failed_mail_working_dir" in section [file_poller] of nms_acquisition_receiver.conf (default: /tmp/nms_failed_mail_working_dir)
+
+This parameter tells ACQ where to write emails that cannot be properly decoded
+
+* Added parameter "max_number_of_file" in section [file_poller] of nms_acquisition_receiver.conf (default: 100)
+
+This parameter tells ACQ how many failed emails should be kept in the failed_mail_working_dir. When there are too many files, ACQ will delete the oldest file before writing a new one.
+
+
+#478
+
+Added parameter pass_in in section [scheduler] of acq_scheduler.conf.
+Made all signing arguments (ctbto_public_key, ctbto_private_key and ctbto_pass_in) mandatory when sign_outgoing_requests is set to True in section [scheduler] of acq_scheduler.conf.
+
+So if sign_outgoing_requests is set to True, you also need the following parameters (the values are just examples):
+
+sign_outgoing_requests=True
+#The password needed to sign the outgoing messages with the private key
+ctbto_pass_in=env:PRIVATE_KEY_PWD
+#Locates the private key
+ctbto_private_key=/opt/pts_privkey.pem
+#Locates the public key
+ctbto_public_key=/opt/pts.pem
+
+For more details about the ctbto_pass_in format, see the section "PASS PHRASE ARGUMENTS" in https://www.openssl.org/docs/apps/openssl.html
+
+#495
+
+Added parameter "crl_cache_refresh" from section [Acquisition] in nms_acquisition_receiver.conf
+
+#480
+
+ALTER TABLE acq_user DROP COLUMN process_no_certificate_msgs; 
+
+Removed parameters station_registry_certificates.host and station_registry_certificates.port from section [station_registry] in nms_acquisition_receiver.conf
+Removed parameters no_certificate from sections [RAD_acquisition], [SHI_acquisition] and [acquisition_alerts] in nms_acquisition_receiver.conf
+
+Configuration files:
+
+nms_station_registry.conf:
+
+* added "schema" in section "shi_connection_provider"
+
+Database:
+
+No changes
+
+
+Changes:
+
+* Clean up blank lines from mail headers before submitting the mail content
+* Run backfilling only after normal mode
+* Use full name when there is no copy step
+* Added schema parameter to shi_connection_provider section
+
+1.0RC26:
+-------
+Database:
+* ALTER TABLE acq_msg add sta_sent_date DATE;
+* ALTER TABLE acq_msg add idc_received_date DATE;
+* ALTER TABLE acq_user add facility_code VARCHAR2(20 CHAR);
+
+
+1.0RC25:
+-------
+Configuration files:
+* remove parameter invalid_smime_content_type in section [Acquisition] of nms_acquisition_receiver.conf
+
+--------------------------------------------------------------
+Summary of release and versions of ACQ subsystem
+ACQ 1.0-RC25 - minor fix in the acquistion receiver
+ACQ 1.0-RC26 - extended tables of DATE, and the facility code
+ACQ 1.1-RC1 - implement more configuraitons, robustness, signing of emails
+ACQ 1.1-RC3 - further configurability also for CA certificate usage
+ACQ 1.1-RC4 - minor fixes, index for better performance
+ACQ 1.1-RC5 - minor fixes
+ACQ 1.1-RC6 - fix ISI-521 (lock problem in ACQ queue)
+ACQ 1.1-RC7 - fix lost emails (due to exceptions)
+ACQ 1.1-RC8 - change REF_ID to use <msg_id>_normal, fix ISI-583 (keep CR characters from original files)
+ACQ 1.1-RC9 - fix SSL calls to IMAP
+
+Not documented in release notes, but the project comprise RH6.10
+migration and transfer from Solaris, to Linux IMAP server.
+
+--------------------------------------------------------------
+PKI C&C release notes as of current version 1.0-RC1
+
+VDMS-448:
+ALTER TABLE "CC_PROCESS_EVENT" ALTER COLUMN auth_id_str TYPE VARCHAR(100);
+ALTER TABLE "CC_PKI_ITEMS_SENT_CERT" DROP COLUMN cert_serial_number;
+ALTER TABLE "CC_PKI_ITEMS_SENT_CERT" ADD COLUMN cert_shasum VARCHAR(100);
+
+Adding UPI call to KEYPAIR_GENERATED
+* added parameter "upi_server_url" to section [messages] of cc_module.conf (default: "http://localhost:9001/upi/csr")
+
+ALTER TABLE "CC_PROCESS_EVENT" ADD transaction_id_str VARCHAR(20);
+VDMS-116
+* Create table CC_MAIL_RESEND
+
+CREATE SEQUENCE "CC_MAIL_RESEND_SEQ";
+CREATE TABLE "CC_MAIL_RESEND" (id INTEGER NOT NULL, mail_id INTEGER NOT NULL, date TIMESTAMP WITHOUT TIME ZONE NOT NULL, PRIMARY KEY (id), FOREIGN KEY(mail_id) REFERENCES "CC_MAIL" (id));
+
+VDMS-90:
+* Added columns is_archived and last_reminder_date to CC_PROCESS_EVENT:
+ALTER TABLE "CC_PROCESS_EVENT" ADD is_archived INTEGER DEFAULT 0;
+ALTER TABLE "CC_PROCESS_EVENT" ADD last_reminder_date TIMESTAMP WITHOUT TIME ZONE;
+
+VDMS-102:
+* Added parameter server_url into new section [messages] of cc_module.conf
+
+VDMS-89:
+* Added columns auth_id_str and msg_id_str to CC_PROCESS_EVENT:
+ALTER TABLE "CC_PROCESS_EVENT" ADD auth_id_str VARCHAR(20);
+ALTER TABLE "CC_PROCESS_EVENT" ADD msg_id_str VARCHAR(30);
+
+
+---------------------------------------------------------------
+Final Report:
+Chapters:
+VDMS
+
+ACQ
+
+PKI C&C
+
+with highlights.
+Add main activites, records from the release notes.
+Link to the release notes.
+RH6.4, RH6.10 upgrades.
+Exchange of the IMAP/SMTP servers.
+New products.
+For PKI C&C complete specificaiton - cite the document,
+building of infrastrcure, implemts UC1 - UC7, integration
+with DOTS, design and building of Postgres database,
+whole integration with UPI server over Java API.
+CCUPI components and whole IPC integration.
+Result was working prototype of whole PKI C&C workflow
+for these C&C messages:
+-
+-
+
