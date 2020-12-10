@@ -1,0 +1,160 @@
+[6/23 8:47 AM] PHILIPP Anne
+    ok, so you'd like to have a real taught course 
+[6/23 8:48 AM] PHILIPP Anne
+    I would like that too
+[6/23 8:48 AM] PHILIPP Anne
+    are you interested in a specific programming language?
+[6/23 8:49 AM] PHILIPP Anne
+    MPI or OpenMP or GPU?
+[6/23 8:50 AM] PHILIPP Anne
+     I know about these two options:
+[6/23 8:50 AM] PHILIPP Anne
+
+https://www.hlrs.de/training/
+http://typo3.vsc.ac.at/research/vsc-research-center/vsc-school-seminar/
+
+[6/23 9:42 AM] HOFMAN Radek
+    i do not know if somethig like that exists
+?[6/23 9:43 AM] HOFMAN Radek
+
+I am afraid that all, e.g. three days courses, will be ready for
+various audiences and thus to be on the safe side start with some
+elementary things like: what is a string, what is a number and in the
+afternoon the last day it could be finally interesting
+
+https://www.udemy.com/course/high-performance-computing-with-python-3x/?utm_source=adwords&utm_medium=udemyads&utm_campaign=Python_v.PROF_la.EN_cc.ROWMTA-A_ti.7380&utm_content=deal4584&utm_term=_._ag_77741653403_._ad_382048268635_._kw__._de_c_._dm__._pl__._ti_dsa-774930031889_._li_20044_._pd__._&matchtype=b&gclid=EAIaIQobChMI46q9sbiX6gIVxoGyCh2akQ2iEAAYAiAAEgLL5vD_BwE
+
+well, this has 4 hours of videos and covers what KIANICKA Jan asked
+Optimize performance and efficiency by leveraging NumPy, SciPy, and
+Cython for numerical computations.
+https://www.futurelearn.com/courses/python-in-hpc
+
+# Records of the course
+We use python3 (I used to work just with python2.6, python2.7)
+
+Why is python slow:
+1. Interpreted language with
+2. Dynamic typing
+3. Flexible data structures
+4. Multithreading -
+   Unfortunately, the memory management of the standard CPython
+   interpreter is not thread-safe, and it uses something called Global
+   Interpreter Lock (GIL) to safeguard memory integrity.
+
+Fortunately, as we discuss in the course, many of the bottlenecks can
+be circumvented.
+
+As stated by famous computer scientist Donald Knuth already in the 70’s:
+   Programmers waste enormous amounts of time thinking about, or
+   worrying about, the speed of noncritical parts of their programs,
+   and these attempts at efficiency actually have a strong negative
+   impact when debugging and maintenance are considered: premature
+   optimization is the root of all evil.
+
+90% of time is spent in 10% of the source code.
+
+Thus, it is clear that when optimizing one should focus only in the
+time-critical parts of the program. How to find these hotspots is the
+task of performance analysis.
+- applications own timers
+- performance analysis software
+
+Some software by end of the execution provides own timers informaiton.
+Bonus: timing with a context manager
+
+Measuring very short execution times has some pitfalls that can be
+avoided with the help of the 'timeit' Python module.
+
+> python3 -m timeit -s "from math import sin" "sin(0.2)"
+10000000 loops, best of 3: 0.0523 usec per loop
+
+Inside interpreter:
+>>> import timeit
+>>> timeit.timeit('"-".join(str(n) for n in range(100))', number=10000)
+
+Using of profiler cProfile:
+> python3 -m cProfile -o profile.dat mandel_main.py
+> python3 -m pstats profile.dat
+# stripping of full path
+profile.dat% strip
+# sorting by time consumed
+profile.dat% sort time
+# show the 10m slowest functions
+profile.dat% stats 10
+
+
+For heat_main profiling we have this result:
+
+profile.dat% stats 10
+Thu Dec 10 17:12:46 2020    profile.dat
+
+         449630 function calls (441871 primitive calls) in 23.728 seconds
+
+   Ordered by: internal time
+   List reduced from 3216 to 10 due to restriction <10>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+      200   22.455    0.112   22.455    0.112 /home/pythonuser/repo/hpc-python/performance/cprofile/heat.py:9(evolve)
+      263    0.274    0.001    0.274    0.001 {method 'read' of '_io.FileIO' objects}
+       24    0.189    0.008    0.191    0.008 {built-in method _imp.create_dynamic}
+      263    0.060    0.000    0.060    0.000 {built-in method marshal.loads}
+        2    0.044    0.022    0.044    0.022 {built-in method matplotlib._png.write_png}
+    40000    0.037    0.000    0.041    0.000 /usr/lib/python3/dist-packages/numpy/lib/npyio.py:721(floatconv)
+       12    0.035    0.003    0.035    0.003 {method 'readline' of '_io.BufferedReader' objects}
+1147/1092    0.027    0.000    0.102    0.000 {built-in method builtins.__build_class__}
+        8    0.022    0.003    0.023    0.003 {built-in method matplotlib._image.resample}
+     3357    0.020    0.000    0.020    0.000 {built-in method numpy.core.multiarray.array}
+
+
+profile.dat% stats 10
+Thu Dec 10 17:12:46 2020    profile.dat
+
+         449630 function calls (441871 primitive calls) in 23.728 seconds
+
+   Ordered by: internal time
+   List reduced from 3216 to 10 due to restriction <10>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+      200   22.455    0.112   22.455    0.112 /home/pythonuser/repo/hpc-python/performance/cprofile/heat.py:9(evolve)
+      263    0.274    0.001    0.274    0.001 {method 'read' of '_io.FileIO' objects}
+       24    0.189    0.008    0.191    0.008 {built-in method _imp.create_dynamic}
+      263    0.060    0.000    0.060    0.000 {built-in method marshal.loads}
+        2    0.044    0.022    0.044    0.022 {built-in method matplotlib._png.write_png}
+    40000    0.037    0.000    0.041    0.000 /usr/lib/python3/dist-packages/numpy/lib/npyio.py:721(floatconv)
+       12    0.035    0.003    0.035    0.003 {method 'readline' of '_io.BufferedReader' objects}
+1147/1092    0.027    0.000    0.102    0.000 {built-in method builtins.__build_class__}
+        8    0.022    0.003    0.023    0.003 {built-in method matplotlib._image.resample}
+     3357    0.020    0.000    0.020    0.000 {built-in method numpy.core.multiarray.array}
+
+
+profile.dat% stats 10
+Thu Dec 10 17:12:46 2020    profile.dat
+
+         449630 function calls (441871 primitive calls) in 23.728 seconds
+
+   Ordered by: internal time
+   List reduced from 3216 to 10 due to restriction <10>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+      200   22.455    0.112   22.455    0.112 /home/pythonuser/repo/hpc-python/performance/cprofile/heat.py:9(evolve)
+      263    0.274    0.001    0.274    0.001 {method 'read' of '_io.FileIO' objects}
+       24    0.189    0.008    0.191    0.008 {built-in method _imp.create_dynamic}
+      263    0.060    0.000    0.060    0.000 {built-in method marshal.loads}
+        2    0.044    0.022    0.044    0.022 {built-in method matplotlib._png.write_png}
+    40000    0.037    0.000    0.041    0.000 /usr/lib/python3/dist-packages/numpy/lib/npyio.py:721(floatconv)
+       12    0.035    0.003    0.035    0.003 {method 'readline' of '_io.BufferedReader' objects}
+1147/1092    0.027    0.000    0.102    0.000 {built-in method builtins.__build_class__}
+        8    0.022    0.003    0.023    0.003 {built-in method matplotlib._image.resample}
+     3357    0.020    0.000    0.020    0.000 {built-in method numpy.core.multiarray.array}
+
+
+We hope that you remember the number one rule in performance optimization:
+Measure before you optimize!
+
+Few resources found during the execrise:
+https://docs.python.org/3/library/timeit.html
+http://people.uncw.edu/hermanr/pde1/NumHeatEqn.pdf
+https://pythonfiles.wordpress.com/2017/08/24/hunting-performance-in-python-code-part-4/
+
+
+   
