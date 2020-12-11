@@ -157,4 +157,180 @@ http://people.uncw.edu/hermanr/pde1/NumHeatEqn.pdf
 https://pythonfiles.wordpress.com/2017/08/24/hunting-performance-in-python-code-part-4/
 
 
-   
+Numpy Arrays:
+      Creating arrays
+        1. From existing data: x = numpy.array((1, 2, 3, 4)), implicit type, floating point [1, 2, 3.1, 4]
+	Second argument is type:
+	data = [[1, 2, 3], [4, 5, 6]]
+	y = numpy.array(data, complex)
+	print(y)
+	# output: [[ 1.+0.j  2.+0.j  3.+0.j]
+	#          [ 4.+0.j  5.+0.j  6.+0.j]]
+
+	print(y.shape)
+	# output: (2, 3)
+
+	print(y.size)
+	# output: 6
+
+	2. Using helper function
+	arange
+	a = numpy.arange(10)
+	print(a)
+	# output: [0 1 2 3 4 5 6 7 8 9]
+
+	b = numpy.linspace(-4.5, 4.5, 5)
+
+	print(b)
+	# output: [-4.5  -2.25  0.    2.25  4.5]
+
+	c = numpy.zeros((4, 6), float)
+	d = numpy.ones((2, 4))
+	e = numpy.full((3, 2), 4.2)
+
+	empty (whatever happened to be in the computer memory allocated to the array)
+
+	dna = 'AAAGTCTGAC'
+	c = numpy.array(dna, dtype='c')
+
+     Accessing arrays
+     	Using indexes
+	data = numpy.array([[1, 2, 3], [4, 5, 6]])
+	x = data[0,2]
+	y = data[1,-2]
+
+	Slicing
+	a = numpy.arange(10)
+
+	print(a[2:])
+	# output: [2 3 4 5 6 7 8 9]
+
+	print(a[:-1])
+	# output: [0 1 2 3 4 5 6 7 8]
+
+	print(a[1:7:2])
+	# output: [1 3 5]
+
+	b = numpy.zeros((4, 4))
+	b[1:3, 1:3] = 2.0
+
+	Interesting example from the exercise:
+	checker = np.zeros((8,8))
+	checker[::2, ::2] = 1 (every second element in every second row, collumn)
+	checker[1::2, 1::2] = 1
+	print(checker)
+
+    Views and copies of arrays
+    	a = np.arange(10)
+	b = a              # reference, changing values in b changes a
+	b = a.copy()       # true copy
+
+	In contrast, slicing an array will create something called a view to the array.
+
+	a = np.arange(10)
+	c = a[1:4]         # view, changing c changes elements [1:4] of a
+	c = a[1:4].copy()  # true copy of subarray
+
+
+Element funcions:
+-----
+	The main thing to keep in mind is that most operations are done element-wise.
+
+	a = numpy.array([1.0, 2.0, 3.0])
+	b = 2.0
+
+	print(a * b)
+	# output: [ 2.  4.  6.]
+
+	print(a + b)
+	# output: [ 3.  4.  5.]
+
+	print(a * a)
+	# output: [ 1.  4.  9.]
+
+	In many ways NumPy can be used as a drop-in replacement for the math module.
+
+	import numpy, math
+	a = numpy.linspace(-math.pi, math.pi, 8)
+	numpy.sin(a)
+
+Vectorised operations
+	# brute force using a for loop
+	arr = numpy.arange(1000)
+	dif = numpy.zeros(999, int)
+	for i in range(1, len(arr)):
+	dif[i-1] = arr[i] - arr[i-1]
+
+	can be re-written as a vectorised operation:
+
+	# vectorised operation
+	arr = numpy.arange(1000)
+	dif = arr[1:] - arr[:-1]
+
+Array manipulation and broadcasting:
+      Reshape:
+      a = numpy.array([[1, 2, 3], [4, 5, 6]])
+
+      print(a.shape)
+      # output: (2,3)
+
+      b = a.reshape(3,2)
+
+      print(b)
+      # output: [[1 2],
+      #          [3 4],
+      #          [5 6]]
+
+      method called ravel() to flatten an array into 1D
+      c = a.ravel()
+
+      Concatenate
+      a = numpy.array([[1, 2, 3], [4, 5, 6]])
+      b = numpy.array([[7, 8, 9], [10, 11, 12]])
+      c = numpy.concatenate((a, b))
+
+      print(c)
+      # output: [[ 1  2  3],
+           	[ 4  5  6],
+ 		[ 7  8  9],
+           	[10 11 12]]
+
+      One can also specify the axis (dimension) along which the arrays will be joined:
+
+      d = numpy.concatenate((a, b), axis=1)
+
+      print(d)
+      # output: [[ 1  2  3  7  8  9],
+           	[ 4  5  6 10 11 12]]
+
+      Split
+      a = numpy.array([[1, 2, 3], [4, 5, 6]])
+      x = numpy.split(a, 2)
+      y = numpy.split(a, 3, axis=1)
+
+      Broadcasting
+      (E.g. when we multiply array with scalar)
+
+      Example: A 3x2 array multiplied by a 1x2 array:
+      a = numpy.arange(6).reshape(3,2)
+      b = numpy.array([7,11], float).reshape(1,2)
+
+      print(a)
+      # output: [[0 1],
+      #          [2 3],
+      #          [4 5]]
+
+      print(b)
+      # output: [[ 7.  11.]]
+
+      c = a * b
+
+      print(c)
+      # output: [[  0.  11.],
+      #          [ 14.  33.],
+      #          [ 28.  55.]]
+
+	
+
+
+      
