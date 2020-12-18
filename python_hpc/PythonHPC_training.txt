@@ -330,7 +330,72 @@ Array manipulation and broadcasting:
       #          [ 14.  33.],
       #          [ 28.  55.]]
 
-	
+# Loading data from txt files
 
+  xy = numpy.loadtxt('xy-coordinates.dat')
+  From two collumns txt file:
+  x   y
+  0.1 0.1
+  -2 nan
+
+  args = {
+       'header': 'XY coordinates',
+         'fmt': '%7.3f',
+	   'delimiter': ','
+  }
+  numpy.savetxt('output.dat', xy, **args)
+
+  # It is also possible to save binaries
+  numpy.save('a_bin',a)
+
+# Random numbers
+ 
+   - random: uniform random numbers
+   - normal: normal distribution
+   - choice: random sample from given array
+
+   a = numpy.random.random((2,2))
+   b = numpy.random.choice(numpy.arange(4), 10)
+
+# Linear algebra and polynomials
+
+  dot, vdot
+  linalg.eig, linalg.eigvals
+  linalg.solve
+  linalg.inv
+
+  A = numpy.array(((2, 1), (1, 3)))
+  B = numpy.array(((-2, 4.2), (4.2, 6)))
+
+  C = numpy.dot(A, B)
+  b = numpy.array((1, 2))
+
+  print(C)
+  # output:
+  #   [[  0.2  14.4]
+  #    [ 10.6  22.2]]
+
+  print(b)
+  # output: [1 2]
+
+  # solve C x = b
+  x = numpy.linalg.solve(C, b)
+
+  print(x)
+  # output: [ 0.04453441  0.06882591]
+
+# Polynomials
+  # f(x) = x^2 + random noise (between 0,1)
+  x = numpy.linspace(-4, 4, 7)
+  f = x**2 + numpy.random.random(x.shape)
+
+  p = numpy.polyfit(x, f, 2)
+
+  print(p)
+  # output: [ 0.96869003  -0.01157275  0.69352514]
+  #   f(x) =  p[0] * x^2 + p[1] * x  + p[2]
+
+
+   
 
       
