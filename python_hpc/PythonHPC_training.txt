@@ -396,6 +396,53 @@ Array manipulation and broadcasting:
   #   f(x) =  p[0] * x^2 + p[1] * x  + p[2]
 
 
-   
+# Interesting information on indexing and numpy arrays characteristics
 
-      
+This is fast and creates the copy of the array -
+finally I remembered how it was in GeoModel yet:
+
+>>> a
+    array([[ 2.3,  2.1],
+       [ 4.2,  1.2]])
+
+>>> ind = numpy.array([[0,1],[2,3]])
+>>> a.flatten()[ind]
+array([[ 2.3,  2.1],
+       [ 4.2,  1.2]])
+
+n addition to slicing NumPy allows indexing also
+with integer arrays or Boolean masks:
+
+
+     a = np.arange(0.0, 1.0, 0.1)
+     ind = np.array([1, 1, 0, 4])
+     b = a[ind] # b = array([0.1, 0.1, 0. , 0.4])
+
+     m = a > 0.5
+     b = a[m] # b = array([0.6, 0.7, 0.8, 0.9])
+
+In these cases b cannot be created just by modifying the strides,
+so b will hold a copy of the data in a.
+Now, modifications of b are not affecting a.
+
+>>> a.flags
+  C_CONTIGUOUS : True
+  F_CONTIGUOUS : False
+  OWNDATA : True
+  WRITEABLE : True
+  ALIGNED : True
+  UPDATEIFCOPY : False
+>>> a.strides
+(16, 8)
+>>> a
+array([[ 2.3,  2.1],
+       [ 4.2,  1.2]])
+>>> a.itemsize
+8
+>>> a.data
+<memory at 0x7f535a528480>
+>>> a.__array_interface__
+{'data': (12984000, False), 'strides': None, 'descr': [('', '<f8')], 'typestr': '<f8', 'shape': (2, 2), 'version': 3}
+
+
+
