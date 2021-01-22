@@ -444,5 +444,130 @@ array([[ 2.3,  2.1],
 >>> a.__array_interface__
 {'data': (12984000, False), 'strides': None, 'descr': [('', '<f8')], 'typestr': '<f8', 'shape': (2, 2), 'version': 3}
 
+# What is Cython
 
+Cython is an optimising static compiler for Python that also provides its own
+programming language as a superset for standard Python.
+Cython makes it also easy to interact with external C/C++ code.
+
+The main mechanism of how Cython speeds up Python programs is by
+adding static declarations for variables.
+
+Operations on lists and dictionaries do not normally benefit much from Cython
+
+In summary, Cython can alleviate the following Python performance bottlenecks discussed in Week 1:
+
+    - Interpretation overhead
+    - Unboxing / boxing Python objects
+    - Overheads of Python control structures
+    - Function call overheads
+
+
+# Speed up python by using static typing
+
+Strong typing means that variables do have a type and that the type
+matters when performing operations on a variable.
+
+Dynamic typing means that the type of the variable is
+determined only during runtime.
+
+Everything is an object.
+
+The fact that everything is an object means that there is a lot of “unboxing”
+and “boxing” involved when Python performs operations with variables.
+
+when this is executed
+c = a + b
+there are several steps Python needs to do:
+
+    Check the types of both operands
+    Check whether they both support the + operation
+    Extract the function that performs the + operation (due to operator
+    overloading objects can have a custom definition for addition)
+    Extract the actual values of the objects
+    Perform the + operation
+    Construct a new integer object for the result
+
+What if one knows that e.g. in a certain function the variables have always
+the same type? That’s where Cython steps in:
+
+When Cythonizing a Python code, static type information can be added either:
+
+    In function signatures by prefixing the formal arguments by their type
+    By declaring variables with the cdef Cython keyword, followed by the
+    the type
+
+def add (int x, int y):
+ cdef int result
+ result = x + y
+ return result
+
+
++--------------------+----------------+
+|From Python types   |   To C types   |
+|int                 |   int, long    |
+|int, float          |   float, double|
+|str/bytes           |   char *       |
++--------------------+----------------+
+
+
++-------------------------------+
+|From C types   |To Python types|
+|int, long      |int            |
+|float, double  |float          |
+|char*          |str/bytes      |
++-------------------------------+
+
+Mandelbrot fractal kernel:
+
+def kernel(zr, zi, cr, ci, lim, cutoff):
+ ''' Computes the number of iterations `n` such that
+ |z_n| > `lim`, where `z_n = z_{n-1}**2 + c`.
+ '''
+ count = 0
+ while ((zr*zr + zi*zi) < (lim*lim)) and count < cutoff:
+ zr, zi = zr * zr - zi * zi + cr, 2 * zr * zi + ci
+ count += 1
+ return count
+
+Cythonized
+
+def kernel(double zr, double zi, double cr, double ci, double lim, int cutoff):
+ ''' Computes the number of iterations `n` such that
+ |z_n| > `lim`, where `z_n = z_{n-1}**2 + c`.
+ '''
+ cdef int count = 0
+ while ((zr*zr + zi*zi) < (lim*lim)) and count < cutoff:
+ zr, zi = zr * zr - zi * zi + cr, 2 * zr * zi + ci
+ count += 1
+ return count
+
+    Pure Python: 0.57 s
+    Static type declarations in the kernel: 14 ms
+
+Thus, we obtained a speed up of ~40 !
+
+Link to Cyrhon types:
+https://cython.readthedocs.io/en/latest/src/userguide/language_basics.html
+
+# Creating Cython modules
+Normally, when working with Cython one does not Cythonize the whole program
+but only selected modules.
+
+my_module.py would be
+made into my_module.pyx.
+
+Cython easier, one does not
+normally use Cython directly from the command line but via Python distutils
+setup.py build file:
+
+from distutils.core import setup
+from Cython.Build import cythonize
+
+setup(
+ ext_modules=cythonize("my_module.pyx"),
+)
+
+
+TODO - now we go to Hands on exercises with Cython.
 
