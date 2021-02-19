@@ -568,6 +568,45 @@ setup(
  ext_modules=cythonize("my_module.pyx"),
 )
 
+# Hands on training - static typing
+- input arguments must match the return result type
+How to run it:
+- modify the file: cython/static-typing/cyt_module.pyx
+Build:
+> python3 setup.py cyt_module.pyx --inplace
+Use:
+> python3
+>>> import cyt_module
+>>> cyt_module.subtract(10.2, 8.5)
+1.6999998092651367
 
-TODO - now we go to Hands on exercises with Cython.
+# Avoid functuion call overhead
+Python is slow because each function is using 'boxing' and 'unboxing'.
+Just wrapping of function in function in python it makes performance
+3-4 times slower.
+
+We have two options:
+1. Function used only in Cython:
+
+   cdef int add (int x, int y):
+
+2. Function used also from Python (about 1.5 slowler then pure cython):
+
+   cpdef int add (int x, int y):
+
+# Hands on exercise - Fibonaci to increase the speed
+Fro fibonaci we need to build it like this:
+> python3 setup.py build_ext --inplace
+(Using fib.pyx as argument does not work and build command creates the 'build' directory)
+
+pythonuser@ubuntu:~/repo/hpc-python/cython/c-functions/solution$ python3 test_fib.py 
+Pure Python:          0.4531 s
+Cython:               5.0246 ms
+Speedup:               90.2
+Pure Python cached:   0.0924 us
+Speedup over Cython:  5.4e+04
+
+
+TODO - Next we go for Numpy with Cython
+
 
