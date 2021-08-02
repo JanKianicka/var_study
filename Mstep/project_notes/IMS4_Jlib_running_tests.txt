@@ -1,0 +1,762 @@
+# Notes from running the tests in the project IMS4, particularly sub-project
+# Jlib
+Jun 2021
+
+1. Running all tests in Eclipse using Runn all tests in the subdir:
+\ims4\Jlib\src\test\java
+before configured DB connections to my Unit test account in Oracle,
+and using local PostgreSQL installation.
+
+Command line arguments which should override the DB credentials in the integration
+tests did not work.
+
+Several tests remain hanging for minutes, or even tens of minutes.
+Then Java SE was running some connection blocked by Windows Defender, had
+to be allowed.
+
+The there was this failure:
+---
+import table user_ids from ../cfg/database/init/admin.user_ids
+RealmUsers:putTable2Cols trying insert
+RealmUsers:putTable2Cols insert OK
+RealmUsers:putTable2Cols trying insert
+RealmUsers:putTable2Cols insert OK
+RealmUsers:putTable2Cols trying insert
+RealmUsers:putTable2Cols insert OK
+DatabaseSuite parameter ORACLE skipped due:com.microstepmis.database.DBException: java.io.FileNotFoundException: C:\develop\repos\mis\sw\ims\ims4\ims4\Jlib\target\classes\com\..\cfg\database\DB_ORACLE.xml (The system cannot find the file specified)
+---
+...
+mkdir: cannot create directory 'C:developreposmisswimsims4ims4Jlibtargettest-classes/com/microstepmis/communication2/junit-mis-comm2-tmp1': No such file or directory
+---
+Whole test suit of the Prepared Terminal ended with this error:
+---
+com.IMPORT_ASTI: 2021-06-18 15:53:13.510 UTC: ERROR: IMPORT_ASTI/channel/Pagasa563ASTIInserter: Exception "java.lang.InterruptedException". Stack dump:
+---
+Communication/data acquisition END
+Exception in thread "pool-14-thread-2" java.lang.IllegalMonitorStateException
+...
+Exception in thread "pool-14-thread-3" java.lang.IllegalMonitorStateException
+ at java.util.concurrent.locks.ReentrantLock$Sync.tryRelease(ReentrantLock.java:151)
+...
+Exception in thread "pool-14-thread-4" java.lang.IllegalMonitorStateException
+...
+Exception in thread "pool-14-thread-5" java.lang.IllegalMonitorStateException
+...
+Exception in thread "pool-14-thread-6" java.lang.IllegalMonitorStateException
+---
+After half day and whole night of running only half of the tests were
+executed and it remain hanging with this error:
+---
+Exception in thread "RMI TCP Connection(idle)" java.lang.OutOfMemoryError: GC overhead limit exceeded
+Exception in thread "RMI TCP Connection(idle)" java.lang.OutOfMemoryError: GC overhead limit exceeded
+Exception in thread "RMI TCP Connection(idle)" java.lang.OutOfMemoryError: GC overhead limit exceeded
+Exception in thread "RMI TCP Connection(idle)" java.lang.OutOfMemoryError: GC overhead limit exceeded
+---
+I have terminated the run with this status:
+Runs: 29107/44956 (140 skipped)
+Errors: 410
+Failures: 1199
+
+Links to read:
+https://www.softwaretestinghelp.com/multiple-ways-to-execute-junit-tests/
+https://wiki.eclipse.org/Eclipse/Testing
+
+
+
+2. Running tests via Maven.
+
+Execution with skipping failure:
+---
+-fae,--fail-at-end Only fail the build afterwards; allow all non-impacted builds to continue
+-fn,--fail-never NEVER fail the build, regardless of project result
+
+mvn -fn test
+mvn install -Dmaven.test.failure.ignore=true
+---
+
+https://stackoverflow.com/questions/4174696/making-maven-run-all-tests-even-when-some-fail
+https://www.testwithspring.com/lesson/running-integration-tests-with-maven/
+https://stackoverflow.com/questions/53841126/what-does-the-maven-verify-command-do
+https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html
+https://maven.apache.org/maven-release/maven-release-plugin/
+
+Tried to run the tests using maven in Windows CMD.
+There was the same failure as in GitBash environment:
+
+C:\develop\repos\mis\sw\ims\ims4\ims4>mvn verify -f Parent/pom.xml
+---
+...
+TEST Finished display name: testSetDefaults(com.microstepmis.xplatform.X2OTest) tests count: 1
+TEST Starting display name: clearThreads(com.microstepmis.DefaultSuite$LastTest) tests count: 1
+TEST Finished display name: clearThreads(com.microstepmis.DefaultSuite$LastTest) tests count: 1
+[INFO] Tests run: 71, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.077 s - in com.microstepmis.xplatform.XplatformTestSuite
+[INFO]
+[INFO] Results:
+[INFO]
+[ERROR] Failures:
+[ERROR]   ParsingProductFileNameTest.testParsingFilePath:237 The expected key wasn't obtain ./927/netCDF/Abha/20180313/120000.nc.gz expected:<true> but was:<false>
+[ERROR]   ParsingProductFileNameTest.testRegisterEventHandlers:51 The list of the products is empty
+[ERROR]   CameraActuatorCoreTest.testGeneratingTimeTreeDirName:135 Generated dirName \opt\ims\data\foto\2018\06\15\1030 is different -- expected: /opt/ims/data/foto/2018/06/15/1030 but was: \opt\ims\data\foto\2018\06\15\1030
+[INFO]
+[ERROR] Tests run: 8839, Failures: 3, Errors: 0, Skipped: 43
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for IMS4 0.0.1-SNAPSHOT:
+[INFO]
+[INFO] IMS4 ............................................... SUCCESS [  2.424 s]
+[INFO] Bin ................................................ SUCCESS [  0.048 s]
+[INFO] WebWs2Api .......................................... SUCCESS [  1.166 s]
+[INFO] Jlib ............................................... FAILURE [08:23 min]
+[INFO] JlibDemo ........................................... SKIPPED
+[INFO] JlibVerify ......................................... SKIPPED
+[INFO] Web ................................................ SKIPPED
+[INFO] WebWs .............................................. SKIPPED
+[INFO] WebWs2 ............................................. SKIPPED
+[INFO] WebRoot ............................................ SKIPPED
+[INFO] DeployPrepare ...................................... SKIPPED
+[INFO] WebGuiTests ........................................ SKIPPED
+[INFO] DeployPerform ...................................... SKIPPED
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  08:27 min
+[INFO] Finished at: 2021-06-21T14:25:23+02:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.0.0-M3:test (default-test) on project jlib: There are test failures.
+[ERROR]
+[ERROR] Please refer to C:\develop\repos\mis\sw\ims\ims4\ims4\Jlib\target\surefire-reports for the individual test results.
+[ERROR] Please refer to dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[ERROR] -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+[ERROR]
+[ERROR] After correcting the problems, you can resume the build with the command
+[ERROR]   mvn <args> -rf :jlib
+
+
+I will now try to execute it with ignoring failed tests:
+C:\develop\repos\mis\sw\ims\ims4\ims4>mvn -fae verify -f Parent/pom.xml
+It failed with the same error and then skipped all other related tests:
+---
+TEST Starting display name: clearThreads(com.microstepmis.DefaultSuite$LastTest) tests count: 1
+TEST Finished display name: clearThreads(com.microstepmis.DefaultSuite$LastTest) tests count: 1
+[ERROR] Tests run: 4152, Failures: 3, Errors: 0, Skipped: 30, Time elapsed: 213.475 s <<< FAILURE! - in com.microstepmis.TestSuite
+[ERROR] testRegisterEventHandlers(com.microstepmis.ims.data.productdb2.customer.saudia_927.ParsingProductFileNameTest)  Time elapsed: 0.021 s  <<< FAILURE!
+java.lang.AssertionError: The list of the products is empty
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.assertTrue(Assert.java:41)
+	at com.microstepmis.ims.data.productdb2.customer.saudia_927.ParsingProductFileNameTest.testRegisterEventHandlers(ParsingProductFileNameTest.java:51)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:365)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:273)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:238)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:159)
+	at org.apache.maven.surefire.booter.ForkedBooter.invokeProviderInSameClassLoader(ForkedBooter.java:384)
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:345)
+	at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:126)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:418)
+
+[ERROR] testParsingFilePath(com.microstepmis.ims.data.productdb2.customer.saudia_927.ParsingProductFileNameTest)  Time elapsed: 0.007 s  <<< FAILURE!
+java.lang.AssertionError: The expected key wasn't obtain ./927/netCDF/Abha/20180313/120000.nc.gz expected:<true> but was:<false>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:118)
+	at com.microstepmis.ims.data.productdb2.customer.saudia_927.ParsingProductFileNameTest.testParsingFilePath(ParsingProductFileNameTest.java:237)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:365)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:273)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:238)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:159)
+	at org.apache.maven.surefire.booter.ForkedBooter.invokeProviderInSameClassLoader(ForkedBooter.java:384)
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:345)
+	at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:126)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:418)
+
+[ERROR] testGeneratingTimeTreeDirName(com.microstepmis.vision.camera.core.CameraActuatorCoreTest)  Time elapsed: 0.142 s  <<< FAILURE!
+java.lang.AssertionError: Generated dirName \opt\ims\data\foto\2018\06\15\1030 is different -- expected: /opt/ims/data/foto/2018/06/15/1030 but was: \opt\ims\data\foto\2018\06\15\1030
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.assertTrue(Assert.java:41)
+	at com.microstepmis.vision.camera.core.CameraActuatorCoreTest.testGeneratingTimeTreeDirName(CameraActuatorCoreTest.java:135)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+	at org.junit.internal.runners.statements.RunAfters.evaluate(RunAfters.java:27)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:365)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:273)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:238)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:159)
+	at org.apache.maven.surefire.booter.ForkedBooter.invokeProviderInSameClassLoader(ForkedBooter.java:384)
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:345)
+	at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:126)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:418)
+
+[INFO] Running com.microstepmis.xplatform.XplatformTestSuite
+...
+...
+[INFO] --- jacoco-maven-plugin:0.8.5:report-integration (jacoco-site) @ web-root ---
+[INFO] Skipping JaCoCo execution due to missing execution data file.
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] Skipping DeployPrepare
+[INFO] This project has been banned from the build due to previous failures.
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] Skipping WebGuiTests
+[INFO] This project has been banned from the build due to previous failures.
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] Skipping DeployPerform
+[INFO] This project has been banned from the build due to previous failures.
+[INFO] ------------------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for IMS4 0.0.1-SNAPSHOT:
+[INFO]
+[INFO] IMS4 ............................................... SUCCESS [  1.098 s]
+[INFO] Bin ................................................ SUCCESS [  0.034 s]
+[INFO] WebWs2Api .......................................... SUCCESS [  0.634 s]
+[INFO] Jlib ............................................... FAILURE [07:29 min]
+[INFO] JlibDemo ........................................... SKIPPED
+[INFO] JlibVerify ......................................... SKIPPED
+[INFO] Web ................................................ SKIPPED
+[INFO] WebWs .............................................. SUCCESS [  0.031 s]
+[INFO] WebWs2 ............................................. SKIPPED
+[INFO] WebRoot ............................................ SUCCESS [  0.031 s]
+[INFO] DeployPrepare ...................................... SKIPPED
+[INFO] WebGuiTests ........................................ SKIPPED
+[INFO] DeployPerform ...................................... SKIPPED
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  07:31 min
+[INFO] Finished at: 2021-06-21T14:41:26+02:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.0.0-M3:test (default-test) on project jlib: There are test failures.
+[ERROR]
+[ERROR] Please refer to C:\develop\repos\mis\sw\ims\ims4\ims4\Jlib\target\surefire-reports for the individual test results.
+[ERROR] Please refer to dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[ERROR] -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+[ERROR]
+[ERROR] After correcting the problems, you can resume the build with the command
+[ERROR]   mvn <args> -rf :jlib
+---
+
+The same is possible to execute from Eclise.
+Run- Run Configuration, Maven, and when this error
+occurres:
+---
+Failed to execute goal
+org.apache.maven.plugins:maven-toolchains-plugin:3.0.0:toolchain
+(default) on project ims4: Cannot find matching toolchain definitions
+for the following toolchain types
+-- it is needed to explicitelly provide path to toolchain.xml in the Maven installation
+----
+
+With the following configuraiton:
+Base directory: ${workspace_loc:/Parent}
+Goals: -t C:\develop\tools\maven\apache-maven-3.6.3\conf\toolchains.xml verify
+
+and this will execute the default build cycle with the step 'verify'.
+(Chosen unit tests).
+
+# 28.6.2021 - fix of unit test for compatibility issues with Windows platform
+---
+TEST Starting display name: clearThreads(com.microstepmis.DefaultSuite$LastTest) tests count: 1
+TEST Finished display name: clearThreads(com.microstepmis.DefaultSuite$LastTest) tests count: 1
+[INFO] Tests run: 71, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.988 s - in com.microstepmis.xplatform.XplatformTestSuite
+[INFO]
+[INFO] Results:
+[INFO]
+[WARNING] Tests run: 8841, Failures: 0, Errors: 0, Skipped: 43
+----
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for IMS4 0.0.1-SNAPSHOT:
+[INFO]
+[INFO] IMS4 ............................................... SUCCESS [  2.264 s]
+[INFO] Bin ................................................ SUCCESS [  0.021 s]
+[INFO] WebWs2Api .......................................... SUCCESS [  0.905 s]
+[INFO] Jlib ............................................... SUCCESS [11:46 min]
+[INFO] JlibDemo ........................................... SUCCESS [ 16.797 s]
+[INFO] JlibVerify ......................................... SUCCESS [  6.487 s]
+[INFO] Web ................................................ SUCCESS [  1.983 s]
+[INFO] WebWs .............................................. SUCCESS [  0.022 s]
+[INFO] WebWs2 ............................................. SUCCESS [ 11.038 s]
+[INFO] WebRoot ............................................ SUCCESS [  0.030 s]
+[INFO] DeployPrepare ...................................... SUCCESS [  3.235 s]
+[INFO] WebGuiTests ........................................ SUCCESS [  6.536 s]
+[INFO] DeployPerform ...................................... SUCCESS [  0.027 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  12:35 min
+[INFO] Finished at: 2021-06-28T09:36:25+02:00
+[INFO] ------------------------------------------------------------------------
+---
+Two failing test suits were fixed.
+
+
+
+# Trying to run integration tests
+Could not make it run, even with this command. There must be some precondition:
+    C:\develop\repos\mis\sw\ims\ims4\ims4>mvn -fae clean install integration-test -f Parent/pom.xml
+
+Reading yet about integration COD/DevOPS:
+https://wiki.mstep/index.php/SW_MIS_konvencie_-_IMS4
+But even the command from here does not execute integration test, just jUnit tests:
+
+    mvn verify -PIntegrationTests
+
+Test yet the stand alone the failing test and also two radar tests you have implemented.
+
+
+# 24.6.2021 - after having access to Jenkins I have retrieved
+the mvn commands which actually execute the tests
+
+Job:
+Ims4-Gitlab-Master-OnMergePush
+---
+[Ims4-Gitlab-Master-OnMergePush] $ /opt/jenkins/tools/hudson.tasks.Maven_MavenInstallation/Maven3/bin/mvn -f Parent/pom.xml -gs /tmp/global-settings6558725768604594001.xml --batch-mode clean test sonar:sonar javadoc:aggregate javadoc:test-aggregate -PDisableMavenToolchains -Dsonar.host.url=https://sonarqube.mstep:443/ -Dsonar.login=****** -Dsonar.projectKey=mis.sw.ims.ims4.ims4 -Dsonar.analysis.mode=preview -Dsonar.gitlab.commit_sha=cc4b971899e3c386d435bc8be68ead3791ef9936 -Dsonar.gitlab.ref_name=artemg_25302 -Dsonar.gitlab.project_id=mis/sw/ims/ims4/ims4 -DargLine=-Xmx2048m
+---
+
+Ims4-Nightly - Automatic
+---
+20:35:48 [Ims4-Nightly] $ /opt/jenkins/tools/hudson.tasks.Maven_MavenInstallation/Maven3/bin/mvn -f Parent/pom.xml -s /tmp/settings7913520885458941364.xml -gs /tmp/global-settings338249400022740659.xml --batch-mode clean release:clean release:prepare release:perform -PDisableMavenToolchains "-DpreparationGoals=clean test-compile javadoc:aggregate javadoc:test-aggregate" -DscmCommentPrefix=[release] -DdevelopmentVersion=R20210623_183548-SNAPSHOT -DreleaseVersion=R20210623_183548 -Dtag=temp_R20210623_183548 -DpushChanges=false "-Dgoals=deploy site site:stage" -DlocalCheckout=true -DconnectionUrl=scm:git:git@gitlab.mstep:mis/sw/ims/ims4/ims4.git -DreleaseProfiles=Sonar,IntegrationTests,RsyncCreate,RsyncInstall,UpgradeNightlyVMs,GuiTests,OwaspZAP,RsyncDeploy "-Darguments=   -Dsonar.host.url=https://sonarqube.mstep:443/    -Dsonar.login=******    -Dsonar.projectKey=mis.sw.ims.ims4.ims4    -DoracleDbName=localhost:1522   -DoracleUserName=c##job_ims4_nightly   -DoraclePassword=jenkins   -DoracleServerName=OracleRAC   -DpostgresDbName=job_ims4_nightly   -DpostgresUserName=jenkins   -DpostgresPassword=jenkins   -DpostgresServerName=localhost:5432   -Djavax.net.ssl.trustStore=/etc/pki/java/cacerts   -Djavax.net.ssl.trustStorePassword=changeit "
+---
+
+Ims4-Nightly - Manually excuted with skipping integration tests
+---
+16:13:38 [Ims4-Nightly] $ /opt/jenkins/tools/hudson.tasks.Maven_MavenInstallation/Maven3/bin/mvn -f Parent/pom.xml -s /tmp/settings697036607070301971.xml -gs /tmp/global-settings6000295942656186530.xml --batch-mode clean release:clean release:prepare release:perform -PDisableMavenToolchains "-DpreparationGoals=clean test-compile javadoc:aggregate javadoc:test-aggregate" -DscmCommentPrefix=[release] -DdevelopmentVersion=R20210622_141337-SNAPSHOT -DreleaseVersion=R20210622_141337 -Dtag=temp_R20210622_141337 -DpushChanges=false "-Dgoals=deploy site site:stage" -DlocalCheckout=true -DconnectionUrl=scm:git:git@gitlab.mstep:mis/sw/ims/ims4/ims4.git -DreleaseProfiles=Sonar,RsyncCreate,RsyncInstall,RsyncDeploy "-Darguments=   -Dsonar.host.url=https://sonarqube.mstep:443/    -Dsonar.login=******    -Dsonar.projectKey=mis.sw.ims.ims4.ims4    -DoracleDbName=localhost:1522   -DoracleUserName=c##job_ims4_nightly   -DoraclePassword=jenkins   -DoracleServerName=OracleRAC   -DpostgresDbName=job_ims4_nightly   -DpostgresUserName=jenkins   -DpostgresPassword=jenkins   -DpostgresServerName=localhost:5432   -Djavax.net.ssl.trustStore=/etc/pki/java/cacerts   -Djavax.net.ssl.trustStorePassword=changeit "
+---
+
+1. Attempt
+mvn -f Parent/pom.xml clean release:clean release:prepare release:perform -PDisableMavenToolchains "-DpreparationGoals=clean test-compile javadoc:aggregate javadoc:test-aggregate" -DreleaseProfiles=IntegrationTests
+-- this did not work - required providing all release parameters
+
+2. Attempt
+mvn -f Parent/pom.xml clean -PDisableMavenToolchains -DreleaseProfiles=IntegrationTests
+-- this did not do anything
+
+3. Attempt
+mvn -f Parent/pom.xml clean release:clean release:prepare release:perform -PDisableMavenToolchains "-DpreparationGoals=clean test-compile javadoc:aggregate javadoc:test-aggregate" -DscmCommentPrefix=[release] -DdevelopmentVersion=R20210623_183548-SNAPSHOT -DreleaseVersion=R20210623_183548 -Dtag=temp_R20210623_183548 -DpushChanges=false "-Dgoals=deploy site site:stage" -DlocalCheckout=true -DconnectionUrl=scm:git:git@gitlab.mstep:mis/sw/ims/ims4/ims4.git -DreleaseProfiles=IntegrationTests "-Darguments= -DoracleDbName=localhost:1522   -DoracleUserName=c##job_ims4_nightly   -DoraclePassword=jenkins   -DoracleServerName=OracleRAC   -DpostgresDbName=job_ims4_nightly   -DpostgresUserName=jenkins   -DpostgresPassword=jenkins   -DpostgresServerName=localhost:5432   -Djavax.net.ssl.trustStore=/etc/pki/java/cacerts   -Djavax.net.ssl.trustStorePassword=changeit "
+
+Ended with this error - seems like there is something missing in
+the pom or settings file.
+---
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  1.929 s
+[INFO] Finished at: 2021-06-29T10:56:01+02:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-release-plugin:2.5.3:prepare (default-cli) on project ims4: You don't have a SNAPSHOT project in the reactor projects list. -> [Help 1]
+---
+
+4.Attempt
+mvn -f Parent/pom.xml clean release:clean release:prepare release:perform -PDisableMavenToolchains "-DpreparationGoals=clean test-compile javadoc:aggregate javadoc:test-aggregate" -DscmCommentPrefix=[release] -DdevelopmentVersion=0.0.1-SNAPSHOT -DreleaseVersion=R20210623_183548 -Dtag=temp_R20210623_183548 -DpushChanges=false "-Dgoals=deploy site site:stage" -DlocalCheckout=true -DconnectionUrl=scm:git:git@gitlab.mstep:mis/sw/ims/ims4/ims4.git -DreleaseProfiles=IntegrationTests "-Darguments= -DoracleDbName=localhost:1522   -DoracleUserName=c##job_ims4_nightly   -DoraclePassword=jenkins   -DoracleServerName=OracleRAC   -DpostgresDbName=job_ims4_nightly   -DpostgresUserName=jenkins   -DpostgresPassword=jenkins   -DpostgresServerName=localhost:5432   -Djavax.net.ssl.trustStore=/etc/pki/java/cacerts   -Djavax.net.ssl.trustStorePassword=changeit "
+
+
+At first ended in compilation error in server Jlib files.
+Thus I have modified JAVA_HOME on system level to correspond to jdk1.8.0_172.
+Then it could not resolve some dependencies - particularly glassfish something.
+I have to always reset the repository and now I try last build.
+
+mvn -f Parent/pom.xml clean release:clean release:prepare release:perform -PDisableMavenToolchains "-DpreparationGoals=clean test-compile javadoc:aggregate javadoc:test-aggregate" -DscmCommentPrefix=[release] -DdevelopmentVersion=R20210628_194636-SNAPSHOT -DreleaseVersion=R20210628_194636 -Dtag=temp_R20210628_194636 -DpushChanges=false "-Dgoals=deploy site site:stage" -DlocalCheckout=true -DconnectionUrl=scm:git:git@gitlab.mstep:mis/sw/ims/ims4/ims4.git -DreleaseProfiles=IntegrationTests "-Darguments= -DoracleDbName=localhost:1522   -DoracleUserName=c##job_ims4_nightly   -DoraclePassword=jenkins   -DoracleServerName=OracleRAC   -DpostgresDbName=job_ims4_nightly   -DpostgresUserName=jenkins   -DpostgresPassword=jenkins   -DpostgresServerName=localhost:5432   -Djavax.net.ssl.trustStore=/etc/pki/java/cacerts   -Djavax.net.ssl.trustStorePassword=changeit "
+
+This is the error - might be permission issue?
+---
+[INFO] [ERROR] Failed to execute goal on project jlib: Could not resolve dependencies for project com.microstepmis.ims4:jlib:jar:R20210628_194636: Failed to collect dependencies at com.helger:ph-schematron:jar:5.2.0 -> com.helger:ph-jaxb:jar:9.3.4 -> com.helger:ph-jaxb-pom:pom:1.0.3 -> org.glassfish.jaxb:jaxb-core:jar:2.2.11: Failed to read artifact descriptor for org.glassfish.jaxb:jaxb-core:jar:2.2.11: Could not transfer artifact org.glassfish.jaxb:jaxb-core:pom:2.2.11 from/to central (https://nexus.mstep/repository/mis.sw/): Transfer failed for https://nexus.mstep/repository/mis.sw/org/glassfish/jaxb/jaxb-core/2.2.11/jaxb-core-2.2.11.pom: java.lang.RuntimeException: Unexpected error: java.security.InvalidAlgorithmParameterException: the trustAnchors parameter must be non-empty -> [Help 1]
+
+We had to remove Javax parameters and let the host system provide certificate for SSL connection to Nexus.
+mvn -f Parent/pom.xml clean release:clean release:prepare release:perform -PDisableMavenToolchains "-DpreparationGoals=clean test-compile javadoc:aggregate javadoc:test-aggregate" -DscmCommentPrefix=[release] -DdevelopmentVersion=R20210628_194636-SNAPSHOT -DreleaseVersion=R20210628_194636 -Dtag=temp_R20210628_194636 -DpushChanges=false "-Dgoals=deploy site site:stage" -DlocalCheckout=true -DconnectionUrl=scm:git:git@gitlab.mstep:mis/sw/ims/ims4/ims4.git -DreleaseProfiles=IntegrationTests "-Darguments= -DoracleDbName=localhost:1522   -DoracleUserName=c##job_ims4_nightly   -DoraclePassword=jenkins   -DoracleServerName=OracleRAC   -DpostgresDbName=job_ims4_nightly   -DpostgresUserName=jenkins   -DpostgresPassword=jenkins   -DpostgresServerName=localhost:5432 "
+
+This had worked finally, but it in course of Release preparation phase, it had
+compiled Jlib several times, because the resources were not up to date.
+
+The it executed the unit tests - standard set of tests.
+JAVA_HOME had to be modified to match with Jlib compatibility.
+
+Actually whole IMS4 repo was rebuild 4 times, first in the local clone,
+then in the release checkout directory ims4/Parent/target/checkout/Jlib
+and always twice because:
+---
+[INFO] [INFO] --- maven-jaxb2-plugin:0.14.0:generate (ims4ConnectorEventData) @ jlib ---
+[INFO] [INFO] Sources are not up-to-date, XJC will be executed.
+---
+Interesting.
+
+Unit tests have finished succeessfuly.
+---
+[INFO] [INFO] Results:
+[INFO] [INFO]
+[INFO] [WARNING] Tests run: 8841, Failures: 0, Errors: 0, Skipped: 43
+[INFO] [INFO]
+[INFO] [INFO]
+[INFO] [INFO] --- maven-jar-plugin:3.1.2:jar (default-jar) @ jlib ---
+[INFO] [INFO] Building jar: C:\develop\repos\mis\sw\ims\ims4\ims4\Parent\target\checkout\Jlib\target\jlib-R20210628_194636.jar
+[INFO] [INFO]
+[INFO] [INFO] --- maven-source-plugin:3.2.1:jar-no-fork (attach-sources) @ jlib ---
+[INFO] [INFO] Building jar: C:\develop\repos\mis\sw\ims\ims4\ims4\Parent\target\checkout\Jlib\target\jlib-R20210628_194636-sources.jar
+[INFO] [INFO]
+[INFO] [INFO] --
+---
+
+And integration tests have launched, at least it seems so:
+---
+[INFO] DBPoolConnection_default: 2021-06-29 11:25:56.352 UTC: NOTE: DBPoolConnectionPool default:  database is running in testing mode. Parameters from poolCfg.dbConfig will be overwritten using VM parameters if any set up.
+[INFO] DBPoolConnection_default: 2021-06-29 11:25:56.708 UTC: ERROR: Fail make new connection to 'OracleRAC/localhost:1522:c##job_ims4_nightly,Oracle'
+[INFO] DBPoolConnection_default: 2021-06-29 11:25:56.710 UTC: ERROR: Fail make new connection to 'OracleRAC/localhost:1522:c##job_ims4_nightly,Oracle'
+[INFO] DBPoolConnection_default: 2021-06-29 11:25:56.711 UTC: ERROR: Fail make new connection to 'OracleRAC/localhost:1522:c##job_ims4_nightly,Oracle'
+[INFO] DBPoolConnection_default: 2021-06-29 11:25:56.711 UTC: NOTE: DBPoolConnectionPool default created.
+[INFO]  Settings: OracleRAC/localhost:1522:c##job_ims4_nightly,Oracle.
+[INFO]  (DBPoolConnection  available=0, busy=0, max=90)
+[INFO] DBPoolConnection_dbConnCfg_localhost_-DpostgresDbName_value_-DpostgresUserName_value_Postgres: 2021-06-29 11:25:56.713 UTC: NOTE: DBPoolConnectionPool dbConnCfg_localhost_-DpostgresDbName_value_-DpostgresUserName_value_Postgres:  database is running in testing mode. Parameters from poolCfg.dbConfig will be overwritten using VM parameters if any set up.
+[INFO] DriverManager: 2021-06-29 11:25:56.719 UTC: NOTE: com.microstepmis.database.PostgresSQLBridge@7add9679: Try connect to localhost:5432
+[INFO] DBPoolConnection_dbConnCfg_localhost_-DpostgresDbName_value_-DpostgresUserName_value_Postgres: 2021-06-29 11:25:56.812 UTC: ERROR: Fail make new connection to 'localhost:5432/job_ims4_nightly:jenkins,Postgres'
+[INFO] DriverManager: 2021-06-29 11:25:56.813 UTC: NOTE: com.microstepmis.database.PostgresSQLBridge@3b3eeb5e: Try connect to localhost:5432
+[INFO] DBPoolConnection_dbConnCfg_localhost_-DpostgresDbName_value_-DpostgresUserName_value_Postgres: 2021-06-29 11:25:56.847 UTC: ERROR: Fail make new connection to 'localhost:5432/job_ims4_nightly:jenkins,Postgres'
+[INFO] DriverManager: 2021-06-29 11:25:56.848 UTC: NOTE: com.microstepmis.database.PostgresSQLBridge@605b130a: Try connect to localhost:5432
+[INFO] DBPoolConnection_dbConnCfg_localhost_-DpostgresDbName_value_-DpostgresUserName_value_Postgres: 2021-06-29 11:25:56.886 UTC: ERROR: Fail make new connection to 'localhost:5432/job_ims4_nightly:jenkins,Postgres'
+[INFO] DBPoolConnection_dbConnCfg_localhost_-DpostgresDbName_value_-DpostgresUserName_value_Postgres: 2021-06-29 11:25:56.886 UTC: NOTE: DBPoolConnectionPool dbConnCfg_localhost_-DpostgresDbName_value_-DpostgresUserName_value_Postgres created.
+[INFO]  Settings: localhost:5432/job_ims4_nightly:jenkins,Postgres.
+[INFO]  (DBPoolConnection  available=0, busy=0, max=90)
+[INFO] DriverManager: 2021-06-29 11:25:56.886 UTC: NOTE: com.microstepmis.database.PostgresSQLBridge@1048564e: Try connect to localhost:5432
+[INFO] DBPoolConnection_dbConnCfg_localhost_-DpostgresDbName_value_-DpostgresUserName_value_Postgres: 2021-06-29 11:25:56.923 UTC: ERROR: Exception "com.microstepmis.database.DBException: Get connection error: org.postgresql.util.PSQLException: FATAL: password authentication failed for user "jenkins"". Stack dump:
+[INFO]  com.microstepmis.database.PostgresSQLBridge.getConnection(PostgresSQLBridge.java:127) at line 127
+[INFO]  com.microstepmis.database.DBConnection.connect(DBConnection.java:142) at line 142
+[INFO]  com.microstepmis.database.DBPoolConnection$DBPoolConnectionPool.makeNewConnection(DBPoolConnection.java:264) at line 264
+[INFO]  com.microstepmis.database.DBPoolConnection$DBPoolConnectionPool.getConnection(DBPoolConnection.java:198) at line 198
+[INFO]  com.microstepmis.database.DBPoolConnection$DBPoolConnectionPool.access$300(DBPoolConnection.java:41) at line 41
+[INFO]  com.microstepmis.database.DBPoolConnection.get(DBPoolConnection.java:541) at line 541
+[INFO]  com.microstepmis.database.DBXMLConnection.connect(DBXMLConnection.java:452) at line 452
+[INFO]  com.microstepmis.database.DBDataProvider.connect(DBDataProvider.java:106) at line 106
+[INFO]  com.microstepmis.database.DatabaseIt.load(DatabaseIt.java:395) at line 395
+[INFO]  sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method) at line -2
+[INFO]  sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62) at line 62
+[INFO]  sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) at line 43
+[INFO]  java.lang.reflect.Method.invoke(Method.java:498) at line 498
+
+
+
+
+
+----
+[INFO] TEST Starting display name: run[testMsgBiralVPF710Ext.xml id=bl-missing](com.microstepmis.communication2.PreparedTerminalIt) tests count: 1
+[INFO] TEST Finished display name: run[testMsgBiralVPF710Ext.xml id=bl-missing](com.microstepmis.communication2.PreparedTerminalIt) tests count: 1
+[INFO] TEST Starting display name: run[testMsgBiralVPF730.xml id=Spravy cez logger s ID](com.microstepmis.communication2.PreparedTerminalIt) tests count: 1
+[INFO] TEST Finished display name: run[testMsgBiralVPF730.xml id=Spravy cez logger s ID](com.microstepmis.communication2.PreparedTerminalIt) tests count: 1
+[INFO] TEST Starting display name: run[testMsgBiralVPF730Ext.xml id=IsOk](com.microstepmis.communication2.PreparedTerminalIt) tests count: 1
+[INFO] TEST Finished display name: run[testMsgBiralVPF730Ext.xml id=IsOk](com.microstepmis.communication2.PreparedTerminalIt) tests count: 1
+
+...
+
+
+Due to wrong connection to Oracle this was the result of this run:
+---
+[INFO] [ERROR]   UserManagementADIt.userManagementDevPtestRoles:71 ╗ NullPointer
+[INFO] [ERROR]   UserManagementADIt.userManagementDevPtestUsers:54 ╗ NullPointer
+[INFO] [INFO]
+[INFO] [ERROR] Tests run: 4392, Failures: 1957, Errors: 286, Skipped: 1
+[INFO] [INFO]
+[INFO] [INFO]
+[INFO] [INFO] --- jacoco-maven-plugin:0.8.5:report (jacoco-site) @ jlib ---
+[INFO] [INFO] Loading execution data file C:\develop\repos\mis\sw\ims\ims4\ims4\Parent\target\checkout\Jlib\target\jacoco.exec
+[INFO] [INFO] Analyzed bundle 'Jlib' with 13589 classes
+[INFO] [INFO]
+[INFO] [INFO] --- jacoco-maven-plugin:0.8.5:report-integration (jacoco-site) @ jlib ---
+[INFO] [INFO] Loading execution data file C:\develop\repos\mis\sw\ims\ims4\ims4\Parent\target\checkout\Jlib\target\jacoco-it.exec
+[INFO] [INFO] Analyzed bundle 'Jlib' with 13589 classes
+[INFO] [INFO]
+[INFO] [INFO] --- maven-failsafe-plugin:3.0.0-M3:verify (failsafe-it-verify) @ jlib ---
+[INFO] [INFO] ------------------------------------------------------------------------
+[INFO] [INFO] Reactor Summary for IMS4 R20210628_194636:
+[INFO] [INFO]
+[INFO] [INFO] IMS4 ............................................... SUCCESS [ 25.033 s]
+[INFO] [INFO] Bin ................................................ SUCCESS [  2.321 s]
+[INFO] [INFO] WebWs2Api .......................................... SUCCESS [  3.058 s]
+[INFO] [INFO] Jlib ............................................... FAILURE [  01:14 h]
+[INFO] [INFO] JlibDemo ........................................... SKIPPED
+[INFO] [INFO] JlibVerify ......................................... SKIPPED
+[INFO] [INFO] Web ................................................ SKIPPED
+[INFO] [INFO] WebWs .............................................. SKIPPED
+[INFO] [INFO] WebWs2 ............................................. SKIPPED
+[INFO] [INFO] WebRoot ............................................ SKIPPED
+[INFO] [INFO] DeployPrepare ...................................... SKIPPED
+[INFO] [INFO] WebGuiTests ........................................ SKIPPED
+[INFO] [INFO] DeployPerform ...................................... SKIPPED
+[INFO] [INFO] ------------------------------------------------------------------------
+[INFO] [INFO] BUILD FAILURE
+[INFO] [INFO] ------------------------------------------------------------------------
+[INFO] [INFO] Total time:  01:14 h
+[INFO] [INFO] Finished at: 2021-06-29T14:26:33+02:00
+[INFO] [INFO] ------------------------------------------------------------------------
+[INFO] [ERROR] Failed to execute goal org.apache.maven.plugins:maven-failsafe-plugin:3.0.0-M3:verify (failsafe-it-verify) on project jlib: There are test failures.
+[INFO] [ERROR]
+[INFO] [ERROR] Please refer to C:\develop\repos\mis\sw\ims\ims4\ims4\Parent\target\checkout\Jlib\target\failsafe-reports for the individual test results.
+[INFO] [ERROR] Please refer to dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[INFO] [ERROR] -> [Help 1]
+[INFO] [ERROR]
+[INFO] [ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[INFO] [ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[INFO] [ERROR]
+[INFO] [ERROR] For more information about the errors and possible solutions, please read the following articles:
+[INFO] [ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+[INFO] [ERROR]
+[INFO] [ERROR] After correcting the problems, you can resume the build with the command
+[INFO] [ERROR]   mvn <args> -rf :jlib
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for IMS4 0.0.1-SNAPSHOT:
+[INFO]
+[INFO] IMS4 ............................................... FAILURE [  01:24 h]
+[INFO] Bin ................................................ SUCCESS [  0.003 s]
+[INFO] WebWs2Api .......................................... SUCCESS [  0.003 s]
+[INFO] Jlib ............................................... SUCCESS [  0.007 s]
+[INFO] JlibDemo ........................................... SUCCESS [  0.003 s]
+[INFO] JlibVerify ......................................... SUCCESS [  0.003 s]
+[INFO] Web ................................................ SUCCESS [  0.003 s]
+[INFO] WebWs .............................................. SUCCESS [  0.003 s]
+[INFO] WebWs2 ............................................. SUCCESS [  0.003 s]
+[INFO] WebRoot ............................................ SUCCESS [  0.003 s]
+[INFO] DeployPrepare ...................................... SUCCESS [  0.004 s]
+[INFO] WebGuiTests ........................................ SUCCESS [  0.003 s]
+[INFO] DeployPerform ...................................... SUCCESS [  0.004 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  01:24 h
+[INFO] Finished at: 2021-06-29T14:26:34+02:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-release-plugin:2.5.3:perform (default-cli) on project ims4: Maven execution failed, exit code: '1' -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException
+
+---
+We try once more with correct connection, but when - tomorrow is the doctor visit.
+I will bring the computer home and run it over night.
+
+
+5. Attempt - with mine correct Oracle and PostgreSQL credentials
+
+mvn -f Parent/pom.xml clean release:clean release:prepare release:perform -PDisableMavenToolchains "-DpreparationGoals=clean test-compile javadoc:aggregate javadoc:test-aggregate" -DscmCommentPrefix=[release] -DdevelopmentVersion=R20210630_194636-SNAPSHOT -DreleaseVersion=R20210630_194636 -Dtag=temp_R20210630_194636 -DpushChanges=false "-Dgoals=deploy site site:stage" -DlocalCheckout=true -DconnectionUrl=scm:git:git@gitlab.mstep:mis/sw/ims/ims4/ims4.git -DreleaseProfiles=IntegrationTests "-Darguments= -DoracleDbName='(DESCRIPTION=(LOAD_BALANCE=on)(ADDRESS=(PROTOCOL=TCP)(HOST=orcl-scan.mstep)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=orcl)))'   -DoracleUserName=junit_janki   -DoraclePassword=junit_janki   -DoracleServerName=OracleRAC   -DpostgresDbName=ims   -DpostgresUserName=ims   -DpostgresPassword=network   -DpostgresServerName=localhost:5432 "
+
+Successfully running the tests - first twice build, then unit tests, then
+integration tests.
+After about 1 hour we have: 
+11.1 GB occupied, 4.7 GB memory available
+
+It is possible to use Power shell and monitor the process - here is the command:
+PS> While(1) {ps | sort -des ws | select -f 5 | ft -a; sleep 30; cls}
+
+PS> While(1) {ps | sort -des cpu | select -f 10 | ft -a |grep java; sleep 30;}
+ 5961     68 1383004 1220592 1?895,88 19052  8 java
+ 1406     32 3326104   72784   532,86  7980  8 java
+  443     22  184380   52480   315,83 10016  8 java
+
+
+# Results of full run during night 30.6 - 1.7.2021
+[INFO] [ERROR] Tests run: 7913, Failures: 62, Errors: 12, Skipped: 27
+---
+[INFO] [INFO] Reactor Summary for IMS4 R20210630_20:
+[INFO] [INFO]
+[INFO] [INFO] IMS4 ............................................... SUCCESS [ 21.717 s]
+[INFO] [INFO] Bin ................................................ SUCCESS [  2.193 s]
+[INFO] [INFO] WebWs2Api .......................................... SUCCESS [  3.329 s]
+[INFO] [INFO] Jlib ............................................... FAILURE [  09:19 h]
+[INFO] [INFO] JlibDemo ........................................... SKIPPED
+[INFO] [INFO] JlibVerify ......................................... SKIPPED
+[INFO] [INFO] Web ................................................ SKIPPED
+[INFO] [INFO] WebWs .............................................. SKIPPED
+[INFO] [INFO] WebWs2 ............................................. SKIPPED
+[INFO] [INFO] WebRoot ............................................ SKIPPED
+[INFO] [INFO] DeployPrepare ...................................... SKIPPED
+[INFO] [INFO] WebGuiTests ........................................ SKIPPED
+[INFO] [INFO] DeployPerform ...................................... SKIPPED
+[INFO] [INFO] ------------------------------------------------------------------------
+[INFO] [INFO] BUILD FAILURE
+[INFO] [INFO] ------------------------------------------------------------------------
+[INFO] [INFO] Total time:  09:19 h
+[INFO] [INFO] Finished at: 2021-07-01T05:58:17+02:00
+---
+
+[INFO] Reactor Summary for IMS4 0.0.1-SNAPSHOT:
+[INFO]
+[INFO] IMS4 ............................................... FAILURE [  09:28 h]
+[INFO] Bin ................................................ SUCCESS [  0.003 s]
+[INFO] WebWs2Api .......................................... SUCCESS [  0.014 s]
+[INFO] Jlib ............................................... SUCCESS [  8.919 s]
+[INFO] JlibDemo ........................................... SUCCESS [  0.332 s]
+[INFO] JlibVerify ......................................... SUCCESS [  0.027 s]
+[INFO] Web ................................................ SUCCESS [  0.021 s]
+[INFO] WebWs .............................................. SUCCESS [  0.003 s]
+[INFO] WebWs2 ............................................. SUCCESS [  0.074 s]
+[INFO] WebRoot ............................................ SUCCESS [  0.002 s]
+[INFO] DeployPrepare ...................................... SUCCESS [  0.010 s]
+[INFO] WebGuiTests ........................................ SUCCESS [  0.077 s]
+[INFO] DeployPerform ...................................... SUCCESS [  0.002 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  09:29 h
+[INFO] Finished at: 2021-07-01T05:58:17+02:00
+[INFO] ------------------------------------------------------------------------
+
+
+Attached:
+IMS4_integration_tests_30.6-1.7.2021/Jlib/failsafe-reports
+IMS4_integration_tests_30.6-1.7.2021/Jlib/jacoc_examples
+IMS4_integration_tests_30.6-1.7.2021/Jlib/surefire-reports
+IMS4_integration_tests_30.6-1.7.2021/Memory_usage_integration_tests_30.6-1.7.2021
+
+
+And yet execute it once more over night with 'tee' redirection of the log.
+
+# Another run on 5.7.2021
+[INFO] [ERROR] Tests run: 7914, Failures: 63, Errors: 10, Skipped: 27
+Also with tee log.
+
+# The same night build of the same day:
+01:23:42 [INFO] [ERROR] Tests run: 7914, Failures: 57, Errors: 5, Skipped: 27
+
+This means locally there is more tests failures - might be related also
+to Windows incompatibilities.
+
+Example of such a failure is - e.g. very likelly missing permission on database level:
+---
+com.microstepmis.util.login.UserManagementADIt)  Time elapsed: 21.093 s  <<< ERROR!
+---
+Amendment of such case is to have the seamless permission for user personal
+accounts in both databases.
+
+Disk occupation after running whole release prepration
+has this size:
+17G     total
+
+
+# I wil try yet locally run the test which was failing on the server
+due to different versions of Oracle driver.
+
+Successfully executed integration test suit from Eclipse:
+com.microstepmis.database
+
+But using mvn command we can execute only chosen test classes, when running locally
+and we need to provide parameters.
+
+> cd Jlib
+> mvn test -Dtest=DatabaseIt -DoracleDbName='(DESCRIPTION=(LOAD_BALANCE=on)(ADDRESS=(PROTOCOL=TCP)(HOST=orcl-scan.mstep)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=orcl)))' -DoracleUserName=junit_janki  -DoraclePassword=junit_janki -DoracleServerName=OracleRAC -DpostgresDbName=ims -DpostgresUserName=ims -DpostgresPassword=network -DpostgresServerName=localhost:5432
+
+> mvn test -Dtest=PostgresSQLBridgeTranslateSQLCmdFromOracleIt -DoracleDbName='(DESCRIPTION=(LOAD_BALANCE=on)(ADDRESS=(PROTOCOL=TCP)(HOST=orcl-scan.mstep)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=orcl)))' -DoracleUserName=junit_janki  -DoraclePassword=junit_janki -DoracleServerName=OracleRAC -DpostgresDbName=ims -DpostgresUserName=ims -DpostgresPassword=network -DpostgresServerName=localhost:5432
+
+All successfull.
+Used ojdbc8-19.8.0.0.jar
+
+Database is of version:
+Oracle Database 12c Enterprise Edition Release 12.1.0.2.0 - 64bit Product
+
+
+# 8.7.2021 - Eclipse build got totally broken
+I can not build Jlib anymore.
+I will try now:
+
+1. To refresh ims4 clone and build it once more
+2. Revert JAVA_HOME to OpenJDK and restart the computer, update maven again, clean, build
+3. Restore Old Eclipse from the backup
+
+The problem finally is only in Eclipse which has troubles to find the
+dependencies.  Maven underneath can compile the project.  I will leave
+it like that with modified JAVA_HOME.
+
+
+
+
+
+
+
+
+
+

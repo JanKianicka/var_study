@@ -1,0 +1,461 @@
+# Installation of Workstation
+## First are my tools and items from basic installation:
+https://wiki.mstep/index.php/SMK:PP-15
+1. Installed VPN, VNC server and putty, WinSCP, emacs, Modelio and old
+Microstep UML models, Total Commander, Gimp
+2. KeyStore with new keys
+3. Notepad++
+4. Perl
+5. Cygwin - successful from the release published in:
+i:\install\019-cygwin\maximal\
+
+6. Git client:
+https://wiki.mstep/index.php/SW_Instalacia_PC_Git
+- installed client, but need to unlock the user.
+Open Issue 1 - access and profile on GitLAB.
+Issue resolved, my accound unlocked.
+
+Setting up local config:
+  $ git config --global --list
+  user.name=Jan Kianicka
+  core.autocrlf=true
+  core.filemode=false
+  core.compression=9
+  protocol.version=2
+  merge.ff=no
+  fetch.prune=true
+  http.sslcainfo=c:/develop/tools/certs/devops_mstep_ca.pem
+  filter.lfs.clean=git-lfs clean -- %f
+  filter.lfs.smudge=git-lfs smudge -- %f
+  filter.lfs.process=git-lfs filter-process
+  filter.lfs.required=true
+
+Setting up environment:
+- added ssh keys
+- clonned ims4 and ims4-configurations repositories
+- successfully configured local hooks
+
+Installed make:
+- run GitBash as admin
+- copy to /c/"Program Files"/Git
+- extract xz file:
+> unxz make-4.3-1-x86_64.pkg.tar.xz
+> tar -xvf make-4.3-1-x86_64.pkg.tar
+- test it
+>  make -version
+GNU Make 4.3
+Built for x86_64-pc-msys
+Copyright (C) 1988-2020 Free Software Foundation, Inc.
+
+Installed rsync:
+- run GitBash as admin
+- copy to /c/"Program Files"/Git
+- extract xz file:
+> unxz rsync-3.1.3-1-x86_64.pkg.tar.xz
+> tar -xvf rsync-3.1.3-1-x86_64.pkg.tar
+- test it
+> rsync --version
+rsync  version 3.1.3  protocol version 31
+Copyright (C) 1996-2018 by Andrew Tridgell, Wayne Davison, and others.
+Web site: http://rsync.samba.org/
+
+7. Libre Office
+Installed and associated with .doc, .xlsx, and other file types.
+
+8. Flex SDK - not needed for me - target group is SW Frontend
+- not installed
+
+9. MIS root certificate into Windows as well as into Firefox. 
+c:/develop/tools/certs/
+devops_mstep_ca.pem
+mstep_root_ca.crt
+
+10. Java
+# Remove all installed java versions
+- not present
+
+# OpenJDK 11.0.7+10
+Installed into:
+c:\develop\tools\java\jdk-11.0.7+10
+and set JAVA_HOME to the openJDK
+
+C:\Windows\System32>java -version
+openjdk version "11.0.7" 2020-04-14
+OpenJDK Runtime Environment AdoptOpenJDK (build 11.0.7+10)
+OpenJDK 64-Bit Server VM AdoptOpenJDK (build 11.0.7+10, mixed mode)
+
+# JDK 1.8.172
+Installed into:
+c:\develop\tools\java\jdk1.8.0_172
+
+# JDK 1.8.112
+Installed into:
+c:\develop\tools\java\jdk1.8.0_112
+
+# JDK 1.5.0.22 not installed, only SW-WEB for flash)
+
+# Importing certificates into all java installations
+# For JDK 1.8.112
+c:\develop\tools\java\jdk1.8.0_112\jre\bin\keytool -import -trustcacerts -file c:\develop\tools\certs\devops_mstep_ca.pem -storepass changeit -alias DEVOPS_MSTEP_CA -keystore c:\develop\tools\java\jdk1.8.0_112\jre\lib\security\cacerts -noprompt
+c:\develop\tools\java\jdk1.8.0_112\jre\bin\keytool -import -trustcacerts -file c:\develop\tools\certs\mstep_root_ca.crt -storepass changeit -alias MSTEP_CA_NEW -keystore c:\develop\tools\java\jdk1.8.0_112\jre\lib\security\cacerts -noprompt
+c:\develop\tools\java\jdk1.8.0_112\jre\bin\keytool -import -trustcacerts -file c:\develop\tools\certs\devops_mstep_ca.pem -storepass changeit -alias DEVOPS_MSTEP_CA -keystore c:\develop\tools\java\jre1.8.0_112\lib\security\cacerts -noprompt
+c:\develop\tools\java\jdk1.8.0_112\jre\bin\keytool -import -trustcacerts -file c:\develop\tools\certs\mstep_root_ca.crt -storepass changeit -alias MSTEP_CA_NEW -keystore c:\develop\tools\java\jre1.8.0_112\lib\security\cacerts -noprompt
+
+# For JDK 1.8.172
+c:\develop\tools\java\jdk1.8.0_172\jre\bin\keytool -import -trustcacerts -file c:\develop\tools\certs\devops_mstep_ca.pem -storepass changeit -alias DEVOPS_MSTEP_CA -keystore c:\develop\tools\java\jdk1.8.0_172\jre\lib\security\cacerts -noprompt
+c:\develop\tools\java\jdk1.8.0_172\jre\bin\keytool -import -trustcacerts -file c:\develop\tools\certs\mstep_root_ca.crt -storepass changeit -alias MSTEP_CA_NEW -keystore c:\develop\tools\java\jdk1.8.0_172\jre\lib\security\cacerts -noprompt
+c:\develop\tools\java\jdk1.8.0_172\jre\bin\keytool -import -trustcacerts -file c:\develop\tools\certs\devops_mstep_ca.pem -storepass changeit -alias DEVOPS_MSTEP_CA -keystore c:\develop\tools\java\jre1.8.0_172\lib\security\cacerts -noprompt
+c:\develop\tools\java\jdk1.8.0_172\jre\bin\keytool -import -trustcacerts -file c:\develop\tools\certs\devops_mstep_ca.pem -storepass changeit -alias DEVOPS_MSTEP_CA -keystore c:\develop\tools\java\jre1.8.0_172\lib\security\cacerts -noprompt
+c:\develop\tools\java\jdk1.8.0_172\jre\bin\keytool -import -trustcacerts -file c:\develop\tools\certs\mstep_root_ca.crt -storepass changeit -alias MSTEP_CA_NEW -keystore c:\develop\tools\java\jre1.8.0_172\lib\security\cacerts -noprompt
+
+# For OpenJDK - used now for development
+c:\develop\tools\java\jdk-11.0.7+10-jre\bin\keytool -import -trustcacerts -file c:\develop\tools\certs\devops_mstep_ca.pem -storepass changeit -alias DEVOPS_MSTEP_CA -keystore c:\develop\tools\java\jdk-11.0.7+10\lib\security\cacerts -noprompt
+c:\develop\tools\java\jdk-11.0.7+10-jre\bin\keytool -import -trustcacerts -file c:\develop\tools\certs\mstep_root_ca.crt -storepass changeit -alias MSTEP_CA_NEW -keystore c:\develop\tools\java\jdk-11.0.7+10\lib\security\cacerts -noprompt
+c:\develop\tools\java\jdk-11.0.7+10-jre\bin\keytool -import -trustcacerts -file c:\develop\tools\certs\devops_mstep_ca.pem -storepass changeit -alias DEVOPS_MSTEP_CA -keystore c:\develop\tools\java\jdk-11.0.7+10-jre\lib\security\cacerts -noprompt
+c:\develop\tools\java\jdk-11.0.7+10-jre\bin\keytool -import -trustcacerts -file c:\develop\tools\certs\mstep_root_ca.crt -storepass changeit -alias MSTEP_CA_NEW -keystore c:\develop\tools\java\jdk-11.0.7+10-jre\lib\security\cacerts -noprompt
+
+These two imports have warrning:
+Warning: use -cacerts option to access cacerts keystore
+
+# Mac Android Studio we are not installing
+
+11. Maven
+Installed:
+> mvn -version
+Apache Maven 3.6.3 (cecedd343002696d0abb50b32b541b8a6ba2883f)
+Maven home: C:\develop\tools\maven\apache-maven-3.6.3\bin\..
+
+Extend the maven configurations:
+C:\develop\tools\maven\apache-maven-3.6.3\conf\settings.xml
+- of profiles
+
+c:\develop\tools\maven\apache-maven-3.6.3\conf\toolchains.xml
+- of toolchains (where is obviously missing entry for OpenJDK)
+
+Test:
+> cd ims4/Jlib
+> mvn clean --discovered issues in the configuration
+> mvn compile
+
+Issue3: Missing toolchain for OpenJDK installation which is in Java
+described as default.
+
+12. PostgreSQL
+# Installed into:
+c:\develop\tools\PostgreSQL\9.6.10-2\
+
+whereas I will be working on IMS4 mainly.
+Using default port and the password according.
+Installed also Stack Builder and installed in addition psqlODBC as test of the wizard.
+
+Changing the default service for PostgrSQL:
+> net stop postgresql-x64-9.6
+> c:\develop\tools\PostgreSQL\9.6.10-2\bin\pg_ctl.exe unregister -N postgresql-x64-9.6
+
+> c:\develop\tools\PostgreSQL\9.6.10-2\bin\pg_ctl.exe register -N PostgreSQL_IMS4 -D c:\develop\tools\PostgreSQL\projects\ims\ims4\9 -o "-p 5432"
+> net start PostgreSQL_IMS4
+
+# Configuration of Log on as Network Service:
+Open Windows Service Manager
+Change user in the Properties to "Network Service" and restart the service.
+PostgreSQL server is launched on start up of the Windows.
+
+Web interface to PgAdmin:
+http://127.0.0.1:60247/browser/#
+or launched from:
+c:\develop\tools\PostgreSQL\9.6.10-2\pgAdmin 4\bin\
+
+PgAdmin also installed - version 5.3.
+Downloaded from https://www.postgresql.org/ftp/pgadmin/pgadmin4/v5.3/windows/
+Installed into:
+c:\develop\tools\PostgreSQL\PgAdmin\
+
+# Installation of PostgreSQL for IMS4 project
+In psql shell:
+---
+Server [localhost]:
+Database [postgres]:
+Port [5432]:
+Username [postgres]:
+Password for user postgres: postgres
+psql (9.X.X)
+Type "help" for help.
+
+postgres=# CREATE ROLE ims WITH LOGIN PASSWORD 'network' SUPERUSER INHERIT CREATEDB NOCREATEROLE;
+CREATE ROLE
+postgres=# CREATE DATABASE ims  WITH OWNER = ims ENCODING = 'UNICODE' TABLESPACE = pg_default;
+CREATE DATABASE
+postgres=# \q
+Press any key to continue . . .
+---
+
+# Installation of Orafce
+> cp orafce-9.6-x64.dll to PostgreSQL\9.6.10-2\lib
+> cp orafce--3.6.sql to PostgreSQL\9.6.10-2\share
+> cp orafce.control to PostgreSQL\9.6.10-2\share
+
+psql console
+# CREATE EXTENSION orafce;
+# select 1 from dual;
+ ?column?
+----------
+        1
+(1 row)
+
+
+13. Tomcat
+Installed into:
+c:\develop\tools\tomcat\projects\ims\ims4\apache-tomcat-9.0.30\
+(just unpacked for now)
+
+14. Eclipse
+Installed into:
+c:\develop\tools\eclipse\eclipse\eclipse-jee-2020-06-R\
+
+Workspace for IMS4:
+c:\develop\tools\eclipse\workspaces\mis\sw\ims\ims4\eclipse-workspace
+
+Configuration of Eclipse (eclipse.ini):
+---cat---
+-vm
+c:\develop\tools\java\jdk-11.0.7+10\bin
+Extended also memory.
+
+Open issue: We use for our programming of IMS4 already OpenJDK?
+
+Plugins:
+    1. SonarLint
+    2. InstaSearch not compatible with this version of Eclise
+       Installed from i:\install\070-Eclipse\Plugins\eclipse plugins.zip\eclipse plugins\
+    3. Eclipse Cypyright Generator I did not succeed to install from documented URL - software not found
+       Open Isse.
+       Second attempt:
+       https://marketplace.eclipse.org/content/eclipse-copyright-generator
+       anbd from there download link:
+       https://dl.bintray.com/jmini/Eclipse-Copyright-Generator/
+       - not working
+       
+       Finally installed from local backup:
+       i:\install\070-Eclipse\Plugins\eclipse plugins.zip\
+          eclipse plugins\jmini\Eclipse-Copyright-Generator\
+
+    4. Memory Analyzer - installed from available sites
+    5. JVM Monitor - installed from http://www.jvmmonitor.org/updates/3.8
+    6. Ecore tools - not found in standard list, found in this URL (Listed here: https://www.eclipse.org/ecoretools/download.html)
+       http://download.eclipse.org/ecoretools/updates/releases/3.2.1/neon
+    7. Spring Tools 3 Add-on
+       https://marketplace.eclipse.org/content/spring-tools-3-add-spring-tools-4
+       And from there got this link which worked:
+       https://download.springsource.com/release/TOOLS/update/3.9.16.RELEASE/e4.18
+       (Version from 2020-12 (4.18)
+    8. TestNG - downloaded from URL, installed together with m2e plugin.
+       https://testng.org/testng-eclipse-update-site
+    9. m2e connector for the Maven Dependency Plugin
+       https://aneesh-joseph.github.io/m2e-maven-dependency-plugin/
+    10.e(fx)clipse 3.6.0 - installed from one of the listed URL sites
+    11.Maven Natives Integration
+       Note available in:
+       https://dl.bintray.com/fmarot/com.teamtter.mavennatives.m2eclipse.natives.site
+    12.Maven Natives Integration
+       Installed from local backup:
+       i:\install\070-Eclipse\Plugins\fmarot\com.teamtter.mavennatives.m2eclipse.natives.site\
+       
+Successfuly installed all plugins.
+Overall upgrade of Eclipse "Check for Updates",
+and also the Workspace had to be upgraded.
+
+15. Set up of workspaces in Eclipse
+General preferences
+Java
+Open issue: According previous procedure default is already pre-configured as
+jdk-11.0.7+10 - Open JDK
+As far as I know we are now on jdk1.8.0_172 so I will configure it like that.
+
+- Configured Java, format, Copyrights
+- Maven
+- Local Git Eclipse configuration I will not do, I will use for Git GitBash
+- Finished configuration of Eclipse Preferences
+
+16. Importing projects
+- did not manage to build the project
+- refreshed and reimported the projects once more and
+successfully built using Eclipse.
+
+Now we try also just build the same repo using
+cmd.
+Success using the command:
+> cd ims4
+> mvn clean install -DskipTests=true -f Parent/pom.xml
+I will try yet that unit tests which was failing by default in Eclise
+from radar package - will check my notes.
+
+
+Tried to run also tests, but some configurations are missing.
+> cd Jlib
+> mvn verify
+
+Also tests in Eclipse are failing.
+
+17. SonarLint
+Configured according procedure - Successfully.
+
+18. VSCode
+used for front-end developers.
+Not installed.
+
+19. JET
+Usede for encryption of the releases.
+Not installed.
+
+20. Running unit and integration tests
+Successfully executed unit test in the package:
+com.microstepmis.coder
+-> Run Configuration
+-> Arguments
+-> Changed working directory:
+${workspace_loc:Jlib/target/classes/com}
+
+The same test using cmd:
+> cd /c/develop/repos/mis/sw/ims/ims4/ims4/Jlib
+> mvn test -Dtest=CoderTest
+
+Now let us try to run all unit tests in Jlib.
+- running all tests in Jlib from Eclise
+a lot of failures - this attempts to run also integration tests, many are missing resources.
+Misssing clean instruction how to execute just unit tests in Jlib.
+(It must be possible due to Jenkins job configuration).
+jUnit_tests_Eclise_initiaiton_error.log
+
+Test reached deat lock when running 5389/44530 after 203 Errors and 20 Failures
+Test: com.microstepmis.radar.BackgroundMatIt - backgroundMapTest
+Console log:
+...
+test: TSWarningCfg_3areas.xml_20150805_145519_Holesov.xml
+test: TSWarningCfg_3areas.xml_20150805_145519_Holesov.xml
+test: TSWarningCfg_3areas.xml_20150812_164041_Holesov.xml
+test: TSWarningCfg_3areas.xml_20150812_164041_Holesov.xml
+xxx: 2021-06-14 11:40:59.198 UTC: NOTE: Thread Thread[Thread-26,5,main]: Logging message.
+zzz: 2021-06-14 11:40:55.201 UTC: NOTE: Message from thread Thread[main,5,main], which must not result in deadlock.
+...
+
+Integrastion tests in:
+com.microstepmis.envidb.util
+executed successfully but,
+the command line arguments as described in wiki did not work.
+We used My Oracle plus local PostgreSQL server.
+
+There were two failures in these tests:
+1. - AssertionError: EnvidbCfg.dbProfile: clima	item name: users_col_user_lineid	type: ALTER:ORA-00942: table or view does not exist
+2. - AssertionError: EnvidbCfg.dbProfile: clima	item name: users_col_user_lineid	type: ALTER:ERROR: relation "users" does not exist
+
+Yet run the same test with Maven, and then all tests.
+And then two tricky tests - one for radar transformation which failed with -e
+and one with deadlock.
+
+21. Local installation of IMS4 syststem on local Windows machine.
+Issue - in:
+p:\ims\distrib\
+are not anymore being prepared Windows distributions. The latest is from 2017.
+We try that one:
+p:\ims\distrib\000_Windows_Development_20170913\IMS40_AWOS_Lite_Setup.exe
+After the installer was verified in terminated with error - corrupted installer.
+Seems like whole:
+https://wiki.mstep/index.php/SW_Instalacia_PC_IMS4
+is obsolete.
+Should be updated.
+
+22. Java profiler
+Just created shortcut for IMS4 JDK installation:
+c:\develop\tools\java\jdk1.8.0_112\bin\jvisualvm.exe
+
+23. Summary:
+Whole dev machine was installed successfully using documented
+procedure.
+1. Installed VPN, VNC server and putty, WinSCP, emacs, Modelio and old
+Microstep UML models, Total Commander, Gimp
+2. KeyStore with new keys
+3. Notepad++
+4. Perl
+5. Cygwin
+6. Git client
+7. Libre Office
+9. MIS root certificate into Windows as well as into Firefox
+10. Java
+11. Maven
+12. PostgreSQL
+13. Tomcat
+14. Eclipse
+15. Set up of workspaces in Eclipse
+16. Importing projects
+17. SonarLint
+18. VSCode - not installed
+19. JET - not installed
+20. Running unit and integration tests
+21. Local installation of IMS4 syststem on local Windows machine.
+
+There were issues/questions about correct Java configuration.
+And about execution of the tests.
+Some blocks were completelly obsolete.
+Details are described below.
+
+Yet to create backpups and whole image backup on external HD.
+Profiling, remote debugging, SQL Developer or
+local Oracle Virtual Box with CentOS VMs
+shall be configured in course of the projects.
+
+24. Detected issues - questions
+Open issue 1:
+Which Java is actually valid, I am missing some overview
+which project is using which Java JDK and how.
+# in the procedure:
+JAVA_HOME is C:\develop\tools\java\jdk-11.0.7+10
+But in Maven configuraiton is missing toolchain
+for OpenJDK - only two toolchains are present for Oracle JDKs.
+
+In Eclipse is recommended default JDK for version
+jdk1.8.0_112 which determins syntax check in the Eclipse projects.
+But already in IMS4 Parent/pom.xml
+we have:
+<javaJDK.version>1.8_u172</javaJDK.version>
+which is clear contraindication.
+
+I would recommend to create One wiki block
+which lists actuall versions and adjacent configurations
+per project. (I volutare)
+
+Open issue 2:
+I am missing clean and working procedure how
+to execute whole unit tests of Jlib (and other packages).
+And how to run single set of tests in both:
+1. Eclipse
+2. Maven on GitBash cmd.
+
+When excuting all tests in Eclipse or using
+mvn verify
+there are many failures and Errors, test ran into dead lock.
+
+In Eclipse also integration tests are launched
+and there is no documented procedure how to
+launch just unit tests.
+In maven there is error of finding results file
+seems like not compatible with Unix path convention
+- probably not portable test.
+See attached:
+jUnit_tests_Eclise_initiaiton_error.log
+jUnit_test_failure_mvn_verify_jlib.log
+(I also voluntare to work on this, I wish to have running
+all automated tests in my environment)
+
+Dead lock which is actually released after about 10-20 minutes?
+---
+xxx: 2021-06-18 12:33:45.761 UTC: NOTE: Thread Thread[Thread-66,5,main]: Logging message.
+zzz: 2021-06-18 12:33:41.763 UTC: NOTE: Message from thread Thread[main,5,main], which must not result in deadlock.
+---
+
+Open issue 3:
+There is still procedure how to 
+install IMS4 locally on Windows.
+It is obsolete and shall be removed from installation guide.
+
+
+
