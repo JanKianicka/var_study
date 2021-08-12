@@ -1,0 +1,732 @@
+# Notes about given task:
+https://its.microstep-mis.com/issues/25061
+
+Tomá¹ová implementácia je v packagei s agentom com.microstepmis.forecast.customization.MeteogramAgent
+Dokumentácia k starému AZET projektu: https://wiki.mstep/index.php/665_SK_Azet_Predpovede
+
+https://its.microstep-mis.com/issues/22080
+1) Naive assimilation (nowcasting na 1-2-3 hodin dopredu):
+m:\Zakazky\949_Serbia_Beogradske_Elektrane_NWP\Misc\12 WRF Naive Assimilation\Naive Assimilation - Suhrn pre programatorov.docx
+2) Bias correction (dlhodoba predpoved na 48-60 hodin dopredu):
+m:\Zakazky\949_Serbia_Beogradske_Elektrane_NWP\Misc\13 WRF Bias Correction, Run 00\Bias correction - Suhrn pre programatorov.docx
+m:\Zakazky\949_Serbia_Beogradske_Elektrane_NWP\Misc\13 WRF Bias Correction, Run 00\Bias correction - Priklad pre programatorov.xlsx
+
+Interesting previous resources worthy to be checked:
+m:\Zakazky\665_SK_Azet_predpovede\
+m:\Zakazky\665_SK_Azet_predpovede\Specification\
+m:\Zakazky\665_SK_Azet_predpovede\Documentation\benestra\665_azet_info.mkv
+
+Video for support - watch it then:
+\\pluto.mstep\Management\Zakazky\79_ISO_9000\support\navody a ine dolezite veci\665_Azet_udrzba
+
+Scripts for synchronizaiton and data distribution implemented and documented by Marek Spal,
+see notes in:
+https://its.microstep-mis.com/issues/7910
+
+
+Generally interesting resources are in:
+o:\ICAO_Documents\
+o:\WMO-docs\
+
+Project resources for example for Radar development:
+p:\Radarove_oddelenie\Èlánky a knihy\
+
+This is mine resources:
+t:\janki\
+
+
+# Study and preparations
+The following topics for study:
+1. General study of IMS - notes from notebook and QA list from the session with Peter Kovac - 1 hour a day.
+2. Study of contract 949 wiki and verificaiton of installations
+3. Study of the source code
+   - document and create UML diagrams
+4. Study of algorithms and background study of methods
+
+We assume to spend 3-5 days on the preparations now.
+Meanwhile Java study.
+
+Abrevations:
+-----------
+AZET - azet a.s. fusion with Ringier Alex Springer Slovakia, a.s. - no meaning.
+WRF - Weather Research and Forecasting Model
+GFS - Global Forecast System (NOAA model - USA)
+GRIB - GRIdded Binary or General Regularly-distributed Information in Binary form
+MOS corrections - 
+
+External software and resources:
+-----------
+https://www.nco.ncep.noaa.gov/pmb/codes/GRIB1/
+https://en.wikipedia.org/wiki/GRIB
+
+Dirty collected notes:
+----------------------
+
+Operation installation machine:
+grep "=y" /opt/ims/cfg/station/profile.conf
+IMS_OS_LINUX=y
+IMS_WIND=y
+IMS_METEO=y
+IMS_PREC=y
+IMS_PRESS=y
+IMS_VISIBILITY=y
+IMS_SOLAR=y
+IMS_MSGDATABASE=y
+IMS_AMS111=y
+IMS_AWOS=y
+IMS_OBSERVER=y
+IMS_OBSERVER_TEMPG=y
+IMS_OBSERVER_PRESS=y
+IMS_UDCS_AWS=y
+IMS_BUFR=y
+IMS_CREX=y
+IMS_ENVIDB=y
+IMS_MODEL_SUITE_WRF_GFS_METEOGRAMS=y
+IMS_MODEL_SUITE_MOS=y
+
+Looks like the model suit WRF_GFS_METEOGRAM is the one.
+
+The same is isntalled also on dev machine: 10.111.1.5
+
+10.111.1.1 - is not available or is not running.
+10.111.1.2 - is not available or is not running.
+10.111.1.3 - is not available or is not running.
+
+# Structure of customer configuration for the project:
+ims4-configurations.master_665_SK_Azet_Forecast
++---ForecastBenestra
+|   |   alerts.xml
+|   |   ArchivesCfg.xml
+|   |   backupCfg.xml
+|   |   bite.xml
+|   |   biteConstants.xml
+|   |   cfgAwd.xml
+|   |   CfgCssStyle.xml
+|   |   cfgFormulas.xml
+|   |   cfgFormulasDefault.xml
+|   |   CfgOracleTableSpaceMonitorAgent.xml
+|   |   cfgPageFramework.xml
+|   |   cfgR.xml
+|   |   CfgSites.xml
+|   |   cfgStyle.xml
+|   |   Communication.xml
+|   |   CurrentDataAgentCfg.xml
+|   |   CurrentDataCsvAgentCfg.xml
+|   |   CurrentDataReaderAgentCfg.xml
+|   |   datalogExport.xml
+|   |   DBConnectionCfg.xml
+|   |   DBConnectionCfgToActual.xml
+|   |   DBCreateCfg_local.xml
+|   |   DBCreateCfg_qc.xml
+|   |   DBPoolConnectionCfg.xml
+|   |   DeleterCfg.xml
+|   |   Distribution.xml
+|   |   EnviDBConnectionCfg.xml
+|   |   FileArchiverConfig.xml
+|   |   FileArchiverTypes.xml
+|   |   fileCountCheck.xml
+|   |   FileInserterCfg.xml
+|   |   FoldersCfg.xml
+|   |   formulas.xml
+|   |   ha.xml
+|   |   HitCounter.xml
+|   |   i18n.xml
+|   |   id
+|   |   ims.acl
+|   |   jdmk_manager.security
+|   |   limits.xml
+|   |   MaintenanceConfig.xml
+|   |   MapsSender.xml
+|   |   MessageBriefingCfg.xml
+|   |   MessageRouterCfg.xml
+|   |   MessageTemplateCfg.xml
+|   |   middleeast.png
+|   |   msgOthers.xml
+|   |   node.xml
+|   |   PhenomenaConfig.xml
+|   |   profile.conf
+|   |   rvr.xml
+|   |   security.xml
+|   |   sites.xml
+|   |   snmpd.local.xml
+|   |   station.xml
+|   |   stations.xml
+|   |   TimeZones.xml
+|   |   upgrade_local.sh
+|   |   userManagement.xml
+|   |
+|   +---bin
+|   |       checkPrecProbGFS.sh
+|   |       chkGrib2Grids.awk
+|   |       chkGrib2Times.awk
+|   |       gfs_dwnl_UV-index.sh
+|   |       gfs_dwnl_UV-index_cronjob.sh
+|   |       gribDownloader.sh
+|   |       gribDownloaderDev.sh
+|   |       gribDownloader_bkp20170302-1450.sh
+|   |       gribDownloader_bkp20170302-1452.sh
+|   |       gribDownloader_bkp20170303-0012.sh
+|   |       gribDownloader_bkp20170314-2215.sh
+|   |       gribWRFConvertor.sh
+|   |       isGrib2FileCorrect.sh
+|   |       makeGfsPrecipProbabs.sh
+|   |       makeGfsPrecipProbabsDeaccum.sh
+|   |       makeGfsPrecipProbabs_bkp20170314-2208.sh
+|   |       makePrecIndicatorsWRF.sh
+|   |       makePrecIndicatorsWRF_bkp20170315-2136.sh
+|   |       makePrecIndicatorsWRF_dev.sh
+|   |       makePrecIndicatorsWRF_non-deaccum.sh
+|   |       scheduleGfsPrecipProbabs.sh
+|   |       scheduleGfsPrecipProbabsDeacc.sh
+|   |       tmp_prec_prob_gfs_w5R317MWAu.tiff
+|   |       wgrib2ProdsLstRef_Azet665_GFS_000_verboseSorted.lst
+|   |       wgrib2ProdsLstRef_Azet665_GFS_xyz_verboseSorted.lst
+|   |
+|   +---CalculateAnalysis
+|   |       Maps.xml
+|   |
+|   +---cfg
+|   |       progs.xml
+|   |
+|   +---forecast
+|   |   |   coreStationsProcessor.xml
+|   |   |   coreStationsProcessorWRF.xml
+|   |   |   getForecastCfg.xml
+|   |   |   MeteogramAgentCfg.xml
+|   |   |   MoveGFSgribFilesAgentCfg.xml
+|   |   |   outputBiteCheck.xml
+|   |   |   UV_getForecastCfg.xml
+|   |   |   variableIntervalRules.csv
+|   |   |   worldSkLocations.xml
+|   |   |   WRF_getForecastCfg.xml
+|   |   |   WRF_SKLocations.xml
+|   |   |
+|   |   \---MOS
+|   |       |   ForecastMOSFilterCfg.xml
+|   |       |
+|   |       \---filters
+|   |           +---GFS_00
+|   |           |       MOS_GFS_00_Cld_0_Amt_Part_1.xml
+|   |           |       MOS_GFS_00_Prec_YesNo_Part_1.xml
+|   |           |       MOS_GFS_00_Rel_Hum_Part_1.xml
+|   |           |       MOS_GFS_00_Tmp_Dry_Part_1.xml
+|   |           |       MOS_GFS_00_Tmp_Dry_Part_2.xml
+|   |           |       MOS_GFS_00_Wind_UU_Part_1.xml
+|   |           |       MOS_GFS_00_Wind_VV_Part_1.xml
+|   |           |
+|   |           +---GFS_06
+|   |           |       MOS_GFS_06_Cld_0_Amt_Part_1.xml
+|   |           |       MOS_GFS_06_Prec_YesNo_Part_1.xml
+|   |           |       MOS_GFS_06_Rel_Hum_Part_1.xml
+|   |           |       MOS_GFS_06_Tmp_Dry_Part_1.xml
+|   |           |       MOS_GFS_06_Tmp_Dry_Part_2.xml
+|   |           |       MOS_GFS_06_Wind_UU_Part_1.xml
+|   |           |       MOS_GFS_06_Wind_VV_Part_1.xml
+|   |           |
+|   |           +---GFS_12
+|   |           |       MOS_GFS_12_Cld_0_Amt_Part_1.xml
+|   |           |       MOS_GFS_12_Prec_YesNo_Part_1.xml
+|   |           |       MOS_GFS_12_Rel_Hum_Part_1.xml
+|   |           |       MOS_GFS_12_Tmp_Dry_Part_1.xml
+|   |           |       MOS_GFS_12_Tmp_Dry_Part_2.xml
+|   |           |       MOS_GFS_12_Wind_UU_Part_1.xml
+|   |           |       MOS_GFS_12_Wind_VV_Part_1.xml
+|   |           |
+|   |           +---GFS_18
+|   |           |       MOS_GFS_18_Cld_0_Amt_Part_1.xml
+|   |           |       MOS_GFS_18_Prec_YesNo_Part_1.xml
+|   |           |       MOS_GFS_18_Rel_Hum_Part_1.xml
+|   |           |       MOS_GFS_18_Tmp_Dry_Part_1.xml
+|   |           |       MOS_GFS_18_Tmp_Dry_Part_2.xml
+|   |           |       MOS_GFS_18_Wind_UU_Part_1.xml
+|   |           |       MOS_GFS_18_Wind_VV_Part_1.xml
+|   |           |
+|   |           +---WRF_00
+|   |           |       MOS_WRF_00_Cld_0_Amt.xml
+|   |           |       MOS_WRF_00_Prec_YesNo.xml
+|   |           |       MOS_WRF_00_Rel_Hum.xml
+|   |           |       MOS_WRF_00_Tmp_Dry.xml
+|   |           |       MOS_WRF_00_Wind_UU.xml
+|   |           |       MOS_WRF_00_Wind_VV.xml
+|   |           |
+|   |           \---WRF_12
+|   |                   MOS_WRF_12_Cld_0_Amt.xml
+|   |                   MOS_WRF_12_Prec_YesNo.xml
+|   |                   MOS_WRF_12_Rel_Hum.xml
+|   |                   MOS_WRF_12_Tmp_Dry.xml
+|   |                   MOS_WRF_12_Wind_UU.xml
+|   |                   MOS_WRF_12_Wind_VV.xml
+|   |
+|   +---htmlgui
+|   |       index_WRF_GFS.xml
+|   |
+|   +---Rscripts
+|   |       Interpolate.R
+|   |       R
+|   |       README
+|   |       RscriptMIS
+|   |       Variables.csv
+|   |
+|   \---scripts
+|           downloadForecast.sh
+|           gfsForecast.sh
+|           processForecast.sh
+|
++---ForecastDev1
+|       Communication.xml
+|
++---ForecastDev5
+|       Communication.xml
+|       simulationCfg.xml
+|
++---Locations
+|       allLocations.csv
+|       README.txt
+|
+\---Synop
+    \---bin
+            LMSSynop.sh
+            LMSSynop3Hours.sh
+            LMSSynopHour.sh
+            LMSSynopYesterday.sh
+            ro.txt
+
+# Content of cfg/progs.xml - agents and processes which are running on the installation
+   1. SimulationManagerAgent
+   2. MeteogramWRFAgent
+   3. MeteogramUVIndexAgent
+   4. MeteogramAgent
+   5. CurrentDataReaderAgent
+   6. ReCalculationAgent
+   7. InterpolationRAgent
+   8. MeteogramDailyAgent
+   9. ActualDataAgent
+   10. RAgent
+
+All IMS agents can be checked here: https://10.111.1.5:8443/ims/html/admin/sin.html
+
+# Structure of customer configuration for the project 949 Beograd
+There is no correspodning branch in the ims4-configuration repoository
+- seems like the product was not yet developed/delivered.
+
+# In-out folders for the solution:
+ - owned by root (by IMS4 system running as root)
+/opt/ims/data/forecastGrib
+/opt/ims/data/forecastGriballLocations.csv
+/opt/ims/data/forecastGrib/RData
+/opt/ims/data/forecastGrib/RData/2021/08/10/00/ActualData/  -- data for R kriging interpolation  in/out
+/opt/ims/data/forecastGrib/RData/2021/08/10/00/ActualData/Input_78_1628553600000_1628553600000_AA.csv
+...
+/opt/ims/data/forecastGrib/RData/2021/08/10/00/ActualData/Grid.csv
+/opt/ims/data/forecastGrib/RData/2021/08/10/00/ActualData/Input_10000_Informative.csv
+/opt/ims/data/forecastGrib/RData/2021/08/10/00/ActualData/out
+/opt/ims/data/forecastGrib/RData/2021/08/10/00/ActualData/out/Output_78_1628553600000_1628553600000_AA.csv
+...
+/opt/ims/data/forecastGrib/RData/2021/08/10/00/ActualData/out/Output_10000_Informative.csv
+/opt/ims/data/forecastGrib/inputForecastGFS
+/opt/ims/data/forecastGrib/inputForecastGFS/2021/08/10/ - looks like temporally folder
+/opt/ims/data/forecastGrib/outputForecast
+/opt/ims/data/forecastGrib/outputForecast/packDayToDirs.sh - the script cleaning and back up the results
+/opt/ims/data/forecastGrib/outputForecast/2021/08/10/00/world_actual.zip - locally stored results for Azet
+/opt/ims/data/forecastGrib/outputForecast/2021/08/10/00/SK_actual.zip
+/opt/ims/data/forecastGrib/outputForecast/2021/08/10/SK_locations/ - looks like temporal folders
+/opt/ims/data/forecastGrib/outputForecast/2021/08/10/WRD_locations/
+/opt/ims/data/forecastGrib/RDataProductionSync - the same structure but different data as in RData
+/opt/ims/data/forecastGrib/RDataProductionSync/2021/08/10/00/ActualData/
+/opt/ims/data/forecastGrib/RDataProductionSync/2021/08/10/00/ActualData/out
+/opt/ims/data/forecastGrib/RDataProductionSync/2021/08/10/00/ActualData/out/Output_10000_Informative.csv
+/opt/ims/data/forecastGrib/RDataProductionSync/2021/08/10/00/ActualData/out/Output_78_1628553600000_1628553600000_AA.csv
+...
+/opt/ims/data/forecastGrib/RDataProductionSync/2021/08/10/00/ActualData/Grid.csv
+/opt/ims/data/forecastGrib/RDataProductionSync/2021/08/10/00/ActualData/Input_10000_Informative.csv
+/opt/ims/data/forecastGrib/RDataProductionSync/2021/08/10/00/ActualData/Input_78_1628553600000_1628553600000_AA.csv
+...
+/opt/ims/data/forecastGrib/DataBeforeManualEdit - these data contain just 'Informative' and retain only last two hours
+seems like this does not exist, does not run on the DEV machine.
+/opt/ims/data/forecastGrib/DataBeforeManualEdit/2021/08/10/05/
+/opt/ims/data/forecastGrib/DataBeforeManualEdit/2021/08/10/05/Input_78_Informative.csv
+/opt/ims/data/forecastGrib/DataBeforeManualEdit/2021/08/10/05/Input_1585_Informative.csv
+/opt/ims/data/forecastGrib/DataBeforeManualEdit/2021/08/10/05/Input_1102_Informative.csv
+...
+/opt/ims/data/forecastGrib/DataBeforeManualEditProductionSync - this folder exist only on dev machine
+/opt/ims/data/forecastGrib/DataBeforeManualEditProductionSync/2021/08/10/05/
+/opt/ims/data/forecastGrib/DataBeforeManualEditProductionSync/2021/08/10/05/Input_78_Informative.csv
+/opt/ims/data/forecastGrib/DataBeforeManualEditProductionSync/2021/08/10/05/Input_79_Informative.csv
+....
+/opt/ims/data/forecastWRF - seems like input WRF data stored here
+/opt/ims/data/forecastWRF/2021081000/d03_ll/
+/opt/ims/data/forecastWRF/2021081000/d03_ll/WRFPRS_d03_ll.32
+/opt/ims/data/forecastWRF/2021081000/d03_ll/WRFPRS_d03_ll.43
+/opt/ims/data/forecastWRF/2021081000/d03_ll/WRFPRS_d03_ll.23
+/opt/ims/data/forecastWRF/2021081000/d03_ll/sha1sum_m05_b.lst
+...
+/opt/ims/data/forecastWRF/2021081000/d03_tsl/
+/opt/ims/data/forecastWRF/2021081000/d03_tsl/ZnHrn.d03.TS
+/opt/ims/data/forecastWRF/2021081000/d03_tsl/BaKol.d03.TS
+/opt/ims/data/forecastWRF/2021081000/d03_tsl/OW856.d03.TS
+...
+/opt/ims/data/forecastWRF/2021080800
+/opt/ims/data/forecastWRF/2021080812
+/opt/ims/data/forecastWRF/20210808122021080812 - empty
+/opt/ims/data/forecastUV - seems like UV gribs from some prediction model
+/opt/ims/data/forecastUV/202101
+/opt/ims/data/forecastUV/202108/0812/uv.t12z.grbf120.grib1
+/opt/ims/data/forecastUV/202108/0812/uv.t12z.grbf120.grib2
+...
+/opt/ims/data/maps - output maps
+/opt/ims/data/maps/daily_min_temperature_0.png
+/opt/ims/data/maps/daily_max_temperature_0.png
+...
+/opt/ims/data/maps/SendMaps/daily_min_temperature_0.png
+/opt/ims/data/maps/SendMaps/daily_min_temperature_1.png
+/opt/ims/data/precIndicators - looks like special extracted precition indicateors from WRF
+/opt/ims/data/precIndicators/GFS/2021/08/10/ - empty, looks like temporal
+/opt/ims/data/precIndicators/WRF/2021/08/10/wrf_00_01.xml
+/opt/ims/data/precIndicators/WRF/2021/08/10/wrf_00_01.tiff
+/opt/ims/data/CurrentDataCsv - up to 100 000 probably temporal CSV files
+/opt/ims/data/CurrentDataCsv/202108100846_00_883_M.csv - one line of data stored as CSV
+/opt/ims/data/precProbSched - looks like cache for IMS4 processes or some scripts
+/opt/ims/data/precProbSched/tmp
+/opt/ims/data/precProbSched/todo
+/opt/ims/data/precProbSched/active-1
+/opt/ims/data/precProbSched/done
+/opt/ims/data/precProbSched/done/201702_jobs.tar.xz
+...
+/opt/ims/data/precProbSched/failed
+/opt/ims/data/precProbSched/dead
+/opt/ims/data/precProbSched/dead/gfsPrecipProbab_sM_r2017022306_f132_v1_t20170223-174721832_ubJN1nL.job-1-act
+...
+/opt/ims/data/precProbSched/clash
+
+/model_data/opt/wrf/modelAZ/LMSSynop/Synop/ - looks like storage of either in or out synop messages
+/model_data/opt/wrf/modelAZ/LMSSynop/Synop/21/08/synop_9_21081000
+
+
+# Owned by Azet user - exist only on production machine and is where the data are
+retrieved
+ - contains only the last published data for the customer
+/home/azet/WRD_locations/world_actual.zip
+/home/azet/WRD_locations/world_fcst_daily.zip
+/home/azet/WRD_locations/world_fcst_hourly.zip
+/home/azet/SK_locations/SK_actual.zip
+/home/azet/SK_locations/SK_fcst_daily.zip
+/home/azet/SK_locations/SK_locations
+/home/azet/SK_locations/SK_locations/SK_actual.zip
+/home/azet/SK_locations/SK_locations/SK_fcst_daily.zip
+/home/azet/SK_locations/SK_locations/SK_fcst_hourly.zip
+/home/azet/SK_locations/SK_fcst_hourly.zip
+/home/azet/maps/daily_avg_wind_speed_0.png
+/home/azet/maps/daily_max_uv_index_2.png
+/home/azet/maps/daily_avg_wind_speed_2.png
+/home/azet/maps/daily_sum_precipitation_4.png
+/home/azet/maps/daily_sum_precipitation_1.png
+/home/azet/maps/daily_max_uv_index_0.png
+/home/azet/maps/daily_max_temperature_0.png
+/home/azet/maps/daily_max_uv_index_1.png
+/home/azet/maps/daily_avg_wind_speed_4.png
+/home/azet/maps/daily_avg_wind_speed_3.png
+/home/azet/maps/daily_avg_wind_speed_1.png
+/home/azet/maps/daily_sum_precipitation_0.png
+/home/azet/maps/daily_max_uv_index_3.png
+/home/azet/maps/daily_max_temperature_1.png
+/home/azet/maps/daily_min_temperature_0.png
+/home/azet/maps/daily_sum_precipitation_2.png
+/home/azet/maps/daily_min_temperature_3.png
+/home/azet/maps/daily_max_temperature_4.png
+/home/azet/maps/daily_max_temperature_2.png
+/home/azet/maps/daily_max_temperature_3.png
+/home/azet/maps/daily_min_temperature_1.png
+/home/azet/maps/daily_sum_precipitation_3.png
+/home/azet/maps/daily_max_uv_index_4.png
+/home/azet/maps/daily_min_temperature_2.png
+/home/azet/maps/daily_min_temperature_4.png
+
+
+# Content of crontabs on running dev and production machines per user:
+Development (backup of operations) - 10.111.1.5:
+root:
+----
+20 04 * * * /opt/ims/bin/service_report.sh > /opt/ims/service/last_report
+# Toto stahovanie sa uz nerobi pod root - neodkomentovavat len tak! mareks@2017-05-16
+# */10 * * * * /opt/ims/cfg/station/bin/gribDownloader.sh >> /opt/ims/log/gfs_download_data`date +\%Y\%m\%d`.cron 2>&1
+# Toto stahovanie sa uz nerobi pod root - neodkomentovavat len tak! mareks@2017-05-16
+# */5 * * * *    /opt/ims/cfg/station/bin/gfs_dwnl_UV-index_cronjob.sh >>/opt/ims/log/`date --utc +\%Y\%m\%d`_dwnl_gfs_UV-index_cronjob.log 2>&1
+#*/5 * * * * /opt/ims/cfg/station/bin/gribWRFConvertor.sh >> /opt/ims/log/wrf_convert_data`date +\%Y\%m\%d`.cron 2>&1
+*/5 * * * *    /opt/ims/cfg/station/bin/makePrecIndicatorsWRF.sh >>/opt/ims/log/`date --utc +\%Y\%m\%d`_make_Prec_Indicators_WRF_cronjob.log 2>&1
+#*/15 * * * * /usr/bin/sync && /usr/bin/echo 3 > /proc/sys/vm/drop_caches
+*/1 * * * * /root/monitor.sh
+11 21 * * * /opt/geoserver_data/scripts/get_maps12.sh $(date -u +\%Y/\%m/\%d) >> /opt/ims/log/$(date -u +\%Y/\%m/\%d)/get_maps12.log 2>&1
+#45 9 * * * /opt/geoserver_data/scripts/get_maps12.sh $(date -u +\%Y/\%m/\%d) >> /opt/ims/log/$(date -u +\%Y/\%m/\%d)/get_maps12.log 2>&1
+#stahovanie Synopov
+35 * * * *   /model_data/opt/wrf/modelAZ/LMSSynop/LMSSynopHour.sh >> /dev/null 2>&1
+42 * * * * /opt/SnmpdCheck.sh
+40 * * * * /opt/NtpdCheck.sh
+0 */12 * * * /opt/ims/cfg/station/scripts/deleteFiles.sh
+
+ims:
+no crontab for ims
+
+infls_dwnl:
+*/10 * * * * /opt/ims/cfg/station/bin/gribDownloader.sh >> /opt/ims/log/gfs_download_data`date +\%Y\%m\%d`.cron 2>&1
+*/5 * * * *    /opt/ims/cfg/station/bin/gfs_dwnl_UV-index_cronjob.sh >>/opt/ims/log/`date --utc +\%Y\%m\%d`_dwnl_gfs_UV-index_cronjob.log 2>&1
+
+infls_sync:
+#*/5 * * * *    /opt/ims/cfg/station/bin/gfs_dwnl_UV-index_cronjob.sh >>/opt/ims/log/`date --utc +\%Y\%m\%d`_dwnl_gfs_UV-index_cronjob.log 2>&1
+# teraz to bezi pod infls_dwnl
+
+shiny:
+no crontab for shiny
+
+shinysync:
+*/15 * * * * /home/shinysync/taskSyncBenestraRdata_cron.sh
+*/15 * * * * /home/shinysync/taskSyncBenestraDataBeforeManualEdit_cron.sh
+
+sim1_upl:
+no crontab for sim1_upl
+
+
+Operations machine - 85.248.214.146:
+root:
+----
+20 04 * * * /opt/ims/bin/service_report.sh > /opt/ims/service/last_report
+*/10 * * * *   /opt/ims/cfg/station/bin/gribDownloader.sh >> /opt/ims/log/gfs_download_data`date +\%Y\%m\%d`.cron 2>&1
+*/5 * * * *    /opt/ims/cfg/station/bin/gfs_dwnl_UV-index_cronjob.sh >>/opt/ims/log/`date --utc +\%Y\%m\%d`_dwnl_gfs_UV-index_cronjob.log 2>&1
+# makePrecIndicatorsWRF.sh ma riadne ukecane logy, aj ked nic nerobi
+*/5 * * * *    /opt/ims/cfg/station/bin/makePrecIndicatorsWRF.sh >>/opt/ims/log/`date --utc +\%Y\%m\%d`_make_Prec_Indicators_WRF_cronjob.log 2>&1
+11 21 * * * /opt/geoserver_data/scripts/get_maps12.sh $(date -u +\%Y/\%m/\%d) >> /opt/ims/log/$(date -u +\%Y/\%m/\%d)/get_maps12.log 2>&1
+#stahovanie Synopov
+35 * * * *   /model_data/opt/wrf/modelAZ/LMSSynop/LMSSynopHour.sh >> /dev/null 2>&1
+# stahovanie pre Energie2 (docasne/nahradne riesenie, momentalne deaktivovane)
+#*/10 * * * * /opt/download/gfs_energie2_050/download_gfs_0p50_energie2_cron.sh
+#*/10 * * * * /opt/download/gfs_energie2_025/download_gfs_0p25_energie2_cron.sh
+#
+40 * * * * /opt/NtpdCheck.sh
+42 * * * * /opt/SnmpdCheck.sh
+
+ims:
+no crontab for ims
+
+user `infls_dwnl' unknown
+
+user `infls_sync' unknown
+
+user `shiny' unknown
+
+shinysync:
+no crontab for shinysync
+
+sim1_upl:
+no crontab for sim1_upl
+
+# Documentation in M disk for 665 project - essential stuff
++---Acceptance
++---Agreement
++---Documentation
+|   +---benestra
+|   \---CentOS-Installation
++---Mail
++---Misc
+|   +---backup
+|   +---GFS_0.25deg_archive
+|   +---makeshiftDownloading
+|   +---SQL    -seems like locations have to be insterted into a database
+|   |       elevation.txt
+|   |       elevation2.txt
+|   |       Kópia - worldLocations_full_Stanice_only_cast1a.xls
+|   |       latitude.txt
+|   |       latitude2.txt
+|   |       LMSSynop.sh
+|   |       LMSSynopMonth.sh
+|   |       long.txt
+|   |       long2.txt
+|   |       Regions.txt
+|   |       Regions2.txt
+|   |       regionstable.txt
+|   |       regionstable2.txt
+|   |       stationCCCC.txt
+|   |       stations.txt
+|   |       stationslist.txt
+|   |       stationslist2.txt
+|   |       stationWMOIndex.txt
+|   |       stationWMOIndex2.txt
+|   |       worldLocations_full_Stanice_cast2a.xls
+|   \---verification_SK_spatial_average
++---Offer
++---Plan
++---Product
++---Report
++---Specification
+|   |   datovy_balik-3_upr podl web_preLaca_fcst.xlsx - seems like visual of Azet with the forecast
+|   |   idslovaklocations-1.xml   - seems like locations of stations, points for the forecast
+|   |   idworldlocations_1.xml
+|   |   Metodika MOS - vseobecny popis v01.docx - brief definition of MOS correction (print this)
+|   +---chybyAccuWeather
+|   |   \---pochybne predpovede
+|   +---chybyAzet
+|   +---data_flows
+|   |       dataFlow5.pptx  - data flow with status of development in 2016, interesting (print)
+|   +---geonames
+|   |   |   timezones.txt
+|   |   +---cities15000
+|   |   \---SK
+|   +---ikonka
+|   |       Decision tree - AZET predpovede, v14_PN.docx  - decision tree for ikons and hour indicators (print)
+|   |       ikon_dly.docx - daily icon specification
+|   |       present weather5.xlsx - present weather icon specification for Synop manual, Synop auto, Metar
+|   +---Lokality_geobloky
+|   |   \---Pics by geoblock
+|   |   |   Europe.pdf
+|   |   |   World.pdf
+|   +---Lokality_krajiny kde treba dekodovat viac meranych dat - analyza
+|   |       Countries_decoded_stat.xlsx  - countries and details about stations, weights
+|   +---Lokality_new
+|   |       allLocations.v8.csv
+|   |       allLocations.v8.readme.txt
+|   |       allLocations.v8.xlsx
+|   +---MOS analyza - Koeppenova klasifikacia
+|   |   |   Chen 2013. Using the Köppen classification to quantify climate variation and change.pdf - paper
+|   |   +---data
+|   |   \---figures
+|   +---MOS analyza - Literatura
+|   |       Glahn 1972. The use of MOS in objactive weather forecast.pdf - essential paper about the MOS clasificaiton (print)
+|   |       ... and about 70 additional papers, whole set for Tomas's master theses.
+|   +---MOS analyza GFS
+|   |   +---MOS_GFS_SR_Actual_1hr_End_20160905
+|   |   +---MOS_GFS_SR_Histogram_of_Residuals
+|   |   +---MOS_GFS_SR_Prec_24h
+|   |   +---MOS_GFS_SR_Robust_End_20160905
+|   |   |   \---MOS_Exported_to_TXT
+|   |   \---MOS_GFS_SR_Robust_Robust
+|   |       +---MOS_Exported_to_TXT_Var_5
+|   |       \---MOS_Exported_to_TXT_Var_8
+|   |           +---GFS_00
+|   |           +---GFS_06
+|   |           +---GFS_12
+|   |           \---GFS_18  - these are just examples of stored results
+|   |       explanation.txt
+|   +---MOS analyza SVET
+|   |   +---0 Ukazka korekcii
+|   |   +---1 Siroky rozptyl OBS
+|   |   +---2 Siroky rozptyl FCST
+|   |   +---3 Velky rozptyl bodov
+|   |   +---4 Cudne ohranicene zhluky bodov
+|   |   +---5 Nizky sklon - pod 0.3
+|   |   +---6 Dva rozdielne zhluky bodov
+|   |   \---7 Ostatne
+|   +---MOS analyza WRF
+|   |   +---MOS_WRF_SR_Actual_1hr
+|   |   |   \---MOS_Exported_to_TXT
+|   |   |       +---WRF_00
+|   |   |       \---WRF_12
+|   |   +---MOS_WRF_SR_Robust
+|   |   |   \---MOS_Exported_to_TXT
+|   |   |       +---WRF_00
+|   |   |       \---WRF_12
+|   |   +---MOS_WRF_SR_Robust_ReducedError
+|   |   +---Porovnanie vysledkov
+|   |   \---Porovnanie vysledkov 2
+|   +---pocitova teplota
+|   |   |   Pocitova teplota.docx - specificaiton for amient seinsible temperature (print)
+|   |   |   Pocitova teplota.pdf
+|   +---porada20161107
+|   +---premenne
+|   |       Variables.csv
+|   +---Ruska pobocka
+|   |       AZET_Forecaster_Guide.docx   - these are essential document updated in 2020 (print these)
+|   |       AZET_Forecaster_Guide_Admin.docx
+|   |       AZET_Forecaster_Guide_verB.docx
+|   |       Azet_Icons.xlsx
+|   |       Decision tree - AZET predpovede, v14_PN_EN.docx
+|   |       Feel temperature.docx
+|   |       ikon_dly.docx
+    \       ikon_dly_EN.docx
+|   +---R_in_Azet_prezentation
+|   |       About_R_&_kriging_code.ppt
+|   +---UV
+|   |       UVIGuide.pdf  - Ultra violet radiation WHO, WMO general guide with icons
+|   \---ZA chybna predpoved
+|       +---20170309
+|       \---20170310
+\---Supply
+
+
+
+
+# Strucure and content of the documentation for both projects
+First read the content of the wiki page for 665 carefully, print the graph and try to understand whole concept
+including in-out data.
+Only then proceed to the documentation, samples and then to the source code.
+Meanwhile study background - try once again VirtualVM connection and other stuff which is neccessary to study.
+- finished ssh tunneling to the database, and
+  reading of wiki until 'Stahovanie Synopov a Metarov'
+  Do not have access to wiki2 where Belehrad contract is managed - to be arranged.
+Accomplished reading of wiki, now we look at the video and will
+read the Belehrad specificaiton and collect the tree of
+documentation for Azet and Belehrad.
+Accomplish yet documentation collection for 665 and 994 Management
+and colllect and print the essentials - particularly the documents for Russian branch, make order in
+our local project tree.
+(Tomorrow)
+
+
+
+Open questions:
+1. What is the state of turned-off development machines?
+2. Why 949 branch does not exist in ims4-configuraiton repositories - which configuration was delivered actualy as part of the oproject?
+3. The configuration in master_665_SK_Azet_Forecast branch contains a lot source code - all scripts.
+In order to make it testable, portable - it needs to be moved to the source code - in Jlib.
+Installed as part of standard installation and crontabs should be updated.
+4. Are crontabs tracked somewhere and deployed automatically?
+5. What is 'model05'?
+6. MOS coprrection is integrated with CLDB somehow, why and how?
+Why we are using CLDB?
+7. Where are stored and documented GeoServer scripts generating Azet maps,
+which repository? I have not found them in the ims4-configuration nor in Jlib repositories.
+There is dependency on GeoServer and gdal library. Where is documentation, installation procedure?
+(Ask Peter Sisan - who took over from Marek Spal)
+- write email tomorrow
+
+8. fail2ban-server, fail2ban-client are installed and configured only on the operations machine
+85.248.214.146.
+9. Do we have statistical software R integrated in Jlib, have we installation scripts, procedures
+documented somewhere, do we have eventually unit/integration tests running R scripts?
+10. In the AZET Forecast Guide there is mentioned that if the operations
+machine in Benestra will fail, that the forecasters have VPN access to our DEV/Backup machine.
+Questions are:
+All forecasters have VPN access?
+All other dev machines are turned off - how we can do development on the backup server?
+Dev machine is different, there is e.g. Skiny server, have different crontabs.
+11. In data flows for Slovakia there is mentioned:
+- calculation of derived variables (Vypocte odvodenych velicin) - what are these, where I find them?
+- locations without measurement (Lat, lon lokalit bez merania) - what are these, where I find them?
+12. Calucaiton of wheather icons - what is meaning of:
+Icon.Dly (1.-5.day = 1h data)
+Icon.Dly (6.-11.day = mix 1h, 3h, 12h data)
+
+13. Calcuaiton of weather icons - what is logic behind 'hogher, lower ID of the icon', is there
+some documentation about this?
+
+
+
+
+
+
+
+
+Open issues:
+1. On the first glance there is a lot of script code and R code in the
+configuration - this is not good, not code mingled with configuration
+is desired.
+2. It seems that on dev machine was deployed newer version which
+brought different permissions schema - Linux users 'infls_dwnl',
+'infls_sync' and 'shiny' do not exist in operations environment.
+3. /opt/ims/data/forecastGrib/outputForecast/packDayToDirs.sh - on dev machine not stored in git.
+4. Could not connect to Benestra Could provider with the provided URL and credentials.
+5. On the production machine does not directory /model_data/665_azet, but only:
+/model_data/opt/wrf/modelAZ/LMSSynop/ - does it contain the same results?
+6. Documented OutputGeneratorAgent does not exist - there is class OutputCreator used by all agents.
+7. Why is missing 'WRD / GFS Meteogram Generation' BITE block in DEV machine?
+8. The BITE block 'Meogram-Station with missing values' is different on OPS and DEV machine, how it can be?
+
+
+
