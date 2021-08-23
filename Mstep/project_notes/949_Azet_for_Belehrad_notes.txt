@@ -23,18 +23,6 @@ Scripts for synchronizaiton and data distribution implemented and documented by 
 see notes in:
 https://its.microstep-mis.com/issues/7910
 
-
-Generally interesting resources are in:
-o:\ICAO_Documents\
-o:\WMO-docs\
-
-Project resources for example for Radar development:
-p:\Radarove_oddelenie\Èlánky a knihy\
-
-This is mine resources:
-t:\janki\
-
-
 # Study and preparations
 The following topics for study:
 1. General study of IMS - notes from notebook and QA list from the session with Peter Kovac - 1 hour a day.
@@ -52,14 +40,14 @@ AZET - azet a.s. fusion with Ringier Alex Springer Slovakia, a.s. - no meaning.
 WRF - Weather Research and Forecasting Model
 GFS - Global Forecast System (NOAA model - USA)
 GRIB - GRIdded Binary or General Regularly-distributed Information in Binary form
-MOS corrections - 
+MOS corrections - Model Output Statistic Corrections
 
 External software and resources:
 -----------
 https://www.nco.ncep.noaa.gov/pmb/codes/GRIB1/
 https://en.wikipedia.org/wiki/GRIB
 
-Dirty collected notes:
+Collected notes about 665 Azet and 949 Beograd:
 ----------------------
 
 Operation installation machine:
@@ -401,6 +389,100 @@ seems like this does not exist, does not run on the DEV machine.
 /model_data/opt/wrf/modelAZ/LMSSynop/Synop/ - looks like storage of either in or out synop messages
 /model_data/opt/wrf/modelAZ/LMSSynop/Synop/21/08/synop_9_21081000
 
+# GeoServer data - for maps generation
+/opt/geoserver_data
+/opt/geoserver_data/coverages
+/opt/geoserver_data/data/azet
+/opt/geoserver_data/data/tmp
+ -- output maps
+/opt/geoserver_data/data/daily_avg_wind_speed
+/opt/geoserver_data/data/daily_max_temperature
+/opt/geoserver_data/data/daily_min_temperature
+/opt/geoserver_data/data/daily_sum_precipitation
+/opt/geoserver_data/data/daily_max_uv_index
+/opt/geoserver_data/data/wafs_grib
+ -- shape files
+/opt/geoserver_data/data/azet/podklad/ne_50m_populated_places_simple_europe.shp
+/opt/geoserver_data/data/azet/podklad/geograficke_nazvy.shp
+/opt/geoserver_data/data/azet/podklad/ne_50m_admin_0_countries_europe.shp
+/opt/geoserver_data/data/azet/podklad/graticules_10.shp
+/opt/geoserver_data/data/azet/podklad/ne_50m_ocean_europe.shp
+/opt/geoserver_data/data
+/opt/geoserver_data/demo
+/opt/geoserver_data/grib_cache
+/opt/geoserver_data/gwc
+/opt/geoserver_data/gwc-layers
+/opt/geoserver_data/layergroups
+/opt/geoserver_data/legendsamples
+/opt/geoserver_data/logs
+/opt/geoserver_data/logs/QUIET_LOGGING.properties
+/opt/geoserver_data/logs/GEOTOOLS_DEVELOPER_LOGGING.properties
+/opt/geoserver_data/logs/TEST_LOGGING.properties
+/opt/geoserver_data/logs/GEOSERVER_DEVELOPER_LOGGING.properties
+/opt/geoserver_data/logs/VERBOSE_LOGGING.properties
+/opt/geoserver_data/logs/DEFAULT_LOGGING.properties
+/opt/geoserver_data/logs/PRODUCTION_LOGGING.properties
+/opt/geoserver_data/logs/layout.log
+/opt/geoserver_data/logs/scale_problem.log
+/opt/geoserver_data/logs/geoserver.log.3
+/opt/geoserver_data/logs/geoserver.log.2
+/opt/geoserver_data/logs/geoserver.log.1
+/opt/geoserver_data/logs/geoserver.log
+/opt/geoserver_data/netcdf_data
+/opt/geoserver_data/palettes
+/opt/geoserver_data/plugIns
+/opt/geoserver_data/security
+/opt/geoserver_data/styles
+/opt/geoserver_data/temp
+/opt/geoserver_data/tmp
+/opt/geoserver_data/user_projections
+/opt/geoserver_data/user_projections/epsg.properties
+/opt/geoserver_data/validation
+/opt/geoserver_data/workspaces
+/opt/geoserver_data/workspaces/azet
+/opt/geoserver_data/workspaces/azet2
+/opt/geoserver_data/www
+/opt/geoserver_data/www/styles
+/opt/geoserver_data/www/openlayers
+/opt/geoserver_data/layouts
+/opt/geoserver_data/layouts/avg_wind_speed.xml
+/opt/geoserver_data/layouts/max_temperature.xml
+/opt/geoserver_data/layouts/max_uv_index.xml
+/opt/geoserver_data/layouts/min_temperature.xml
+/opt/geoserver_data/layouts/sum_precipitation.xml
+ -- scripts running also from crontab - all owned by root
+/opt/geoserver_data/scripts
+/opt/geoserver_data/scripts/daily_avg_wind_speed12.sh
+/opt/geoserver_data/scripts/get_maps.sh
+/opt/geoserver_data/scripts/interpolate_points.py
+/opt/geoserver_data/scripts/test.sh
+/opt/geoserver_data/scripts/deacc_precipitation_indicator_gfs.sh
+/opt/geoserver_data/scripts/deacc_precipitation_indicator_wrf_avg.sh
+/opt/geoserver_data/scripts/deacc_precipitation_indicator_wrf_mode.sh
+/opt/geoserver_data/scripts/daily_max_temperature12.sh
+/opt/geoserver_data/scripts/get_maps12.sh
+/opt/geoserver_data/scripts/daily_max_uv_index2.sh
+/opt/geoserver_data/scripts/daily_max_uv_index.sh
+/opt/geoserver_data/scripts/daily_min_temperature.sh
+/opt/geoserver_data/scripts/precipitation_indicator_gfs.sh
+/opt/geoserver_data/scripts/download.sh
+/opt/geoserver_data/scripts/test_deacc_precipitation_indicator_gfs.sh
+/opt/geoserver_data/scripts/deacc_precipitation_indicator_wrf_bkp20170315-2336.sh
+/opt/geoserver_data/scripts/deacc_precipitation_indicator_wrf_bkp20170315-1726.sh
+/opt/geoserver_data/scripts/shared.sh
+/opt/geoserver_data/scripts/daily_min_temperature12.sh
+/opt/geoserver_data/scripts/daily_sum_precipitation.sh
+/opt/geoserver_data/scripts/daily_max_temperature.sh
+/opt/geoserver_data/scripts/precipitation_indicator_wrf.sh
+/opt/geoserver_data/scripts/deacc_precipitation_indicator_wrf_b2.sh
+/opt/geoserver_data/scripts/daily_max_temperature.debug.sh
+/opt/geoserver_data/scripts/daily_max_uv_index12.sh
+/opt/geoserver_data/scripts/daily_avg_wind_speed.sh
+/opt/geoserver_data/scripts/test_precipitation_indicator_gfs.sh
+/opt/geoserver_data/scripts/test_interpolate_points.sh
+/opt/geoserver_data/scripts/deacc_precipitation_indicator_wrf.sh
+/opt/geoserver_data/scripts/daily_sum_precipitation12.sh
+
 
 # Owned by Azet user - exist only on production machine and is where the data are
 retrieved
@@ -440,6 +522,8 @@ retrieved
 /home/azet/maps/daily_max_uv_index_4.png
 /home/azet/maps/daily_min_temperature_2.png
 /home/azet/maps/daily_min_temperature_4.png
+
+
 
 
 # Content of crontabs on running dev and production machines per user:
@@ -485,8 +569,7 @@ sim1_upl:
 no crontab for sim1_upl
 
 
-Operations machine - 85.248.214.146:
-root:
+Operations machine - 85.248.214.146: root:
 ----
 20 04 * * * /opt/ims/bin/service_report.sh > /opt/ims/service/last_report
 */10 * * * *   /opt/ims/cfg/station/bin/gribDownloader.sh >> /opt/ims/log/gfs_download_data`date +\%Y\%m\%d`.cron 2>&1
@@ -649,6 +732,8 @@ no crontab for sim1_upl
 |       \---20170310
 \---Supply
 
+# Structure of the documentation - 949 Belehrad (TODO)
+
 
 
 
@@ -666,51 +751,297 @@ documentation for Azet and Belehrad.
 Accomplish yet documentation collection for 665 and 994 Management
 and colllect and print the essentials - particularly the documents for Russian branch, make order in
 our local project tree.
+Studied all specifications and recorded questions.
+Studied more in detail also Beograd (higher resolution nowcasting) specifications.
+- interpolation and bias corrections based on NN method.
+Tomorrow we will continue - familiarization with MOS methodology.
+Record progress report and
+start on deploymnent diagrams.
+
+Yet, write FYI email anout diagrams and then harvest strcuture of the documentaiton for the new project
+and start with study of agents = try to achieve three things:
+- log hours and progress
+- map the internal detail workflow and blocks
+- investigate how whole processing can be ran in batch mode on the dev machine
+- now investigate which agents are in use, second triggers and outputs - either file, or blocks
+
+(as a test)
+
 (Tomorrow)
 
+# Meetings
+## Meeting with Patrik Synek on 16.8.2021
+Proposed agenda
+1. General introduction - goal of the project
+2. Workflow and manual edit, what sort of interpolation he knows about (show two workflow diagrams)
+3. Details of decision tree - three specifications, variables there.
+4. Quesitons - brows through and try to answer the ones which relate to the domain.
+5. Roles, terms in the project - who is doing what, what are deadlines .
+(No clue, ask Peter Sisan, he might know more.)
+
+## Meeting with Gyorgy Tomcsanyi 17.8.2021
+Prpoposed agenda
+1. Generally how the maps are generated, what data are generated and used.
+2. Which data are inputs and how they are imported into GeoServer.
+3. How are maps exported and distributed.
+4. How WRF data are pushed to the Azet servers.
+5. How gdal is used, how geoserver scripts are integrated into Azet cron scripts.
+6. What is doing this script and why is actually used from the geoserver scripts:
+ /opt/ims/cfg/station/bin/makePrecIndicatorsWRF.sh
+  -> /opt/geoserver_data/scripts/precipitation_indicator_wrf.sh
+  -> /opt/geoserver_data/scripts/interpolate_points.py
+  -> /opt/geoserver_data/scripts/deacc_precipitation_indicator_wrf.sh    
+7. Browse through the open questions.
+
+## Meeting with Peter Sisan 19.8.2021
+Proposed agenda
+1. General introduciton into Azet and Belehrad projects - 665, 949
+2. Differences between machines and how Belehrad machine is deployed.
+3. Where I can start to deploy new forecast modules and conduct integration tests?
+4. WRF data and its dissemination
+5. Open questions - scripts, data.
+
+On the meeting I have learned following important information.
+Part of the 949 Belehrad project, was to deliver and operate
+WRF model for Serbia. At first it was in-house, than the idea
+was that Seribain meteorlogical service (customer) will operate
+the model there.
+This is what they aim to currently.
+The machine 'model06' was actually build to operate in-house Serbian model.
+The another machine:
+hetzner.cloud VM (168.119.152.216)
+is the testing machine particularly for Serbian WRF model.
+Therefore we need another development/testing machine
+for the IMS Forecast pipeline.
+There is deployed downloading GFS data, because
+WRF model needs.
+This means we have two options how to handle
+GFS data. Either to deploy downloading of the GFS twice,
+or to replicate GFS data with WRF machine.
+We need to resolve also WRF dissemination for the IMS Forecast module.
+
+New GFS downloading scripts are installed in 168.119.152.216:
+user [model]
+/home/model/DOWNLOAD/configureQueueFiles.sh
+/home/model/DOWNLOAD/downloadFiles.sh
+/home/model/DOWNLOAD/lock
+/home/model/DOWNLOAD/grib2
+/home/model/DOWNLOAD/configureDownloadFiles.sh
+/home/model/DOWNLOAD/queue
+/home/model/DOWNLOAD/log
+/home/model/DOWNLOAD/tag
+/home/model/DOWNLOAD/createQueueFiles.sh
+/home/model/DOWNLOAD/wgrib2
+/home/model/DOWNLOAD/deleteFilesLogsTags.sh
+/home/model/DOWNLOAD/configureDirLayout.sh
+/home/model/DOWNLOAD/configureDelete.sh
+--- cat configureDirLayout.sh ---
+export DIR_LAYOUT="/home/model/DOWNLOAD" #"/home/download"
+export QUEUE="${DIR_LAYOUT}/queue"
+export TAG="${DIR_LAYOUT}/tag"
+export LOG="${DIR_LAYOUT}/log"
+export LOCK="${DIR_LAYOUT}/lock"
+export INPUT_DATA="/home/model/INPUT_DATA" #"/home/inputData"
 
 
 Open questions:
 1. What is the state of turned-off development machines?
 2. Why 949 branch does not exist in ims4-configuraiton repositories - which configuration was delivered actualy as part of the oproject?
+A 2. Answer by Gyorgy - the branch is created at last during the system
+delivery by the integrators.
+
 3. The configuration in master_665_SK_Azet_Forecast branch contains a lot source code - all scripts.
 In order to make it testable, portable - it needs to be moved to the source code - in Jlib.
 Installed as part of standard installation and crontabs should be updated.
+
 4. Are crontabs tracked somewhere and deployed automatically?
+A 4. Answer by Gyorgy - he usually put aside to the ims4-configuration
+the crontab entries for the scripts.
+
 5. What is 'model05'?
+A 5. Gyorgy:
+We have in-house forecasting model for Slovak territory, producing
+WRF outputs. It is currently running on the high performance
+server 'model05'. Before we had 'model04' and the new
+server is being deployed - 'model06'.
+It looks so, that also directly from this server the
+data are pushed to the other machines - e.g. Azet servers.
+
+A 5. Peter Sisan:
+Important, 'model05' is the operational machine for
+WRF model calculated for Slovak territory.
+'model06' is machine envisiged for the operational WRF model for
+Serbia.
+And investigation showed, that very likelly data
+are pushed not from the 'model05', but from 'model04'
+by very complex Marek Spal scripts.
+
 6. MOS coprrection is integrated with CLDB somehow, why and how?
 Why we are using CLDB?
+A 6. Gyorgy:
+If your application needs to store data from
+SYNOP, METAR or other data, CLDB which deployes
+for example data tables 'data_float' needs to be turned on.
+
 7. Where are stored and documented GeoServer scripts generating Azet maps,
 which repository? I have not found them in the ims4-configuration nor in Jlib repositories.
 There is dependency on GeoServer and gdal library. Where is documentation, installation procedure?
 (Ask Peter Sisan - who took over from Marek Spal)
-- write email tomorrow
+A 7. The question was partially answered by Gorgy,
+these geoserver scripts are not stored anywhere, nor documented anywhere.
+We would propose to create the new 'script-source-code' repository for this purpose.
+A 7. Peter Sisan:
+Unfortuantelly Peter did not take over these scripts.
+Also for downloading of data there was made decision to
+develop the new set of scripts as part of WRF Configurations.
+This means Azet scripts are not fully supported anymore.
 
 8. fail2ban-server, fail2ban-client are installed and configured only on the operations machine
 85.248.214.146.
+A 8. Gyorgy:
+Yes, we protect only operatinal machines.
+Other in-house machines are accesible from outside
+only via VPN.
+
 9. Do we have statistical software R integrated in Jlib, have we installation scripts, procedures
 documented somewhere, do we have eventually unit/integration tests running R scripts?
+
 10. In the AZET Forecast Guide there is mentioned that if the operations
 machine in Benestra will fail, that the forecasters have VPN access to our DEV/Backup machine.
 Questions are:
 All forecasters have VPN access?
 All other dev machines are turned off - how we can do development on the backup server?
-Dev machine is different, there is e.g. Skiny server, have different crontabs.
+Dev machine is different, there is e.g. Shiny server, have different crontabs.
+
 11. In data flows for Slovakia there is mentioned:
 - calculation of derived variables (Vypocte odvodenych velicin) - what are these, where I find them?
 - locations without measurement (Lat, lon lokalit bez merania) - what are these, where I find them?
+A 11. Patrik Synek:
+Derived variables are e.g. feel temperatur, instability indicators
+Locations without measurements are actually sites of interest for Azet,
+without any input measured data. Forecast is derived for these places using
+particularly kriging implemented in R executed after manual check.
+
 12. Calucaiton of wheather icons - what is meaning of:
 Icon.Dly (1.-5.day = 1h data)
 Icon.Dly (6.-11.day = mix 1h, 3h, 12h data)
+A 12. Patrik Synek:
+GFS forecast is available for 12 days.
+First 6 days is at the beginning interpolated into 1h temporal resplution.
+This first block is actually usually checked by forecasters and have
+special decision tree for derivaiton of the weather icons.
+Second 6 days has variable temporal resolution, usually is not corrected by
+the forecasters and different decision tree for weather icon is applied.
+If in the hour actually also WRF data for Slovakia is available
+for the first 3 days, GFS forecast is replaced with WRF.
+WRF model is running for Slovak territiory only and is
+actually computed in-house in Microstep-MIS premisses.
 
-13. Calcuaiton of weather icons - what is logic behind 'hogher, lower ID of the icon', is there
+13. Calculaiton of weather icons - what is logic behind 'higher, lower ID of the icon', is there
 some documentation about this?
+A 13. Patrik Synek:
+Yes, weather icons algirthm was developed by Palo Nechaj and has the principal logic,
+that if there is risk of severe, dangerous weather situation, this has
+higher priority than others.
+In other words: It is better to predict tyhunder storm, if there is
+certain chance of occurance, than not predict, and it would have come.
+List of icons and its numbers can be found e.g.:
+M:\Zakazky\665_SK_Azet_predpovede\Specification\ikonka\icon_reduction_nocne.xlsx
+
+14. For the essense will be where actually decision tree is implemented,
+where particularly 'instability indexes' are implemented? (ask Gyorgy)
+A 14. In instability indices document is link to this resource:
+http://www.zamg.ac.at/docu/Manual/SatManu/main.htm?/docu/Manual/SatManu/Basic/Convection/Parameters.htm
+Description of:
+- Showalter index (SI)
+- Boyden index (BI)
+- K-index (KI)
+com.microstepmis.forecast.customization.IndexCalculation.
+     getBoydenIndex(Double geoPotHeight700, Double geoPotHeight1000, Double temp700)
+Yes, storms are most severe and dangerous situation,
+instability indeces are derived as set of derived variables for the forecast data.
+Remark by Gyorgy - he implemented another
+version of these indeces as part of this package:
+com.microstepmis.graph.thermodiagram.IndexCalculator
+
+and even one them is included into the forecast model:
+com.microstepmis.forecast.customization.IndexCalculation.tp(double, double, double, double)
+   -> com.microstepmis.graph.thermodiagram.MathUtil.getLCL(double, double, double)
+   -> com.microstepmis.graph.thermodiagram.MathUtil.getParcelTrajectoryT(double, double, double, double, double)
 
 
+15. Icon algorithm for hourly data - there are two documents:
+'Decision tree - Azet' and 'ikon_dly_EN' (latest for Russion branch).
+The both contains icon decision algorithm, but the first seems to be more
+granular and reflects also criterions C, D and then allows also the 'hail icon' num. 24.
+On the other hand the second one works more granular with
+precipition probability.
+Why there are these two definitions, what is implemented where, and why?
+A 15. Patrik Synek: There are three decisiton trees:
+1. Derivation of weather icon for hourly forecast data valid for that particular hour
+only - 24 icons per day - described in: 'Decision tree - Azet'
+2. Derivation of daily icon - weather icon valid for whole day, input are
+24 hourly forecast data. This tree is described in: 'ikon_dly_EN'.
+3. And third decision tree algorithm is for actual measrured
+data - weather icon for actual situation. This is
+described in the form of pseudo-code in 665 Azet wiki
+page:
+'Aktualizasia a ziskavanie Present WEATHER'
+https://wiki.mstep/images/f/fb/ActualIconFinder.txt
 
 
+16. We will have to find where and how the 'feel temperature (apparent
+tempereature)' is implemented.
+A 15. The function is here:
+com.microstepmis.forecast.customization.ReCalculationAgent
+   .getAT(Map<Integer, Map<String, Map<Long, Object>>> daaHash, Long time, Integer stationId)
 
+17. Which process is launching '/opt/java_geo/bin/java', and
+/opt/tomcat_geo/lib/marlin.jar?
+Some IMS4 agent, or some scripts?
+A 17. java_geo is actually running local GeoServer instance
+launched as a services during system start.
 
+18. Which script and process is actually downloading WRF data.
+I have found this script:
+/opt/ims/cfg/station/bin/gribWRFConvertor.sh
+which seems is mopunting remote NFS folder:
+//pluto.mstep/md_ro/opt/wrf/model04/output_arch_wrfsk /pludo_wrf_data
+into
+/pludo_wrf_data
+but this script is not executed from any crontab.
+Might be that some IMS4 agent is launcing it?
+A 18. The documented pattern was used before.
+Nowadays it looks that the WRF data are
+pushed directly from the 'model05' server.
+'sim1_upl' is used for this purpose and
+this authorized user from the 'model05' server:
+wrf_sk@model05.mstep
+
+Local forecastWRF data have this permission schema:
+---
+drwxrwsr-x. 10 sim1_upl   ims_upl       4096 Aug 18 09:48 forecastWRF
+
+A 18. Peter Sisan:
+We have not found such scripts running on the 'model05' machine.
+It seems that there are some very complex scripts running in
+crontab on the 'model04' machine.
+Then this means that the user's wrf_sk@model05.mstep is corrupted
+and used from elsewhere.
+
+19. What is doing this script and why is actually used from the geoserver scripts:
+ /opt/ims/cfg/station/bin/makePrecIndicatorsWRF.sh
+  -> /opt/geoserver_data/scripts/precipitation_indicator_wrf.sh
+  -> /opt/geoserver_data/scripts/interpolate_points.py
+  -> /opt/geoserver_data/scripts/deacc_precipitation_indicator_wrf.sh
+These scripts are using gdal libraries and tools and
+produces GeoTiff and XML (IMS4) compatible data into
+this output directory:
+/opt/ims/data/precIndicators/WRF
+ ...wrf_00_48.tiff,wrf_00_48.xml
+ (1-48 probably time slots with low resolution indicator for the Slovak territory)
+/opt/ims/data/precIndicators/GFS - is empty, only some
+process is creating the time directories tree.
 
 
 Open issues:
@@ -721,12 +1052,16 @@ is desired.
 brought different permissions schema - Linux users 'infls_dwnl',
 'infls_sync' and 'shiny' do not exist in operations environment.
 3. /opt/ims/data/forecastGrib/outputForecast/packDayToDirs.sh - on dev machine not stored in git.
-4. Could not connect to Benestra Could provider with the provided URL and credentials.
-5. On the production machine does not directory /model_data/665_azet, but only:
+4. Could not connect to Benestra Cloud provider with the provided URL and credentials.
+5. On the production machine does not exist directory /model_data/665_azet, but only:
 /model_data/opt/wrf/modelAZ/LMSSynop/ - does it contain the same results?
 6. Documented OutputGeneratorAgent does not exist - there is class OutputCreator used by all agents.
 7. Why is missing 'WRD / GFS Meteogram Generation' BITE block in DEV machine?
 8. The BITE block 'Meogram-Station with missing values' is different on OPS and DEV machine, how it can be?
+9. Manual edit on Dev machine:
+https://10.111.1.5:8443/ims/html2/customer/azet_665/dataEntryForecastData.html
+works only for the WRF data, other have error 'Server operation fail' or
+the loading get stuck in the infinite loop.
 
 
 
