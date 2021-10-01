@@ -1,0 +1,981 @@
+# Notes about configuration of the DEV machine - September 2021
+949_Belehrad-IMS-ims, 10.111.5.171
+
+1. Installation of GFS download
+Documented and stored in git:
+ims4-configurations, branch janki_949_Serbia_NWP, downloadGFS/; downloadUVindex/
+
+Checking of content of the GFS data:
+Ahoj Peter,
+Hneï ti pí¹em, porovnal som si hlavièky Azet a Belehrad GFS gribov a je tam diskrepancia:
+Belehrad:
+....
+49:80597412:d=21092000:TMP:1000 mb:anl:NAve=0
+50:82414416:d=21092000:RH:1000 mb:anl:NAve=0
+51:83712300:d=21092000:TCDC:1000 mb:anl:NAve=0
+52:85010184:d=21092000:VVEL:1000 mb:anl:NAve=0
+53:86827188:d=21092000:UGRD:1000 mb:anl:NAve=0
+54:88514412:d=21092000:VGRD:1000 mb:anl:NAve=0
+55:90201636:d=21092000:ABSV:1000 mb:anl:NAve=0
+56:91888860:d=21092000:HGT:1000 mb:anl:NAve=0
+57:93965424:d=21092000:PRES:sfc:anl:NAve=0
+58:96041988:d=21092000:HGT:sfc:anl:NAve=0
+59:98118552:d=21092000:TMP:sfc:anl:NAve=0
+60:99546216:d=21092000:TMP:2 m above gnd:anl:NAve=0
+61:100973880:d=21092000:DPT:2 m above gnd:anl:NAve=0
+62:102401544:d=21092000:RH:2 m above gnd:anl:NAve=0
+63:103699428:d=21092000:UGRD:10 m above gnd:anl:NAve=0
+64:105386652:d=21092000:VGRD:10 m above gnd:anl:NAve=0
+65:107073876:d=21092000:CSNOW:sfc:anl:NAve=0
+66:107203740:d=21092000:CICEP:sfc:anl:NAve=0
+67:107333604:d=21092000:CFRZR:sfc:anl:NAve=0
+68:107463468:d=21092000:CRAIN:sfc:anl:NAve=0
+69:107593332:d=21092000:CAPE:sfc:anl:NAve=0
+70:109280556:d=21092000:PWAT:atmos col:anl:NAve=0
+71:111357120:d=21092000:RH:atmos col:anl:NAve=0
+72:112655004:d=21092000:TCDC:atmos col:anl:NAve=0
+
+Nasledujúc po hladine 1000mb je sada premmených - dokopy 72.
+Azet:
+....
+50:52550436:d=21092000:RH:1000 mb:198hr fcst:NAve=0
+51:53409120:d=21092000:TCDC:1000 mb:198hr fcst:NAve=0
+52:54267804:d=21092000:VVEL:1000 mb:198hr fcst:NAve=0
+53:55469928:d=21092000:UGRD:1000 mb:198hr fcst:NAve=0
+54:56586192:d=21092000:VGRD:1000 mb:198hr fcst:NAve=0
+55:57702456:d=21092000:ABSV:1000 mb:198hr fcst:NAve=0
+56:58732860:d=21092000:HGT:1000 mb:198hr fcst:NAve=0
+57:60106704:d=21092000:PRES:sfc:198hr fcst:NAve=0
+58:61480548:d=21092000:HGT:sfc:198hr fcst:NAve=0
+59:62854392:d=21092000:TMP:sfc:198hr fcst:NAve=0
+60:63713076:d=21092000:TMP:2 m above gnd:198hr fcst:NAve=0
+61:64571760:d=21092000:DPT:2 m above gnd:198hr fcst:NAve=0
+62:65430444:d=21092000:RH:2 m above gnd:198hr fcst:NAve=0
+63:66289128:d=21092000:TMAX:2 m above gnd:valid 192-198hr:NAve=0
+64:67147812:d=21092000:TMIN:2 m above gnd:valid 192-198hr:NAve=0
+65:68264076:d=21092000:UGRD:10 m above gnd:198hr fcst:NAve=0
+66:69380340:d=21092000:VGRD:10 m above gnd:198hr fcst:NAve=0
+67:70496604:d=21092000:APCP:sfc:192-198hr acc:NAve=0
+68:71527008:d=21092000:APCP:sfc:0-198hr acc:NAve=0
+69:72729132:d=21092000:ACPCP:sfc:192-198hr acc:NAve=0
+70:73501956:d=21092000:ACPCP:sfc:0-198hr acc:NAve=0
+71:74532360:d=21092000:CSNOW:sfc:198hr fcst:NAve=0
+72:74618304:d=21092000:CICEP:sfc:198hr fcst:NAve=0
+73:74618388:d=21092000:CFRZR:sfc:198hr fcst:NAve=0
+74:74704332:d=21092000:CRAIN:sfc:198hr fcst:NAve=0
+75:74790276:d=21092000:CSNOW:sfc:192-198hr ave:NAve=0
+76:74876220:d=21092000:CICEP:sfc:192-198hr ave:NAve=0
+77:74876304:d=21092000:CFRZR:sfc:192-198hr ave:NAve=0
+78:74962248:d=21092000:CRAIN:sfc:192-198hr ave:NAve=0
+79:75048192:d=21092000:CAPE:sfc:198hr fcst:NAve=0
+80:76164456:d=21092000:PWAT:atmos col:198hr fcst:NAve=0
+81:77538300:d=21092000:RH:atmos col:198hr fcst:NAve=0
+82:78396984:d=21092000:TCDC:atmos col:198hr fcst:NAve=0
+83:79255668:d=21092000:TCDC:atmos col:192-198hr ave:NAve=0
+
+Vidíme, ¾e je tam viacej hodnôt - celkom tomu nerozumiem ale sú tu naviac e¹te APCP, ACPCP v akoby dvoch hladinách, alebo èasoch.
+E¹te iný príklad z dne¹ka:
+50:53666616:d=21092006:RH:1000 mb:108hr fcst:NAve=0
+51:54525300:d=21092006:TCDC:1000 mb:108hr fcst:NAve=0
+52:55383984:d=21092006:VVEL:1000 mb:108hr fcst:NAve=0
+53:56586108:d=21092006:UGRD:1000 mb:108hr fcst:NAve=0
+54:57702372:d=21092006:VGRD:1000 mb:108hr fcst:NAve=0
+55:58818636:d=21092006:ABSV:1000 mb:108hr fcst:NAve=0
+56:59849040:d=21092006:HGT:1000 mb:108hr fcst:NAve=0
+57:61222884:d=21092006:PRES:sfc:108hr fcst:NAve=0
+58:62596728:d=21092006:HGT:sfc:108hr fcst:NAve=0
+59:63970572:d=21092006:TMP:sfc:108hr fcst:NAve=0
+60:64829256:d=21092006:TMP:2 m above gnd:108hr fcst:NAve=0
+61:65687940:d=21092006:DPT:2 m above gnd:108hr fcst:NAve=0
+62:66546624:d=21092006:RH:2 m above gnd:108hr fcst:NAve=0
+63:67405308:d=21092006:TMAX:2 m above gnd:valid 102-108hr:NAve=0
+64:68263992:d=21092006:TMIN:2 m above gnd:valid 102-108hr:NAve=0
+65:69122676:d=21092006:UGRD:10 m above gnd:108hr fcst:NAve=0
+66:70238940:d=21092006:VGRD:10 m above gnd:108hr fcst:NAve=0
+67:71355204:d=21092006:APCP:sfc:102-108hr acc:NAve=0
+68:72385608:d=21092006:APCP:sfc:0-108hr acc:NAve=0
+69:73501872:d=21092006:ACPCP:sfc:102-108hr acc:NAve=0
+70:74274696:d=21092006:ACPCP:sfc:0-108hr acc:NAve=0
+71:75305100:d=21092006:CSNOW:sfc:108hr fcst:NAve=0
+72:75391044:d=21092006:CICEP:sfc:108hr fcst:NAve=0
+73:75476988:d=21092006:CFRZR:sfc:108hr fcst:NAve=0
+74:75562932:d=21092006:CRAIN:sfc:108hr fcst:NAve=0
+75:75648876:d=21092006:CSNOW:sfc:102-108hr ave:NAve=0
+76:75734820:d=21092006:CICEP:sfc:102-108hr ave:NAve=0
+77:75820764:d=21092006:CFRZR:sfc:102-108hr ave:NAve=0
+78:75906708:d=21092006:CRAIN:sfc:102-108hr ave:NAve=0
+79:75992652:d=21092006:CAPE:sfc:108hr fcst:NAve=0
+80:77108916:d=21092006:PWAT:atmos col:108hr fcst:NAve=0
+81:78482760:d=21092006:RH:atmos col:108hr fcst:NAve=0
+82:79341444:d=21092006:TCDC:atmos col:108hr fcst:NAve=0
+83:80200128:d=21092006:TCDC:atmos col:102-108hr ave:NAve=0
+Nevie¹ prosím »a poveda» o èo ide? Mô¾e by» ¾e tie premenné budem potrebova».
+Zatiaµ je projekt tak zlo¾itý, ¾e by som asi chcel ma» èo najvernej¹ie prostredie - dalo by sa to èítanie roz¹íri» tak aby som mal rovnaké premenné?
+Veµká vïaka
+Jano
+
+A, Peter Sisan:
+Dve hodnoty APCP a ACPCP su lebo jedna je 0-198 hr (kumulativne zrazky od zaciatku) a druha 192-198 hr (kumulativne zrazky za poslednych 6h - bezne to nebyva za poslednych 6h, ale 0-1hr, 0-2hr, ... 0-6hr, a potom 6-7hr, ..., 11-12hr, ...). Neviem, ci sa pouzivaju obe - jednu vies z druhej spocitat. Dalsia vec je, ze neporovnavas celkom to iste. Datum predpovede je sice rovnaky, ale Azet ma vo vypise 198hr a Belehrad 0hr. V 0hr mnoho premennych chyba, medzi inymi aj zrazky, lebo by boli kumulativne 0h az 0h. Ked si das vypisat /opt/ims/data/wgrib/wgrib /opt/ims/data/inputWRF/20210920/00/d03_pp/WRFPRS_d03.07 | grep "APCP", najde ti 308:3314444:d=21092000:APCP:kpds5=61:kpds6=1:kpds7=0:TR=4:P1=0:P2=7:TimeU=1:sfc:0-7hr acc:NAve=0, ale kumulativne po 6h tam nie je. Neviem, ci je potrebna. Dalej je mozne, ze poradie premennych v griboch je ine. Dufam, ze programy sa nespoliehaju na pevne stanovenu polohu premennej v griboch.
+
+PS
+UV index corresponds to the shape of UV index files for Azet.
+
+2. Installation of WRF download
+ims4-configurations, branch janki_949_Serbia_NWP,
+Remark - Petrer Sisan:
+Neviem ako velmi su ASCII subory potrebne. Malo by ist o casovy vyvoj
+teploty (mozno aj nieco ine). Marek Spal mal na to nejake programy,
+ktore to pocitali. Myslim, ze boli sucastou este post-procu na WRF.
+
+Checking of variables in WRF data:
+665-AZET-IMS-ims:~/Azet_Belehrad_comparision # wgrib WRF_Azet_sample/WRFPRS_d03_ll.00 -s
+1:0:d=21092000:TMP:500 mb:anl:NAve=0
+2:6356:d=21092000:UGRD:500 mb:anl:NAve=0
+3:12712:d=21092000:VGRD:500 mb:anl:NAve=0
+4:18546:d=21092000:HGT:700 mb:anl:NAve=0
+5:26472:d=21092000:TMP:700 mb:anl:NAve=0
+6:32828:d=21092000:RH:700 mb:anl:NAve=0
+7:39708:d=21092000:HGT:850 mb:anl:NAve=0
+8:47634:d=21092000:TMP:850 mb:anl:NAve=0
+9:52946:d=21092000:RH:850 mb:anl:NAve=0
+10:59826:d=21092000:UGRD:850 mb:anl:NAve=0
+11:65660:d=21092000:VGRD:850 mb:anl:NAve=0
+12:71494:d=21092000:HGT:1000 mb:anl:NAve=0
+13:79420:d=21092000:PRES:sfc:anl:NAve=0
+14:87346:d=21092000:HGT:sfc:anl:NAve=0
+15:95272:d=21092000:TMP:sfc:anl:NAve=0
+16:103198:d=21092000:DPT:sfc:anl:NAve=0
+17:103282:d=21092000:RH:sfc:anl:NAve=0
+18:103366:d=21092000:TMP:2 m above gnd:anl:NAve=0
+19:110768:d=21092000:DPT:2 m above gnd:anl:NAve=0
+20:117648:d=21092000:RH:2 m above gnd:anl:NAve=0
+21:124004:d=21092000:UGRD:10 m above gnd:anl:NAve=0
+22:130884:d=21092000:VGRD:10 m above gnd:anl:NAve=0
+23:137764:d=21092000:CPRAT:sfc:anl:NAve=0
+24:137848:d=21092000:PRATE:sfc:anl:NAve=0
+25:137932:d=21092000:APCP:sfc:0-0hr acc:NAve=0
+26:138016:d=21092000:ACPCP:sfc:0-0hr acc:NAve=0
+27:138100:d=21092000:TCDC:atmos col:anl:NAve=0
+
+
+665-AZET-IMS-ims:~/Azet_Belehrad_comparision # wgrib WRF_Belehrad_sample/WRFPRS_d03.00 -s
+1:0:d=21092000:PRMSL:MSL:anl:NAve=0
+2:14386:d=21092000:PRES:hybrid lev 1:anl:NAve=0
+3:22516:d=21092000:REFD:hybrid lev 1:anl:NAve=0
+4:22602:d=21092000:HGT:hybrid lev 1:anl:NAve=0
+5:36988:d=21092000:TMP:hybrid lev 1:anl:NAve=0
+6:47798:d=21092000:RH:hybrid lev 1:anl:NAve=0
+7:57716:d=21092000:DPT:hybrid lev 1:anl:NAve=0
+8:72102:d=21092000:SPFH:hybrid lev 1:anl:NAve=0
+9:79338:d=21092000:UGRD:hybrid lev 1:anl:NAve=0
+10:90148:d=21092000:VGRD:hybrid lev 1:anl:NAve=0
+11:100958:d=21092000:PRES:hybrid lev 2:anl:NAve=0
+12:109088:d=21092000:REFD:hybrid lev 2:anl:NAve=0
+13:109174:d=21092000:HGT:hybrid lev 2:anl:NAve=0
+14:123560:d=21092000:TMP:hybrid lev 2:anl:NAve=0
+15:134370:d=21092000:DPT:hybrid lev 2:anl:NAve=0
+16:148756:d=21092000:SPFH:hybrid lev 2:anl:NAve=0
+17:155992:d=21092000:UGRD:hybrid lev 2:anl:NAve=0
+18:166802:d=21092000:VGRD:hybrid lev 2:anl:NAve=0
+19:178506:d=21092000:REFC:atmos col:anl:NAve=0
+20:178592:d=21092000:VIS:sfc:anl:NAve=0
+21:178678:d=21092000:VIS:cld top:anl:NAve=0
+22:184126:d=21092000:GUST:sfc:anl:NAve=0
+23:192256:d=21092000:GRMR:2 mb:anl:NAve=0
+24:192342:d=21092000:HGT:50 mb:anl:NAve=0
+25:206728:d=21092000:TMP:50 mb:anl:NAve=0
+26:216646:d=21092000:RH:50 mb:anl:NAve=0
+27:226564:d=21092000:DPT:50 mb:anl:NAve=0
+28:226650:d=21092000:SPFH:50 mb:anl:NAve=0
+29:237460:d=21092000:VVEL:50 mb:anl:NAve=0
+30:250952:d=21092000:DZDT:50 mb:anl:NAve=0
+31:264444:d=21092000:UGRD:50 mb:anl:NAve=0
+32:275254:d=21092000:VGRD:50 mb:anl:NAve=0
+33:285172:d=21092000:ABSV:50 mb:anl:NAve=0
+34:294662:d=21092000:HGT:100 mb:anl:NAve=0
+35:309048:d=21092000:TMP:100 mb:anl:NAve=0
+36:318966:d=21092000:RH:100 mb:anl:NAve=0
+37:329776:d=21092000:DPT:100 mb:anl:NAve=0
+38:329862:d=21092000:SPFH:100 mb:anl:NAve=0
+39:340672:d=21092000:VVEL:100 mb:anl:NAve=0
+40:353270:d=21092000:DZDT:100 mb:anl:NAve=0
+41:367656:d=21092000:UGRD:100 mb:anl:NAve=0
+42:378466:d=21092000:VGRD:100 mb:anl:NAve=0
+43:389276:d=21092000:ABSV:100 mb:anl:NAve=0
+44:398766:d=21092000:HGT:150 mb:anl:NAve=0
+45:413152:d=21092000:TMP:150 mb:anl:NAve=0
+46:423070:d=21092000:RH:150 mb:anl:NAve=0
+47:432988:d=21092000:DPT:150 mb:anl:NAve=0
+48:433074:d=21092000:SPFH:150 mb:anl:NAve=0
+49:444778:d=21092000:VVEL:150 mb:anl:NAve=0
+50:459164:d=21092000:DZDT:150 mb:anl:NAve=0
+51:472656:d=21092000:UGRD:150 mb:anl:NAve=0
+52:484360:d=21092000:VGRD:150 mb:anl:NAve=0
+53:495170:d=21092000:ABSV:150 mb:anl:NAve=0
+54:502110:d=21092000:HGT:200 mb:anl:NAve=0
+55:516496:d=21092000:TMP:200 mb:anl:NAve=0
+56:527306:d=21092000:RH:200 mb:anl:NAve=0
+57:539010:d=21092000:DPT:200 mb:anl:NAve=0
+58:550714:d=21092000:SPFH:200 mb:anl:NAve=0
+59:561524:d=21092000:VVEL:200 mb:anl:NAve=0
+60:575016:d=21092000:DZDT:200 mb:anl:NAve=0
+61:589402:d=21092000:UGRD:200 mb:anl:NAve=0
+62:599320:d=21092000:VGRD:200 mb:anl:NAve=0
+63:610130:d=21092000:ABSV:200 mb:anl:NAve=0
+64:619620:d=21092000:HGT:250 mb:anl:NAve=0
+65:634006:d=21092000:TMP:250 mb:anl:NAve=0
+66:645710:d=21092000:RH:250 mb:anl:NAve=0
+67:655628:d=21092000:DPT:250 mb:anl:NAve=0
+68:666438:d=21092000:SPFH:250 mb:anl:NAve=0
+69:676356:d=21092000:VVEL:250 mb:anl:NAve=0
+70:690742:d=21092000:DZDT:250 mb:anl:NAve=0
+71:703340:d=21092000:UGRD:250 mb:anl:NAve=0
+72:714150:d=21092000:VGRD:250 mb:anl:NAve=0
+73:725854:d=21092000:ABSV:250 mb:anl:NAve=0
+74:733644:d=21092000:HGT:300 mb:anl:NAve=0
+75:748030:d=21092000:TMP:300 mb:anl:NAve=0
+76:759734:d=21092000:RH:300 mb:anl:NAve=0
+77:770544:d=21092000:DPT:300 mb:anl:NAve=0
+78:782248:d=21092000:SPFH:300 mb:anl:NAve=0
+79:794846:d=21092000:VVEL:300 mb:anl:NAve=0
+80:809232:d=21092000:DZDT:300 mb:anl:NAve=0
+81:822724:d=21092000:UGRD:300 mb:anl:NAve=0
+82:834428:d=21092000:VGRD:300 mb:anl:NAve=0
+83:845238:d=21092000:ABSV:300 mb:anl:NAve=0
+84:854728:d=21092000:HGT:350 mb:anl:NAve=0
+85:869114:d=21092000:TMP:350 mb:anl:NAve=0
+86:879032:d=21092000:RH:350 mb:anl:NAve=0
+87:889842:d=21092000:DPT:350 mb:anl:NAve=0
+88:901546:d=21092000:SPFH:350 mb:anl:NAve=0
+89:911464:d=21092000:VVEL:350 mb:anl:NAve=0
+90:924062:d=21092000:DZDT:350 mb:anl:NAve=0
+91:937554:d=21092000:UGRD:350 mb:anl:NAve=0
+92:947472:d=21092000:VGRD:350 mb:anl:NAve=0
+93:959176:d=21092000:ABSV:350 mb:anl:NAve=0
+94:968666:d=21092000:HGT:400 mb:anl:NAve=0
+95:983052:d=21092000:TMP:400 mb:anl:NAve=0
+96:992970:d=21092000:RH:400 mb:anl:NAve=0
+97:1003780:d=21092000:DPT:400 mb:anl:NAve=0
+98:1014590:d=21092000:SPFH:400 mb:anl:NAve=0
+99:1025400:d=21092000:VVEL:400 mb:anl:NAve=0
+100:1038892:d=21092000:DZDT:400 mb:anl:NAve=0
+101:1053278:d=21092000:UGRD:400 mb:anl:NAve=0
+102:1065876:d=21092000:VGRD:400 mb:anl:NAve=0
+103:1077580:d=21092000:ABSV:400 mb:anl:NAve=0
+104:1087070:d=21092000:HGT:450 mb:anl:NAve=0
+105:1101456:d=21092000:TMP:450 mb:anl:NAve=0
+106:1111374:d=21092000:RH:450 mb:anl:NAve=0
+107:1122184:d=21092000:DPT:450 mb:anl:NAve=0
+108:1133888:d=21092000:SPFH:450 mb:anl:NAve=0
+109:1145592:d=21092000:VVEL:450 mb:anl:NAve=0
+110:1159084:d=21092000:DZDT:450 mb:anl:NAve=0
+111:1173470:d=21092000:UGRD:450 mb:anl:NAve=0
+112:1183388:d=21092000:VGRD:450 mb:anl:NAve=0
+113:1195092:d=21092000:ABSV:450 mb:anl:NAve=0
+114:1204582:d=21092000:HGT:500 mb:anl:NAve=0
+115:1218968:d=21092000:TMP:500 mb:anl:NAve=0
+116:1228886:d=21092000:RH:500 mb:anl:NAve=0
+117:1239696:d=21092000:DPT:500 mb:anl:NAve=0
+118:1251400:d=21092000:SPFH:500 mb:anl:NAve=0
+119:1263104:d=21092000:VVEL:500 mb:anl:NAve=0
+120:1277490:d=21092000:DZDT:500 mb:anl:NAve=0
+121:1291876:d=21092000:UGRD:500 mb:anl:NAve=0
+122:1304474:d=21092000:VGRD:500 mb:anl:NAve=0
+123:1315284:d=21092000:ABSV:500 mb:anl:NAve=0
+124:1323924:d=21092000:HGT:550 mb:anl:NAve=0
+125:1338310:d=21092000:TMP:550 mb:anl:NAve=0
+126:1350908:d=21092000:RH:550 mb:anl:NAve=0
+127:1361718:d=21092000:DPT:550 mb:anl:NAve=0
+128:1373422:d=21092000:SPFH:550 mb:anl:NAve=0
+129:1383340:d=21092000:VVEL:550 mb:anl:NAve=0
+130:1397726:d=21092000:DZDT:550 mb:anl:NAve=0
+131:1412112:d=21092000:UGRD:550 mb:anl:NAve=0
+132:1423816:d=21092000:VGRD:550 mb:anl:NAve=0
+133:1434626:d=21092000:ABSV:550 mb:anl:NAve=0
+134:1443266:d=21092000:HGT:600 mb:anl:NAve=0
+135:1457652:d=21092000:TMP:600 mb:anl:NAve=0
+136:1470250:d=21092000:RH:600 mb:anl:NAve=0
+137:1481060:d=21092000:DPT:600 mb:anl:NAve=0
+138:1492764:d=21092000:SPFH:600 mb:anl:NAve=0
+139:1502682:d=21092000:VVEL:600 mb:anl:NAve=0
+140:1517068:d=21092000:DZDT:600 mb:anl:NAve=0
+141:1531454:d=21092000:UGRD:600 mb:anl:NAve=0
+142:1542264:d=21092000:VGRD:600 mb:anl:NAve=0
+143:1553074:d=21092000:ABSV:600 mb:anl:NAve=0
+144:1561714:d=21092000:HGT:650 mb:anl:NAve=0
+145:1576100:d=21092000:TMP:650 mb:anl:NAve=0
+146:1587804:d=21092000:RH:650 mb:anl:NAve=0
+147:1597722:d=21092000:DPT:650 mb:anl:NAve=0
+148:1607640:d=21092000:SPFH:650 mb:anl:NAve=0
+149:1619344:d=21092000:VVEL:650 mb:anl:NAve=0
+150:1633730:d=21092000:DZDT:650 mb:anl:NAve=0
+151:1648116:d=21092000:UGRD:650 mb:anl:NAve=0
+152:1658926:d=21092000:VGRD:650 mb:anl:NAve=0
+153:1669736:d=21092000:ABSV:650 mb:anl:NAve=0
+154:1678376:d=21092000:HGT:700 mb:anl:NAve=0
+155:1692762:d=21092000:TMP:700 mb:anl:NAve=0
+156:1704466:d=21092000:RH:700 mb:anl:NAve=0
+157:1714384:d=21092000:DPT:700 mb:anl:NAve=0
+158:1725194:d=21092000:SPFH:700 mb:anl:NAve=0
+159:1737792:d=21092000:VVEL:700 mb:anl:NAve=0
+160:1752178:d=21092000:DZDT:700 mb:anl:NAve=0
+161:1764776:d=21092000:UGRD:700 mb:anl:NAve=0
+162:1775586:d=21092000:VGRD:700 mb:anl:NAve=0
+163:1786396:d=21092000:ABSV:700 mb:anl:NAve=0
+164:1795036:d=21092000:HGT:750 mb:anl:NAve=0
+165:1809422:d=21092000:TMP:750 mb:anl:NAve=0
+166:1821126:d=21092000:RH:750 mb:anl:NAve=0
+167:1831044:d=21092000:DPT:750 mb:anl:NAve=0
+168:1840962:d=21092000:SPFH:750 mb:anl:NAve=0
+169:1852666:d=21092000:VVEL:750 mb:anl:NAve=0
+170:1865264:d=21092000:DZDT:750 mb:anl:NAve=0
+171:1877862:d=21092000:UGRD:750 mb:anl:NAve=0
+172:1888672:d=21092000:VGRD:750 mb:anl:NAve=0
+173:1899482:d=21092000:ABSV:750 mb:anl:NAve=0
+174:1908122:d=21092000:HGT:775 mb:anl:NAve=0
+175:1922508:d=21092000:TMP:775 mb:anl:NAve=0
+176:1934212:d=21092000:RH:775 mb:anl:NAve=0
+177:1946810:d=21092000:DPT:775 mb:anl:NAve=0
+178:1956728:d=21092000:SPFH:775 mb:anl:NAve=0
+179:1968432:d=21092000:VVEL:775 mb:anl:NAve=0
+180:1981030:d=21092000:DZDT:775 mb:anl:NAve=0
+181:1993628:d=21092000:UGRD:775 mb:anl:NAve=0
+182:2004438:d=21092000:VGRD:775 mb:anl:NAve=0
+183:2015248:d=21092000:ABSV:775 mb:anl:NAve=0
+184:2023888:d=21092000:HGT:800 mb:anl:NAve=0
+185:2038274:d=21092000:TMP:800 mb:anl:NAve=0
+186:2049978:d=21092000:RH:800 mb:anl:NAve=0
+187:2059896:d=21092000:DPT:800 mb:anl:NAve=0
+188:2069814:d=21092000:SPFH:800 mb:anl:NAve=0
+189:2082412:d=21092000:VVEL:800 mb:anl:NAve=0
+190:2095010:d=21092000:DZDT:800 mb:anl:NAve=0
+191:2107608:d=21092000:UGRD:800 mb:anl:NAve=0
+192:2117526:d=21092000:VGRD:800 mb:anl:NAve=0
+193:2128336:d=21092000:ABSV:800 mb:anl:NAve=0
+194:2136976:d=21092000:HGT:825 mb:anl:NAve=0
+195:2151362:d=21092000:TMP:825 mb:anl:NAve=0
+196:2161280:d=21092000:RH:825 mb:anl:NAve=0
+197:2171198:d=21092000:DPT:825 mb:anl:NAve=0
+198:2181116:d=21092000:SPFH:825 mb:anl:NAve=0
+199:2192820:d=21092000:VVEL:825 mb:anl:NAve=0
+200:2205418:d=21092000:DZDT:825 mb:anl:NAve=0
+201:2218016:d=21092000:UGRD:825 mb:anl:NAve=0
+202:2227934:d=21092000:VGRD:825 mb:anl:NAve=0
+203:2238744:d=21092000:ABSV:825 mb:anl:NAve=0
+204:2248234:d=21092000:HGT:850 mb:anl:NAve=0
+205:2262620:d=21092000:TMP:850 mb:anl:NAve=0
+206:2272538:d=21092000:RH:850 mb:anl:NAve=0
+207:2284242:d=21092000:DPT:850 mb:anl:NAve=0
+208:2296840:d=21092000:SPFH:850 mb:anl:NAve=0
+209:2308544:d=21092000:VVEL:850 mb:anl:NAve=0
+210:2322036:d=21092000:DZDT:850 mb:anl:NAve=0
+211:2335528:d=21092000:UGRD:850 mb:anl:NAve=0
+212:2346338:d=21092000:VGRD:850 mb:anl:NAve=0
+213:2356256:d=21092000:ABSV:850 mb:anl:NAve=0
+214:2365746:d=21092000:HGT:875 mb:anl:NAve=0
+215:2380132:d=21092000:TMP:875 mb:anl:NAve=0
+216:2390942:d=21092000:RH:875 mb:anl:NAve=0
+217:2402646:d=21092000:DPT:875 mb:anl:NAve=0
+218:2413456:d=21092000:SPFH:875 mb:anl:NAve=0
+219:2423374:d=21092000:VVEL:875 mb:anl:NAve=0
+220:2436866:d=21092000:DZDT:875 mb:anl:NAve=0
+221:2450358:d=21092000:UGRD:875 mb:anl:NAve=0
+222:2461168:d=21092000:VGRD:875 mb:anl:NAve=0
+223:2471086:d=21092000:ABSV:875 mb:anl:NAve=0
+224:2480576:d=21092000:HGT:900 mb:anl:NAve=0
+225:2494962:d=21092000:TMP:900 mb:anl:NAve=0
+226:2505772:d=21092000:RH:900 mb:anl:NAve=0
+227:2518370:d=21092000:DPT:900 mb:anl:NAve=0
+228:2530074:d=21092000:SPFH:900 mb:anl:NAve=0
+229:2540884:d=21092000:VVEL:900 mb:anl:NAve=0
+230:2554376:d=21092000:DZDT:900 mb:anl:NAve=0
+231:2567868:d=21092000:UGRD:900 mb:anl:NAve=0
+232:2578678:d=21092000:VGRD:900 mb:anl:NAve=0
+233:2589488:d=21092000:ABSV:900 mb:anl:NAve=0
+234:2598978:d=21092000:HGT:925 mb:anl:NAve=0
+235:2613364:d=21092000:TMP:925 mb:anl:NAve=0
+236:2624174:d=21092000:RH:925 mb:anl:NAve=0
+237:2634092:d=21092000:DPT:925 mb:anl:NAve=0
+238:2645796:d=21092000:SPFH:925 mb:anl:NAve=0
+239:2656606:d=21092000:VVEL:925 mb:anl:NAve=0
+240:2670098:d=21092000:DZDT:925 mb:anl:NAve=0
+241:2683590:d=21092000:UGRD:925 mb:anl:NAve=0
+242:2694400:d=21092000:VGRD:925 mb:anl:NAve=0
+243:2705210:d=21092000:ABSV:925 mb:anl:NAve=0
+244:2714700:d=21092000:HGT:950 mb:anl:NAve=0
+245:2729086:d=21092000:TMP:950 mb:anl:NAve=0
+246:2739004:d=21092000:RH:950 mb:anl:NAve=0
+247:2748922:d=21092000:DPT:950 mb:anl:NAve=0
+248:2760626:d=21092000:SPFH:950 mb:anl:NAve=0
+249:2771436:d=21092000:VVEL:950 mb:anl:NAve=0
+250:2784928:d=21092000:DZDT:950 mb:anl:NAve=0
+251:2798420:d=21092000:UGRD:950 mb:anl:NAve=0
+252:2809230:d=21092000:VGRD:950 mb:anl:NAve=0
+253:2820040:d=21092000:ABSV:950 mb:anl:NAve=0
+254:2829530:d=21092000:HGT:975 mb:anl:NAve=0
+255:2843916:d=21092000:TMP:975 mb:anl:NAve=0
+256:2853834:d=21092000:RH:975 mb:anl:NAve=0
+257:2863752:d=21092000:DPT:975 mb:anl:NAve=0
+258:2874562:d=21092000:SPFH:975 mb:anl:NAve=0
+259:2884480:d=21092000:VVEL:975 mb:anl:NAve=0
+260:2897972:d=21092000:DZDT:975 mb:anl:NAve=0
+261:2911464:d=21092000:UGRD:975 mb:anl:NAve=0
+262:2922274:d=21092000:VGRD:975 mb:anl:NAve=0
+263:2933084:d=21092000:ABSV:975 mb:anl:NAve=0
+264:2942574:d=21092000:TMP:1000 mb:anl:NAve=0
+265:2954278:d=21092000:RH:1000 mb:anl:NAve=0
+266:2964196:d=21092000:DPT:1000 mb:anl:NAve=0
+267:2975006:d=21092000:SPFH:1000 mb:anl:NAve=0
+268:2984924:d=21092000:VVEL:1000 mb:anl:NAve=0
+269:2998416:d=21092000:DZDT:1000 mb:anl:NAve=0
+270:3011908:d=21092000:UGRD:1000 mb:anl:NAve=0
+271:3022718:d=21092000:VGRD:1000 mb:anl:NAve=0
+272:3033528:d=21092000:ABSV:1000 mb:anl:NAve=0
+273:3041318:d=21092000:MSLET:MSL:anl:NAve=0
+274:3055704:d=21092000:MSLMA:MSL:anl:NAve=0
+275:3070090:d=21092000:HGT:1000 mb:anl:NAve=0
+276:3084476:d=21092000:REFD:4000 m above gnd:anl:NAve=0
+277:3084562:d=21092000:REFD:1000 m above gnd:anl:NAve=0
+278:3084648:d=21092000:PRES:sfc:anl:NAve=0
+279:3099034:d=21092000:HGT:sfc:anl:NAve=0
+280:3113420:d=21092000:TMP:sfc:anl:NAve=0
+281:3127806:d=21092000:TSOIL:0-10 cm down:anl:NAve=0
+282:3136830:d=21092000:SOILW:0-10 cm down:anl:NAve=0
+283:3145854:d=21092000:SOILL:0-10 cm down:anl:NAve=0
+284:3154878:d=21092000:TSOIL:10-40 cm down:anl:NAve=0
+285:3163902:d=21092000:SOILW:10-40 cm down:anl:NAve=0
+286:3172926:d=21092000:SOILL:10-40 cm down:anl:NAve=0
+287:3181950:d=21092000:TSOIL:40-100 cm down:anl:NAve=0
+288:3190974:d=21092000:SOILW:40-100 cm down:anl:NAve=0
+289:3199998:d=21092000:SOILL:40-100 cm down:anl:NAve=0
+290:3209022:d=21092000:TSOIL:100-200 cm down:anl:NAve=0
+291:3218046:d=21092000:SOILW:100-200 cm down:anl:NAve=0
+292:3227070:d=21092000:SOILL:100-200 cm down:anl:NAve=0
+293:3236094:d=21092000:TSOIL:300 cm down:anl:NAve=0
+294:3248692:d=21092000:MSTAV:0-100 cm down:anl:NAve=0
+295:3248778:d=21092000:SOILM:0-200 cm down:anl:NAve=0
+296:3255120:d=21092000:WEASD:sfc:anl:NAve=0
+297:3255206:d=21092000:SNOL:sfc:0-0hr acc:NAve=0
+298:3255292:d=21092000:SNOWC:sfc:anl:NAve=0
+299:3255378:d=21092000:SNOD:sfc:anl:NAve=0
+300:3255464:d=21092000:TMP:2 m above gnd:anl:NAve=0
+301:3268956:d=21092000:SPFH:2 m above gnd:anl:NAve=0
+302:3275298:d=21092000:DPT:2 m above gnd:anl:NAve=0
+303:3288790:d=21092000:RH:2 m above gnd:anl:NAve=0
+304:3298708:d=21092000:UGRD:10 m above gnd:anl:NAve=0
+305:3309518:d=21092000:VGRD:10 m above gnd:anl:NAve=0
+306:3320328:d=21092000:CPRAT:sfc:anl:NAve=0
+307:3320414:d=21092000:PRATE:sfc:anl:NAve=0
+308:3320500:d=21092000:APCP:sfc:0-0hr acc:NAve=0
+309:3320586:d=21092000:ACPCP:sfc:0-0hr acc:NAve=0
+310:3320672:d=21092000:NCPCP:sfc:0-0hr acc:NAve=0
+311:3320758:d=21092000:WEASD:sfc:0-0hr acc:NAve=0
+312:3320844:d=21092000:SNOM:sfc:0-0hr acc:NAve=0
+313:3320930:d=21092000:SSRUN:sfc:0-0hr acc:NAve=0
+314:3321016:d=21092000:CSNOW:sfc:anl:NAve=0
+315:3321102:d=21092000:CICEP:sfc:anl:NAve=0
+316:3321188:d=21092000:CFRZR:sfc:anl:NAve=0
+317:3321274:d=21092000:CRAIN:sfc:anl:NAve=0
+318:3321360:d=21092000:CSNOW:sfc:anl:NAve=0
+319:3321446:d=21092000:CICEP:sfc:anl:NAve=0
+320:3321532:d=21092000:CFRZR:sfc:anl:NAve=0
+321:3321618:d=21092000:CRAIN:sfc:anl:NAve=0
+322:3321704:d=21092000:EVP:sfc:0-0hr acc:NAve=0
+323:3321790:d=21092000:PEVAP:sfc:0-0hr acc:NAve=0
+324:3321876:d=21092000:SFCR:sfc:anl:NAve=0
+325:3321962:d=21092000:FRICV:sfc:anl:NAve=0
+326:3322048:d=21092000:SHTFL:sfc:anl:NAve=0
+327:3322134:d=21092000:LHTFL:sfc:anl:NAve=0
+328:3322220:d=21092000:VEG:sfc:anl:NAve=0
+329:3331244:d=21092000:GFLUX:sfc:anl:NAve=0
+330:3331330:d=21092000:LFTX:500-1000 mb:anl:NAve=0
+331:3339460:d=21092000:CAPE:sfc:anl:NAve=0
+332:3339546:d=21092000:CIN:sfc:anl:NAve=0
+333:3339632:d=21092000:PWAT:atmos col:anl:NAve=0
+334:3347762:d=21092000:TCOLW:atmos col:anl:NAve=0
+335:3347848:d=21092000:TCOLI:atmos col:anl:NAve=0
+336:3347934:d=21092000:TCOLR:atmos col:anl:NAve=0
+337:3348020:d=21092000:TCOLS:atmos col:anl:NAve=0
+338:3348106:d=21092000:TCOLC:atmos col:anl:NAve=0
+339:3348192:d=21092000:LCDC:low cld lay:anl:NAve=0
+340:3348278:d=21092000:MCDC:mid cld lay:anl:NAve=0
+341:3348364:d=21092000:HCDC:high cld lay:anl:NAve=0
+342:3348450:d=21092000:TCDC:atmos col:anl:NAve=0
+343:3348536:d=21092000:TCDC:atmos col:anl:NAve=0
+344:3348622:d=21092000:PRES:cld base:anl:NAve=0
+345:3348708:d=21092000:HGT:cld base:anl:NAve=0
+346:3348794:d=21092000:HGT:cld base:anl:NAve=0
+347:3348880:d=21092000:HGT:cloud ceiling:anl:NAve=0
+348:3348966:d=21092000:PRES:cld top:anl:NAve=0
+349:3349052:d=21092000:HGT:cld top:anl:NAve=0
+350:3349138:d=21092000:HGT:cld top:anl:NAve=0
+351:3349224:d=21092000:TMP:cld top:anl:NAve=0
+352:3349310:d=21092000:BRTMP:nom. top:anl:NAve=0
+353:3363696:d=21092000:CDCON:atmos col:anl:NAve=0
+354:3363782:d=21092000:DSWRF:sfc:anl:NAve=0
+355:3363868:d=21092000:DLWRF:sfc:anl:NAve=0
+356:3363954:d=21092000:USWRF:sfc:anl:NAve=0
+357:3364040:d=21092000:ULWRF:sfc:anl:NAve=0
+358:3375744:d=21092000:HLCY:3000-0 m above gnd:anl:NAve=0
+359:3384768:d=21092000:HGT:tropopause:anl:NAve=0
+360:3392004:d=21092000:HGT:0C isotherm:anl:NAve=0
+361:3406390:d=21092000:HGT:high trop freezing lvl:anl:NAve=0
+362:3418988:d=21092000:SPFH:30-0 mb above gnd:anl:NAve=0
+363:3425330:d=21092000:UGRD:30-0 mb above gnd:anl:NAve=0
+364:3438822:d=21092000:VGRD:30-0 mb above gnd:anl:NAve=0
+365:3453208:d=21092000:PWAT:30-0 mb above gnd:anl:NAve=0
+366:3462232:d=21092000:PLI:30-0 mb above gnd:anl:NAve=0
+367:3470362:d=21092000:4LFTX:180-0 mb above gnd:anl:NAve=0
+368:3477598:d=21092000:CAPE:180-0 mb above gnd:anl:NAve=0
+369:3485728:d=21092000:CIN:180-0 mb above gnd:anl:NAve=0
+370:3494752:d=21092000:HPBL:sfc:anl:NAve=0
+371:3494838:d=21092000:CAPE:90-0 mb above gnd:anl:NAve=0
+372:3494924:d=21092000:CIN:90-0 mb above gnd:anl:NAve=0
+373:3495010:d=21092000:CAPE:255-0 mb above gnd:anl:NAve=0
+374:3503140:d=21092000:CIN:255-0 mb above gnd:anl:NAve=0
+375:3511270:d=21092000:NLAT:sfc:anl:NAve=0
+376:3522974:d=21092000:ELON:sfc:anl:NAve=0
+377:3535572:d=21092000:LAND:sfc:anl:NAve=0
+378:3536552:d=21092000:ICEC:sfc:anl:NAve=0
+379:3536638:d=21092000:WTMP:sfc:anl:NAve=0
+380:3551024:d=21092000:PVORT:320K:anl:NAve=0
+
+These data are completelly different - for Azet there is really just
+subset of variables.
+Let us check whether we have all we need.
+- yes, I checked ranomly and all Azet variables are contained in the Belehrad WRF data
+
+Checking whether Azet Forecast is reading also ASCII files from
+/opt/ims/data/forecastWRF/2021092200/d03_tsl/
+Seems like not.
+No occurance in WRF agent configuration nor source code.
+No occurance in /opt/ims/cfg/station/bin
+even in scripts calculating Precipitation Indicators
+we have just:
+makePrecIndicatorsWRF.sh: FILEMASK="WRFPRS_d03_ll."
+(Meaning for Belehrad also these scripts have to be adapted because we have different file mask: WRFPRS_d03.<hour> )
+
+Peter Sisan upgraded the script and pushes just the chosen variables.
+To be stored and documented in git.
+
+3. Upgrade of IMS4
+These were new configurations in profile.conf
+IMS_LEGACY_SEMS_BASICGUI
+IMS_TEST_ENVIRONMENT
+IMS_INSTALL_OJDBC_DRIVER
+IMS_ATIS_DATA
+IMS_ATIS_SECURITY
+IMS_WIND_PROFILER
+IMS_WIND_ROSE
+IMS_WIND_HOURLY
+IMS_BIM
+IMS_SOLAR_DIFF
+IMS_CAAC
+IMS_PW_PH48
+IMS_PW_SQUALL
+IMS_VAISALA
+IMS_VAISALA_WEATHERVIEW
+IMS_UPS
+IMS_ADWRNG
+IMS_IWXXM
+IMS_WMDR
+IMS_RADAR_MMR116
+IMS_LIGHTNING_BIRAL
+IMS_RADAR_MMR116
+IMS_RADAR_MMR116
+IMS_RADAR_MMR116
+IMS_IO_BIODAQ
+IMS_IMS4B
+IMS_IMS4B
+IMS_WS_METFORTAM
+IMS_JAXB
+IMS_WS_METFORTAM
+IMS_WS_RWY_WEATHER_PUB
+IMS_WS_RWY_WEATHER_SUB
+IMS_WS_OBACS_PUB
+IMS_WS_OBACS_SUB
+IMS_WS_RWY_MET_PUB
+IMS_WS_RWY_MET_SUB
+IMS_WS2_SERVER
+IMS_WS_METFORTAM
+IMS_TOTP
+IMS_OPERA
+IMS_SCRIPT_RADAR
+IMS_SATELLITE
+IMS_XRIT_SC001
+IMS_XRIT_SC002
+IMS_XRIT_SC003
+IMS_FLASH_TESTING
+IMS_ENVIDB_UA
+IMS_LIGHTNING_LINET
+IMS_WATCH
+IMS_UTIL_STATS
+IMS_RWYCC
+IMS_REMOTE_OBSERVER
+IMS_OPC_UA
+IMS_REMOTE_DEBUGGING
+IMS_SIMULATION
+IMS_FLIGHTAWARE
+IMS_RADAR_LLWAS
+IMS_ENVIDB_HOMOGENIZATION
+
+Since the system was installed all of these was added to IMS4 system.
+
+After the first upgrade was missing oracle extension in local PostgreSQL installation.
+DBCreate: 2021-09-16 12:39:45.925 UTC: ERROR: ERROR: could not open extension control file "/usr/pgsql-10/share/extension/orafce.control": No such file or directory
+This was adjusted by deployment of orafce.
+https://wiki.mstep/index.php/SW_Instalacia_PC_PostgreSQL
+   > scp root@10.111.4.142:/opt/install/rhel7/rpm/pg10/orafce10-3.6.1-1.rhel7.x86_64.rpm .
+   > rpm -ivh orafce10-3.6.1-1.rhel7.x86_64.rpm
+   > psql 
+     ims=# CREATE EXTENSION orafce;
+     CREATE EXTENSION
+
+Erros in upgrade script - downloaded log files:
+  BelehradDev_10.111.5.171\upgrade_ims_log_16.9.2021_2.log
+
+PostgreSQL errors in creating database objects:
+---
+DBCreate: 2021-09-16 12:56:41.978 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION FSVP (tx Float) return Float IS
+DBCreate: 2021-09-16 12:56:41.979 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION FVP (db Float, wb Float, qfe Float)
+DBCreate: 2021-09-16 12:56:41.980 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION FAPTWIND (apt Float, sp Float) return Float IS
+DBCreate: 2021-09-16 12:56:41.982 UTC: ERROR: execDDL: not executed 'CREATE  OR REPLACE FUNCTION FAPT1 (db Float, wb Float, sp Float, qfe Float) return Float IS
+DBCreate: 2021-09-16 12:56:41.984 UTC: ERROR: execDDL: not executed 'CREATE  OR REPLACE FUNCTION PRECALC_APT
+DBCreate: 2021-09-16 12:56:41.985 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_Prec_Sum_Hourly (StID INTEGER, FromTime DATE, ToTime Date, Src CHAR, LogLevel INTEGER DEFAULT 0)  RETURN NUMBER
+DBCreate: 2021-09-16 12:56:41.987 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_Prec_Sum_Dly (StID INTEGER, FromTime DATE, ToTime Date, Src CHAR, LogLevel INTEGER DEFAULT 0)  RETURN NUMBER
+DBCreate: 2021-09-16 12:56:41.988 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_WIND_GUST_SPEED_HOURLY
+DBCreate: 2021-09-16 12:56:41.989 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_WIND_GUST_DIR_HOURLY
+DBCreate: 2021-09-16 12:56:41.991 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_WIND_GUST_TIME_HOURLY
+DBCreate: 2021-09-16 12:56:41.993 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_WIND_SPEED_HOURLY
+DBCreate: 2021-09-16 12:56:41.994 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_WIND_DIR_HOURLY
+DBCreate: 2021-09-16 12:56:41.995 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_WIND_GUST_DLY
+DBCreate: 2021-09-16 12:56:41.997 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_WIND_GUST_TIME_DLY
+DBCreate: 2021-09-16 12:56:41.999 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_WIND_GUST_DIR_DLY
+DBCreate: 2021-09-16 12:56:42.000 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_WIND_GUST_DLY_TO_KNOTS
+DBCreate: 2021-09-16 12:56:42.006 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION MOD360(ANGLE FLOAT)   return FLOAT IS
+DBCreate: 2021-09-16 12:56:42.008 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_WIND_DIR_AVG_DLY
+DBCreate: 2021-09-16 12:56:42.010 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_WINDSPEED_TO_KNOTS
+DBCreate: 2021-09-16 12:56:42.011 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_WINDSPEED10_TO_KNOTS
+DBCreate: 2021-09-16 12:56:42.012 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_WINDSPEED60_TO_KNOTS
+DBCreate: 2021-09-16 12:56:42.013 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_WINDGUST_TO_KNOTS
+DBCreate: 2021-09-16 12:56:42.014 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_WINDGUST10_TO_KNOTS
+DBCreate: 2021-09-16 12:56:42.016 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_WINDGUST60_TO_KNOTS
+DBCreate: 2021-09-16 12:56:42.017 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_TEMP_DRY_DLY_MIN
+DBCreate: 2021-09-16 12:56:42.018 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_TEMP_DRY_DLY_MAX
+DBCreate: 2021-09-16 12:56:42.020 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_TEMP_APPARENT_DLY_MIN
+DBCreate: 2021-09-16 12:56:42.021 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_TEMP_APPARENT_DLY_MAX
+DBCreate: 2021-09-16 12:56:42.022 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_ROLL_WINDSPEED_2MIN
+DBCreate: 2021-09-16 12:56:42.024 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_ROLL_WINDDIR_2MIN
+DBCreate: 2021-09-16 12:56:42.025 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_ROLL_WINDGUST_2MIN
+DBCreate: 2021-09-16 12:56:42.026 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_WINDSPEED2_TO_KNOTS
+DBCreate: 2021-09-16 12:56:42.027 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_WINDGUST2_TO_KNOTS
+DBCreate: 2021-09-16 12:56:42.029 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_SUNZENITH
+DBCreate: 2021-09-16 12:56:42.030 UTC: ERROR: execDDL: not executed 'create or replace function zenith(utc date,lon FLOAT,lat Float) return FLOAT
+DBCreate: 2021-09-16 12:56:42.031 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_ETGLOBAL
+DBCreate: 2021-09-16 12:56:42.032 UTC: ERROR: execDDL: not executed 'create or replace function ETGlobRadFromZenith(utc date,lon FLOAT,zenith Float) return FLOAT
+DBCreate: 2021-09-16 12:56:42.035 UTC: ERROR: execDDL: not executed 'CREATE  OR REPLACE FUNCTION PRECALC_MINUTE_SUNDUR
+DBCreate: 2021-09-16 12:56:42.036 UTC: ERROR: execDDL: not executed 'CREATE  OR REPLACE FUNCTION PRECALC_MINUTE_SUNDUR_FAST
+DBCreate: 2021-09-16 12:56:42.037 UTC: ERROR: execDDL: not executed 'create or replace function MinuteSunDurationFast(mSolar FLOAT, utc DATE, lon FLOAT, lat FLOAT) return FLOAT
+DBCreate: 2021-09-16 12:56:42.038 UTC: ERROR: execDDL: not executed 'create or replace function MinuteSunDuration(mSolar FLOAT, zenith FlOAT, g0 FLOAT) return FLOAT
+DBCreate: 2021-09-16 12:56:42.039 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_SUNDUR_HOURLY
+DBCreate: 2021-09-16 12:56:42.040 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_SUNDUR_DLY
+DBCreate: 2021-09-16 12:56:42.046 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_PRECSUMLASTXM_FROM1M
+DBCreate: 2021-09-16 12:56:42.047 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_PRECSUMLAST1H_FROM1M
+DBCreate: 2021-09-16 12:56:42.049 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_PRECSUMLAST2H_FROM1M
+DBCreate: 2021-09-16 12:56:42.050 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_PRECSUMLAST3H_FROM1M
+DBCreate: 2021-09-16 12:56:42.051 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_PRECSUMLAST6H_FROM1M
+DBCreate: 2021-09-16 12:56:42.052 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_PRECSUMLAST12H_FROM1M
+DBCreate: 2021-09-16 12:56:42.055 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_PRECSUMLAST24H_FROM1M
+DBCreate: 2021-09-16 12:56:42.057 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_PREC_INTENSITY
+DBCreate: 2021-09-16 12:56:42.059 UTC: ERROR: execDDL: not executed 'CREATE OR REPLACE FUNCTION PRECALC_PREC_INTENSITY_HLY
+DBCreate: 2021-09-16 12:56:42.067 UTC: ERROR: execDDL: not executed 'alter table VALUES_S modify VALUE VARCHAR(256)'
+---
+Missing configuration for File Inserter Terminal:
+at com.microstepmis.communication2.modules.FileInsertTerminal$WorkerThread.run(FileInsertTerminal.java:276)
+INFO   | jvm 1    | 2021/09/16 15:01:27 | Caused by: com.microstepmis.xplatform.XException: java.io.FileNotFoundException:
+/opt/ims/bin/../cfg/station/cfgMetar.xml (No such file or directory) Path=[x, x
+:0, constants:9, ?include 0?, name="value" href="../cfg/station/cfgMetar.xml" xpath="//metReportCloudHeightUnit/."]
+
+# Meeting with Martina Petrovicova on 24.9.2021
+  1. We found out there is no need for CLDB configurations
+  because all stations processed are just inthe xml file.
+  There are no stations for the Forecast modul used from the CLDB database.
+  SQL inserts are missleading.
+  We need just classes of envidb that is why there
+  is =y to ENVIDB.
+  For installation in Benestra there is yet
+  https://gitlab.mstep/mis/sw/ims/ims4/ims4-configurations/-/tree/master_665_SK_Azet_Forecast/ForecastBenestra
+  upgrade_local.sh
+  which actualy removes the envidb agents from the scheduler.
+
+
+  2. Regarding failures in upgrade,
+  there are incomptible and not needed
+  DDL commands compatible only with Oracle.
+  Recommended is to fully remove from cfg/station:
+  DBCreateLocatl.xml
+  DBCreateQC.xml
+  in EnvidbConnection disbale qc which is polling database in vain.
+  Remove also obsolete
+  DBConnectionActual.xml
+
+  3. Metadata for Serbian stations
+  ask Milan or integrators to export the CLDB metadata
+  which might be then used for the station list
+  in the Forecast module.
+
+  4. Regarding SYNOP downloading from OGIMET.
+  There might be more reasons for that, like
+  - OGIMET provides only URL and post command, not FTP
+  (we do not have such terminal)
+  - there are many files, not to overload the message database
+  (but thay anyway go through the message database)
+  SYNOPS might be in SADIS terminal
+  and might be routed from there in MSS.
+  Ask Gyorgy about that.
+
+  5. Regarding issue in the Communication channel
+  Metar File inserter, first investigate and then contact AWOS
+  group what might got wrong.
+
+
+
+4. Configuration of METAR and SYNOP flow from MSS
+
+On MSS created channel
+TO_FCST_BEOGRAD_DEV
+( https://mss.mstep:8443/ims/html/communication2Detailed.html?id=TO_FCST_BEOGRAD_DEV )
+with dedicated port: 12346
+METAR/SPECI routed from the local message database, from the folder.
+
+Also routed SYNOP messages from the channel:
+NOAA_SYNOP_PROCESSOR
+However, this channle does not work - we will need to establish different solution.
+
+On the Forecast IMS4 side we created channel:
+from_MSS
+which is simillar like for Azet reading packets from TCP port,
+we removed all protocols (wait and acknoledge protocol)
+and on the other side is Fork terminal with
+MessageDatabase terminal which routes
+the METAR/SPECI messages to
+the message database Channel 12.
+
+Then we established in the message database routing to two folders
+METAR - regexp allowed: (SA.*)|(SP.*)
+SYNOP - regexp denied: (SA.*)|(SP.*)
+This are always the beinning of the Metar messages.
+
+Folder 4 Metar is further by the communication channel
+METAR_FILE_INSERTER stored into the CurrentData folder in
+/opt/ims/data There is one error in the File Insert Terminal,
+indicates missing of some class or cfg file, might be the cdfMetar.xml
+indicated abowe by the wrapper.
+
+2021-09-23 14:16:24.676 UTC: ERROR: METAR_FILE_INSERTER/FileInsertTerminal: Exception "java.lang.IllegalStateException: Cannot create object representing function trendCoder.". Stack dump: com.microstepmis.kernel.KernelFunctionCfg.deepClone(KernelFunctionCfg.java:98) at line 98 com.microstepmis.coder.Coder.loadConstantsAndFunctions(Coder.java:236) at line 236 com.microstepmis.coder.Coder.reset(Coder.java:502) at line 502 com.microstepmis.envidb.insert.Inserter.insertSimpleMessage(Inserter.java:1543) at line 1543 com.microstepmis.envidb.insert.Inserter.insert(Inserter.java:1253) at line 1253 com.microstepmis.communication2.modules.FileInsertTerminal$WorkerThread.findInserterAndInsert(FileInsertTerminal.java:183) at line 183 com.microstepmis.communication2.modules.FileInsertTerminal$WorkerThread.run(FileInsertTerminal.java:325) at line 325
+
+Other issue was that due to time synchronization problem
+the routing did not work at first.
+
+Marcel had fixed the issue by enabling the time synchronization:
+> su
+> systemctl enable chronyd
+> systemctl start chronyd
+and restart of the IMS4 system
+> service ims restart
+
+TODO - remained open: SYNOP routing, and issues of FileInsertTerminal.
+Don't forget to disable 5 level logging for communication channel (check it) - Done.
+
+# 27.9.2021 - issues of METAR insertion
+1. Missing trendCoder - reversion of MetarDecoder from Azet has resolved the issue
+seems like development conducted by Marcel, Jojo is the culprit - report them and let they provide
+stable version of cfg/coder which I rely on.
+
+After work with Marcel:
+The culprit is misssing cfgMetar which is included from
+MetReportTrendCoder.xml
+The only thing which was needed from there was:
+ - cldHeightUnitConst
+ - cldHeightUnit2Const
+We resolved it not by including not needed
+cfgMetar but by implementing defaults in
+MetReportTrendCoder.xml.
+
+2. Issue of Communicaiton channel
+Some METAR messages seems to be corrupted
+- when addding Ackowledgment protocol which works for Azet
+routing is not functional anymore.
+When making configuration changes in the Communicaiton, the following
+errors occur:
+2021-09-27 14:48:54.111 UTC: ERROR: from_MSS/fork: Exception "java.lang.InterruptedException". Stack dump: java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.reportInterruptAfterWait(AbstractQueuedSynchronizer.java:2014) at line 2014 java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.awaitNanos(AbstractQueuedSynchronizer.java:2088) at line 2088 java.util.concurrent.ArrayBlockingQueue.poll(ArrayBlockingQueue.java:418) at line 418 com.microstepmis.communication2.QueueReceiver.poll(QueueReceiver.java:56) at line 56 com.microstepmis.communication2.ForkDispatchers$ForkThread.run(ForkDispatchers.java:77) at line 77
+This is just break of waiting exception
+which should not be logged.
+The routing of messages for Ack protocol
+is not working, because it is missing on MSS side.
+Whereas for Azet it is present.
+
+3. Now we have reception of METAR messages
+but many are corrupted, not processed properly by the FileInserter:
+2021-09-27 15:11:44.741 UTC: NOTE: METAR_FILE_INSERTER/FileInsertTerminal: Rejected messages from bulletin: 0
+2021-09-27 15:11:44.747 UTC: NOTE: METAR_FILE_INSERTER/FileInsertTerminal: message SACN61 CYLW 271500 inserted, occurred problem: Wrong format of message, some data may missing
+2021-09-27 15:11:44.750 UTC: NOTE: METAR_FILE_INSERTER/msgDb: Message "SACN61 CYLW 271500" has been sent
+2021-09-27 15:11:44.750 UTC: NOTE: METAR_FILE_INSERTER/FileInsertTerminal: Sending SACN61 CYQV 271500 to CLDB
+2021-09-27 15:11:44.755 UTC: NOTE: METAR_FILE_INSERTER/FileInsertTerminal: Rejected messages from bulletin: 0
+2021-09-27 15:11:44.762 UTC: NOTE: METAR_FILE_INSERTER/FileInsertTerminal: message SACN61 CYQV 271500 inserted, occurred problem: Wrong format of message, some data may missing
+2021-09-27 15:11:44.765 UTC: NOTE: METAR_FILE_INSERTER/msgDb: Message "SACN61 CYQV 271500" has been sent
+2021-09-27 15:11:44.765 UTC: NOTE: METAR_FILE_INSERTER/FileInsertTerminal: Sending SACN61 CYXS 271500 to CLDB
+2021-09-27 15:11:44.769 UTC: NOTE: METAR_FILE_INSERTER/FileInsertTerminal: Rejected messages from bulletin: 0
+2021-09-27 15:11:44.779 UTC: NOTE: METAR_FILE_INSERTER/FileInsertTerminal: message SACN61 CYXS 271500 successfully inserted
+2021-09-27 15:11:44.781 UTC: NOTE: METAR_FILE_INSERTER/msgDb: Message "SACN61 CYXS 271500" has been sent
+2021-09-27 15:11:44.781 UTC: NOTE: METAR_FILE_INSERTER/FileInsertTerminal: Sending SACN62 CYGK 271500 to CLDB
+2021-09-27 15:11:44.786 UTC: NOTE: METAR_FILE_INSERTER/FileInsertTerminal: Rejected messages from bulletin: 0
+2021-09-27 15:11:44.793 UTC: NOTE: METAR_FILE_INSERTER/FileInsertTerminal: message SACN62 CYGK 271500 inserted, occurred problem: Wrong format of message, some data may missing
+2021-09-27 15:11:44.796 UTC: NOTE: METAR_FILE_INSERTER/msgDb: Message "SACN62 CYGK 271500" has been sent
+
+Is the issue related to the corrupted messages from the communication
+or have we problem in METAR Decoder, or the source METAR data from MSS
+have problems.
+Could you help me to resolve the issues?
+
+28.9.2021 - verification of METAR messages by comparision with Azet DEV, prod
+  1. Seeking corresponding messages in 949 Forecast Belgrade DEV machine and OPS Azet.
+  Results of investigation
+  - could not find recently processed METAR messages
+  - also the FileInserter has many problems on Azet OPS machine
+   (example of today log file from 85.248.214.146)
+  [ims@ims ~]$ less /opt/ims/log/2021/09/27/com.SynopMetarFileInserter.log
+  ....
+2021-09-27 15:16:50.083 UTC: NOTE: SynopMetarFileInserter/FileInsertTerminal: Rejected messages from bulletin: 0
+2021-09-27 15:16:50.084 UTC: NOTE: SynopMetarFileInserter/FileInsertTerminal: message SAMS32 WMKK 261500 fatal problem occured: Invalid station indicator in message message cannot be inserted
+2021-09-27 15:16:50.091 UTC: NOTE: SynopMetarFileInserter/msgDb: Message "SAMS32 WMKK 261500" has been sent
+2021-09-27 15:16:51.630 UTC: WARNING: Communication: SynopMetarFileInserter: Status changed to WARNING:
+        Send: Message "SAMS32 WMKK 261500" has been sent; Recv: Started;
+        message SAMS32 WMKK 261500 fatal problem occured: Invalid station indicator in m...
+2021-09-27 15:17:54.252 UTC: NOTE: SynopMetarFileInserter/FileInsertTerminal: Sending SAMS32 WMKK 261500 to CLDB
+2021-09-27 15:17:54.254 UTC: NOTE: SynopMetarFileInserter/FileInsertTerminal: Rejected messages from bulletin: 0
+2021-09-27 15:17:54.254 UTC: NOTE: SynopMetarFileInserter/FileInsertTerminal: message SAMS32 WMKK 261500 fatal problem occured: Invalid station indicator in message message cannot be inserted
+2021-09-27 15:17:54.259 UTC: NOTE: SynopMetarFileInserter/msgDb: Message "SAMS32 WMKK 261500" has been sent
+2021-09-27 15:18:59.341 UTC: NOTE: SynopMetarFileInserter/FileInsertTerminal: Sending SAMS32 WMKK 261500 to CLDB
+2021-09-27 15:18:59.342 UTC: NOTE: SynopMetarFileInserter/FileInsertTerminal: Rejected messages from bulletin: 0
+2021-09-27 15:18:59.343 UTC: NOTE: SynopMetarFileInserter/FileInsertTerminal: message SAMS32 WMKK 261500 fatal problem occured: Invalid station indicator in message message cannot be inserted
+2021-09-27 15:18:59.347 UTC: NOTE: SynopMetarFileInserter/msgDb: Message "SAMS32 WMKK 261500" has been sent
+2021-09-27 15:20:01.636 UTC: WARNING: Current channel status:
+        Send: Message "SAMS32 WMKK 261500" has been sent; Recv: Started;
+        message SAMS32 WMKK 261500 fatal problem occured: Invalid station indicator in m...
+2021-09-27 15:20:04.682 UTC: NOTE: SynopMetarFileInserter/FileInsertTerminal: Sending SAMS32 WMKK 261500 to CLDB
+2021-09-27 15:20:04.683 UTC: NOTE: SynopMetarFileInserter/FileInsertTerminal: Rejected messages from bulletin: 0
+2021-09-27 15:20:04.684 UTC: NOTE: SynopMetarFileInserter/FileInsertTerminal: message SAMS32 WMKK 261500 fatal problem occured: Invalid station indicator in message message cannot be inserted
+2021-09-27 15:20:04.704 UTC: NOTE: SynopMetarFileInserter/msgDb: Message "SAMS32 WMKK 261500" has been sent
+2021-09-27 15:21:09.852 UTC: NOTE: SynopMetarFileInserter/FileInsertTerminal: Sending SAAO31 GOOY 261500 to CLDB
+2021-09-27 15:21:09.854 UTC: NOTE: SynopMetarFileInserter/FileInsertTerminal: Rejected messages from bulletin: 0
+2021-09-27 15:21:09.865 UTC: NOTE: SynopMetarFileInserter/FileInsertTerminal: message SAAO31 GOOY 261500 inserted, occured problem: Wrong format of message, some data may missing
+2021-09-27 15:21:09.871 UTC: NOTE: SynopMetarFileInserter/msgDb: Message "SAAO31 GOOY 261500" has been sent
+2021-09-27 15:22:15.274 UTC: NOTE: SynopMetarFileInserter/FileInsertTerminal: Sending SAPA31 KWBC 261500 RRA to CLDB
+2021-09-27 15:22:15.276 UTC: NOTE: SynopMetarFileInserter/FileInsertTerminal: Rejected messages from bulletin: 0
+2021-09-27 15:22:15.279 UTC: NOTE: SynopMetarFileInserter/FileInsertTerminal: message SAPA31 KWBC 261500 RRA successfully inserted
+2021-09-27 15:22:15.281 UTC: NOTE: SynopMetarFileInserter/msgDb: Message "SAPA31 KWBC 261500 RRA" has been sent
+2021-09-27 15:22:15.630 UTC: NOTE: Communication: SynopMetarFileInserter: Status changed to OK:
+        Send: Message "SAPA31 KWBC 261500 RRA" has been sent; Recv: Started;
+        message SAPA31 KWBC 261500 RRA successfully inserted
+2021-09-27 15:23:20.667 UTC: NOTE: SynopMetarFileInserter/FileInsertTerminal: Sending SAPA31 KWBC 261500 RRA to CLDB
+2021-09-27 15:23:20.719 UTC: NOTE: SynopMetarFileInserter/FileInsertTerminal: Rejected messages from bulletin: 0
+2021-09-27 15:23:20.721 UTC: NOTE: SynopMetarFileInserter/FileInsertTerminal: message SAPA31 KWBC 261500 RRA successfully inserted
+  ...
+
+  Seems like Azet machine is processing some very outdated METAR messages.
+  Detail.
+  - I could find some of the Azet METAR messages from 26.9.2021
+    processed today by Azet and by 949 machine processed already two days ago.
+  - I could not find any correspodning  METAR messages processed by Azet today
+    with yesterday time stamp. Seeking on 949 Belgrad log files.
+  Attachments:
+  SynopMetarFileInserter_grep_issue.txt
+  METAR_FILE_INSERTER_grep_OK.txt
+  Totally puzzling METAR messages and a lot of missing 'current data'.
+  
+  2. Checking of parsing of the METAR messages
+  Comparision of two latest output CSV files.
+  [ims@ims ~]$ cat /opt/ims/data/CurrentDataCsv/202109281045_25_522_M.csv
+  LFOZ,1632738600000,19.0,15.0,NA,NA,NA,NA,NA,77.6266857439991,5.7,210.0,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,FEW,OVC,NA,NA,NA,1016.0,10000.0
+  949_Belehrad-IMS-ims:~ # cat /opt/ims/data/CurrentDataCsv/202109281123_46_378_M.csv
+  EPRZ,1632826800000,15.0,7.0,NA,NA,NA,NA,NA,58.81230692263555,6.2,80.0,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,FEW,NA,NA,NA,NA,1023.0,10000.0
+  Seems like FileInserter and CSV output is the same for both Azet and Belgrad installation.
+  Might be OK, but deep check of mapping of variables will be needed.
+
+  3. Checking of malformed message from METAR and carefully compare it with the one stored in MSS message database.
+  And with the message stored in OGIMET.
+  2021-09-28 11:35:44.277 UTC: NOTE: METAR_FILE_INSERTER/FileInsertTerminal: message SAAE32 VTBB 281100 inserted, occurred problem: Wrong format of message, some data may missing
+  Content of this message in 949 Forecast message database:
+  There are two these messages - no one of them was OK - both malformed:
+  28.9.2021 at 11:15:36 :
+  SAAE32 VTBB 281100
+  METAR VDPP 281100Z VRB03KT 9999 SCT015 FEW017CB 31/25 Q1006 CB:SW=
+  METAR VDSR 281100Z 04012KT 9000 SCT015 BKN040 27/24 Q1007=
+  METAR VLVT 281100Z 36002KT 5000 FEW040 BKN100 28/25 Q1008 NOSIG=
+  METAR VYMD 281100Z NIL=
+  METAR VYNT 281100Z NIL=
+  METAR VYYY 281100Z 17004KT 7000 BKN015 FEW020CB BKN100 32/25 Q1006
+  	NOSIG=
+  METAR VDSV 281100Z /////KT 9000 -RA SCT015 FEW017CB SCT040 XX/XX
+        Q////CB:S=
+
+  28.9.2021 at 11:15:45 :
+  SAAE32 VTBB 281100
+  METAR VDPP 281100Z VRB03KT 9999 SCT015 FEW017CB 31/25 Q1006 CB:SW=
+  METAR VDSR 281100Z 04012KT 9000 SCT015 BKN040 27/24 Q1007=
+  METAR VLVT 281100Z 36002KT 5000 FEW040 BKN100 28/25 Q1008 NOSIG=
+  METAR VYMD 281100Z NIL=
+  METAR VYNT 281100Z NIL=
+  METAR VYYY 281100Z 17004KT 7000 BKN015 FEW020CB BKN100 32/25 Q1006
+        NOSIG=
+  METAR VDSV 281100Z /////KT 9000 -RA SCT015 FEW017CB SCT040 XX/XX
+        Q////CB:S=
+  SACI31 ZBBB 281100
+  METAR ZBAA 281100Z 15002MPS 9999 FEW040 21/18 Q1009 NOSIG=
+  METAR ZBAD 281100Z 19004MPS CAVOK 20/18 Q1009 NOSIG=
+  METAR ZBSJ 281100Z 12001MPS CAVOK 19/15 Q1009 NOSIG=
+  METAR ZBTJ 281100Z 18002MPS 8000 NSC 21/18 Q1009 NOSIG=
+  METAR ZBYN 281100Z 17002MPS 6000 NSC 18/13 Q1013 NOSIG=
+  METAR ZGGG 281100Z 13003MPS 9999 SCT040 32/26 Q1006 NOSIG=
+  METAR ZSHC 281100Z 10003MPS 7000 FEW033 28/22 Q1008 NOSIG=
+  METAR ZSPD 281100Z 15003MPS CAVOK 25/23 Q1010 NOSIG=
+  METAR ZSSS 281100Z 15004MPS 9999 BKN030 28/22 Q1009 NOSIG=
+  METAR ZWSH 281100Z 11003MPS 090V160 CAVOK 29/M01 Q1012 NOSIG=
+  METAR ZWWW 281100Z 36004MPS CAVOK 21/M02 Q1015 NOSIG=
+  METAR ZYTL 281100Z 10003MPS 9999 SCT023 21/18 Q1010 NOSIG=
+  METAR ZYTX 281100Z 18002MPS CAVOK 19/15 Q1009 NOSIG=
+
+  In these cases - issue with VDSV. Not all values are read correctly, but the message is processed:
+  > cat 202109281135_39_420_M.csv
+  VDSV,1632826800000,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,-RA,NA,NA,NA,NA,SCT,FEW,SCT,NA,NA,NA,9000.0
+  So the problem is this part of the message, but this corresponds exactly to the version in OGIMET:
+  METAR VDSV 281100Z /////KT 9000 -RA SCT015 FEW017CB SCT040 XX/XX
+        Q////CB:S=
+
+  In MSS there are two equal messages for SAAE32 VTBB 281100.
+  METAR message for SACI31 ZBBB 281100 is a separate message, but
+  seems like concatenated by some protocol before ingestion into our 949 Forecast channel.
+  
+	
+4. cfgMetar.xml can be found for example in this
+branch: master_951_Uruguay
+but tailored for Uruguay - we do not have this configuration
+for Belgrade (884).
+I copy this one for removing error from the wrapper with TODO in the
+list. - we will not do it, but implement defaults and upgrade IMS4 there.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

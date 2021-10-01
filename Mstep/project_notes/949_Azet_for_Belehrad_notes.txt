@@ -74,11 +74,340 @@ IMS_MODEL_SUITE_MOS=y
 
 Looks like the model suit WRF_GFS_METEOGRAM is the one.
 
-The same is isntalled also on dev machine: 10.111.1.5
+The same is installed also on dev machine: 10.111.1.5
 
 10.111.1.1 - is not available or is not running.
 10.111.1.2 - is not available or is not running.
 10.111.1.3 - is not available or is not running.
+10.111.1.4 - is not available or is not running.
+
+# September 2021 these machines have been temporally launched
+Investigation what is where.
+1. Agents running
+2. Connection to database
+3. Crontabs and deployed scripts
+4. Deployed data
+
+## 10.111.1.1 - original 'Azet production machine'
+Much bigger list of agents are running here:
+PID 	ProcessName 	ClassName 	Priority 	Number of Threads 	Dump Threads 	Process State 	Restart
+0	DeadlockDetector 	com.microstepmis.schd.DeadlockDetector 	5 	1 	dump 	RUN 	restart
+1	CheckDatabase 	com.microstepmis.database.util.CheckDatabase 	5 	2 	dump 	RUN 	
+2	SpaceDATA 	com.microstepmis.agentspace.SpaceFactory 	5 	4 	dump 	RUN 	
+3	UserMsgHandlerRegistrator 	com.microstepmis.mgmt.UserMsgHandler$Registrator 	5 	0 	dump 	FIN 	
+4	SpaceBR 	com.microstepmis.agentspace.SpaceFactory 	5 	4 	dump 	RUN 	
+5	FileSystemAgent 	com.microstepmis.agentspace.agents.FileSystemAgent 	5 	3 	dump 	RUN 	restart
+6	SpaceLoader 	com.microstepmis.agentspace.loader.LoaderAgent 	5 	2 	dump 	RUN 	restart
+7	UserManagement 	com.microstepmis.util.login.UserManagement 	6 	2 	dump 	RUNFIN 	
+8	DBWri 	com.microstepmis.database.DBWriAgent 	6 	3 	dump 	RUN 	restart
+9	DBExport 	com.microstepmis.database.DBExport 	5 	0 	dump 	FIN 	restart
+10	WMOAutoCode 	com.microstepmis.ims.coder.AutoCode 	5 	1 	dump 	RUN 	restart
+11	DBExportAgent 	com.microstepmis.agentspace.agents.export.DatabaseExportAgent 	6 	0 	dump 	WAKE 	restart
+12	MessageBriefing2 	com.microstepmis.communication2.msgdatabase.MessageBriefing 	5 	4 	dump 	RUN 	restart
+13	MsgDecodeAgent 	com.microstepmis.communication2.msgdatabase.MsgDecodeAgent 	5 	1 	dump 	RUN 	restart
+14	MessageAlerter 	com.microstepmis.communication2.msgdatabase.MessageAlerter 	5 	2 	dump 	RUN 	restart
+15	Communication 	com.microstepmis.communication2.CommunicationAgent 	5 	22 	dump 	RUN 	restart
+16	WMOAlert 	com.microstepmis.ims.coder.WMOAlert 	5 	2 	dump 	RUN 	restart
+17	MessageRouter2 	com.microstepmis.communication2.msgdatabase.MessageRouter 	5 	1 	dump 	RUN 	restart
+18	SelectLongTermAgent 	com.microstepmis.select.SelectLongTermAgent 	5 	1 	dump 	RUN 	restart
+19	HitCounterAgent 	com.microstepmis.agentspace.agents.HitCounterAgent 	5 	1 	dump 	RUN 	restart
+20	BITEAgent 	com.microstepmis.agentspace.agents.BITEAgent 	5 	2 	dump 	RUN 	restart
+21	SNMPAgent 	com.microstepmis.mgmt.snmp.SNMPDoubleAgent 	10 	2 	dump 	RUN 	restart
+22	SNMPManager 	com.microstepmis.mgmt.snmp.SNMPManager 	10 	9 	dump 	RUN 	restart
+23	DataLogAgent 	com.microstepmis.agentspace.agents.DataLogAgent 	5 	1 	dump 	RUN 	restart
+24	Tomcat 	com.microstepmis.htmlgui.TomcatStarter 	10 	161 	dump 	RUN 	
+25	HAAgent 	com.microstepmis.schd.ha.HAAgent 	10 	2 	dump 	RUN 	
+26	BackupAgent 	com.microstepmis.backup.BackupAgent 	5 	2 	dump 	RUN 	restart
+27	DBDeleter 	com.microstepmis.database.DBDeleter 	5 	0 	dump 	FIN 	
+28	LogDeleter 	com.microstepmis.util.deleter.Deleter 	5 	0 	dump 	FIN 	
+29	UserMsgAgent 	com.microstepmis.agentspace.agents.UserMsgAgent 	5 	2 	dump 	RUN 	restart
+30	SimulationManagerAgent 	com.microstepmis.forecast.customization.SimulationManagerAgent 	5 	1 	dump 	RUN 	restart
+31	MeteogramWRFAgent 	com.microstepmis.forecast.customization.MeteogramWRFAgent 	5 	3 	dump 	RUN 	restart
+32	MeteogramUVIndexAgent 	com.microstepmis.forecast.customization.MeteogramUVIndexAgent 	5 	3 	dump 	RUN 	restart
+33	MeteogramAgent 	com.microstepmis.forecast.customization.MeteogramAgent 	5 	3 	dump 	RUN 	restart
+34	CurrentDataReaderAgent 	com.microstepmis.forecast.customization.CurrentDataReaderAgent 	5 	3 	dump 	RUN 	restart
+35	ReCalculationAgent 	com.microstepmis.forecast.customization.ReCalculationAgent 	5 	1 	dump 	RUN 	restart
+36	InterpolationRAgent 	com.microstepmis.forecast.customization.InterpolationRAgent 	5 	2 	dump 	RUN 	restart
+37	MeteogramDailyAgent 	com.microstepmis.forecast.customization.MeteogramDailyAgent 	5 	1 	dump 	RUN 	restart
+38	ActualDataAgent 	com.microstepmis.forecast.customization.ActualDataAgent 	5 	2 	dump 	RUN 	restart
+39	RAgent 	com.microstepmis.r.RAgent 	5 	502 	dump 	RUN 	restart
+40	CheckDirAgent 	com.microstepmis.checkdir.CheckDirAgent 	5 	253 	dump 	RUN 	restart
+41	Maintenance 	com.microstepmis.maintenance.DBMaintenance 	5 	0 	dump 	FIN
+
+Contrary to the operational Azet machine where is running all Azet Forecast services.
+profile.conf
+665-AZET-DEV-ims:~ # grep "=y" /opt/ims/cfg/station/profile.conf
+IMS_OS_LINUX=y
+IMS_WIND=y
+IMS_METEO=y
+IMS_PREC=y
+IMS_PRESS=y
+IMS_VISIBILITY=y
+IMS_SOLAR=y
+IMS_MSGDATABASE=y
+IMS_AMS111=y
+IMS_OBSERVER=y
+IMS_OBSERVER_TEMPG=y
+IMS_OBSERVER_PRESS=y
+IMS_UDCS_AWS=y
+IMS_BUFR=y
+IMS_CREX=y
+IMS_ENVIDB_MAPS=y
+
+crontab is turned off, only:
+/opt/ims/bin/service_report.sh
+/opt/SnmpdCheck.sh
+/opt/NtpdCheck.sh
+are running.
+But there is deployed all scripts - GFS download,
+WRF pushing is running:
+/opt/ims/data/forecastWRF/2021091300/d03_ll/WRFPRS_d03_ll.00
+and deletions as well.
+GeoServer is running as well, even producing these outputs:
+/opt/geoserver_data/data/daily_max_uv_index/
+and in IMS also current data started to flow:
+/opt/ims/data/CurrentDataCsv
+
+665-AZET-DEV-ims:~ # crontab -u infls_sync -l
+##*/15 * * * * /home/shinysync/taskSyncBenestraRdata_cron.sh >> /home/shinysync/taskSyncBenestraRdata/log/`date -u +\%Y\%m\%d`_cron.log 2>&1
+##*/15 * * * * /home/shinysync/taskSyncBenestraRdata/taskSyncBenestraRdata_cron.sh
+#*/15 * * * * /home/shinysync/taskSyncBenestraRdata_cron.sh
+#*/15 * * * * /home/shinysync/taskSyncBenestraDataBeforeManualEdit_cron.sh
+*/15 * * * * /home/infls_sync/taskSyncGfsGribsFromAzetBackup_cron.sh
+*/20 * * * * /home/infls_sync/taskSyncGfsUvindexFromAzetBackup_cron.sh
+
+These crontabs are running as well.
+
+## 10.111.1.2 - Original Azet-CLDB-production machine
+
+crontab:
+10 05 * * * /opt/ims/bin/run_vacuumdb.sh > /opt/ims/log/vacuum.log 2>&1
+35 * * * * /opt/ims/bin/run_analyzedb.sh > /opt/ims/log/analyze.log 2>&1
+20 04 * * * /opt/ims/bin/service_report.sh > /opt/ims/service/last_report
+30 * * * *   /model_data/opt/wrf/modelAZ/LMSSynop/LMSSynopHour.sh >> /dev/null 2>&1
+
+The IMS system can not start due to this error:
+WARNING: Process 5 MAS2TCPServer crashed during initialization.
+WARNING: System will be restarted due to crash of the process 5 MAS2TCPServer.
+
+These is the configuration:
+ims@665-AZET-cldb-ims:~> grep "=y" /opt/ims/cfg/station/profile.conf
+IMS_OS_LINUX=y
+IMS_WIND=y
+IMS_METEO=y
+IMS_PREC=y
+IMS_PRESS=y
+IMS_VISIBILITY=y
+IMS_SOLAR=y
+IMS_SOLAR_GLOBAL=y
+IMS_SOLAR_UV=y
+IMS_PHENOMENA=y
+IMS_MSGDATABASE=y
+IMS_AMS111=y
+IMS_AWOS=y
+IMS_OBSERVER=y
+IMS_OBSERVER_TEMPG=y
+IMS_OBSERVER_PRESS=y
+IMS_PW_VPF750=y
+IMS_GILL_WINDSONIC=y
+IMS_BIRAL=y
+IMS_WINDPHENOM=y
+IMS_METAR=y
+IMS_AUTOSPECI=y
+IMS_PHENOMENA_SPECI=y
+IMS_METREPORT=y
+IMS_UDCS_AWS=y
+IMS_BUFR=y
+IMS_CREX=y
+IMS_ENVIDB=y
+IMS_AFTN=y
+
+The system is running on local Oracle XE edition.
+/opt/ims/cfg/station/EnviDBConnectionCfg.xml
+	<dbType>Oracle</dbType>
+        <serverName>localhost</serverName>
+        <dbName>XE</dbName>
+        <userName>ims</userName>
+And local Oracle is running.
+
+Data:
+ls /opt/ims/data/
+   cfg
+   dbXmlDump
+   input
+   t4
+/model_data/opt/wrf/modelAZ/LMSSynop/ - with blind links.
+but downloading of SYNOPS works.
+
+This machine does not seem to be turned off operational machine.
+
+# 10.111.1.3 - Azet development machine
+IMS system was not running, postgres data was not running.
+Could not start the database:
+    665-AZET-IMS-dev-ims:/opt/ims # /etc/init.d/postgresql start
+    Starting PostgreSQL 9.2.4 pg_ctl: could not start server
+
+/opt/ims/cfg/station/profile.conf
+IMS_OS_LINUX=y
+IMS_WIND=y
+IMS_METEO=y
+IMS_PREC=y
+IMS_PRESS=y
+IMS_VISIBILITY=y
+IMS_SOLAR=y
+IMS_MSGDATABASE=y
+IMS_AMS111=y
+IMS_AWOS=y
+IMS_OBSERVER=y
+IMS_OBSERVER_TEMPG=y
+IMS_OBSERVER_PRESS=y
+IMS_UDCS_AWS=y
+IMS_BUFR=y
+IMS_CREX=y
+
+Used is only local PostgreSQL database.
+GeoServer part is not deployed at all.
+crontab -l
+# DO NOT EDIT THIS FILE - edit the master and reinstall.
+# (/tmp/crontab.XXXXO9ggFN installed on Thu May 14 13:17:19 2020)
+# (Cron version V5.0 -- $Id: crontab.c,v 1.12 2004/01/23 18:56:42 vixie Exp $)
+0 2 * * * /opt/shutDown.sh
+10 05 * * * /opt/ims/bin/run_vacuumdb.sh > /opt/ims/log/vacuum.log 2>&1
+35 * * * * /opt/ims/bin/run_analyzedb.sh > /opt/ims/log/analyze.log 2>&1
+20 04 * * * /opt/ims/bin/service_report.sh > /opt/ims/service/last_report
+*/5 * * * * /opt/ims/cfg/station/bin/gribWRFConvertor.sh > /opt/ims/log/wrf_convert_data`date +\%Y\%m\%d`.cron 2>&1
+
+WRF data were mounted on NFS share:
+/pludo_wrf_data/2021091700/d03
+which is not visible anymore.
+
+Data directories:
+ls -lh /opt/ims/data/
+total 18M
+drwxr-xr-x  2 root root  18M Jun  7  2017 CurrentDataCsv
+drwxr-xr-x  2 root root 4.0K Dec  1  2016 R
+drwxr-xr-x  4 root root 4.0K Jan 31  2017 copyTest
+drwxr-xr-x  7 root root  12K Feb  8  2017 forecastGrib
+drwxr-xr-x  3 root root 4.0K Nov 14  2016 forecastUV
+drwxr-xr-x 38 root root 4.0K Mar 15  2017 forecastWRF
+lrwxrwxrwx  1 root root   28 Jul 12  2016 pluto_gfs_data -> /pluto_data/gfsDownloadAzet/
+drwxr-xr-x  4 root root 4.0K Jan 10  2017 precIndicators
+drwxr-xr-x  2 root root 4.0K Mar  1  2016 waves
+
+# 10.111.1.4 - CLDB Archive, dev plus Azet development
+Agents which are running:
+PID 	ProcessName 	ClassName 	Priority 	Number of Threads 	Dump Threads 	Process State 	Restart
+0	DeadlockDetector 	com.microstepmis.schd.DeadlockDetector 	5 	1 	dump 	RUN 	restart
+1	CheckDatabase 	com.microstepmis.database.util.CheckDatabase 	5 	2 	dump 	RUN 	
+2	SpaceDATA 	com.microstepmis.agentspace.SpaceFactory 	5 	4 	dump 	RUN 	
+3	UserMsgHandlerRegistrator 	com.microstepmis.mgmt.UserMsgHandler$Registrator 	5 	0 	dump 	FIN 	
+4	SpaceBR 	com.microstepmis.agentspace.SpaceFactory 	5 	4 	dump 	RUN 	
+5	MAS2TCPServer 	com.microstepmis.net.mas.MAS2TCPServer 	5 	5 	dump 	RUN 	restart
+6	FileSystemAgent 	com.microstepmis.agentspace.agents.FileSystemAgent 	5 	3 	dump 	RUN 	restart
+7	SpaceLoader 	com.microstepmis.agentspace.loader.LoaderAgent 	5 	2 	dump 	RUN 	restart
+8	UserManagement 	com.microstepmis.util.login.UserManagement 	6 	2 	dump 	RUNFIN 	
+9	DBWri 	com.microstepmis.database.DBWriAgent 	6 	5 	dump 	RUN 	restart
+10	DBExport 	com.microstepmis.database.DBExport 	5 	0 	dump 	FIN 	restart
+11	WMOAutoCode 	com.microstepmis.ims.coder.AutoCode 	5 	2 	dump 	RUN 	restart
+12	Kernel 	com.microstepmis.kernel.Kernel 	6 	34 	dump 	RUN 	restart
+13	DBExportAgent 	com.microstepmis.agentspace.agents.export.DatabaseExportAgent 	6 	2 	dump 	RUN 	restart
+14	Phenomena 	com.microstepmis.ims.phenomena.PhenomenaAgent 	5 	3 	dump 	RUNFIN 	
+15	GraphExportAgent 	com.microstepmis.graph.GraphExportAgent 	6 	10 	dump 	RUN 	restart
+16	MessageBriefing2 	com.microstepmis.communication2.msgdatabase.MessageBriefing 	5 	7 	dump 	RUN 	restart
+17	MsgDecodeAgent 	com.microstepmis.communication2.msgdatabase.MsgDecodeAgent 	5 	1 	dump 	RUN 	restart
+18	Communication 	com.microstepmis.communication2.CommunicationAgent 	5 	14 	dump 	RUN 	restart
+19	BlocksDistribution 	com.microstepmis.agentspace.agents.DistributionAgent 	5 	3 	dump 	RUN 	restart
+20	WMOAlert 	com.microstepmis.ims.coder.WMOAlert 	5 	2 	dump 	RUN 	restart
+21	AutoSpeci 	com.microstepmis.ims.autospeci.AutoSpeciAgent 	5 	1 	dump 	RUN 	restart
+22	MessageRouter2 	com.microstepmis.communication2.msgdatabase.MessageRouter 	5 	1 	dump 	RUN 	restart
+23	SelectLongTermAgent 	com.microstepmis.select.SelectLongTermAgent 	5 	1 	dump 	RUN 	restart
+24	HitCounterAgent 	com.microstepmis.agentspace.agents.HitCounterAgent 	5 	1 	dump 	RUN 	restart
+25	BITEAgent 	com.microstepmis.agentspace.agents.BITEAgent 	5 	2 	dump 	RUN 	restart
+26	SNMPAgent 	com.microstepmis.mgmt.snmp.SNMPDoubleAgent 	10 	2 	dump 	RUN 	restart
+27	SNMPManager 	com.microstepmis.mgmt.snmp.SNMPManager 	10 	9 	dump 	RUN 	restart
+28	DataLogAgent 	com.microstepmis.agentspace.agents.DataLogAgent 	5 	1 	dump 	RUN 	restart
+29	Tomcat 	com.microstepmis.htmlgui.TomcatStarter 	10 	160 	dump 	RUN 	
+30	HAAgent 	com.microstepmis.schd.ha.HAAgent 	10 	2 	dump 	RUN 	
+31	BackupAgent 	com.microstepmis.backup.BackupAgent 	5 	2 	dump 	RUN 	restart
+32	ClusterDiffAgent 	com.microstepmis.agentspace.agents.ClusterDiffAgent 	5 	3 	dump 	RUN 	restart
+33	DBDeleter 	com.microstepmis.database.DBDeleter 	5 	0 	dump 	FIN 	
+34	LogDeleter 	com.microstepmis.util.deleter.Deleter 	5 	0 	dump 	FIN 	
+35	UserMsgAgent 	com.microstepmis.agentspace.agents.UserMsgAgent 	5 	2 	dump 	RUN 	restart
+36	OracleTableSpaceMonitorAgent 	com.microstepmis.agentspace.agents.OracleTableSpaceMonitorAgent 	5 	2 	dump 	RUN 	restart
+37	DBCreate 	com.microstepmis.envidb.util.DBCreate 	5 	0 	dump 	FIN 	
+38	EnviDBCfgAgent 	com.microstepmis.envidb.util.EnviDBCfgAgent 	5 	2 	dump 	RUN 	restart
+39	EnviDBCurrentDataAgent 	com.microstepmis.envidb.util.CurrentDataAgent 	5 	2 	dump 	RUN 	restart
+40	EnviDBAWSNetStatus 	com.microstepmis.envidb.util.AWSNetStatus 	5 	4 	dump 	RUN 	restart
+41	EnviDB2ComAgent 	com.microstepmis.envidb.util.EnviDB2CommunicationAgent 	5 	2 	dump 	RUN 	restart
+42	EnviDBGraphExportAgent 	com.microstepmis.envidb.util.CurrentGraphAgent 	5 	2 	dump 	RUN 	restart
+43	QCRunner 	com.microstepmis.envidb.util.QCRunner 	5 	0 	dump 	FIN 	
+44	BackupAgent 	com.microstepmis.envidb.util.BackupAgent 	5 	0 	dump 	FIN 	
+45	ImagesDeleter 	com.microstepmis.envidb.util.ImagesDeleter 	5 	0 	dump 	FIN 	
+46	SchemaSize 	com.microstepmis.envidb.util.SchemaSize 	5 	0 	dump 	FIN 	
+47	UserErrors 	com.microstepmis.envidb.util.DBCheckUserErrors 	5 	0 	dump 	FIN 	
+48	Maintenance 	com.microstepmis.maintenance.DBMaintenance 	5 	0 	dump 	FIN
+
+/opt/ims/cfg/station/profile.conf
+IMS_OS_LINUX=y
+IMS_WIND=y
+IMS_METEO=y
+IMS_PREC=y
+IMS_PRESS=y
+IMS_VISIBILITY=y
+IMS_SOLAR=y
+IMS_SOLAR_GLOBAL=y
+IMS_SOLAR_UV=y
+IMS_PHENOMENA=y
+IMS_MSGDATABASE=y
+IMS_AMS111=y
+IMS_AWOS=y
+IMS_OBSERVER=y
+IMS_OBSERVER_TEMPG=y
+IMS_OBSERVER_PRESS=y
+IMS_PW_VPF750=y
+IMS_GILL_WINDSONIC=y
+IMS_BIRAL=y
+IMS_WINDPHENOM=y
+IMS_METAR=y
+IMS_AUTOSPECI=y
+IMS_PHENOMENA_SPECI=y
+IMS_METREPORT=y
+IMS_UDCS_AWS=y
+IMS_BUFR=y
+IMS_CREX=y
+IMS_ENVIDB=y
+IMS_AFTN=y
+
+Connected to external database:
+      <serverName>OracleRAC</serverName>
+      <dbName>(DESCRIPTION=(LOAD_BALANCE=on)(ADDRESS=(PROTOCOL=TCP)(HOST=orcl-scan.mstep)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=orcl)))</dbName>
+      <userName>ims_665_cldb</userName>
+
+crontab
+# DO NOT EDIT THIS FILE - edit the master and reinstall.
+# (/tmp/crontab.XXXXJLnCaQ installed on Thu May 14 13:10:51 2020)
+# (Cron version V5.0 -- $Id: crontab.c,v 1.12 2004/01/23 18:56:42 vixie Exp $)
+0 2 * * * /opt/shutDown.sh
+10 05 * * * /opt/ims/bin/run_vacuumdb.sh > /opt/ims/log/vacuum.log 2>&1
+35 * * * * /opt/ims/bin/run_analyzedb.sh > /opt/ims/log/analyze.log 2>&1
+20 04 * * * /opt/ims/bin/service_report.sh > /opt/ims/service/last_report
+35 * * * *   /model_data/opt/wrf/modelAZ/LMSSynop/LMSSynopHour.sh >> /dev/null 2>&1
+
+Downloading of Synops is running even now  - there is about 50 000 messages in the folder.
+
+ls -l /opt/ims/data/
+total 32
+drwxr-xr-x 2 root root 4096 Mar  1  2017 SynopInput
+drwxr-xr-x 8 root root 4096 Mar  1  2017 SynopOutput
+drwxr-xr-x 6 root root 4096 Mar  1  2017 SynopOutput_
+drwxr-xr-x 8 root root 4096 Mar  1  2017 SynopOutput_2
+drwxr-xr-x 3 root root 4096 Mar  9  2016 cfg
+drwxr-xr-x 7 root root 4096 Sep 17 10:00 dbXmlDump
+drwxr-xr-x 2 root root 4096 Mar  9  2016 input
+drwxr-xr-x 2 root root 4096 Mar  9  2016 t4
+
+Nothing is processed by IMS4 sustem.
+# End of records about the old Azet machines
 
 # Structure of customer configuration for the project:
 ims4-configurations.master_665_SK_Azet_Forecast
@@ -736,7 +1065,6 @@ no crontab for sim1_upl
 
 
 
-
 # Strucure and content of the documentation for both projects
 First read the content of the wiki page for 665 carefully, print the graph and try to understand whole concept
 including in-out data.
@@ -758,7 +1086,8 @@ Tomorrow we will continue - familiarization with MOS methodology.
 Record progress report and
 start on deploymnent diagrams.
 
-Yet, write FYI email anout diagrams and then harvest strcuture of the documentaiton for the new project
+
+Yet, write FYI email about diagrams and then harvest structure of the documentaiton for the new project
 and start with study of agents = try to achieve three things:
 - log hours and progress
 - map the internal detail workflow and blocks
@@ -843,6 +1172,79 @@ export LOG="${DIR_LAYOUT}/log"
 export LOCK="${DIR_LAYOUT}/lock"
 export INPUT_DATA="/home/model/INPUT_DATA" #"/home/inputData"
 
+## Meeting with Lukas Ivica 24.8.2021
+Proposed agenda
+1. How is RAgent integrated into Forecast data processing pipeline?
+A1. Lukas has no knowledge about details of integration.
+It was implemented by Tomas.
+2. Is it used elsewhere?
+A2. Very likelly RAgent is not used yet elsewhere.
+But R-scripts were already integrated in different project.
+It was done by Kristof Orlovsky in the 'Map Analyses' toolkit
+(rendering of maps)
+Documented here in these tasks:
+Aurelhy method - https://its.microstep-mis.com/issues/17176
+Implemented here:
+com/microstepmis/envidb/objectiveanalysis/AlternativeAnalysisMethods.java
+
+3. Why is Interpolate.R put into the configuration and then dedicated class "RscriptInterpolate.java" is present?
+A3. Lukas is not part of integration processes - develops
+his tools out of standard git repositories and when published, it was integrated by
+Tomas Kopernicky as it was.
+
+4. Do we have some unit/integrated tests in Jlib for R?
+A4. Very likelly not. We could try yet to study
+also Map Analyses packages. But automated tests very likelly do not exist.
+
+5. What exactly is kriging doing, does it interpoalte just single variable, or does it also
+use multiply variables in the interpolation (e.g. altitude)?
+A5. Yes, there are various methods for various variables.
+There is reflected for example altitude, distance from the coast.
+And interpolated points are grouped into Geoblocks by climatological similarity.
+Interpolation methods are documented here:
+https://wiki.mstep/index.php/Meteorol%C3%B3gia#Spatial_Interpolation
+
+6. There is Shiny server, and adjacent scripts on DEV machine only.
+What is the statuse, purpose, role - it does not exist in OPS, but
+there is quite some supporting code in the Forecast agents.
+A6. Shiny server was used actually for development and for verification
+of the kriging methods. It is very likelly licenced to be used operationally.
+Regarding supporting code for Shiny, or Sync scripts,
+Lukas have no knowledge about it.
+But Shiny server it self is configured using R-langauge,
+locally, see these files:
+---
+/opt/shiny-server/samples/sample-apps/shiny_app/app.R
+/opt/shiny-server/samples/sample-apps/shiny_app_before_man_edit/app.R
+/opt/shiny-server/samples/sample-apps/shiny_app_benestra/app.R
+/opt/shiny-server/samples/sample-apps/shiny_app_benestra_before_man_edit/app.R
+
+7. Don't you know about other interpolations?
+ - particularly "interpolate_points.py"
+ and some interpolations in Forecast agents.
+A7. Lukas does not know about the deployed interpolation
+in python. WRF model was for long time developped by
+Marek Spal solely, and it was some his contribution.
+
+8. Is deployment of RAgent plus R scripts somehow automated?
+A8. Lukas does not know/care about integration and about automation
+of IMS4. R package it self has to be deployed by the integrators,
+and then it is needed to locally install missing R libraries.
+Particularly, for the 'Interpolate.R' we have:
+---
+# loading required packages
+library(gstat)  # License GPL (>= 2.0)
+library(sp)  # License GPL (>= 2)
+library(automap)  # License GPL
+library(FNN) # License GPL (>= 2.1)
+When installing new server for 949 we should at least document the
+installation, or eventually implement short setup script.
+
+9. Browse through questions yet if you know some answers.
+- not time for that was.
+
+# Meeting with PE Jaro Drozd - 8.9.2021
+Recorded meeting minutes using the email.
 
 Open questions:
 1. What is the state of turned-off development machines?
@@ -1043,6 +1445,13 @@ this output directory:
 /opt/ims/data/precIndicators/GFS - is empty, only some
 process is creating the time directories tree.
 
+20. Is this connection active?
+/opt/ims/cfg/station/DBConnectionCfgToActual.xml
+it is connection to 'orcl-cluster.mstep'.
+And what about content of CLDB tables and these SQL scripts?
+m:\Zakazky\665_SK_Azet_predpovede\Misc\SQL\
+This is to be discussed with Mata Petrovicova.
+
 
 Open issues:
 1. On the first glance there is a lot of script code and R code in the
@@ -1062,6 +1471,7 @@ brought different permissions schema - Linux users 'infls_dwnl',
 https://10.111.1.5:8443/ims/html2/customer/azet_665/dataEntryForecastData.html
 works only for the WRF data, other have error 'Server operation fail' or
 the loading get stuck in the infinite loop.
+
 
 
 

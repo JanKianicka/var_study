@@ -1,0 +1,85 @@
+# Records about installing of Anaconda
+1. Standard Windows installation of Anaconda with python version 3.8.8
+2. Using Anaconda Promt we add the following packages:
+> pip install h5netcdf
+> pip install netCDF4
+> pip install xarray
+
+These two have the following issue:
+> pip install gdal
+error: Microsoft Visual C++ 14.0 or greater is required.
+Get it with "Microsoft C++ Build Tools": https://visualstudio.microsoft.com/visual-cpp-build-tools/
+
+The same this package
+> pip install wradlib
+error: Microsoft Visual C++ 14.0 or greater is required.
+Get it with "Microsoft C++ Build Tools": https://visualstudio.microsoft.com/visual-cpp-build-tools/
+
+PyArt:
+> conda install -c conda-forge arm_pyart (looks promissing - missing priviledges)
+When running using Admin priviledges, the installation was successful.
+
+Wradlib:
+Trying once more with the 'conda' command.
+> conda install wradlib
+- after very long run ended with many version conflicts
+We may try yet with local gdal and pip.
+
+
+# Trying to configure local anaconda installation on:
+10.111.6.11/MAKASSAR-LIDAR-LLWAS-DEV-ims
+
+MAKASSAR-LIDAR-LLWAS-DEV-ims:~ # useradd -m simul
+MAKASSAR-LIDAR-LLWAS-DEV-ims:~ # passwd simul
+simul
+
+Collection of commands to install anaconda3.
+su - simul
+tmpDir=$(mktemp -d tmpXXXX)
+cd $tmpDir
+
+# Download instalation script of the latest version - as on august 2021 - 5.3.1 - broken dependencies for wardlib
+curl -O https://repo.anaconda.com/archive/Anaconda3-5.3.1-Linux-x86_64.sh
+# second attempt
+curl -O https://repo.anaconda.com/archive/Anaconda3-2019.07-Linux-x86_64.sh
+
+# Checking of integrity
+sha256sum Anaconda3-5.3.1-Linux-x86_64.sh
+sha256sum Anaconda3-2019.07-Linux-x86_64.sh
+
+# Execute the installation
+echo -e "\nyes\n\nno"|./Anaconda3-5.3.1-Linux-x86_64.sh
+
+echo -e "\nyes\n\nno"|./Anaconda3-2019.07-Linux-x86_64.sh
+
+# yes to default anaconda and default PREFIX
+# no for installation of "Microsoft VSCode"
+
+# Activate
+source ~/anaconda3/bin/activate
+
+# Installation of missing packages
+conda install h2py
+# h5py !!!
+echo -e "y"|conda install h5py
+# netCDF4
+echo -e "y"|conda install netCDF4
+# xarray
+echo -e "y"|conda install xarray
+# PyART
+echo -e "y"|conda install -c conda-forge arm_pyart
+# wradlib
+echo -e "y"|conda install -c conda-forge wradlib
+# isntalled by when trying to import the following error occured
+ImportError: libcharset.so.1: cannot open shared object file: No such file or directory
+
+# Deactivate
+conda deactivate
+
+# Do not forget to remove the temporal directory
+rm -rf $tmpDir
+
+
+
+
+

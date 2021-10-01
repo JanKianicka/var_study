@@ -1,0 +1,61 @@
+# Investigation of EEC Radar data
+
+1. Sample data
+c:\Projects\1037_Integration_EECRanger_radar\Sample_data\EEC_Ranger_X5\data.eec.io\
+
+$ ncdump.exe -h 9807TYL-20150510-190554-PPIVol-001.nc
+netcdf \9807TYL-20150510-190554-PPIVol-001 {
+dimensions:
+        Radial = UNLIMITED ; // (773 currently)
+        Gate = 3840 ;
+variables:
+        double Azimuth(Radial) ;
+                Azimuth:Units = "Degrees" ;
+        double Elevation(Radial) ;
+                Elevation:Units = "Degrees" ;
+        double GateWidth(Radial) ;
+                GateWidth:Units = "Millimeters" ;
+        double StartRange(Radial) ;
+                StartRange:Units = "Millimeters" ;
+        int StartGate(Radial) ;
+                StartGate:Units = "Unitless" ;
+        int Time(Radial) ;
+                Time:Units = "Seconds" ;
+        double TxFrequency(Radial) ;
+                TxFrequency:Units = "Hertz" ;
+        double TxLength(Radial) ;
+                TxLength:Units = "Seconds" ;
+        double TxPower(Radial) ;
+                TxPower:Units = "dBm" ;
+        double Nyquist(Radial) ;
+                Nyquist:Units = "MetersPerSecond" ;
+        int GcfState(Radial) ;
+                GcfState:Units = "Unitless" ;
+        float Reflectivity(Radial, Gate) ;
+                Reflectivity:Units = "dBz" ;
+        float Velocity(Radial, Gate) ;
+                Velocity:Units = "MetersPerSecond" ;
+
+// global attributes:
+                :Conventions = "CASA" ;
+                :Source = "EDGE" ;
+                :RadarName = "KLTV" ;
+                :FccCall = "9807TYL" ;
+                :RadarType = 2 ;
+                :Latitude = 32.4260597229004 ;
+                :Longitude = -95.2131576538086 ;
+                :Height = 157. ;
+                :MccId = 0 ;
+                :ScanType = 2 ;
+                :AntennaGain = 41.0999984741211 ;
+                :AntennaBeamWidth = 1.29999995231628 ;
+
+
+Using Panoply plot it seems that the data samples are just
+RHI - one horizontal scan from this radar.
+There is missing representative 3 deg PPI data sample.
+
+See two pictures:
+c:\Projects\1037_Integration_EECRanger_radar\Sample_data\EEC_Ranger_X5\Reflectivity_in_9807TYL-20150510-190524-PPIVol-001.png
+c:\Projects\1037_Integration_EECRanger_radar\Sample_data\EEC_Ranger_X5\Velocity_in_9807TYL-20150510-190524-PPIVol-001.png
+

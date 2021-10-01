@@ -1,0 +1,1060 @@
+# My tasks is this one:
+# https://its.microstep-mis.com/issues/25894
+# Configuration of the reader.
+# Contract num. 1037
+
+We miss general information, which reader, which data, where and when.
+m:\Zakazky\1037_Indonesia_LIDAR_LLWAS_Makassar\
+
+
+Abrevations:
+TDWR - Terminal Doppler Weather Radar
+LLWAS - Low Level Wind Shear Alert System
+WSR 88-D - Weather Surveillance Radar-1988 Doppler (1988 when this radar was first time built)
+VCP - Volume Coverage Pattern
+EEC - Enterprise Electronics Corporation (Alabama based)
+      https://en.wikipedia.org/wiki/Enterprise_Electronics_Corporation
+KML - KeyHole Markup Language
+CASA - Collaborative Adaptive Sensing of the Atmosphere
+       (Seems like some USA Organization, Engineering Research Center,
+        sloting also universities
+        - have not found convention specificaiton
+	http://www.casa.umass.edu/index.php)
+ODIM - OPERA Data Information Model
+
+Radar products:
+PPI  - plan position indicator (display where radar is in the center)
+UWT - Uniform Wind Technique
+SRV - Storm Relative Velocity
+VVP - Velocity Volume Processing
+VCUT - Vertical CUT (display radar reflectivity with height as the
+       vertical axis and range as the horizontal axis)
+RHI - Range Hight Indicator (when antena is swinging up-down)
+VIL - Vertically Integrated Liquid
+VAD - Velocity Azimuth Display
+VWP - Vertical Wind Profile (http://autumnsky.us/vad/ - for USA)
+
+Exsting documentation:
+StreamLineXR.pdf - Hardware manual, covering unpacking, power supply
+                   requirements, network connections, remote control,
+                   leveling and general handling
+
+StreamLine-v14.pdf - manual for Halo Photonics LIDAR including small chapter about
+                     output data formats.
+RDP_v14.pdf - Raw data processing software user manual
+
+halo-description.pdf - brief description of Halo Photonics Doppler Lidar
+                       also description of output data of different modes.
+hpl-format-description.pdf - description of the HPL format from the Helo Streamline LIDAR
+Profiler v12_10.pdf - downloaded documentation, there is described also e.g.
+                      various txt outputs - WindData.txt.
+		      
+Various resources:
+Reading of NetCDF4 files with the Weather Radar Data:
+https://docs.wradlib.org/en/stable/notebooks/fileio/wradlib_radar_formats.html
+I have not found exact specification for KML and Shapefiles for the radar images.
+https://www.ncdc.noaa.gov/wct/formats.php
+Python reader and toolkit for processing of the weather radar data:
+https://arm-doe.github.io/pyart/
+
+Supported formats by LROSE:
+https://www.eol.ucar.edu/content/standard-data-formats
+https://www.eol.ucar.edu/system/files/UfDoc.txt
+Various formats documentation:
+https://ral.ucar.edu/projects/titan/docs/radial_formats/
+CfRadial 2 description:
+https://community.wmo.int/activity-areas/weather-radar-observations/radar-data-exchange
+https://www.eol.ucar.edu/system/files/CfRadialDoc-v2.0-20180430.pdf
+
+https://www.inscc.utah.edu/~hoch/METCRAX2.0/HALO_INFO/Profiler%20v12_10.pdf
+
+Toolboxes for data processing:
+https://github.com/marenha/doppler_wind_lidar_toolbox
+Description of the StreamLine Lidar:
+https://halo-photonics.com/lidar-systems/stream-line-series/
+
+
+# Finally the task is for me to implement simulators and
+m:\Zakazky\1037_Indonesia_LIDAR_LLWAS_Makassar\Misc\
+ - sample data from EEC_RangerX5 radar
+c:\Projects\1037_Integration_EECRanger_radar\Sample_data\
+ - downloaded sample data from LIDAR
+
+
+# Progress records and planning
+Accomplish reading of the Specification sheet and
+briefly seek, download and read about KML/KMZ specificaiton
+XML specificaitons abd BUFR file format.
+
+# Reading of WIKI about LIDAR
+Documentation:
+m:\Zakazky\680_Lidar_LLWAS\Documentation\LIDAR Literatura\
+China LIDAR - in investigation:
+ - Seaglet LIDAR
+
+Halo Photonics LIDARL:
+Found OLD data samples from Peter Kovac when integrated 680 ctronct LIDAR:
+(Source: p:\Lidar\halo-photonics\)
+c:\Projects\1037_Integration_EECRanger_radar\GeneralDocumentation\LIDAR\HaloPhotonicsLidar\vzorky-hpl\
+
+Russian LIDAR:
+- JSC Laser System
+
+Lidar Leosphere - deployed by MStep:
+https://wiki.mstep/index.php/LIDAR_Leosphere
+- no sample data found anywhere (may be in IMS4b tests of readers)
+
+Wind Tracer - just study and proposal.
+There are presentaitons and specificaitons.
+'WindTracer_Overview.pptx'
+
+Wake Vorticies:
+- algorithms to process the LIDAR data
+
+# Notes from Doppler_lidar.pdf - Halo Photonics LIDAR
+  Technical specification:
+    - All-sky scanner with wipe facility. Azimuth slip-ring  
+      giving full hemispherical coverage. 0.01Â° resolution in 
+      both axes.
+    - System provides range gated line-of-sight velocity 
+      versus time
+    - System provides range gated SNR and back scatter
+    - Real-time signal processor
+    - Data collected to 3.0 km range, extended range options 
+      to 7,5 and 10 km; Useful range depends upon aerosol 
+      content and weather conditions
+    - Depolarisation option
+    - Pulse rate: 20 kHz (15 kHz for 10 km ex tended range 
+      option)
+    - Temporal resolution selectable in range 0.1 to 30 sec.
+    - Velocity precision < 20 cm s-1 for SNR > -17 dB
+    - Bandwith 20 ms-1
+
+Notes from 20210528_TrainingCourse_StreamLine+SetUp_eng.pdf:
+Sample rate ADC: 50 (or 100 MHz)
+-> 1 Sample 3m (1.5 m)
+This is LIDAR not X-band radar.
+Wind velocity is derived from Doppler shift of mean power spectra.
+Instantaneous power spectra are achieved by Fourier analysis
+of backscatter signals from individual pulses.
+Fouriertransform of the averaged autocorrelation function gives mean
+spectral power density.
+Required wind vector is determined by 3 unknown wind components
+(x, y, x) 3 independent equations required.
+vr = U sin ZEN cos AZI + V sin ZEN sin AZI - W cos ZEN
+
+is typically over determined because the number of pointings is more
+than 3 ( for ex. VAD scan with 4, 6 or more pointings).
+
+Solution:
+1. Least square estimate - outliers spikes ) have large influence on results
+2. Filtered sine wave fitting - Non linear approach, outliers spikes ) have less influence on results.
+
+Control of LIDAR Systems (9):
+Stare Modus: 1 scanner orientation
+             Elevation und azimuth adjustable
+	     Standard mode , always activated
+
+VAD mode: n scanner orientations
+          Elevation adjustable but constant
+	  Azimuth according to i * 360deg/n
+	  (scanning such connus)
+
+RHI mode: n orientations
+          Azimuth adjustable but constant
+	  Elevation according to i*180deg/n
+
+Scan scheduler (DBS mode replaced by VAD mode since 2019)
+          DBS mode (Doppler Beam Swinging)
+	  2 tilted orientations with
+          adjustable elevation and 90 increments
+	  1 vertical orientation
+
+Scanfile Step/Stare mode:
+          n orientations
+          Adjustable azimuths and elevations
+	  Edited as standard text file
+
+Scanfile CSM mode (continuous scan mode)
+          N way points
+	  Data are recorded during scan movement
+	  Edited as standard text file
+	  rays/pnt defines number
+          of averaged pulses (in
+          1000 pulses)
+
+
+	  
+
+
+
+# Using doppler_wind_lidar_toolbox-master
+Windows:
+run Anaconda prompt
+
+Linux: source anaconda
+cd C:\Projects\1037_Integration_EECRanger_radar\SupportingSoftware\doppler_wind_lidar_toolbox-master\2NetCDF
+python
+Python 3.8.8 (default, Apr 13 2021, 15:08:03) [MSC v.1916 64 bit (AMD64)] :: Anaconda, Inc. on win32
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import hpl2NetCDF
+>>> print(hpl2NetCDF.__doc__)
+
+Conversion tool for StreamLine .hpl files into netCDF (.nc) files:
+
+    - hpl2dict(): import .hpl files and save as dictionary
+    - hpl_to_netcdf(): save .hpl files into level0 (l0) .nc files
+    - to_netcdf_l1(): correct raw data (l0) and create level1 (l1) netCDF files
+
+>>> hpl2NetCDF.hpl2dict("c:/Projects/1037_Integration_EECRanger_radar/Sample_data/LIDAR/202108/202108/20210818/Stare_206_20210818_11.hpl")
+>>> hpl2NetCDF.hpl_to_netcdf("c:/Projects/1037_Integration_EECRanger_radar/Sample_data/LIDAR/SeptemberInHousScan/User1_206_20210903_082337.hpl", "c:/Projects/1037_Integration_EECRanger_radar/Sample_data/LIDAR/SeptemberInHousScan/")
+c:/Projects/1037_Integration_EECRanger_radar/Sample_data/LIDAR/SeptemberInHousScan/2021\202109\20210903\User1_206_20210903_082337_l0.nc is created succesfully
+
+ncdump.exe -h /c/Projects/1037_Integration_EECRanger_radar/Sample_data/LIDAR/SeptemberInHousScan/2021/202109/20210903/User1_206_20210903_082337_l0.nc
+netcdf ..\\..\\Sample_data\\LIDAR\\SeptemberInHousScan\\2021\\202109\\20210903\\User1_206_20210903_082337_l0 {
+dimensions:
+        NUMBER_OF_GATES = 60 ;
+        NUMBER_OF_RAYS = 300 ;
+variables:
+        double decimal_time(NUMBER_OF_RAYS) ;
+                decimal_time:units = "decimal time (hours) UTC" ;
+                decimal_time:long_name = "start time of each ray" ;
+        float azimuth(NUMBER_OF_RAYS) ;
+                azimuth:units = "degrees, meteorologically" ;
+                azimuth:long_name = "azimuth angle" ;
+        float elevation(NUMBER_OF_RAYS) ;
+                elevation:units = "degrees, meteorologically" ;
+                elevation:long_name = "elevation angle" ;
+        float pitch_angle(NUMBER_OF_RAYS) ;
+                pitch_angle:units = "degrees" ;
+                pitch_angle:long_name = "pitch angle" ;
+        float roll_angle(NUMBER_OF_RAYS) ;
+                roll_angle:units = "degrees" ;
+                roll_angle:long_name = "roll angle" ;
+        float radial_velocity(NUMBER_OF_GATES, NUMBER_OF_RAYS) ;
+                radial_velocity:units = "m s-1" ;
+                radial_velocity:long_name = "Doppler velocity along line of sight" ;
+        float intensity(NUMBER_OF_GATES, NUMBER_OF_RAYS) ;
+                intensity:units = "unitless" ;
+                intensity:long_name = "SNR + 1" ;
+        float beta(NUMBER_OF_GATES, NUMBER_OF_RAYS) ;
+                beta:units = "m-1 sr-1" ;
+                beta:long_name = "attenuated backscatter" ;
+        float gate_centers(NUMBER_OF_GATES) ;
+                gate_centers:units = "m" ;
+                gate_centers:long_name = "center of range gates" ;
+
+// global attributes:
+                :description = "non-processed data of Halo Photonics Streamline" ;
+                :focus_range = "65535 m" ;
+                :range_gate_length = "90 m" ;
+                :pulses_per_ray = 1000 ;
+                :start_time = "20210903 08:23:47.37" ;
+                :system_id = 206 ;
+                :scan_type = "User file 1 - csm" ;
+                :resolution = "0.0764 m s-1" ;
+                :number_waypoint = 1 ;
+                :history = "File created on 07 Sep 2021 10:08 " ;
+
+
+# Example of EEC Radar CfRadial2 data sample - header
+$ ncdump.exe -h KXASDAL-20190619-224646-PPIVol-0041.nc
+netcdf KXASDAL-20190619-224646-PPIVol-0041 {
+dimensions:
+        time = 740 ;
+        range = 3840 ;
+        sweep = 1 ;
+        frequency = 1 ;
+        string_length_sm = 10 ;
+        string_length_md = 25 ;
+variables:
+        int volume_number ;
+                volume_number:standard_name = "data_volume_index_number" ;
+                volume_number:units = "1" ;
+        double latitude ;
+                latitude:standard_name = "latitude" ;
+                latitude:units = "degrees_north" ;
+        double longitude ;
+                longitude:standard_name = "longitude" ;
+                longitude:units = "degrees_east" ;
+        double altitude ;
+                altitude:standard_name = "altitude" ;
+                altitude:units = "meters" ;
+        char time_coverage_start(string_length_md) ;
+                time_coverage_start:standard_name = "data_volume_start_time_utc" ;
+                time_coverage_start:units = "1" ;
+        char time_coverage_end(string_length_md) ;
+                time_coverage_end:standard_name = "data_volume_end_time_utc" ;
+                time_coverage_end:units = "1" ;
+        double time(time) ;
+                time:standard_name = "time" ;
+                time:long_name = "time in seconds since volume start" ;
+                time:units = "seconds since 2019-06-19T22:46:46Z" ;
+        float azimuth(time) ;
+                azimuth:standard_name = "beam_azimuth_angle" ;
+                azimuth:long_name = "azimuth_angle_from_true_north" ;
+                azimuth:units = "degrees" ;
+                azimuth:axis = "radial_azimuth_coordinate" ;
+        float elevation(time) ;
+                elevation:standard_name = "beam_elevation_angle" ;
+                elevation:long_name = "elevation_angle_from_horizontal_plane" ;
+                elevation:units = "degrees" ;
+                elevation:axis = "radial_elevation_coordinate" ;
+        float radar_antenna_gain_h ;
+                radar_antenna_gain_h:meta_group = "radar_parameters" ;
+                radar_antenna_gain_h:standard_name = "nominal_radar_antenna_gain_h_channel" ;
+                radar_antenna_gain_h:units = "dB" ;
+        float radar_antenna_gain_v ;
+                radar_antenna_gain_v:meta_group = "radar_parameters" ;
+                radar_antenna_gain_v:standard_name = "nominal_radar_antenna_gain_v_channel" ;
+                radar_antenna_gain_v:units = "dB" ;
+        float radar_beam_width_h ;
+                radar_beam_width_h:meta_group = "radar_parameters" ;
+                radar_beam_width_h:standard_name = "half_power_radar_beam_width_h_channel" ;
+                radar_beam_width_h:units = "degrees" ;
+        float radar_beam_width_v ;
+                radar_beam_width_v:meta_group = "radar_parameters" ;
+                radar_beam_width_v:standard_name = "half_power_radar_beam_width_v_channel" ;
+                radar_beam_width_v:units = "degrees" ;
+        float radar_receiver_bandwidth ;
+                radar_receiver_bandwidth:meta_group = "radar_parameters" ;
+                radar_receiver_bandwidth:standard_name = "radar_receiver_bandwidth" ;
+                radar_receiver_bandwidth:units = "s-1" ;
+        float frequency(frequency) ;
+                frequency:meta_group = "instrument_parameters" ;
+                frequency:standard_name = "radiation_frequency" ;
+                frequency:units = "s-1" ;
+        float radar_measured_transmit_power_h(time) ;
+                radar_measured_transmit_power_h:meta_group = "radar_parameters" ;
+                radar_measured_transmit_power_h:standard_name = "radar_transmit_power_h_channel" ;
+                radar_measured_transmit_power_h:units = "watts" ;
+        float radar_measured_transmit_power_v(time) ;
+                radar_measured_transmit_power_v:meta_group = "radar_parameters" ;
+                radar_measured_transmit_power_v:standard_name = "radar_transmit_power_v_channel" ;
+                radar_measured_transmit_power_v:units = "watts" ;
+        float pulse_width(time) ;
+                pulse_width:meta_group = "instrument_parameters" ;
+                pulse_width:standard_name = "transmitter_pulse_width" ;
+                pulse_width:units = "seconds" ;
+        float prt(time) ;
+                prt:meta_group = "instrument_parameters" ;
+                prt:standard_name = "pulse_repetition_time" ;
+                prt:units = "seconds" ;
+        float prt_ratio(time) ;
+                prt_ratio:meta_group = "instrument_parameters" ;
+                prt_ratio:standard_name = "multiple_pulse_repetition_frequency_ratio" ;
+        float nyquist_velocity(time) ;
+                nyquist_velocity:meta_group = "instrument_parameters" ;
+                nyquist_velocity:standard_name = "unambiguous_doppler_velocity" ;
+                nyquist_velocity:units = "m/s" ;
+        int n_samples(time) ;
+                n_samples:meta_group = "instrument_parameters" ;
+                n_samples:standard_name = "number_of_samples_used_to_compute_moments" ;
+        char prt_mode(sweep, string_length_sm) ;
+                prt_mode:meta_group = "instrument_parameters" ;
+                prt_mode:standard_name = "transmit_pulse_mode" ;
+        char polarization_mode(sweep, string_length_sm) ;
+                polarization_mode:meta_group = "instrument_parameters" ;
+                polarization_mode:standard_name = "transmit_receive_polarization_mode" ;
+        float range(range) ;
+                range:standard_name = "projection_range_coordinate" ;
+                range:long_name = "range_to_measurement_volume" ;
+                range:units = "meters" ;
+                range:spacing_is_constant = "true" ;
+                range:meters_to_center_of_first_gate = 15.625f ;
+                range:meters_between_gates = 31.25f ;
+                range:axis = "radial_range_coordinate" ;
+        int sweep_number(sweep) ;
+                sweep_number:standard_name = "sweep_index_number_0_based" ;
+                sweep_number:units = "1" ;
+        char sweep_mode(sweep, string_length_sm) ;
+                sweep_mode:standard_name = "scan_mode_for_sweep" ;
+                sweep_mode:units = "1" ;
+        float fixed_angle(sweep) ;
+                fixed_angle:standard_name = "target_fixed_angle" ;
+                fixed_angle:units = "degrees" ;
+        int sweep_start_ray_index(sweep) ;
+                sweep_start_ray_index:standard_name = "index_of_first_ray_in_sweep" ;
+                sweep_start_ray_index:units = "1" ;
+        int sweep_end_ray_index(sweep) ;
+                sweep_end_ray_index:standard_name = "index_of_last_ray_in_sweep" ;
+                sweep_end_ray_index:units = "1" ;
+        short UH(time, range) ;
+                UH:long_name = "unfiltered_reflectivity_factor_h" ;
+                UH:units = "dBZ" ;
+                UH:_FillValue = -32768s ;
+                UH:scale_factor = 0.01f ;
+                UH:add_offset = 0.f ;
+                UH:coordinates = "elevation azimuth range" ;
+        short UV(time, range) ;
+                UV:long_name = "unfiltered_reflectivity_factor_v" ;
+                UV:units = "dBZ" ;
+                UV:_FillValue = -32768s ;
+                UV:scale_factor = 0.01f ;
+                UV:add_offset = 0.f ;
+                UV:coordinates = "elevation azimuth range" ;
+        short DBZH(time, range) ;
+                DBZH:long_name = "equivalent_reflectivity_factor_h" ;
+                DBZH:units = "dBZ" ;
+                DBZH:_FillValue = -32768s ;
+                DBZH:scale_factor = 0.01f ;
+                DBZH:add_offset = 0.f ;
+                DBZH:coordinates = "elevation azimuth range" ;
+        short DBZV(time, range) ;
+                DBZV:long_name = "equivalent_reflectivity_factor_v" ;
+                DBZV:units = "dBZ" ;
+                DBZV:_FillValue = -32768s ;
+                DBZV:scale_factor = 0.01f ;
+                DBZV:add_offset = 0.f ;
+                DBZV:coordinates = "elevation azimuth range" ;
+        short ZDR(time, range) ;
+                ZDR:long_name = "log_differential_reflectivity_hv" ;
+                ZDR:units = "dBZ" ;
+                ZDR:_FillValue = -32768s ;
+                ZDR:scale_factor = 0.01f ;
+                ZDR:add_offset = 0.f ;
+                ZDR:coordinates = "elevation azimuth range" ;
+        short RHOHV(time, range) ;
+                RHOHV:long_name = "cross_correlation_ratio_hv" ;
+                RHOHV:units = "1" ;
+                RHOHV:_FillValue = -32768s ;
+                RHOHV:scale_factor = 0.0001f ;
+                RHOHV:add_offset = 0.f ;
+                RHOHV:coordinates = "elevation azimuth range" ;
+        short PHIDP(time, range) ;
+                PHIDP:long_name = "differential_phase_hv" ;
+                PHIDP:units = "degrees" ;
+                PHIDP:_FillValue = -32768s ;
+                PHIDP:scale_factor = 0.02f ;
+                PHIDP:add_offset = 0.f ;
+                PHIDP:coordinates = "elevation azimuth range" ;
+        short NCPH(time, range) ;
+                NCPH:long_name = "normalized_coherent_power_h" ;
+                NCPH:units = "1" ;
+                NCPH:_FillValue = -32768s ;
+                NCPH:scale_factor = 0.0001f ;
+                NCPH:add_offset = 0.f ;
+                NCPH:coordinates = "elevation azimuth range" ;
+        short NCPV(time, range) ;
+                NCPV:long_name = "normalized_coherent_power_v" ;
+                NCPV:units = "1" ;
+                NCPV:_FillValue = -32768s ;
+                NCPV:scale_factor = 0.0001f ;
+                NCPV:add_offset = 0.f ;
+                NCPV:coordinates = "elevation azimuth range" ;
+        short SNRHC(time, range) ;
+                SNRHC:long_name = "signal_to_noise_ratio_co_polar_h" ;
+                SNRHC:units = "dB" ;
+                SNRHC:_FillValue = -32768s ;
+                SNRHC:scale_factor = 0.01f ;
+                SNRHC:add_offset = 0.f ;
+                SNRHC:coordinates = "elevation azimuth range" ;
+        short SNRVC(time, range) ;
+                SNRVC:long_name = "signal_to_noise_ratio_co_polar_v" ;
+                SNRVC:units = "dB" ;
+                SNRVC:_FillValue = -32768s ;
+                SNRVC:scale_factor = 0.01f ;
+                SNRVC:add_offset = 0.f ;
+                SNRVC:coordinates = "elevation azimuth range" ;
+        short VELH(time, range) ;
+                VELH:long_name = "radial_velocity_h" ;
+                VELH:units = "m/s" ;
+                VELH:_FillValue = -32768s ;
+                VELH:scale_factor = 0.01f ;
+                VELH:add_offset = 0.f ;
+                VELH:coordinates = "elevation azimuth range" ;
+        short VELV(time, range) ;
+                VELV:long_name = "radial_velocity_v" ;
+                VELV:units = "m/s" ;
+                VELV:_FillValue = -32768s ;
+                VELV:scale_factor = 0.01f ;
+                VELV:add_offset = 0.f ;
+                VELV:coordinates = "elevation azimuth range" ;
+        short WIDTHH(time, range) ;
+                WIDTHH:long_name = "doppler_spectrum_width_h" ;
+                WIDTHH:units = "m/s" ;
+                WIDTHH:_FillValue = -32768s ;
+                WIDTHH:scale_factor = 0.01f ;
+                WIDTHH:add_offset = 0.f ;
+                WIDTHH:coordinates = "elevation azimuth range" ;
+        short WIDTHV(time, range) ;
+                WIDTHV:long_name = "doppler_spectrum_width_v" ;
+                WIDTHV:units = "m/s" ;
+                WIDTHV:_FillValue = -32768s ;
+                WIDTHV:scale_factor = 0.01f ;
+                WIDTHV:add_offset = 0.f ;
+                WIDTHV:coordinates = "elevation azimuth range" ;
+        short CCORH(time, range) ;
+                CCORH:long_name = "clutter_correction_h" ;
+                CCORH:units = "dB" ;
+                CCORH:_FillValue = -32768s ;
+                CCORH:scale_factor = 0.01f ;
+                CCORH:add_offset = 0.f ;
+                CCORH:coordinates = "elevation azimuth range" ;
+        short CCORV(time, range) ;
+                CCORV:long_name = "clutter_correction_v" ;
+                CCORV:units = "dB" ;
+                CCORV:_FillValue = -32768s ;
+                CCORV:scale_factor = 0.01f ;
+                CCORV:add_offset = 0.f ;
+                CCORV:coordinates = "elevation azimuth range" ;
+
+// global attributes:
+                :Conventions = "Cf/Radial instrument_parameters radar_parameters" ;
+                :title = "PPIVol" ;
+                :institution = "EEC" ;
+                :references = "EEC" ;
+                :source = "EDGE" ;
+                :history = "original" ;
+                :comment = "PPIVol" ;
+                :instrument_name = "KXASDAL" ;
+                :site_name = "KXASDAL" ;
+                :n_gates_vary = "false" ;
+}
+
+
+
+
+# Example of exactly corresponging data sample from EEC Radar in Opera (ODIM) HDF5 convention
+$ ncdump.exe -h KXASDAL-PPIScan-20190619-224646.hdf
+netcdf KXASDAL-PPIScan-20190619-224646 {
+
+// global attributes:
+                :Conventions = "ODIM_H5/V2_3" ;
+
+group: dataset1 {
+
+  group: data1 {
+    dimensions:
+        phony_dim_0 = 740 ;
+        phony_dim_1 = 3840 ;
+    variables:
+        ubyte data(phony_dim_0, phony_dim_1) ;
+                data :IMAGE_VERSION = "1.2" ;
+
+    group: what {
+
+      // group attributes:
+                :quantity = "TH" ;
+                :gain = 0.5 ;
+                :offset = -32. ;
+                :nodata = 255. ;
+                :undetect = 0. ;
+      } // group what
+    } // group data1
+
+  group: data10 {
+    dimensions:
+        phony_dim_2 = 740 ;
+        phony_dim_3 = 3840 ;
+    variables:
+        ubyte data(phony_dim_2, phony_dim_3) ;
+                data :IMAGE_VERSION = "1.2" ;
+
+    group: what {
+
+      // group attributes:
+                :quantity = "CCORH" ;
+                :gain = 0.352941185235977 ;
+                :offset = 0. ;
+                :nodata = 255. ;
+                :undetect = 0. ;
+      } // group what
+    } // group data10
+
+  group: data11 {
+    dimensions:
+        phony_dim_4 = 740 ;
+        phony_dim_5 = 3840 ;
+    variables:
+        ubyte data(phony_dim_4, phony_dim_5) ;
+                data :IMAGE_VERSION = "1.2" ;
+
+    group: what {
+
+      // group attributes:
+                :quantity = "CCORV" ;
+                :gain = 0.352941185235977 ;
+                :offset = 0. ;
+                :nodata = 255. ;
+                :undetect = 0. ;
+      } // group what
+    } // group data11
+
+  group: data12 {
+    dimensions:
+        phony_dim_6 = 740 ;
+        phony_dim_7 = 3840 ;
+    variables:
+        ubyte data(phony_dim_6, phony_dim_7) ;
+                data :IMAGE_VERSION = "1.2" ;
+
+    group: what {
+
+      // group attributes:
+                :quantity = "CPA" ;
+                :gain = 0.00392156885936856 ;
+                :offset = 0. ;
+                :nodata = 255. ;
+                :undetect = 0. ;
+      } // group what
+    } // group data12
+
+  group: data13 {
+    dimensions:
+        phony_dim_8 = 740 ;
+        phony_dim_9 = 3840 ;
+    variables:
+        ubyte data(phony_dim_8, phony_dim_9) ;
+                data :IMAGE_VERSION = "1.2" ;
+
+    group: what {
+
+      // group attributes:
+                :quantity = "VRADH" ;
+                :gain = 0.223868653178215 ;
+                :offset = -28.6551876068115 ;
+                :nodata = 255. ;
+                :undetect = 0. ;
+      } // group what
+    } // group data13
+
+  group: data14 {
+    dimensions:
+        phony_dim_10 = 740 ;
+        phony_dim_11 = 3840 ;
+    variables:
+        ubyte data(phony_dim_10, phony_dim_11) ;
+                data :IMAGE_VERSION = "1.2" ;
+
+    group: what {
+
+      // group attributes:
+                :quantity = "VRADV" ;
+                :gain = 0.223868653178215 ;
+                :offset = -28.6551876068115 ;
+                :nodata = 255. ;
+                :undetect = 0. ;
+      } // group what
+    } // group data14
+
+  group: data15 {
+    dimensions:
+        phony_dim_12 = 740 ;
+        phony_dim_13 = 3840 ;
+    variables:
+        ubyte data(phony_dim_12, phony_dim_13) ;
+                data :IMAGE_VERSION = "1.2" ;
+
+    group: what {
+
+      // group attributes:
+                :quantity = "WRADH" ;
+                :gain = 0.11149537563324 ;
+                :offset = 0. ;
+                :nodata = 255. ;
+                :undetect = 0. ;
+      } // group what
+    } // group data15
+
+  group: data16 {
+    dimensions:
+        phony_dim_14 = 740 ;
+        phony_dim_15 = 3840 ;
+    variables:
+        ubyte data(phony_dim_14, phony_dim_15) ;
+                data :IMAGE_VERSION = "1.2" ;
+
+    group: what {
+
+      // group attributes:
+                :quantity = "WRADV" ;
+                :gain = 0.11149537563324 ;
+                :offset = 0. ;
+                :nodata = 255. ;
+                :undetect = 0. ;
+      } // group what
+    } // group data16
+
+  group: data17 {
+    dimensions:
+        phony_dim_16 = 740 ;
+        phony_dim_17 = 3840 ;
+    variables:
+        ubyte data(phony_dim_16, phony_dim_17) ;
+                data :IMAGE_VERSION = "1.2" ;
+
+    group: what {
+
+      // group attributes:
+                :quantity = "UPSPH" ;
+                :gain = 0.431372553110123 ;
+                :offset = -110. ;
+                :nodata = 255. ;
+                :undetect = 0. ;
+      } // group what
+    } // group data17
+
+  group: data2 {
+    dimensions:
+        phony_dim_18 = 740 ;
+        phony_dim_19 = 3840 ;
+    variables:
+        ubyte data(phony_dim_18, phony_dim_19) ;
+                data :IMAGE_VERSION = "1.2" ;
+
+    group: what {
+
+      // group attributes:
+                :quantity = "TV" ;
+                :gain = 0.5 ;
+                :offset = -32. ;
+                :nodata = 255. ;
+                :undetect = 0. ;
+      } // group what
+    } // group data2
+
+  group: data3 {
+    dimensions:
+        phony_dim_20 = 740 ;
+        phony_dim_21 = 3840 ;
+    variables:
+        ubyte data(phony_dim_20, phony_dim_21) ;
+                data :IMAGE_VERSION = "1.2" ;
+
+    group: what {
+
+      // group attributes:
+                :quantity = "DBZH" ;
+                :gain = 0.5 ;
+                :offset = -32. ;
+                :nodata = 255. ;
+                :undetect = 0. ;
+      } // group what
+    } // group data3
+
+  group: data4 {
+    dimensions:
+        phony_dim_22 = 740 ;
+        phony_dim_23 = 3840 ;
+    variables:
+        ubyte data(phony_dim_22, phony_dim_23) ;
+                data :IMAGE_VERSION = "1.2" ;
+
+    group: what {
+
+      // group attributes:
+                :quantity = "DBZV" ;
+                :gain = 0.5 ;
+                :offset = -32. ;
+                :nodata = 255. ;
+                :undetect = 0. ;
+      } // group what
+    } // group data4
+
+  group: data5 {
+    dimensions:
+        phony_dim_24 = 740 ;
+        phony_dim_25 = 3840 ;
+    variables:
+        ubyte data(phony_dim_24, phony_dim_25) ;
+                data :IMAGE_VERSION = "1.2" ;
+
+    group: what {
+
+      // group attributes:
+                :quantity = "ZDR" ;
+                :gain = 0.0941176488995552 ;
+                :offset = -16. ;
+                :nodata = 255. ;
+                :undetect = 0. ;
+      } // group what
+    } // group data5
+
+  group: data6 {
+    dimensions:
+        phony_dim_26 = 740 ;
+        phony_dim_27 = 3840 ;
+    variables:
+        short data(phony_dim_26, phony_dim_27) ;
+
+    group: what {
+
+      // group attributes:
+                :quantity = "RHOHV" ;
+                :gain = 9.99999974737875e-05 ;
+                :offset = 0. ;
+                :nodata = -32768. ;
+                :undetect = -32767. ;
+      } // group what
+    } // group data6
+
+  group: data7 {
+    dimensions:
+        phony_dim_28 = 740 ;
+        phony_dim_29 = 3840 ;
+    variables:
+        ubyte data(phony_dim_28, phony_dim_29) ;
+                data :IMAGE_VERSION = "1.2" ;
+
+    group: what {
+
+      // group attributes:
+                :quantity = "PHIDP" ;
+                :gain = 1.41176474094391 ;
+                :offset = -180. ;
+                :nodata = 255. ;
+                :undetect = 0. ;
+      } // group what
+    } // group data7
+
+  group: data8 {
+    dimensions:
+        phony_dim_30 = 740 ;
+        phony_dim_31 = 3840 ;
+    variables:
+        ubyte data(phony_dim_30, phony_dim_31) ;
+                data :IMAGE_VERSION = "1.2" ;
+
+    group: what {
+
+      // group attributes:
+                :quantity = "SQIH" ;
+                :gain = 0.00392156885936856 ;
+                :offset = 0. ;
+                :nodata = 255. ;
+                :undetect = 0. ;
+      } // group what
+    } // group data8
+
+  group: data9 {
+    dimensions:
+        phony_dim_32 = 740 ;
+        phony_dim_33 = 3840 ;
+    variables:
+        ubyte data(phony_dim_32, phony_dim_33) ;
+                data :IMAGE_VERSION = "1.2" ;
+
+    group: what {
+
+      // group attributes:
+                :quantity = "SQIV" ;
+                :gain = 0.00392156885936856 ;
+                :offset = 0. ;
+                :nodata = 255. ;
+                :undetect = 0. ;
+      } // group what
+    } // group data9
+
+  group: how {
+
+    // group attributes:
+                :TXpower = 2.29854183498276e-06, 1.70883238412371e-06, 1.44383693216067e-06, ....
+                :startazA = 359.923095703125, 0.406494140625, 0.90087890625, 1.3787841796875, ....
+                :stopazA = 0.3955078125, 0.889892578125, 1.3677978515625, 1.8621826171875, ....
+                :startT = 1560984144.10076, 1560984144.15266, 1560984144.19731, 1560984144.24866, ....
+                :stopT = 1560984144.148, 1560984144.201, 1560984144.244, 1560984144.297, ....
+                :startelA = 2.0050048828125, 2.0050048828125, 2.0050048828125, 2.0050048828125, ....
+                :stopelA = 2.0050048828125, 2.0050048828125, 2.0050048828125, 2.0050048828125, ....
+                :astart = -0.076904296875 ;
+                :polmode = "simultaneous-dual" ;
+                :NI = 28.4313182830811 ;
+                :clutterType = "50 dB" ;
+                :highprf = 1200. ;
+                :lowprf = 900. ;
+                :antspeed = 10. ;
+                :radconstH = 71.9996948242188 ;
+                :radconstV = 71.9996948242188 ;
+                :pulsewidth = 100. ;
+                :RXbandwidth = 6. ;
+                :Vsamples = 50LL ;
+                :simulated = "False" ;
+                :powerdiff = 0. ;
+                :phasediff = 0. ;
+                :zcalH = 13.5 ;
+                :zcalV = 13.5 ;
+                :zdrcal = -0.800000011920929 ;
+                :nsampleH = 22. ;
+                :nsampleV = 22. ;
+                :radhoriz = 120. ;
+                :binmethod_avg = 1LL ;
+                :scan_index = 1LL ;
+                :scan_count = 1LL ;
+                :nomTXpower = 0.5 ;
+                :malfunc = "False" ;
+                :Dclutter = "\'7\'" ;
+                :SQI = 5. ;
+                :CSR = 25. ;
+                :LOG = 1. ;
+                :NEZH = 0. ;
+                :NEZV = 0. ;
+                :RAC = 0. ;
+                :PAC = 0. ;
+                :SNRT = 1. ;
+    } // group how
+
+  group: what {
+
+    // group attributes:
+                :prodname = "PPI Sweep" ;
+                :product = "SCAN" ;
+                :startdate = "20190619" ;
+                :starttime = "224218" ;
+                :enddate = "20190619" ;
+                :endtime = "224254" ;
+    } // group what
+
+  group: where {
+
+    // group attributes:
+                :elangle = 2. ;
+                :nbins = 3840LL ;
+                :rstart = 0. ;
+                :rscale = 31.25 ;
+                :nrays = 740LL ;
+                :a1gate = 633LL ;
+    } // group where
+  } // group dataset1
+
+group: how {
+
+  // group attributes:
+                :system = "EEC-DWSR-93C" ;
+                :software = "EDGE" ;
+                :sw_version = "6.5.2-pre1" ;
+                :TXtype = "solid state" ;
+                :poltype = "fixed-simultaneous-dual" ;
+                :task = "Surv" ;
+                :antgainH = 45. ;
+                :antgainV = 45. ;
+                :beamwH = 1. ;
+                :beamwV = 1. ;
+                :wavelength = 3.15903544425964 ;
+                :TXlossH = 1. ;
+                :RXlossH = 1. ;
+                :gasattn = 0.017000000923872 ;
+                :azmethod = "AVERAGE" ;
+                :elmethod = "AVERAGE" ;
+                :binmethod = "AVERAGE" ;
+                :VPRCorr = "False" ;
+                :BBC = "False" ;
+  } // group how
+
+group: what {
+
+  // group attributes:
+                :object = "SCAN" ;
+                :version = "H5rad 2.3" ;
+                :date = "20190619" ;
+                :time = "224646" ;
+                :source = "WMO:00000,RAD:,PLC:a9845,NOD:KXASDAL,ORG:0,CTY:000,CMT:" ;
+  } // group what
+
+group: where {
+
+  // group attributes:
+                :lon = -96.1796035766602 ;
+                :lat = 33.0444984436035 ;
+                :height = 4. ;
+  } // group where
+}
+
+
+
+# Study of readers source code in IMS4b
+
+Maven project:                  ims4b-radar-model
+Where readers are implemented:  com.microstepmis.ims4b.radar.model.reader.volume
+
+We investigate one example:     ObRadarReader
+
+Collection of questions about IMS4b data readers:
+1. General question about packages in ims4b-radar-model and IMS4b project structure.
+Could you please explain in general what role/position has
+ims4b-radar-model in whole IMS4b super-system?
+
+What are roles of essential packages for handling radar/lidar data:
+com.microstepmis.ims4b.radar.model.data.container
+com.microstepmis.ims4b.radar.model.data.mapping
+com.microstepmis.ims4b.radar.model.data.projection
+com.microstepmis.ims4b.radar.model.data.util
+com.microstepmis.ims4b.radar.model.data.variable
+com.microstepmis.ims4b.radar.model.data.volume
+com.microstepmis.ims4b.radar.model.meta
+com.microstepmis.ims4b.radar.model.reader.volume
+
+There is yet whole set of low level 'ims4b.base.infra'
+in ims4b-base-infrastructure-1.20.5.jar
+packages. To which extend need we use, study them?
+E.g.:
+com.microstepmis.ims4b.base.infra.util
+com.microstepmis.ims4b.base.infra.content
+
+2. General question about terminology used in IMS4b.
+What means Volume?
+What means Data Volume?
+What exactly means 'moment'? Are they any type of data variables or output physical detections with
+physical units? Are they principally shared with any type of measurement processed in IMS4b?
+Or just Radar/Lidar - exactly defined list of measured detections?
+
+Generic shared attributes:
+What can be stored, contains these 'abstract' attributes?
+GIVEN_NAME
+REFERENCE_DATE_TIME_SOURCE
+
+What is the role/meaning of:
+Parameters?
+Volume Reader Parameters?
+Builder class in abstract classes?
+
+
+3. Terminilogy used in HDF5 (Odim HDF5) files
+What is the background of termns like 'Sweep Polar Volume'?
+(Does it exactly correspond to the terminology used
+in CfRadial specification - I found CfRadialDoc-v2.0-20180430.pdf.
+Or in Opera HDF5 specification where
+are used more generic terms:
+what, where, how, datasets)
+
+What is the 'Split Volume'?
+How generic 'splits' are and how they bind to
+data stored in HDF5 or CfRadial 2?
+How splits are defined for example in
+some particular data?
+
+4. ReadeableDataContent object contains
+- DataContentManager
+- log
+- readableDataContentSupport
+- writableDataContentSupport
+Which during the unit tests debugging contained
+only several metadata and on several places path to the file
+being open.
+Status was CLOSED even though we just entered the reading function.
+What capabilities has this object?
+Does it already contain the read data from the file somewhere,
+or not yet?
+
+A4 .In next step of debugging I have found the
+function:
+com.microstepmis.ims4b.base.infra.content.ReadableDataContentSupport.openForReading()
+which opens the file and changes the status.
+
+2. Looking at latLonAltVolume object
+Screenshot: IMS4b_latLonAltVolume_debug_snapshot.png
+Could you exaplain me briefly context of its attributes?
+coordinates.dimensions
+           .size
+	   .sizes
+dataVariables - contains the 'moment': reflectivity
+ and then data container.
+ I assume that the data them self are stored in:
+ dataContainer.chunks
+ but using debugger I see only the 'NaN' there.
+How and for that are provided:
+latLonToElevationAzimuthRangeTransformer
+latLonElevationAndAltToElevationAzimuthRangeTransformer
+- how they are created, used, and how they are modified for various radars or lidars
+What is the role of volumeInfo?
+We have SingleRadarVolumeInfo, what others yet exists and which to be
+used for various radars?

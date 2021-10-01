@@ -1,0 +1,33 @@
+# Notes about variables, abrevarions and their meanings for GFS, WRF and weather forecasting in general
+# august 2021
+
+Lifted index:
+-------------
+The lifted index (LI) is calculated as the difference between the
+observed temperature at 500 hPa and the temperature of an air parcel
+lifted to 500 hPa from near the surface. The more unstable the
+environment, the more negative the LI.
+
+LI values have been empirically linked to convective events as follows:
+LI Value 	Severe Weather Potential
+
+-2 	        Weak
+-3 to -5 	Moderate
+-6 or less 	Strong
+
+These threshold values are valid for the eastern 2/3 of the United
+States. The values must be modified upward (i.e. less negative) for
+higher elevations in the West. As with CAPE, you should never rely
+solely on LI to evaluate the convective potential.
+
+
+
+Boyden index:
+------------
+A measure of the mean thermodynamic stability in a layer beneath 700
+mb.
+
+The Boyden index is given by I-Z-T-200, where I is the Boyden index, Z
+is the 1000–700- mb thickness in dam, and T is the 700-mb temperature
+in °C.
+
