@@ -965,16 +965,620 @@ for Belgrade (884).
 I copy this one for removing error from the wrapper with TODO in the
 list. - we will not do it, but implement defaults and upgrade IMS4 there.
 
+# 5.10.2021 - investigation of SYNOP ingestion and bulletins processing
+Procedure:
+Test various types of SYNOP messages and bulletins.
+1. Malformed METAR
+This message had the warning, but seems like all stations CSV files were generated correctly:
+SARA34 UUUJ 042330
+METAR UNAA 042330Z 20002MPS 8000 NSC M03/M05 Q1023 R20/CLRD65 NOSIG
+RMK QFE745=
+METAR UNBB 042330Z 09003MPS 4800 2300NE BR SCT004 BKN020CB 04/03
+Q1018 R06/290250 TEMPO 0150 FG BKN001 RMK QFE741=
+METAR UNEE 042330Z 04003MPS CAVOK 01/M02 Q1022 R23/CLRD60 NOSIG RMK
+QFE743=
+METAR UNKL 042330Z 00000MPS CAVOK M04/M04 Q1026 R11/CLRD65 NOSIG RMK
+QFE743=
+METAR UNNT 042330Z 04004MPS 4500 -SN BKN005 OVC024 01/01 Q1022
+R07/290346 R16/290150 NOSIG RMK QFE757/1009=
+METAR UNOO 042330Z 36006MPS 6000 -SHSN BKN003 BKN020CB M00/M00 Q1030
+R25/290050 TEMPO 0500 +SHSN VV002 RMK QBB090 OBST OBSC QFE764=
+METAR UNTT 042330Z 04004MPS 9999 SCT004 M02/M02 Q1025 R21/190055
+NOSIG RMK QFE754=
+METAR UNWW 042330Z 32001MPS CAVOK 00/M01 Q1020 R19/210260 NOSIG RMK
+QFE738=
+METAR USTR 042330Z 32002MPS 9999 BKN042 M00/M02 Q1039 R30/CLRD65
+R03/CLRD65 NOSIG=
+METAR USHH 042330Z 26003MPS CAVOK M01/M04 Q1036 R24/010060 NOSIG=
+
+2. Synop with OGIMET prefix
+Worked as expected - sample line like this e.g.:
+89872,2021,10,05,05,00,AAXX 05054 89872 46/// /2112 11253 39866 49927 57001 90500=
+where actual SYNOP starts as far beyond 'AAXX'.
+
+3. SYPON without OGIMET prefix
+Inserted simple NOAA SYNOP with header:
+SNBX01 KWBC 050700
+AAXX 05071
+06590 41025 71704 10081 20078 39665 40113 56014 71022 876// 333
+83701 87702 91106 91204=
+
+It was processed successfuly, but generated actually two seamless files into
+both output directories:
+949_Belehrad-IMS-ims:~ # cat /opt/ims/data/CurrentDataCsvSynop/202110050757_19_883_S.csv
+06590,1633417200000,8.1,7.8,NA,NA,NA,NA,NA,98.0,4.0,170.0,966.5,7,NA,10,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,1011.3,NA,2500.0
+949_Belehrad-IMS-ims:~ #
+949_Belehrad-IMS-ims:~ # cat /opt/ims/data/CurrentDataCsvSynop/202110050757_19_915_S.csv
+06590,1633417200000,8.1,7.8,NA,NA,NA,NA,NA,98.0,4.0,170.0,966.5,7,NA,10,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,1011.3,NA,2500.0
+This is I think clear bug, there must be some dependency on 
+
+4. Small OGIMET bulletin
+Snippet of OGIMET bulleting:
+01002,2021,09,30,22,00,AAXX 30221 01002 45/// /1207 10007 21007 30260 40272 57014 333 90710 91108 90710 91207==
+01002,2021,09,30,23,00,AAXX 30231 01002 45/// /1209 10007 21011 30252 40264 57018 333 90710 91110 90710 91209==
+01003,2021,09,30,22,00,AAXX 30221 01003 45/// /0811 10023 21008 30254 40268 58008 333 90710 91117 90710 91213==
+01003,2021,09,30,23,00,AAXX 30231 01003 45/// /0710 10024 21007 30250 40264 56016 333 90710 91117 90710 91213==
+01003,2021,10,01,00,00,AAXX 01001 01003 12475 70711 10027 21009 30245 40259 56019 60001 85508 333 31/// 90710 91117 90760 91213 555 90760 91117==
+01006,2021,09,30,22,00,AAXX 30221 01006 45/// /2003 11014 21020 30297 40313 57009 333 90710 91104 90710 91203==
+01006,2021,09,30,23,00,AAXX 30231 01006 45/// /2005 11010 21020 30290 40306 56012 333 90710 91105 90710 91205==
+...
+a bit longer.
+Had processed just two first lines:
+01002,2021,09,30,22,00,AAXX 30221 01002 45/// /1207 10007 21007 30260 40272 57014 333 90710 91108 90710 91207==
+01002,2021,09,30,23,00,AAXX 30231 01002 45/// /1209 10007 21011 30252 40264 57018 333 90710 91110 90710 91209==
+created these two files:
+949_Belehrad-IMS-ims:~ #  ls -lt /opt/ims/data/CurrentDataCsvSynop/
+total 8
+-rw-r--r-- 1 root root 116 Oct  5 09:51 202110050751_04_586_S.csv
+-rw-r--r-- 1 root root 116 Oct  5 09:51 202110050751_04_554_S.csv
+cat /opt/ims/data/CurrentDataCsvSynop/202110050751_04_554_S.csv
+01002,1633039200000,0.7,-0.7,NA,NA,NA,NA,NA,90.0,7.0,120.0,1026.0,NA,NA,NA,NA,NA,NA,NA,NA,5,NA,NA,NA,NA,1027.2,NA,NA
+cat /opt/ims/data/CurrentDataCsvSynop/202110050751_04_586_S.csv
+01002,1633039200000,0.7,-0.7,NA,NA,NA,NA,NA,90.0,7.0,120.0,1026.0,NA,NA,NA,NA,NA,NA,NA,NA,5,NA,NA,NA,NA,1027.2,NA,NA
+The result is that Synop insert terminal is not
+capable to process OGIMET buletins correctly.
+
+5. Small NOAA bulletine
+One of NOAA bulletins inserted into the queue.
+File Inserter could not process the bulletin.
+This was the log file:
+---
+2021-10-05 11:48:04.506 UTC: NOTE: SYNOP_FILE_INSERTER/fork/FileInsertTerminal: Sending ####018000102#### to CLDB
+2021-10-05 11:48:04.506 UTC: NOTE: SYNOP_FILE_INSERTER/fork/FileInsertTerminal: no inserter match pheader ####018000102#### message linked to Unknown folder
+2021-10-05 11:48:04.506 UTC: NOTE: SYNOP_FILE_INSERTER/fork/FileInsertTerminal: Sending ####018000102#### to CLDB
+2021-10-05 11:48:04.524 UTC: NOTE: SYNOP_FILE_INSERTER/fork/FileInsertTerminal: no inserter match pheader ####018000102#### message linked to Unknown folder
+2021-10-05 11:48:04.678 UTC: NOTE: SYNOP_FILE_INSERTER/msgDb: Message "####018000102####" has been sent
+2021-10-05 11:48:04.689 UTC: NOTE: SYNOP_FILE_INSERTER/fork/FileInsertTerminal: Sending ####018000102#### to CLDB
+2021-10-05 11:48:04.689 UTC: NOTE: SYNOP_FILE_INSERTER/fork/FileInsertTerminal: Sending ####018000102#### to CLDB
+2021-10-05 11:48:04.700 UTC: NOTE: SYNOP_FILE_INSERTER/fork/FileInsertTerminal: no inserter match pheader ####018000102#### message linked to Unknown folder
+2021-10-05 11:48:04.707 UTC: NOTE: SYNOP_FILE_INSERTER/fork/FileInsertTerminal: no inserter match pheader ####018000102#### message linked to Unknown folder
+2021-10-05 11:48:04.862 UTC: NOTE: SYNOP_FILE_INSERTER/msgDb: Message "####018000102####" has been sent
+2021-10-05 11:48:05.816 UTC: WARNING: Communication: SYNOP_FILE_INSERTER: Status changed to WARNING:
+        Send: Message "####018000102####" has been sent; Recv: Started;
+        no inserter match pheader ####018000102#### message linked to Unkown folder;
+        no inserter match pheader ####018000102#### message linked to Unkown folder
+---
+
+Yet test of METAR duplicate, interesting observations.
+After turning off from_MSS channel, yet more than 15 minutes were
+processed queued METAR messages from the message database.
+1964 messages - very slow!
+
+Very many messages end up in the 'Unknown folder'
+METAR and SPECI and seems like duplicates.
+Looks like the ones with Warnings from the METAR_FILE_INSERTER
+channel.
+
+These two messages were processed by the METAR_INSERTER with this Warning.
+SPAU31 YBBN 051330
+SPECI YBCS 051330Z AUTO 28002KT 9999 // BKN021 24/23 Q1010
+RF00.0/000.0=
+
+SPAU31 YBBN 051330
+SPECI YBCS 051330Z AUTO 28002KT 9999 // BKN021 24/23 Q1010=
+
+/opt/ims/log/2021/10/05/com.METAR_FILE_INSERTER.log
+2021-10-05 14:07:14.936 UTC: NOTE: METAR_FILE_INSERTER/fork/FileInsertTerminal: Sending SPAU31 YBBN 051330 to CLDB
+2021-10-05 14:07:14.936 UTC: NOTE: METAR_FILE_INSERTER/fork/FileInsertTerminal: Sending SPAU31 YBBN 051330 to CLDB
+2021-10-05 14:07:14.936 UTC: NOTE: METAR_FILE_INSERTER/fork/FileInsertTerminal: no inserter match pheader SPAU31 YBBN 051330 message linked to Unknown folder
+2021-10-05 14:07:14.937 UTC: NOTE: METAR_FILE_INSERTER/fork/FileInsertTerminal: no inserter match pheader SPAU31 YBBN 051330 message linked to Unknown folder
+2021-10-05 14:07:14.942 UTC: NOTE: METAR_FILE_INSERTER/msgDb: Message "SPAU31 YBBN 051330" has been sent
+2021-10-05 14:07:14.942 UTC: NOTE: METAR_FILE_INSERTER/fork/FileInsertTerminal: Sending SPAU31 YBBN 051330 to CLDB
+2021-10-05 14:07:14.943 UTC: NOTE: METAR_FILE_INSERTER/fork/FileInsertTerminal: Sending SPAU31 YBBN 051330 to CLDB
+2021-10-05 14:07:14.943 UTC: NOTE: METAR_FILE_INSERTER/fork/FileInsertTerminal: no inserter match pheader SPAU31 YBBN 051330 message linked to Unknown folder
+2021-10-05 14:07:14.943 UTC: NOTE: METAR_FILE_INSERTER/fork/FileInsertTerminal: no inserter match pheader SPAU31 YBBN 051330 message linked to Unknown folder
+2021-10-05 14:07:14.948 UTC: NOTE: METAR_FILE_INSERTER/msgDb: Message "SPAU31 YBBN 051330" has been sent
+2021-10-05 14:07:15.810 UTC: WARNING: Communication: METAR_FILE_INSERTER: Status changed to WARNING:
+        Send: Message "SPAU31 YBBN 051330" has been sent; Recv: Started;
+        no inserter match pheader SPAU31 YBBN 051330 message linked to Unkown folder;
+        no inserter match pheader SPAU31 YBBN 051330 message linked to Unkown folder
+
+No CSV file generated - ISSUE - lost data.
+In the Unknown folder created 4 (duplicate) messages - copies of these two.
+
+
+# 6.10.2021 - addressed Mata's comments
+Cleaned out DBCreateLocal.xml
+Removed DBCreateQc.xml
+Removed DBConnectionToActual.xml
+Disabled QC in EnviDBConnectionCfg.xml
+by <qcTimeMask>(H == 25) and (MIN == 0) and (S == 0)</qcTimeMask>
+(never executed)
+
+Upgrade successful and without errors.
+
+Issue of missing "GroundObservationBookDecoder.xml".
+After removal of China configurations, it was not sought anymore:
+rm /opt/ims/cfg/coder/SpeciLoaderChina.xml
+rm /opt/ims/cfg/coder/zh/MetarLoaderChina.xml
+rm /opt/ims/cfg/coder/MetarLoaderChina.xml
+rm /opt/ims/cfg/envidb/insert/GroundObservationBookInserter.xml
+rm /opt/ims/cfg/coder/gobr/ -rfv
+
+# 7.10.2021 - configuration of Serbian stations file inserting
+With Jaro Drozd retrieved the iodata from the Serbian CLDB installation.
+Stations:
+Konjarnik
+Dunav
+NBgd
+Vozdovac
+Cerak
+
+Simlators for data from October 1-6 configured for these iodata logs:
+iodata/Konjarnik.log
+iodata/Dunav.log
+iodata/Vozdovac.log
+iodata/Cerak.log
+
+However, the messages are not distinguished and all end up in 'Unknown' folder
+and does generate output CSV files.
+
+After meeting with Mato Cajagi and Jaro we have learned that supported implemented
+parsers are here:
+---
+ls /opt/ims/cfg/envidb/insert/
+597_RADInserter.xml            DhafraDailyReportInserter.xml      MAM1Inserter.xml                MMDADCPInserter.xml            MMDEnviNEPH_3WLInserter.xml    MuluDlyInserter.xml             PilotOGIMETInserter.xml    SIN_RWM_Inserter.xml
+597_RAHInserter.xml            DhafraHourlyReportInserter.xml     MAWSLitInserter.xml             MMDAgrometDailyInserter.xml    MMDEnviNEPHInserter.xml        MuluHlyInserter.xml             PrinterDhafraInserter.xml  Sutron510Inserter.xml
+756_RADInserter.xml            DMAquadoppInserter.xml             MetarFullDateInserter.xml       MMDAgrometHourlyInserter.xml   MMDEnviOzoneInserter.xml       NCMSInserter.xml                Radmon_SXInserter.xml      SWS200Inserter.xml
+756_SIN_M0102_Inserter.xml     DMFInserter.xml                    MetarInserter.xml               MMDAuxMinuteDataInserter.xml   MMDEnviPassiveInserter.xml     NCMSIRIDIUMInserter.xml         Radmon_VNInserter.xml      SWS250Inserter.xml
+914_RADInserter.xml            DMIMinuteDataInserter.xml          MetarNoHeaderInserter.xml       MMDEnviAeronetInserter.xml     MMDEnviPFRInserter.xml         NCMSPRWInserter.xml             RPSGLongInserter.xml       SWS_NCMS_Inserter.xml
+914_RAHInserter.xml            DMITenMinutesDataInserter.xml      MGM2M0036DataInserter.xml       MMDEnviAODInserter.xml         MMDEnviSONInserter.xml         NismosClimatDailyInserter.xml   Saudia35Inserter.xml       SynopFullDateInserter.xml
+914_RAMInserter.xml            DubajSodarInserter.xml             MGM2MinuteDataInserter.xml      MMDEnviBaliInserter.xml        MMDEnviTel49_2011Inserter.xml  NismosClimatHourlyInserter.xml  SaudiaInserter.xml         SynopInserter.xml
+AmdarInserter.xml              FireInserter.xml                   MGM2StatusInserter.xml          MMDEnviDailyOInserter.xml      MMDEnviTEOMDVInserter.xml      Oman_1min_Inserter.xml          ShipInserter.xml           SynopKAZInserter.xml
+AWAC_CurrentInserter.xml       GroundObservationBookInserter.xml  MGM2TenMinutesDataInserter.xml  MMDEnviDailyUVBInserter.xml    MMDEnviTEOMInserter.xml        OmanAWSInserter.xml             SHMUMarsInserter.xml       SynopOGIMETInserter.xml
+AWAC_SensorInserter.xml        HydraFullDateInserter.xml          MGM_M0037RainInserter.xml       MMDEnviDUVInserter.xml         MMDEnviWINInserter.xml         OmanMinuteDataInserter.xml      SHMU_SXSQ38_Inserter.xml   TafInserter.xml
+AWAC_WaveInserter.xml          HydraKN15Inserter.xml              MGMMinuteDataInserter.xml       MMDEnviFPInserter.xml          MMDEnviWSOInserter.xml         OzoneInserter.xml               SHMU_SXSQ39_Inserter.xml   TempInserter.xml
+AWSBATInserter.xml             Lightning570Inserter.xml           MGMRainInserter.xml             MMDEnviGreenhouseInserter.xml  MMDMinuteDataInserter.xml      PagasaARGInserter.xml           SIN_GDR_Inserter.xml       TempOGIMETInserter.xml
+AWSStatusInserter.xml          LitHydroCampbellInserter.xml       MGMSPAInserter.xml              MMDEnviGRIMMInserter.xml       MMDVaisalaDailyInserter.xml    PagasaAWSInserter.xml           SIN_M0049_Inserter.xml     Tsunami537Inserter.xml
+AZETInserter.xml               LZUKTInserter.xml                  MGMStatusInserter.xml           MMDEnviLoFloInserter.xml       MMDVaisalaHourlyInserter.xml   PagasaDPAWSInserter.xml         SIN_M0050_Inserter.xml     Vaisala_BHInserter.xml
+CBME80m5OneRowInserter.xml     M0021Inserter.xml                  MGMTenMinutesDataInserter.xml   MMDEnviMAAPInserter.xml        MNCMSInserter.xml              PagasaKOICAInserter.xml         SIN_RAM_Inserter.xml
+DafraArchiveMetarInserter.xml  M0027Inserter.xml                  MinuteAutomaticInserter.xml     MMDEnviMGAInserter.xml         MNCMSSOILInserter.xml          PilotInserter.xml               SIN_RIM_Inserter.xml
+
+There are quite some, but actually the custom format for Serbia is missing.
+
+CLDB for insertion into database is using different generic
+configurable parser, copied over from the 884 configuraiton.
+
+/opt/ims/cfg/station/CSVConvertorCfg.xml
+It contains only three blocks:
+pheaderMask="M0073,.*" type="AWS111_VER" source="O" ignoreFirstLine="true"
+pheaderMask="M0076,.*" type="AWS111_VER" source="O" ignoreFirstLine="true"
+pheaderMask="M0073,.*" type="AWS111_VER" source="O" ignoreFirstLine="true"
+
+Questions:
+1. Why there are duplicate pheaderMask="M0073 - blocks?
+   Testing showed that the first one which is much shorter is used by default.
+A1. Delte the second.
+
+2. In order to gain matching, I had to implement replace protocols
+   and to remove first and last character from the iodata log -
+   directly from the station Konjarnik.
+   Is there some pre-processing to match the CSV convertor for the Serbian stations?
+A2. M0073 M0076 messages will come after processing by AWS Terminal.
+    Configured as in https://10.111.4.46:8443.
+
+3. Even after matching, the messages are not read correctly:
+   E.g.:
+   M0073,003,202110070650,X,12.90,27.20, 0.40,12.90, 0.00, 0.30,11.00,14.00, 1001
+    C087
+   Output:
+   NAME                           DB VARIABLE                         VALUE               a         b         A         B         C         D
+   CONFID                                                             C087
+   AWSID                                                              Not available                                                             
+   yyyyMMddHHmm                                                       Not available
+   X, XCHAR                                                           Not available                                                              
+   aBV, Battery voltage           Station.Battery                     Not available                                                               
+   aPA1, Pressure actual          Press.Station                       Not available                                                               
+   hPA1N, Station pressure Hourly minimum Press.Station.Hly.Min               Not available
+   hPA1X, Station pressure Hourly maximum Press.Station.Hly.Max               Not available                                                   
+   hPR1S, Precipitation hourly sum Prec.Hly.Sum                        Not available                                                       
+   hPRI1X, Maximum 1-hour precipitation intensity Prec.Intensity.Max                  Not available
+   hSH1A, Snow height hourly average Snow.Height.Hly.Avg                 Not available
+   hSR1A, Global radiation hourly average [W/m2] Radiation.Global.Hly.Avg            Not available                
+   aTA1, Temperature dry - actual Temp.Dry                            Not available       1.0       0.0
+   hTA1N                          Temp.Dry.Hly.Min                    Not available                
+   hTA1X                          Temp.Dry.Hly.Max                    Not available                
+   aRH1, Relative humidity - actual RelHumidity                         Not available                
+   hRH1N                          RelHumidity.Hly.Min                 Not available                
+   hRH1X                          RelHumidity.Hly.Max                 Not available                
+   hWD1A                          Wind.Hly.Dir.Avg                    Not available       1.0       0.0
+   hWD1N                          Wind.Hly.Dir.Min                    Not available       1.0       0.0
+   hWD1X                          Wind.Hly.Dir.Max                    Not available       1.0       0.0
+   hWS1A                          Wind.Hly.Speed.Avg                  Not available       1.0       0.0
+   hWS1X                          Wind.Hly.Speed.Max                  Not available       1.0       0.0
+   hWS1XD, hourly direction of max wind speed Wind.Hly.Dir.Max.Speed              Not available                
+   hWS1XT, hourly time of max wind speed Wind.Hly.Speed.Max.Time             Not available                
+   dWD1A                          Wind.Dly.Dir.Avg                    Not available                
+   dWD1N                          Wind.Dly.Dir.Min                    Not available                
+   dWD1X                          Wind.Dly.Dir.Max                    Not available                
+   dWS1A                          Wind.Dly.Speed.Avg                  Not available                
+   dWS1X                          Wind.Dly.Speed.Max                  Not available                
+   hWS1X50S, first 50 minute in hour wind speed maximum Wind.Speed.Hly.50Min.Max            Not available                
+   hTG1N, Temperature ground - hour minimum Temp.Ground.Hly.Min                 Not available                
+   hTG1X, Temperature ground - hour maximum Temp.Ground.Hly.Max                 Not available
+
+4. After configuration of simulator for
+   iodata/CLDB_INSERT.log
+   the M0073 messages are parsed correctly by the CSVConvertor.
+   M0073,003,202110070800
+   M0073,003,202110070800,X,12.90,27.20, 0.40,12.90, 0.00, 0.30,11.00,
+   14.00, 1001
+
+   NAME                           DB VARIABLE                         VALUE               a         b         A         B         C         D
+   CONFID                                                             M0073
+   AWSID                                                              003
+   yyyyMMddHHmm                                                       202110070800
+   X, XCHAR                                                           X    
+   aBV, Battery voltage           Station.Battery                     12.90
+   aPA1, Pressure actual          Press.Station                       27.20
+   hPA1N, Station pressure Hourly minimum Press.Station.Hly.Min               0.40 
+   hPA1X, Station pressure Hourly maximum Press.Station.Hly.Max               12.90
+   hPR1S, Precipitation hourly sum Prec.Hly.Sum                        0.00 
+   hPRI1X, Maximum 1-hour precipitation intensity Prec.Intensity.Max                  0.30 
+   hSH1A, Snow height hourly average Snow.Height.Hly.Avg                 11.00
+   hSR1A, Global radiation hourly average [W/m2] Radiation.Global.Hly.Avg            14.00
+   aTA1, Temperature dry - actual Temp.Dry                            1001                1.0       0.0
+   hTA1N                          Temp.Dry.Hly.Min                    Not available                    
+   hTA1X                          Temp.Dry.Hly.Max                    Not available                    
+   aRH1, Relative humidity - actual RelHumidity                         Not available                    
+   hRH1N                          RelHumidity.Hly.Min                 Not available                    
+   hRH1X                          RelHumidity.Hly.Max                 Not available                    
+   hWD1A                          Wind.Hly.Dir.Avg                    Not available       1.0       0.0
+   hWD1N                          Wind.Hly.Dir.Min                    Not available       1.0       0.0
+   hWD1X                          Wind.Hly.Dir.Max                    Not available       1.0       0.0
+   hWS1A                          Wind.Hly.Speed.Avg                  Not available       1.0       0.0
+   hWS1X                          Wind.Hly.Speed.Max                  Not qavailable       1.0       0.0
+   hWS1XD, hourly direction of max wind speed Wind.Hly.Dir.Max.Speed              Not available                    
+   hWS1XT, hourly time of max wind speed Wind.Hly.Speed.Max.Time             Not available                    
+   dWD1A                          Wind.Dly.Dir.Avg                    Not available                    
+   dWD1N                          Wind.Dly.Dir.Min                    Not available                    
+   dWD1X                          Wind.Dly.Dir.Max                    Not available                    
+   dWS1A                          Wind.Dly.Speed.Avg                  Not available                    
+   dWS1X                          Wind.Dly.Speed.Max                  Not available                    
+   hWS1X50S, first 50 minute in hour wind speed maximum Wind.Speed.Hly.50Min.Max            Not available                    
+   hTG1N, Temperature ground - hour minimum Temp.Ground.Hly.Min                 Not available                    
+   hTG1X, Temperature ground - hour maximum Temp.Ground.Hly.Max                 Not available
+
+   This means that between input data from e.g. Konjarnik and CLDB_INSERT is some
+   pre-processing - which, I can not check, because the provided configuration
+   does not contain actual configuration from the Serbian CLDB.
+
+A4. See configuration of channel:
+    https://10.111.4.46:8443/ims/html2/admin/config.html?label=Communication%20object%20Station_New1&className=com.microstepmis.communication2.Root$Config$Conf&blockName=c/Communication&path=objects/[id=%27Station_New1%27]
+
+5. Why there is not ims4-configuration branch for 884 where I could check
+   the operational installation?
+   Could we create it please?
+A5. We will create the master branch and store
+    there the configuration from the integration machine and from operations installation
+    snapshots.
+
+6. I do not have the details of Serbian stations in the configuration provided.
+   What town/place in Serbia is NBgd?
+   Could you eventually provide me with the CLDB station configuration export please?
+A6. Novy Beograd -
+   See: /root/884_Belgrade_cfg/metaExp.xml
+
+7. For preparing inserter parser for Serbian M0073, M0076 specifications
+   I need to know target deployment, which format, flavor of the
+   specifications shall be provided for the Forecast Module?
+   The data present in: 
+   iodata/Konjarnik.log
+   or format in:
+   iodata/CLDB_INSERT.log
+A7. We will implement inserter for CLDB)_INSERT format of data pro-processed by AWS temrinal
+    as configured for CLDB.
+
+8. Also it seems that M0073 are not parsed correctly, just see the example above.
+   They are 1 minute date.
+   M0076 messages seems are parsed better:
+   M0076,004,202110070840
+   M0076,004,202110070840,X,13.1, 3.3,1004.2, 0.0,////,   0.0, 12.5,
+   100,291,255,324, 0.1, 0.4,/////,//////,/////
+
+   NAME                           DB VARIABLE                         VALUE               a         b         A         B         C         D 
+   CONFID                                                             M0076                                      
+   AWSID                                                              004          
+   yyyyMMddHHmm                                                       202110070840 
+   X, XCHAR                                                           X            
+   aBV, Battery voltage           Station.Battery                     13.1         
+   aLTBV, Lithium battery voltage Lithium.battery.voltage             3.3          
+   aPA1, Pressure actual          Press.Station                       1004.2       
+   mPR1S                          Precipitation.1min.sum              0.0          
+   aSH1                           Snow.Height                         ////         
+   mSR1A, Solar Radiation (W/m2), 1 min. average Radiation.Global.1Min.Avg           0.0          
+   aTA1, Temperature dry - actual Temp.Dry                            12.5                1.0       0.0                                               
+   aRH1, Relative humidity - actual RelHumidity                         100          
+   mWD1A, Wind Direction (), 1min. average Wind.Dir.1Min.Avg                   291          
+   mWD1N, Wind Direction (), min extreme Wind.Dir.1Min.Left                  255          
+   mWD1X, Wind Direction (), max extreme Wind.Dir.1Min.Right                 324          
+   mWS1A, Wind Speed (m/s) average Wind.Speed.1min.Avg                 0.1          
+   mWS1X, Wind Speed (m/s) max    Wind.Speed.1min.Max                 0.4          
+   aTG1, Temperature ground - actual Temp.Ground                         /////        
+   aWL1, Water Level - actual     Water.Level                         //////       
+   aWT1, Water temperature - actual Water.Temp                          /////               1.0       0.0                                               
+   And these are about 15 minutes data - this would indicate that
+   we should use and implement just M0076 format parser,
+   now only to know the exact specification.
+
+   <in  date="2021-10-01T21:11:30.246" t="0"    >\x02M0076,003,202110012110,X,13.1, 2.9,1002.0, 0.0,////,   0.0, 12.5, 66,108,  0,205, 0.5, 1.0,/////,//////,/////\r\n FF0C\x03</in>
+   <in  date="2021-10-01T21:21:30.280" t="0"    >\x02M0076,003,202110012120,X,12.9, 2.9,1002.0, 0.0,////,   0.0, 12.3, 68,128,103,171, 1.0, 1.8,/////,//////,/////\r\n 15A5\x03</in>
+    <in  date="2021-10-01T21:31:30.337" t="0"    >\x02M0076,003,202110012130,X,13.9, 2.9,1001.9, 0.0,////,   0.0, 11.9, 71,143,103,182, 0.9, 1.2,/////,//////,/////\r\n 5E01\x03</in>
+    <in  date="2021-10-01T21:41:30.379" t="0"    >\x02M0076,003,202110012140,X,13.0, 2.9,1001.8, 0.0,////,   0.0, 11.7, 72, 58,342,148, 0.3, 0.6,/////,//////,/////\r\n 1A49\x03</in>
+    <in  date="2021-10-01T21:51:30.376" t="0"    >\x02M0076,003,202110012150,X,12.9, 2.9,1001.7, 0.0,////,   0.0, 11.6, 71,143,103,171, 1.0, 1.6,/////,//////,/////\r\n 442E\x03</in>
+    <in  date="2021-10-01T22:01:30.311" t="0"    >\x02M0076,003,202110012200,X,12.9, 2.9,1001.7, 0.0,////,   0.0, 11.6, 69,115, 23,171, 0.6, 1.3,/////,//////,/////\r\n ED3F\x03</in>
+    <in  date="2021-10-01T22:11:30.368" t="0"    >\x02M0076,003,202110012210,X,13.7, 2.9,1001.5, 0.0,////,   0.0, 11.3, 71, 11,228,171, 0.3, 0.8,/////,//////,/////\r\n 4A16\x03</in>
+    <in  date="2021-10-01T22:21:30.172" t="0"    >\x02M0076,003,202110012220,X,12.9, 2.9,1001.5, 0.0,////,   0.0, 11.3, 70, 53,251,194, 0.5, 1.3,/////,//////,/////\r\n D246\x03</in>
+    <in  date="2021-10-01T22:31:30.165" t="0"    >\x02M0076,003,202110012230,X,12.9, 2.9,1001.5, 0.0,////,   0.0, 11.6, 67,  2,217,160, 0.6, 1.1,/////,//////,/////\r\n 2B85\x03</in>
+    <in  date="2021-10-01T22:41:30.165" t="0"    >\x02M0076,003,202110012240,X,13.1, 2.9,1001.4, 0.0,////,   0.0, 11.8, 66, 72,353,228, 0.5, 1.0,/////,//////,/////\r\n 7D26\x03</in>
+    <in  date="2021-10-01T22:51:30.259" t="0"    >\x02M0076,003,202110012250,X,13.0, 2.9,1001.3, 0.0,////,   0.0, 11.8, 65, 99,137,182, 0.6, 1.6,/////,//////,/////\r\n B100\x03</in>
+    <in  date="2021-10-01T23:01:30.228" t="0"    >\x02M0076,003,202110012300,X,12.9, 2.9,1001.1, 0.0,////,   0.0, 11.9, 64, 87,  0,194, 1.0, 2.3,/////,//////,/////\r\n FFE9\x03</in>
+    <in  date="2021-10-01T23:11:30.370" t="0"    >\x02M0076,003,202110012310,X,12.9, 2.9,1001.1, 0.0,////,   0.0, 11.7, 64, 66, 10,148, 0.6, 0.9,/////,//////,/////\r\n 3355\x03</in>
+    <in  date="2021-10-01T23:21:30.297" t="1"    >\x02M0076,003,202110012320,X,13.4, 2.9,1001.1, 0.0,////,   0.0, 11.7, 64, 70, 23, 57, 0.5, 1.0,/////,//////,/////\r\n 6C26\x03</in>
+    <in  date="2021-10-01T23:31:30.296" t="0"    >\x02M0076,003,202110012330,X,13.0, 2.9,1001.1, 0.0,////,   0.0, 11.7, 64,121, 69,160, 1.4, 2.2,/////,//////,/////\r\n F174\x03</in>
+    <in  date="2021-10-01T23:41:30.196" t="0"    >\x02M0076,003,202110012340,X,12.9, 2.9,1001.2, 0.0,////,   0.0, 11.6, 65, 35,353, 69, 0.4, 0.6,/////,//////,/////\r\n C91C\x03</in>
+    <in  date="2021-10-01T23:51:30.258" t="0"    >\x02M0076,003,202110012350,X,12.9, 2.9,1001.2, 0.0,////,   0.0, 11.3, 66, 32,285,126, 0.5, 0.9,/////,//////,/////\r\n 0869\x03</in>
+
+A8. Watch out - M0076 are 10 minutes data.
+    In order to be prepared for any scenario, implement both inserters.
+
+We will create three Jira sub-tasks.
+1. Bug in File Insert Terminal - duplicate outputs
+- METAR - when not matched two seamless reconrds in the 'Unknown' folder
+- SYNOP - alwas two same CSV files which makes general performance twice as slow
+
+Retested one more time carefully.
+The duplicates were generated very likelly by having
+the Fork terminal with two output File Inserter Terminals.
+This means that any not matched or message with
+malformed data generates two records by the current configuration.
+
+When METAR has this issue:
+2021-10-08 08:58:17.603 UTC: NOTE: METAR_FILE_INSERTER/fork/FileInsertTerminal: message SAFR38 LFPW 080830 RRA inserted, occurred problem: Wrong format of message, some data may missing
+
+It actually generates the output CSV files
+for all METAR records in the bulletin, but
+also stores the copy into the 'Unknown folder' in the message database.
+Means that accumulate not only
+not matching METAR/SPECI but also not correctly read messages.
+
+Closing this issue as resolved and re-tested.
+
+
+2. Suspiciously abundant METAR not matching pheader
+grep "no inserter match pheader" /opt/ims/log/2021/10/06/com.METAR_FILE_INSERTER.log
+2021-10-06 07:29:10.279 UTC: NOTE: METAR_FILE_INSERTER/fork/FileInsertTerminal: no inserter match pheader SPUS70 KWBC 060656 message linked to Unknown folder
+2021-10-06 07:29:10.279 UTC: NOTE: METAR_FILE_INSERTER/fork/FileInsertTerminal: no inserter match pheader SPUS70 KWBC 060656 message linked to Unknown folder
+2021-10-06 07:30:07.761 UTC: NOTE: METAR_FILE_INSERTER/fork/FileInsertTerminal: no inserter match pheader SPUS22 KWBC 060700 message linked to Unknown folder
+2021-10-06 07:30:07.761 UTC: NOTE: METAR_FILE_INSERTER/fork/FileInsertTerminal: no inserter match pheader SPUS22 KWBC 060700 message linked to Unknown folder
+2021-10-06 07:30:35.275 UTC: NOTE: METAR_FILE_INSERTER/fork/FileInsertTerminal: no inserter match pheader SPCN31 CWAO 060657 message linked to Unknown folder
+2021-10-06 07:30:35.275 UTC: NOTE: METAR_FILE_INSERTER/fork/FileInsertTerminal: no inserter match pheader SPCN31 CWAO 060657 message linked to Unknown folder
+2021-10-06 07:30:35.286 UTC: NOTE: METAR_FILE_INSERTER/fork/FileInsertTerminal: no inserter match pheader SPUS80 KWBC 060658 message linked to Unknown folder
+2021-10-06 07:30:35.286 UTC: NOTE: METAR_FILE_INSERTER/fork/FileInsertTerminal: no inserter match pheader SPUS80 KWBC 060658 message linked to Unknown folder
+2021-10-06 07:31:06.162 UTC: NOTE: METAR_FILE_INSERTER/fork/FileInsertTerminal: no inserter match pheader SPAU32 YBBN 060700 message linked to Unknown folder
+2021-10-06 07:31:06.162 UTC: NOTE: METAR_FILE_INSERTER/fork/FileInsertTerminal: no inserter match pheader SPAU32 YBBN 060700 message linked to Unknown folder
+2021-10-06 07:31:15.432 UTC: NOTE: METAR_FILE_INSERTER/fork/FileInsertTerminal: no inserter match pheader SPUS25 KWBC 060704 message linked to Unknown folder
+2021-10-06 07:31:15.433 UTC: NOTE: METAR_FILE_INSERTER/fork/FileInsertTerminal: no inserter match pheader SPUS25 KWBC 060704 message linked to Unknown folder
+2021-10-06 07:31:15.439 UTC: NOTE: METAR_FILE_INSERTER/fork/FileInsertTerminal: no inserter match pheader SPUS21 KWBC 060704 message linked to Unknown folder
+2021-10-06 07:31:15.440 UTC: NOTE: METAR_FILE_INSERTER/fork/FileInsertTerminal: no inserter match pheader SPUS21 KWBC 060704 message linked to Unknown folder
+2021-10-06 07:31:17.117 UTC: NOTE: METAR_FILE_INSERTER/fork/FileInsertTerminal: no inserter match pheader SPUS23 KWBC 060704 message linked to Unknown folder
+2021-10-06 07:31:17.117 UTC: NOTE: METAR_FILE_INSERTER/fork/FileInsertTerminal: no inserter match pheader SPUS23 KWBC 060704 message linked to Unknown folder
+2021-10-06 07:31:17.123 UTC: NOTE: METAR_FILE_INSERTER/fork/FileInsertTerminal: no inserter match pheader SPUS22 KWBC 060704 message linked to Unknown folder
+2021-10-06 07:31:17.123 UTC: NOTE: METAR_FILE_INSERTER/fork/FileInsertTerminal: no inserter match pheader SPUS22 KWBC 060704 message linked to Unknown folder
+2021-10-06 07:31:42.680 UTC: NOTE: METAR_FILE_INSERTER/fork/FileInsertTerminal: no inserter match pheader SPIY37 LIIB 060700 message linked to Unknown folder
+....
+
+grep "no inserter match pheader" /opt/ims/log/2021/10/06/com.METAR_FILE_INSERTER.log |wc -l
+9649
+(There are two these error messages so not matched are 9649/2 = 4824)
+grep "has been sent" /opt/ims/log/2021/10/06/com.METAR_FILE_INSERTER.log |wc -l
+35561
+
+Thus 4824 of 35561 METAR messages has been rejected, which is about 13%.
+
+Would be good to pick couple of examples from daily processing and find out
+whether we have do not have some bug in the METAR inserter and parser.
+
+Liase with Jan Kianicka and retrieve samples from the machine 10.111.5.171
+where the new dissemination of METAR messages was deployed.
 
 
 
 
+3. Implement missing inserter for the File Insert Terminal for the Serbian stations
+Particularly we need M0073, M0067 format parser.
 
+From Serbian station loggers are comming data yet through AWS Termninal
+configured for CLDB as part of 884 contract.
+These data are in custom CSV formats indincated by two conventions:
+M0073 - minute data
+M0076 - ten minute data
+(there are yet other customer CSV messages, out of scope of this task)
 
+In order to integrate these data into the Forecast Module and particularly
+CurrentDataReaderAgent we need them in different output CSV files.
+Common configuration of these files can be found here:
+https://gitlab.mstep/mis/sw/ims/ims4/ims4-configurations/-/blob/janki_949_Serbia_NWP/cfg/station/FileInserterCfg.xml
+(For diagnistic purpose there yet separate configurations for METAR, SYNOP
+but they differ only in output path. They shall be stripped later and unified to one FileInsertTerminal configuration.)
+It is copy of version used already in 665 Azet:
+https://gitlab.mstep/mis/sw/ims/ims4/ims4-configurations/-/blob/master_665_SK_Azet_Forecast/ForecastBenestra/FileInserterCfg.xml
 
+Please, based on:
+https://gitlab.mstep/mis/sw/ims/ims4/ims4-configurations/-/blob/janki_949_Serbia_NWP/cfg/station/CSVConvertorCfg.xml
+Implement and deploy custom CSV inserters for M0073, M0076
+I would prefer here directly into IMS4 repository:
+https://gitlab.mstep/mis/sw/ims/ims4/ims4/-/tree/master/Jlib/src/main/resources/cfg/envidb/insert
 
+Deploy them on 949 DEV machine, 10.111.5.171
+and make the channel:
+https://10.111.5.171:8443/ims/html2/communicationDetailed.html?id=CLDB_INSERT_sim
+functional, inserting otuput minute and 10 minute CSV files here:
+/opt/ims/data/CurrentDataCsv
+and here
+/opt/ims/data/CurrentDataCsvSerbia/
+(according current configuration)
 
+Thank you very much
+Jan
 
+# One more performance test of SYNOP File inserter
+Previous tests shown that the File Insert Terminal is processing with
+on instance one hour of OGIMET SYNOP bulletins about 10 minutes.
+
+We have learned that each processed message is checked
+by matching with all inserters present in
+/opt/ims/cfg/envidb/insert
+which is about 127.
+Now we try just to move them away to temporal folder
+and execute full cycle test.
+I have left only SynopOGIMETInserter.xml, but this was not the one.
+The messages were not recognized.
+Second attempt:
+2021-10-08 11:36:15.655 UTC: DEBUG (4) NOTE: SYNOP_FILE_INSERTER/fork/FileInsertTerminal: 'SynopOGIMETInserter': mask '\d{5},\d{4},\d{2},\d{2},\d{2},\d{2},AAXX.*' match pheader '98851,2021,10,08,09,00,AAXX 08091 98851 21462 72702 10268'
+2021-10-08 11:36:15.655 UTC: DEBUG (4) NOTE: SYNOP_FILE_INSERTER/fork/FileInsertTerminal: Inserter 'SynopOGIMETInserter': not configured mask for body
+2021-10-08 11:36:15.655 UTC: DEBUG (5) NOTE: SYNOP_FILE_INSERTER/fork/FileInsertTerminal: SynopOGIMETInserter match pheader "98851,2021,10,08,09,00,AAXX 08091 98851 21462 72702 10268"
+
+When left only:
+SynopInserter.xml
+SynopOGIMETInserter.xml
+we process all ~100 000 SYNOP messages within ~2 minutes and not more than 10 minutes
+as before.
+Testing of matching is very slow.
+Thus just bringing system such that I test
+only relevant inserters or that I have only the ones
+used for the installation can resolve the
+performance issue.
+
+# Preparation of configuration for Forecast Module - Belgrade.
+1. Compare and check station configuration - remove all scripts
+
+Cleaning cfg/station/bin
+/opt/ims/cfg/station/bin #
+  rm -rf bkpAfterUpgrade -v
+  rm -rf CVS/ -v
+  rm -rf *.awk -v
+  rm *.sh -rfv
+  rm -rf tmp_prec_prob_gfs_w5R317MWAu.tiff makePrecIndicatorsWRF.sh.non-deaccum wgrib2ProdsLstRef_Azet665_GFS_xyz_verboseSorted.lst wgrib2ProdsLstRef_Azet665_GFS_000_verboseSorted.lst test1.txt -v
+  rm -rfv scripts/CVS/
+
+/opt/ims/cfg/station #
+  rm -rf cfg/mgmt/CVS -v
+  rm -rf cfg/CVS/ -v
+  rmdir cfg/mgmt/
+  rm -rfv htmlgui/CVS/
+  rm -rfv locations/CVS/
+  rmdir locations/
+  rm -rf Communication.xml.bakup170528 Communication.xml_
+  rmdir reports/
+  rm -rfv Rscripts/CVS/
+  rm -rfv forecast/MOS/CVS/
+
+Compare all cfg/station files between Azet Benestra and 884 dev machine.
+Have station configuration prepared for the delivery.
+Comparision and upgrades:
+/opt/ims/cfg/station #
+   cp /root/ForecastBenestra/bite.xml . - turning several BITEs on running in Benestra
+Seems like totally unrelated:
+   rm -rfv MapsSender.xml
+   sites.xml is also irelevant but we have one - Meteo Garden, visible.
+   stations.xml - seems like contain all WMO stations with code and brief metadata - almost 20 000 records
+    e.g. this record corresponds to the record in 'worldSKLocations.xml'
+    <x id="1443" wmo="14015" name="Ljubljana / Bezigrad" country="" longitude="14.516666412353516" latitude="46.06666564941406" altitude="298.0" isFir="false" />
+    ->
+    <x stationId="603" customerId="1034" stationNameASCII="Lublana" stationName="¥ubµana" countryCode="SI" gpsLat="46.21666667" gpsLong="14.48333333"
+    elevation="385" interpolated="N" TZid="Europe/Ljubljana" UTCoffset="+01:00" UTCDSToffset="+02:00" CCCC="LJLJ" WMOIndex="14014"
+    coastDistance="81.787" geoBlock="98" outputStation="Y" />
+
+   Checked and confiured station.xml as best as possible.
+   
+
+2.Prepare station and location list for Forecast Module 
+  coreStationsProcessor.xml - shall be adjusted after having representative number of stations for Serbia, referenced in MeterogramAgent
+  coreStationsProcessorWRF.xml - the same but path hardcoded in MeteogramWRFAgent
+  getForecastCfg.xml - was wrong, copied over from Azet Benestra and ajusted output copy dir to: /home/forecast
+  - hard coded in MeteogramAgent.
+  MoveGFSgribFilesAgentCfg.xml - to be removed, the agent is not listed in the station progs anymore.  
+  fileCountCheck.xml - is referencing locations, station lists - will need to be reconfigured.
+  MOS/ForecastMOSFilterCfg.xml - differed and was replaced by Benestra OPS installation
+  - checked MOS/filters - not difference, removed CVS directories with its content
+
+  outputBiteCheck.xml - contains hardcoded SK - location, will need reconfiguraiton
+    - we will have to parametrize OutputCreator more:
+    	private static final String SK_LOCATION_DIR="SK_locations";
+	private static final String WRD_LOCATION_DIR="WRD_locations";
+	private static final String ACTUAL_DIR="actual";
+	private static final String FORECAST_DIR_H="fcst_hourly";
+	private static final String FORECAST_DIR_D="fcst_daily";
+	private static final String FORECAST_DIR_WORLD="world_";
+	private static final String FORECAST_DIR_SK="SK_";
+	private static final String LOCATIONS_WRD="WRD";
+	private static final String LOCATIONS_SK="SK";
+   - to change SK to LOCAL and add parameter also to extend configuration of not SK_LOCATION_DIR, but to use parametrized
+     local_countryCode
+   simulationCfg.xml - have no idea what is it doing, I will remove the config and stop simulation manager agent
+   (have impression of again something not finished glued together)
+   UV_getForecastCfg.xml - adjusted to different files locations, adaptation for different time tree needs to be implemented.
+
+   variableIntervalRules.csv - contains key-word Slovakia
+     MeteogramQC has hardcoded SK, slovakia - to be refactored and renamed. Used by several agents.
+   WRF_getForecastCfg.xml - adjusted path, but will need adjustment of directory time-tree and file mask
+     - harcoded path to MeteogramWRFAgent.xml
+   After change of input path to real directory become failure in
+   com.microstepmis.forecast.customization.MeteogramWRFAgent.removeOldFilesAndData()
+   the parsing is hardcoded to the original directory tree.
+   We will need to reimplement this function or remove this functionality completelly.
+   For now we amend the situation such, that we will point to non-existing directory.
+   
+
+Create linux user for outputs:
+> useradd -m forecast
+> passwd forecast # changed to forecast
+
+Prepared Serbian stations list:
+
+WorldLocalLocations.xml -
+     contains all OGIMET Serbian stations, plus stations from the
+     original list of surrounding countries.
+     
+WRF_LocalLocations.xml -
+     Contains all OGIMET Serbian stations, plus metadata of our stations
+     and chosen 20 locations spread over Serbia region.
+
+3. Prepare simulation of 10 and 1 minute data using SYNOP iodata log and unique our Serbian station ids
+We will test possibility to use AWS terminal IDs as WMO ids in SYNOP messages.
+
+Done - but we will need yet different suffix than _S, _M, one more using probably
+File Transfer Terminal.
+
+Done by configuration of special FileReade-FileWrite terminal.
+For now we have to use SYNOP and 5 letters station identifiers.
+
+And then start on CurrentDataReaderAgent adjustment.
+ - shared and configurable deleters
+
+# For measuring performance I installed 'screen' on system level:
+>  yum install screen.x86_64
 
 
 

@@ -406,7 +406,7 @@ drwxr-xr-x 7 root root 4096 Sep 17 10:00 dbXmlDump
 drwxr-xr-x 2 root root 4096 Mar  9  2016 input
 drwxr-xr-x 2 root root 4096 Mar  9  2016 t4
 
-Nothing is processed by IMS4 sustem.
+Nothing is processed by IMS4 system.
 # End of records about the old Azet machines
 
 # Structure of customer configuration for the project:

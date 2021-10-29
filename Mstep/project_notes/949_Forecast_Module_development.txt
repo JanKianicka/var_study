@@ -1,0 +1,259 @@
+# In addition to 665 Azet notes, and notes about
+  configuration and troubleshooting of 949 DEV machine,
+  we record also our detail notes for developemnt.
+  - 949_Azet_for_Belehrad_notes.txt 
+  - 949_configuration_of_dev_machine_10.111.5.171.txt
+
+# CurrrentDataReaderAgent
+We extended design to hold any data and made 'S' and 'M' configurable
+in whole agent.
+We created shared variable for holding the configured stations,
+and using java reflection we store for each data type,
+just identifiers in the hashmap.
+Add there yet exclusion of "" - empty stationIdent.
+In the initializaiton step - Done.
+
+
+Do not foget to:
+1. For failover processing to order the input CSV files by data
+   in reverse, the newest should be processed last. - Done
+
+2. Conduct stand-alone performance test - over weekend.
+   By the configuration let running just the CurrentDataReaderAgent
+   and check the memory usage.
+   ---
+   22.10.2021 - launched performance test
+   Only CurrentDataReaderAgent will be running.
+   Launched the memory and perfomance test at 14:16 afternoon
+   screen Ctrl-a d - detach
+   Connect:
+   > screen -r
+   
+   Current memory usage - Friday 22.10.2021:
+   Right after IMS4 start:
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND
+   15546 root      20   0 9164280   1.2g  25332 S 195.9  7.7  15:05.55 java
+   15546 root      20   0 9164280   1.2g  25332 S 192.3  7.7  15:24.82 java
+   15546 root      20   0 9164280   1.2g  25332 S 186.4  7.7  15:43.50 java
+   15546 root      20   0 9164280   1.2g  25332 S 185.9  7.7  16:02.11 java
+   15546 root      20   0 9164280   1.2g  25336 S 190.7  7.7  16:21.22 java
+   15546 root      20   0 9164280   1.2g  25336 S 194.2  7.7  16:40.70 java
+   15546 root      20   0 9164280   1.2g  25336 S 189.2  7.7  16:59.68 java
+   15546 root      20   0 9164280   1.2g  25336 S 185.5  7.7  17:18.27 java
+
+   Latter at 15:38:
+   15546 root      20   0 9165452   1.3g  25432 S 189.6  8.1 166:36.02 java
+   15546 root      20   0 9165452   1.3g  25432 S 191.1  8.1 166:55.17 java
+   15546 root      20   0 9165452   1.3g  25432 S 189.8  8.1 167:14.17 java
+   15546 root      20   0 9165452   1.3g  25432 S 191.4  8.1 167:33.35 java
+   15546 root      20   0 9165452   1.3g  25432 S 177.9  8.1 167:51.18 java
+   15546 root      20   0 9165452   1.3g  25432 S 185.4  8.1 168:09.78 java
+   15546 root      20   0 9165452   1.3g  25432 S 183.1  8.1 168:28.13 java
+   15546 root      20   0 9165452   1.3g  25432 S 172.7  8.1 168:45.43 java
+   15546 root      20   0 9165452   1.3g  25432 S 190.5  8.1 169:04.52 java
+   15546 root      20   0 9165452   1.3g  25432 S 185.8  8.1 169:23.14 java
+   15546 root      20   0 9165452   1.3g  25432 S 186.1  8.1 169:41.77 java
+   15546 root      20   0 9165452   1.3g  25432 S 163.8  8.1 169:58.18 java
+   15546 root      20   0 9165452   1.3g  25432 S 171.7  8.1 170:15.37 java
+   15546 root      20   0 9165452   1.3g  25432 S 183.6  8.1 170:33.77 java
+   .. when turnning off on Friday
+   15546 root      20   0 9165584   1.3g  25460 S 180.3  8.3 307:48.21 java
+   15546 root      20   0 9165584   1.3g  25460 S 190.9  8.3 308:07.36 java
+   ... on 25.10.2021 Monday morning at 9:21
+   15546 root      20   0 9169604   1.3g  16744 S 196.7  8.7   7609:51 java
+   15546 root      20   0 9169604   1.3g  16744 S 191.8  8.7   7610:07 java
+   15546 root      20   0 9169604   1.3g  16744 S 193.7  8.7   7610:15 java
+   
+   
+3. Conduct peformance test - turn off processing for 4 hours, let
+   accumulate the CSV files and then run the test. - In progress for 3 days of SYNOP
+   (does not look promissing - about 700 000 files have blocked the agent
+    for long time, I would add there protection parameter to listing of files.
+    Just last 4-5 hours of data read if the input folder is full.)
+
+    22.10.2021 - second test with ~100 000 METAR messages (corresponding to last 16 hours)
+    After implemented expiration and with log level 3, not detail as before.
+    Other data ingestion goes as before.
+    2021-10-22 12:01:06.962 UTC: DEBUG (3) NOTE: Finished in 647128ms
+    2021-10-22 12:01:06.962 UTC: NOTE: Read 102427 files.
+    2021-10-22 12:01:06.962 UTC: NOTE: Deleting read CSV files.
+    2021-10-22 12:01:06.963 UTC: DEBUG (3) NOTE: Removing processed CSV files
+    2021-10-22 12:01:20.287 UTC: DEBUG (3) NOTE: Removing finished.
+    2021-10-22 12:01:20.288 UTC: DEBUG (3) NOTE: Starting expiration of outdated data.
+    2021-10-22 12:01:20.288 UTC: DEBUG (3) NOTE: Expiration reference time for source S: 1634904080288, adjustedReferenceTime: 1634899880288
+    2021-10-22 12:01:20.288 UTC: DEBUG (3) NOTE: Expiration reference time for source M: 1634904080288, adjustedReferenceTime: 1634899880288
+    2021-10-22 12:01:20.294 UTC: DEBUG (3) NOTE: Expiration reference time for source C: 1634904080288, adjustedReferenceTime: 1634899880288
+    2021-10-22 12:01:20.299 UTC: DEBUG (3) NOTE: Expiraiton took: 11 [ms]
+    2021-10-22 12:01:20.300 UTC: DEBUG (3) NOTE: Starting deleting processed files.
+    2021-10-22 12:01:20.300 UTC: NOTE: Status of current data reading:
+    2021-10-22 12:01:20.300 UTC: NOTE: Source: S, configured stations: 105, present: 0, missing: 105
+    2021-10-22 12:01:20.301 UTC: NOTE: Source: M, configured stations: 36, present: 25, missing: 11
+    2021-10-22 12:01:20.301 UTC: NOTE: Source: C, configured stations: 105, present: 0, missing: 105
+    2021-10-22 12:01:20.302 UTC: NOTE: Configured stations: 246, accumalted present of all sources: 25
+    2021-10-22 12:01:20.302 UTC: NOTE: Successfuly finished.
+
+    647128 [ms] corresponds to ~11 minutes.
+
+4. Missing yet pressure logging in the detail log. - Done
+   Erroneous - needs amendement.
+   
+5. Expiration will be tricky - we shall use TimeTree
+   for selection and then checking whether it is empty and remove the record.
+   No, we will just loop over keys - this will be most performant,
+   we just compare int which is fast enough.
+   - In progress, to be tested.
+   
+Only then we can think of successful memory and performance test.
+
+Detail logging showed that various sources have various pressure:
+SYNOP - has variables 46
+METAR - has variables for pressure: 44, 45
+We should make more robuste detail logging during status report function.
+Now it is failing.
+
+Level 3 logging:
+2021-10-22 11:23:53.253 UTC: NOTE: -----------------------------------------
+2021-10-22 11:23:53.327 UTC: NOTE: CurrentDataReaderAgent init
+2021-10-22 11:23:53.340 UTC: NOTE: Configuraiton
+2021-10-22 11:23:53.353 UTC: NOTE: enabled: true
+2021-10-22 11:23:53.373 UTC: NOTE: period: 30000
+2021-10-22 11:23:53.373 UTC: NOTE: deleteInputFiles: true
+2021-10-22 11:23:53.374 UTC: NOTE: logLevel: 3
+2021-10-22 11:23:53.374 UTC: NOTE: path: ../../ims/data/CurrentDataCsv/
+2021-10-22 11:23:53.374 UTC: NOTE: variables:
+2021-10-22 11:23:53.375 UTC: NOTE: 78:Temp.Dry
+2021-10-22 11:23:53.375 UTC: NOTE: 77:Temp.DewPoint
+2021-10-22 11:23:53.375 UTC: NOTE: 83:Temp.Ground
+2021-10-22 11:23:53.375 UTC: NOTE: 82:Temp.Dry.Min.Dly
+2021-10-22 11:23:53.375 UTC: NOTE: 80:Temp.Dry.Max.Dly
+2021-10-22 11:23:53.375 UTC: NOTE: 81:Temp.Dry.Min.60min
+2021-10-22 11:23:53.375 UTC: NOTE: 79:Temp.Dry.Max.60min
+2021-10-22 11:23:53.375 UTC: NOTE: 50:RelHumidity
+2021-10-22 11:23:53.375 UTC: NOTE: 116:Wind.Speed
+2021-10-22 11:23:53.375 UTC: NOTE: 110:Wind.Dir
+2021-10-22 11:23:53.376 UTC: NOTE: 46:Press.Station
+2021-10-22 11:23:53.376 UTC: NOTE: 21:Clouds.Amount
+2021-10-22 11:23:53.376 UTC: NOTE: 31:Prec
+2021-10-22 11:23:53.376 UTC: NOTE: 91:Weather
+2021-10-22 11:23:53.376 UTC: NOTE: 30:Metar.CAVOK
+2021-10-22 11:23:53.376 UTC: NOTE: 118:Weather.Metar.1
+2021-10-22 11:23:53.376 UTC: NOTE: 119:Weather.Metar.2
+2021-10-22 11:23:53.377 UTC: NOTE: 120:Weather.Metar.3
+2021-10-22 11:23:53.377 UTC: NOTE: 92:Weather.Auto
+2021-10-22 11:23:53.377 UTC: NOTE: 93:Weather.Ind
+2021-10-22 11:23:53.377 UTC: NOTE: 2:Clouds.1.Amount.Metar
+2021-10-22 11:23:53.377 UTC: NOTE: 7:Clouds.2.Amount.Metar
+2021-10-22 11:23:53.377 UTC: NOTE: 12:Clouds.3.Amount.Metar
+2021-10-22 11:23:53.377 UTC: NOTE: 17:Clouds.4.Amount.Metar
+2021-10-22 11:23:53.377 UTC: NOTE: 44:Press.QFF
+2021-10-22 11:23:53.377 UTC: NOTE: 45:Press.QNH
+2021-10-22 11:23:53.377 UTC: NOTE: 89:Visibility
+2021-10-22 11:23:53.377 UTC: NOTE: sources:
+2021-10-22 11:23:53.378 UTC: NOTE: Letter: S, StationIdName: WMOIndex, CSVSuffixPattern: (.*)(\_(S)\.csv) ExpirationMinutes: 70
+2021-10-22 11:23:53.378 UTC: NOTE: Letter: M, StationIdName: CCCC, CSVSuffixPattern: (.*)(\_(M)\.csv) ExpirationMinutes: 70
+2021-10-22 11:23:53.378 UTC: NOTE: Letter: C, StationIdName: WMOIndex, CSVSuffixPattern: (.*)(\_(C)\.csv) ExpirationMinutes: 70
+2021-10-22 11:23:53.378 UTC: NOTE: worldLocalLocationsPath: ../../ims/cfg/station/forecast/WorldLocalLocations.xml
+2021-10-22 11:23:53.378 UTC: NOTE: localLocationsPath: ../../ims/cfg/station/forecast/WRF_LocalLocations.xml
+2021-10-22 11:23:53.387 UTC: DEBUG (3) NOTE: Found field: public java.lang.String com.microstepmis.forecast.customization.InputStation.WMOIndex
+2021-10-22 11:23:53.387 UTC: DEBUG (3) NOTE: Found field: public java.lang.String com.microstepmis.forecast.customization.InputStation.CCCC
+2021-10-22 11:23:53.388 UTC: DEBUG (3) NOTE: Found field: public java.lang.String com.microstepmis.forecast.customization.InputStation.WMOIndex
+2021-10-22 11:23:53.730 UTC: DEBUG (3) NOTE: Filling into allConfiguredStations stations for source S from: ../../ims/cfg/station/forecast/WorldLocalLocations.xml
+2021-10-22 11:23:54.105 UTC: DEBUG (3) NOTE: Filling into allConfiguredStations stations for source S from: ../../ims/cfg/station/forecast/WRF_LocalLocations.xml
+2021-10-22 11:23:54.260 UTC: DEBUG (3) NOTE: Number of records for source S is 105
+2021-10-22 11:23:54.260 UTC: DEBUG (3) NOTE: Filling into allConfiguredStations stations for source M from: ../../ims/cfg/station/forecast/WorldLocalLocations.xml
+2021-10-22 11:23:54.272 UTC: DEBUG (3) NOTE: Filling into allConfiguredStations stations for source M from: ../../ims/cfg/station/forecast/WRF_LocalLocations.xml
+2021-10-22 11:23:54.278 UTC: DEBUG (3) NOTE: Number of records for source M is 36
+2021-10-22 11:23:54.278 UTC: DEBUG (3) NOTE: Filling into allConfiguredStations stations for source C from: ../../ims/cfg/station/forecast/WorldLocalLocations.xml
+2021-10-22 11:23:54.294 UTC: DEBUG (3) NOTE: Filling into allConfiguredStations stations for source C from: ../../ims/cfg/station/forecast/WRF_LocalLocations.xml
+2021-10-22 11:23:54.301 UTC: DEBUG (3) NOTE: Number of records for source C is 105
+2021-10-22 00:00:36.688 UTC: NOTE: Commence reading of current data in CSV files.
+2021-10-22 00:00:36.707 UTC: DEBUG (3) NOTE: Finished in 4ms
+2021-10-22 00:00:36.707 UTC: NOTE: Read 77 files.
+2021-10-22 00:00:36.707 UTC: NOTE: Deleting read CSV files.
+2021-10-22 00:00:36.707 UTC: DEBUG (3) NOTE: Removing processed CSV files
+2021-10-22 00:00:36.708 UTC: DEBUG (3) NOTE: Removing finished.
+2021-10-22 00:00:36.708 UTC: DEBUG (3) NOTE: Starting expiration of outdated data.
+2021-10-22 00:00:36.708 UTC: DEBUG (3) NOTE: Expiration reference time for source S: 1634860836708, adjustedReferenceTime: 1634856636708
+2021-10-22 00:00:36.708 UTC: DEBUG (3) NOTE: Expiration reference time for source M: 1634860836708, adjustedReferenceTime: 1634856636708
+2021-10-22 00:00:36.709 UTC: DEBUG (3) NOTE: Expiration reference time for source C: 1634860836708, adjustedReferenceTime: 1634856636708
+2021-10-22 00:00:36.709 UTC: DEBUG (3) NOTE: Expiraiton took: 1 [ms]
+2021-10-22 00:00:36.709 UTC: DEBUG (3) NOTE: Starting deleting processed files.
+2021-10-22 00:00:36.709 UTC: NOTE: Status of current data reading:
+2021-10-22 00:00:36.709 UTC: NOTE: Source: S, configured stations: 105, present: 35, missing: 70
+2021-10-22 00:00:36.709 UTC: NOTE: Source: M, configured stations: 36, present: 25, missing: 11
+2021-10-22 00:00:36.709 UTC: NOTE: Source: C, configured stations: 105, present: 5, missing: 100
+2021-10-22 00:00:36.713 UTC: NOTE: Configured stations: 246, accumalted present of all sources: 65
+2021-10-22 00:00:36.717 UTC: NOTE: Successfuly finished.
+
+Level 5 logging:
+2021-10-22 11:24:23.418 UTC: NOTE: Commence reading of current data in CSV files.
+2021-10-22 11:24:23.478 UTC: DEBUG (5) NOTE: Reading file: 202110212329_28_532_C.csv
+2021-10-22 11:24:23.478 UTC: DEBUG (5) NOTE: CurrentData has map: true, 00003, 78, 1634857200000, -29.0
+2021-10-22 11:24:23.504 UTC: DEBUG (5) NOTE: CurrentData has map: true, 00003, 77, 1634857200000, -28.1
+2021-10-22 11:24:23.504 UTC: DEBUG (5) NOTE: CurrentData has map: true, 00003, 50, 1634857200000, 109.0
+2021-10-22 11:24:23.504 UTC: DEBUG (5) NOTE: CurrentData has map: true, 00003, 116, 1634857200000, 4.0
+2021-10-22 11:24:23.504 UTC: DEBUG (5) NOTE: CurrentData has map: true, 00003, 110, 1634857200000, 250.0
+2021-10-22 11:24:23.504 UTC: DEBUG (5) NOTE: CurrentData has map: true, 00003, 46, 1634857200000, 986.1
+2021-10-22 11:24:23.504 UTC: DEBUG (5) NOTE: CurrentData has map: true, 00003, 21, 1634857200000, 0
+2021-10-22 11:24:23.504 UTC: DEBUG (5) NOTE: CurrentData has map: true, 00003, 93, 1634857200000, 2
+2021-10-22 11:24:23.504 UTC: DEBUG (5) NOTE: CurrentData has map: true, 00003, 44, 1634857200000, 988.7
+2021-10-22 11:24:23.504 UTC: DEBUG (5) NOTE: CurrentData has map: true, 00003, 89, 1634857200000, 20000.0
+...
+2021-10-22 11:24:23.967 UTC: DEBUG (3) NOTE: Finished in 490ms
+2021-10-22 11:24:23.967 UTC: NOTE: Read 148 files.
+2021-10-22 11:24:23.967 UTC: NOTE: Deleting read CSV files.
+2021-10-22 11:24:23.967 UTC: DEBUG (3) NOTE: Removing processed CSV files
+2021-10-22 11:24:23.970 UTC: DEBUG (3) NOTE: Removing finished.
+2021-10-22 11:24:23.971 UTC: DEBUG (3) NOTE: Starting expiration of outdated data.
+2021-10-22 11:24:23.971 UTC: DEBUG (3) NOTE: Expiration reference time for source S: 1634901863971, adjustedReferenceTime: 1634897663971
+2021-10-22 11:24:23.971 UTC: DEBUG (3) NOTE: Expiration reference time for source M: 1634901863971, adjustedReferenceTime: 1634897663971
+2021-10-22 11:24:23.971 UTC: DEBUG (3) NOTE: Expiration reference time for source C: 1634901863971, adjustedReferenceTime: 1634897663971
+2021-10-22 11:24:23.971 UTC: DEBUG (5) NOTE: 1634853600000 time coordinate removed
+2021-10-22 11:24:23.971 UTC: DEBUG (5) NOTE: 1634878800000 time coordinate removed
+2021-10-22 11:24:23.971 UTC: DEBUG (5) NOTE: 1634868000000 time coordinate removed
+2021-10-22 11:24:23.971 UTC: DEBUG (5) NOTE: 1634842800000 time coordinate removed
+...
+2021-10-22 11:24:24.050 UTC: DEBUG (5) NOTE: 13583 missing data.
+2021-10-22 11:24:24.050 UTC: DEBUG (5) NOTE: 13589 missing data.
+2021-10-22 11:24:24.050 UTC: DEBUG (5) NOTE: 13586 missing data.
+2021-10-22 11:24:24.050 UTC: DEBUG (5) NOTE: 15333 missing data.
+2021-10-22 11:24:24.050 UTC: DEBUG (5) NOTE: 13588 missing data.
+2021-10-22 11:24:24.050 UTC: DEBUG (5) NOTE: 15300 missing data.
+2021-10-22 11:24:24.050 UTC: DEBUG (5) NOTE: 15421 missing data.
+2021-10-22 11:24:24.050 UTC: DEBUG (5) NOTE: 15422 missing data.
+2021-10-22 11:24:24.050 UTC: DEBUG (5) NOTE: 15120 missing data.
+2021-10-22 11:24:24.050 UTC: DEBUG (5) NOTE: 15480 missing data.
+2021-10-22 11:24:24.050 UTC: DEBUG (5) NOTE: 15450 missing data.
+2021-10-22 11:24:24.050 UTC: DEBUG (5) NOTE: 15310 missing data.
+2021-10-22 11:24:24.050 UTC: DEBUG (5) NOTE: 15090 missing data.
+2021-10-22 11:24:24.050 UTC: DEBUG (5) NOTE: 15377 missing data.
+2021-10-22 11:24:24.050 UTC: DEBUG (5) NOTE: 15282 missing data.
+2021-10-22 11:24:24.050 UTC: DEBUG (5) NOTE: 15302 missing data.
+...
+2021-10-22 11:24:24.050 UTC: NOTE: Source: S, configured stations: 105, present: 0, missing: 105
+2021-10-22 11:24:24.050 UTC: DEBUG (5) NOTE: LDRI missing data.
+2021-10-22 11:24:24.050 UTC: DEBUG (5) NOTE: LDZD missing data.
+2021-10-22 11:24:24.050 UTC: DEBUG (5) NOTE: LDDD missing data.
+2021-10-22 11:24:24.050 UTC: DEBUG (5) NOTE: LDZA missing data.
+2021-10-22 11:24:24.050 UTC: DEBUG (5) NOTE: LYVR missing data.
+2021-10-22 11:24:24.050 UTC: DEBUG (5) NOTE: LHBP missing data.
+2021-10-22 11:24:24.050 UTC: DEBUG (5) NOTE: LHBM missing data.
+...
+2021-10-22 11:24:24.050 UTC: NOTE: Source: M, configured stations: 36, present: 0, missing: 36
+2021-10-22 11:24:24.051 UTC: DEBUG (5) NOTE: 15625 missing data.
+2021-10-22 11:24:24.051 UTC: DEBUG (5) NOTE: 00001, 1634900400000, 2021-10-22 11:00:00.000, -22.0, 986.1, 988.7
+2021-10-22 11:24:24.051 UTC: DEBUG (5) NOTE: 15626 missing data.
+2021-10-22 11:24:24.051 UTC: DEBUG (5) NOTE: 00002, 1634900400000, 2021-10-22 11:00:00.000, -19.0, 986.1, 988.7
+2021-10-22 11:24:24.051 UTC: DEBUG (5) NOTE: 15640 missing data.
+2021-10-22 11:24:24.051 UTC: DEBUG (5) NOTE: 00003, 1634900400000, 2021-10-22 11:00:00.000, -22.0, 986.1, 988.7
+2021-10-22 11:24:24.051 UTC: DEBUG (5) NOTE: 15614 missing data.
+2021-10-22 11:24:24.051 UTC: DEBUG (5) NOTE: 00004, 1634900400000, 2021-10-22 11:00:00.000, -7.0, 986.1, 988.7
+2021-10-22 11:24:24.051 UTC: DEBUG (5) NOTE: 15552 missing data.
+2021-10-22 11:24:24.051 UTC: DEBUG (5) NOTE: 00005, 1634900400000, 2021-10-22 11:00:00.000, -22.0, 986.1, 988.7
+2021-10-22 11:24:24.051 UTC: DEBUG (5) NOTE: 14472 missing data.
+...
+2021-10-22 11:24:54.728 UTC: NOTE: Source: C, configured stations: 105, present: 5, missing: 100
+2021-10-22 11:24:54.728 UTC: NOTE: Configured stations: 246, accumalted present of all sources: 5
+2021-10-22 11:24:54.728 UTC: NOTE: Successfuly finished.
+
+

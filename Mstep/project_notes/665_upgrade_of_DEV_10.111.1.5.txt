@@ -1,0 +1,77 @@
+# Along with development of CurrentDataReaderAgent we upgrade and test it for Azet
+# 26.11.2021 - DEV, Backup OPS 10.111.1.5
+
+1. Copied over newer tomcat from 10.111.5.171 and changed the link
+> pushd /opt
+> rm tomcat
+> ln -s /opt/apache-tomcat-9.0.16 tomcat
+
+2. Copied over upgrade.sh from Belgrade
+
+3. Addressed CLDB cleaning issues collected with Mata
+
+4. Executed upgrade - IMS4 is running afterwards, but
+there are a lot of errors in the CLDB intialization.
+
+cfg/envidb/DBCreateCfg_qc.xml
+PostgreSQL non compatible functions.
+We got rid of them on our Belgrade machine,
+however, here they are in spite of having the same configuration.
+
+DBCreate: 2021-10-26 12:44:00.462 UTC: ERROR: ERROR: could not open
+extension control file "/usr/share/pgsql/extension/orafce.control": No
+such file or di rectory
+
+We need to deploy the orafce extension in spite it is not enabled.
+> scp root@10.111.5.171:/opt/install/rhel7/rpm/pg10/orafce10-3.6.1-1.rhel7.x86_64.rpm .
+> rpm -ivh orafce10-3.6.1-1.rhel7.x86_64.rpm
+warning: orafce10-3.6.1-1.rhel7.x86_64.rpm: Header V4 DSA/SHA1 Signature, key ID 442df0f8: NOKEY
+error: Failed dependencies:
+        postgresql10 is needed by orafce10-3.6.1-1.rhel7.x86_64
+
+We need to upgrade also PostgrSQL data server locally.
+Better coordinate with Integrators - create sub-task for that - for november.
+Now I just start the IMS4 as it was.
+
+# 27.10.2021 - After successful night build I will upgrade at least CurrentDataReaderAgent.
+- night build failed this day - have to run once more the limited build.
+
+After deployment of the CurrentDataReaderAgent new verison, conduct:
+1. Functional test with verbose logging - level 5.
+
+2. Performance test with logging level 3 - with this we can start, there is always about 60 000 S/M messages in
+   the CurrentDataCsv folder.
+
+   After deployment, the performance test:
+   2021-10-27 08:33:21.158 UTC: DEBUG (3) NOTE: Finished in 67906ms
+   2021-10-27 08:33:21.158 UTC: NOTE: Read 53611 files.
+   2021-10-27 08:33:21.158 UTC: NOTE: Deleting read CSV files.
+   2021-10-27 08:33:21.158 UTC: DEBUG (3) NOTE: Removing processed CSV files
+   2021-10-27 08:33:36.233 UTC: DEBUG (3) NOTE: Removing finished.
+   2021-10-27 08:33:36.235 UTC: DEBUG (3) NOTE: Starting expiration of outdated data.
+   2021-10-27 08:33:36.235 UTC: DEBUG (3) NOTE: Expiration reference time for source S: 1635323616235, adjustedReferenceTime: 1635319416235
+   2021-10-27 08:33:36.269 UTC: DEBUG (3) NOTE: Expiration reference time for source M: 1635323616235, adjustedReferenceTime: 1635319416235
+   2021-10-27 08:33:36.344 UTC: DEBUG (3) NOTE: Expiration took: 109 [ms]
+   2021-10-27 08:33:36.344 UTC: DEBUG (3) NOTE: Starting deleting processed files.
+   2021-10-27 08:33:36.345 UTC: NOTE: Status of current data reading:
+   2021-10-27 08:33:36.346 UTC: NOTE: Source: S, configured stations: 1087, present: 0, missing: 1087
+   2021-10-27 08:33:36.353 UTC: NOTE: Source: M, configured stations: 836, present: 380, missing: 456
+   2021-10-27 08:33:36.353 UTC: NOTE: Configured stations: 1923, accumulated present of all sources: 380
+   2021-10-27 08:33:36.354 UTC: NOTE: Successfully finished.
+
+   SYNOP processing of one hour chunk.
+   2021-10-27 08:46:32.201 UTC: DEBUG (3) NOTE: Finished in 8485ms
+   2021-10-27 08:46:32.201 UTC: NOTE: Read 9953 files.
+   2021-10-27 08:46:32.201 UTC: NOTE: Deleting read CSV files.
+   2021-10-27 08:46:32.201 UTC: DEBUG (3) NOTE: Removing processed CSV files
+   2021-10-27 08:46:34.105 UTC: DEBUG (3) NOTE: Removing finished.
+   2021-10-27 08:46:34.117 UTC: DEBUG (3) NOTE: Starting expiration of outdated data.
+
+   Performant enough - but portion of availble data for the stations is very poor.
+   Adjusted expiration time to 120 minutes for each, S and M as well.
+   Maximum number was ~630 values of ~1000 stations configured.
+   
+   
+   
+
+
