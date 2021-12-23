@@ -72,6 +72,21 @@ After deployment of the CurrentDataReaderAgent new verison, conduct:
    Maximum number was ~630 values of ~1000 stations configured.
    
    
-   
+# Deployment of extended ActualData agent
+The errors in DBCreate_updade.xml also occurred here.
+But also bug in ActualData agent - shall be fixed yet.
+
+Error related to confguiuration issue of MeteogramAgent with
+hardcoded path to stations list.
+WORLDSTATIONS_FILE
+Fixed by:
+/opt/ims/cfg/station/forecast # cp worldSkLocations.xml WorldLocalLocations.xml
+(very wrong - should be addressed soon - extracted out
+to configuration files and reconfigured)
+
+
+
+
+
 
 

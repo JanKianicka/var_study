@@ -1580,6 +1580,14 @@ And then start on CurrentDataReaderAgent adjustment.
 # For measuring performance I installed 'screen' on system level:
 >  yum install screen.x86_64
 
+# 3.12.2021 along small update of ActualData agent upgrade from the
+night build was conducted and new confugurations were stored.
+
+New errors during upgrade - shall be reported to Mata.
+Was reported.
+And already fixed by Mata Petrovicova.
+
+
 
 
 

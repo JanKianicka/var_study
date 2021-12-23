@@ -256,4 +256,223 @@ Level 5 logging:
 2021-10-22 11:24:54.728 UTC: NOTE: Configured stations: 246, accumalted present of all sources: 5
 2021-10-22 11:24:54.728 UTC: NOTE: Successfuly finished.
 
+# 3.12.2021 - after meeting with Kamil, Marcel, Lukas Ivica
+we had terminated further work on ActualData agent re-implementation.
+I have just fixed static function calls, and added some level of
+detail log, these are two examples:
+
+log level 3 - intended for standard operations
+---
+2021-12-02 13:20:22.025 UTC: NOTE: --- ActualDataAgent init ---
+2021-12-02 13:20:27.442 UTC: NOTE: cfg.enabled: true
+2021-12-02 13:20:27.490 UTC: NOTE: cfg.logLevel: 3
+2021-12-02 13:20:27.535 UTC: NOTE: cfg.periodStartProcessActualize: 40000
+2021-12-02 13:20:27.556 UTC: NOTE: proxyDataProcessedShorterPeriod - calling starProcess(): METEO/F/processedH
+2021-12-02 13:20:27.600 UTC: NOTE: proxyTimer - calling starProcessHourActualise(): Thu Dec 02 13:00:00 UTC 2021, 40000
+2021-12-02 13:20:27.642 UTC: NOTE: Launching Time Period Actualized - starProcessHourActualise()
+2021-12-02 13:20:27.646 UTC: DEBUG (1) NOTE: Start process starProcessHourActualise
+2021-12-02 13:20:27.666 UTC: DEBUG (1) NOTE: Control blocks from the space METEO/F/newRunProcess, METEO/F/weitingTimeForManualDataEndty, METEO/F/interpolatedDataProcess: false, null, false
+2021-12-02 13:20:27.666 UTC: DEBUG (3) NOTE: processNewRun, manualDataProcess, actualiseHourlyData, firstRun: false, false, true, true
+2021-12-02 13:20:27.666 UTC: DEBUG (3) NOTE: Actualize hourValues from the CurrentDataReaderAgent.
+2021-12-02 13:20:27.666 UTC: DEBUG (3) NOTE: Call of actualiseDataFromSelect
+2021-12-02 13:20:27.666 UTC: DEBUG (3) WARNING: Forectime GFS start is null - setting forecast start time to current hour.
+2021-12-02 13:20:28.030 UTC: DEBUG (3) NOTE: hourValues map, stations: 0
+2021-12-02 13:20:28.168 UTC: DEBUG (3) NOTE: actualDataValues map, stations: 0
+2021-12-02 13:20:28.190 UTC: DEBUG (3) NOTE: Write to space METEO/F/actualisedTime, METEO/F/actualOutputData, METEO/F/startIRDataA: 1638450000000, 0, 1638451228190
+2021-12-02 13:20:28.191 UTC: DEBUG (1) NOTE: End process starProcessHourActualise
+2021-12-02 13:20:28.191 UTC: NOTE: ActualData agent successfully completed.
+2021-12-02 13:21:02.213 UTC: NOTE: Launching Time Period Actualized - starProcessHourActualise()
+2021-12-02 13:21:02.235 UTC: DEBUG (1) NOTE: Start process starProcessHourActualise
+2021-12-02 13:21:02.252 UTC: DEBUG (1) NOTE: Control blocks from the space METEO/F/newRunProcess, METEO/F/weitingTimeForManualDataEndty, METEO/F/interpolatedDataProcess: false, null, false
+2021-12-02 13:21:02.270 UTC: DEBUG (3) NOTE: processNewRun, manualDataProcess, actualiseHourlyData, firstRun: false, false, true, true
+2021-12-02 13:21:02.288 UTC: DEBUG (3) NOTE: Actualize hourValues from the CurrentDataReaderAgent.
+2021-12-02 13:21:02.299 UTC: DEBUG (3) NOTE: Call of actualiseDataFromSelect
+2021-12-02 13:21:02.317 UTC: DEBUG (3) WARNING: Forectime GFS start is null - setting forecast start time to current hour.
+2021-12-02 13:21:02.447 UTC: DEBUG (3) NOTE: hourValues map, stations: 0
+....
+
+log level 5 - detail log, plus additonal logging to ActualDataAgentStatic.log
+---
+2021-12-02 13:18:30.340 UTC: NOTE: cfg.enabled: true
+2021-12-02 13:18:30.396 UTC: NOTE: cfg.logLevel: 5
+2021-12-02 13:18:30.428 UTC: NOTE: cfg.periodStartProcessActualize: 40000
+2021-12-02 13:18:30.444 UTC: NOTE: proxyDataProcessedShorterPeriod - calling starProcess(): METEO/F/processedH
+2021-12-02 13:18:30.449 UTC: NOTE: proxyTimer - calling starProcessHourActualise(): Thu Dec 02 13:00:00 UTC 2021, 40000
+2021-12-02 13:18:30.496 UTC: NOTE: Launching Time Period Actualized - starProcessHourActualise()
+2021-12-02 13:18:30.545 UTC: DEBUG (1) NOTE: Start process starProcessHourActualise
+2021-12-02 13:18:30.601 UTC: DEBUG (1) NOTE: Control blocks from the space METEO/F/newRunProcess, METEO/F/weitingTimeForManualDataEndty, METEO/F/interpolatedDataProcess: false, null, false
+2021-12-02 13:18:30.612 UTC: DEBUG (3) NOTE: processNewRun, manualDataProcess, actualiseHourlyData, firstRun: false, false, true, true
+2021-12-02 13:18:30.624 UTC: DEBUG (5) NOTE: actualiseHourlyData: true, processNewRun: false, manualDataProcess: null, interpolateProcess: false
+2021-12-02 13:18:30.629 UTC: DEBUG (3) NOTE: Actualize hourValues from the CurrentDataReaderAgent.
+2021-12-02 13:18:30.634 UTC: DEBUG (3) NOTE: Call of actualiseDataFromSelect
+2021-12-02 13:18:30.680 UTC: DEBUG (5) NOTE: firstRunGfs: true, forectimeStart: null
+2021-12-02 13:18:30.710 UTC: DEBUG (3) WARNING: Forectime GFS start is null - setting forecast start time to current hour.
+2021-12-02 13:18:30.737 UTC: DEBUG (5) NOTE: variable Temp.Dry
+2021-12-02 13:18:30.888 UTC: DEBUG (5) NOTE: Actual data not found-station 548 time 1638450000000 variable 78
+2021-12-02 13:18:31.142 UTC: DEBUG (5) NOTE: variable Clouds.Amount
+2021-12-02 13:18:31.157 UTC: DEBUG (5) NOTE: variable RelHumidity
+2021-12-02 13:18:31.157 UTC: DEBUG (5) NOTE: Actual data not found-station 548 time 1638450000000 variable 50
+2021-12-02 13:18:31.157 UTC: DEBUG (5) NOTE: variable Prec
+2021-12-02 13:18:31.171 UTC: DEBUG (5) NOTE: variable Temp.DewPoint
+2021-12-02 13:18:31.171 UTC: DEBUG (5) NOTE: Actual data not found-station 548 time 1638450000000 variable 77
+2021-12-02 13:18:31.171 UTC: DEBUG (5) NOTE: variable Temp.Ground
+2021-12-02 13:18:31.171 UTC: DEBUG (5) NOTE: variable Press.Station
+...
+
+It was reviewed and merged by Marcel and now we deploy it for Azet
+using the upgrade script.
+
+# December 2021 - established new configurations in all
+Forecast Module agents.
+Closed further work on complete redesign of ActualData agent.
+Merged and stored to git for 949 Belgrade / verification towards Azet DEV machine
+and complete verification of this installation is still pending.
+
+# We start with WRF data ingestion and retrieval just WRF Meteograms.
+After reconfiguration of MeteogramWRFAgent, the following error occured:
+---
+2021-12-22 08:38:33.077 UTC: DEBUG (2) NOTE: Load data from wrf: WRFPRS_d03.48
+2021-12-22 08:38:33.077 UTC: DEBUG (5) NOTE: Loaded values of variable maximum_temperature_lvl_105 from GRIB
+2021-12-22 08:38:33.077 UTC: DEBUG (5) NOTE: Loaded values of variable minimum_temperature_lvl_105 from GRIB
+2021-12-22 08:38:33.077 UTC: DEBUG (5) NOTE: Loaded values of variable geopotential_height_500 from GRIB
+2021-12-22 08:38:33.077 UTC: DEBUG (5) NOTE: Checking parameter temperature level 100 value1 500.000000 value2 0.000000
+2021-12-22 08:38:33.077 UTC: DEBUG (5) NOTE: Find value
+2021-12-22 08:38:33.078 UTC: DEBUG (5) NOTE: DestUnit not definet, value is in source unit: K
+2021-12-22 08:38:33.078 UTC: DEBUG (5) NOTE: Converting from K to degC
+2021-12-22 08:38:33.078 UTC: DEBUG (1) ERROR: Error: com.microstepmis.ims.data.grib.NotSupportedException: such functionality is not available for this kind of grib (not long-la
+t)
+2021-12-22 08:38:33.078 UTC: ERROR: starCreateMeteogram failed
+2021-12-22 08:38:34.024 UTC: DEBUG (1) NOTE: Loading MeteogramUVIndexAgent configuration from ../cfg/station/forecast/MeteogramWRFAgentCfg.xml .
+2021-12-22 08:38:34.024 UTC: NOTE:
+2021-12-22 08:38:34.024 UTC: NOTE: --- MeteogramWRFAgent init ---
+...
+---
+Investigation showed that Serbian WRF model grib1 files are missing metadata.
+Could not be read by any software except 'wgrib'.
+
+We have tested yet using direct output of Serbian WRF model, grib2 outputs.
+But the library:
+com.microstepmis.ims.data.grib.grib2
+did not read any content when trying procedure in
+com.microstepmis.ims.data.grib.grib2.Grib2Dump
+nor when trying unit tests.
+This copied Unidata version of Grib2 seems like obsolete already.
+
+# 22.12.2021 - we try various open source tools to read grib2 WRF data.
+Already successful with Panoply, and
+NOAA Weather and Climate Toolkit
+
+# Now we try this package:
+# https://github.com/philippphb/GRIB2Tools
+
+When running towards local test file, the tool using Java jdk1.8.0_172 succeeded:
+java GRIB2FileTest.java res/ICON_GDS_europe_reg_0.250x0.250_T_2M_2017112312.grib2
+---
+Reading file res/ICON_GDS_europe_reg_0.250x0.250_T_2M_2017112312.grib2, file structure 0:
+Date: 23.11.2017
+Time: 12:00.00
+Generating centre: 78
+Forecast time: 0
+Parameter category: 0
+Parameter number: 0
+Covered area:
+   from (latitude, longitude): 5.0, 285.0
+   to: (latitude, longitude): 80.0, 75.0
+Value at (52.52, 13.38): 274.7773
+
+But when trying to open Serbian WRF grib2 sample data, it fails:
+---
+Reading file c:\Projects\949_uprava_Azet-u_pre_Belehrad\dataSamples_Belehrad\Azet_Belehrad_comparision\WRF_Belehrad_sample\grib2_source\wrfout_d03_2021-12-23_12.grib, file structure 0:
+This is not a GRIB file
+This is not a GRIB2 file
+Section Number 0 not implemented
+Section Number 111 not implemented
+java.lang.NullPointerException
+	at com.ph.grib2tools.grib2file.RandomAccessGribFile.importFromStream(RandomAccessGribFile.java:42)
+	at com.ph.grib2tools.test.GRIB2FileTest.main(GRIB2FileTest.java:44)
+
+We shall try another tools.
+
+# Now we try this jars:
+C:\Projects\949_uprava_Azet-u_pre_Belehrad\Tools\Grib_reading\ucar_grib_tool\
+jcip-annotations-1.0.jar
+grib-8.0.29.jar
+unidataCommon-4.2.20.jar
+slf4j-api-1.6.1.jar
+
+Created Java project using Java jdk1.8.0_172.
+Seems like importing and compatibility with Java 1.8 was satisfied.
+But the procedure and RandomAccessFile could not be processed correctly:
+---
+Reading file: c:\Projects\949_uprava_Azet-u_pre_Belehrad\dataSamples_Belehrad\Azet_Belehrad_comparision\WRF_Belehrad_sample\grib2_source\wrfout_d03_2021-12-23_12.grib
+33413392
+GRID data
+-62169379200000
+Tue Dec 09 01:00:00 CET 2
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+0
+java.lang.ArrayIndexOutOfBoundsException: 12
+	at ucar.grib.grib2.Grib2GDSVariables.getInt(Grib2GDSVariables.java:1741)
+	at ucar.grib.grib2.Grib2GDSVariables.<init>(Grib2GDSVariables.java:82)
+	at ucar.grib.grib2.Grib2GridDefinitionSection.<init>(Grib2GridDefinitionSection.java:418)
+
+And using call of:
+ucar.grib.grib2.Grib2GetData
+have given me this error:
+---
+Exception in thread "main" java.lang.ArithmeticException: / by zero
+	at ucar.grib.grib2.Grib2GDSVariables.get80La1(Grib2GDSVariables.java:647)
+	at ucar.grib.grib2.Grib2GDSVariables.<init>(Grib2GDSVariables.java:87)
+	at ucar.grib.grib2.Grib2GridDefinitionSection.<init>(Grib2GridDefinitionSection.java:418)
+	at ucar.grib.grib2.Grib2Data.getData(Grib2Data.java:80)
+	at ucar.grib.grib2.Grib2GetData.main(Grib2GetData.java:147)
+
+---
+The result is simillar like for the version stored in Jlib.
+
+
+# Verification of integrated jar file:
+netcdfAll-5.5.1.jar has the same issues and behavior.
+unidata_netCDF4All/src/unidata_netCDF4All/TestGrib2Reading.java
+---
+Reading file: c:\Projects\949_uprava_Azet-u_pre_Belehrad\dataSamples_Belehrad\Azet_Belehrad_comparision\WRF_Belehrad_sample\grib2_source\wrfout_d03_2021-12-23_12.grib
+c:\Projects\949_uprava_Azet-u_pre_Belehrad\dataSamples_Belehrad\Azet_Belehrad_comparision\WRF_Belehrad_sample\grib2_source\wrfout_d03_2021-12-23_12.grib
+8092
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+java.lang.IllegalArgumentException: Not a GRIB-2 Identification section
+	at ucar.nc2.grib.grib2.Grib2SectionIdentification.<init>(Grib2SectionIdentification.java:47)
+	at unidata_netCDF4All.TestGrib2Reading.main(TestGrib2Reading.java:39)
+
+---
+
+Found one more procedure described here:
+https://docs.unidata.ucar.edu/netcdf-java/current/userguide/grib_files_cdm.html
+and there Single Data File Mode.
+And this was successfully open and read by the test procedure:
+https://docs.unidata.ucar.edu/netcdf-java/current/userguide/reading_cdm.html
+
+We will need to investigaete whether we have also some
+possibility to directly retrieve data by reading
+Lat/Lon coordinates - in the netCDF library.
+We should browse yet the functionality.
+
+Test of reading using OpenJDK java 11.
+In the new separate workspace tested:
+---
+Java version: 11.0.7
+Reading file: c:\Projects\949_uprava_Azet-u_pre_Belehrad\dataSamples_Belehrad\Azet_Belehrad_comparision\WRF_Belehrad_sample\grib2_source\wrfout_d03_2021-12-23_12.grib
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+---
+So it seems working with both versions of Java
+
+
+# We try the newer software from GitHub:
+https://github.com/Unidata/netcdf-java/tree/5.5.1
+
 
