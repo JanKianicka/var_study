@@ -475,4 +475,152 @@ So it seems working with both versions of Java
 # We try the newer software from GitHub:
 https://github.com/Unidata/netcdf-java/tree/5.5.1
 
+Cloned and checkout branch 5.5.1 exactly corresponding to
+the jar file donwloaded from Unidata portal.
+
+Successfully build with Java 11 version, default one for our installation.
+./gradlew assemble
+
+Exectuing also unit tests
+./gradlew test
+Many tests were excuted but interactive tests on locally running
+tomcat have failed.
+
+Have created Eclipse project and exectuted several unit tets.
+The project is very big with too many dependencies.
+
+# 241.2022 - after fixing of grib1 conversion, returned to
+work on the MeteogramWRFAgent.
+
+The new configuration established for 949 Belgrade machine:
+/opt/ims/cfg/station/forecast/MeteogramWRFAgentCfg.xml
+---
+<x xclass="com.microstepmis.forecast.customization.MeteogramWRFAgent$Config"
+        logLevel="3"
+        scanInterval="60000"
+        waitTime="3600000"
+        wrfGribFileMask="WRFPRS_d03.%02d"
+        forecastSource="WRF"
+        mailRoutingFolder="MAIL"
+        customerIdentifier="AZET"
+        deleteWRFGribFiles="false"
+        readPrecipitationIndicators="false"
+        performCoreStationProcessing="false"
+        performMOSCorrection="true"
+        enableManualCorrection="false"
+        enableWRFOnly="true"
+        useAlsoWorldStations="true"
+        localLocationsPath="../../ims/cfg/station/forecast/WRF_LocalLocations.xml"
+        worldLocalLocationsPath="../../ims/cfg/station/forecast/WorldLocalLocations.xml"
+        pathToWRFGetForecastCfg="../../ims/cfg/station/forecast/WRF_getForecastCfg.xml"
+        pathToWRFCoreStationProcessorCfg="../../ims/cfg/station/forecast/coreStationsProcessorWRF.xml"
+        precipitationIndicatorDataDir="../../ims/data/precIndicators/WRF"
+        precipitationIndicatorFileMask="wrf_%02d"
+        >
+<!-- scanInterval="480000" -->
+        <runsConfig xclass="com.microstepmis.forecast.customization.MeteogramWRFAgent$RUNsConfig" dataValidityHours="8.0">
+            <runs>
+                <x run="0" startDayHourMinute="08:00" endDayHourMinute="14:00" usePreviousDay="false" />
+                <x run="6" startDayHourMinute="14:00" endDayHourMinute="20:00" usePreviousDay="false" />
+                <x run="12" startDayHourMinute="20:00" endDayHourMinute="02:00" usePreviousDay="false" />
+                <x run="18" startDayHourMinute="02:00" endDayHourMinute="08:00" usePreviousDay="true" />
+            </runs>
+        </runsConfig>
+</x>
+A many TODO items recorded - in progress.
+We should start to send emails as well - and verify them.
+(Enough is routing to propar folder).
+
+
+# 1.2.2022 - detected issue with Zombie station records
+Example from GFS data hashMap, mirrored also to WRF data hash map:
+	<key xclass="Integer">89</key>
+	     <value xclass="java.util.HashMap">
+	     	<x>
+			<key xclass="String">77</key>
+			<value xclass="java.util.HashMap">
+		</x>
+		<x>
+			<key xclass="String">78</key>
+			<value xclass="java.util.HashMap">
+		</x>
+		<x>
+			<key xclass="String">1102</key>
+			<value xclass="java.util.HashMap">
+		<x>
+			<key xclass="String">1101</key>
+			<value xclass="java.util.HashMap">
+		</x>
+		<x>
+			<key xclass="String">10000</key>
+			<value xclass="java.util.HashMap">
+		</x>
+		<x>
+			<key xclass="String">50</key>
+			<value xclass="java.util.HashMap">
+		</x>
+		<x>
+			<key xclass="String">21</key>
+			<value xclass="java.util.HashMap">
+		<x>
+		
+Visible nicely on MeteogramAgent log:
+2022-01-28 14:51:06.373 UTC: DEBUG (1) NOTE: Load local locations and stations from: ../../ims/cfg/station/forecast/WRF_LocalLocations.xml
+2022-01-28 14:52:16.364 UTC: NOTE: Read WRF as primary data from space, with number of stations: 9
+2022-01-28 14:52:16.364 UTC: NOTE: Read GFS and WRF forecast data, with number of stations: 9
+2022-01-28 14:52:16.364 UTC: NOTE: Read GFS and WRF forecast data, with number of stations: 9
+2022-01-28 14:52:16.368 UTC: DEBUG (3) NOTE: Written into space: METEO/F/dataHourly of size 9
+2022-01-28 20:00:10.333 UTC: NOTE: Read WRF as primary data from space, with number of stations: 9
+2022-01-28 20:00:10.333 UTC: NOTE: Read GFS as secondary data from space, with number of stations: 77
+2022-01-28 20:00:10.342 UTC: NOTE: Read GFS and WRF forecast data, with number of stations: 77
+2022-01-28 20:00:10.349 UTC: NOTE: Read GFS and WRF forecast data, with number of stations: 77
+2022-01-28 20:00:10.353 UTC: DEBUG (3) NOTE: Written into space: METEO/F/dataHourly of size 77
+
+
+Fix was based just in protection of adding derived variables to:
+ActualDataAgent
+	->getActualValForVariable()
+	->getCountingActualValues()
+	
+
+ReCalculationAgent
+	->loadPrecIndicators()
+	->integratePrecIndicators()
+	->interpolate12hStep()
+	->interpolate12hStep()
+	->correctCumulusPrecWRF()
+	->countWindUAndVComponent()
+	->countApparentTemperature()
+
+Investigation showed that the issue is probably fixed, but there is
+strange suspicious log, seems like in certain period the GFS/WRF data
+are not anymore starProcessHourActualise() in the ActualData agent.
+
+949_Belehrad-IMS-ims:~ # grep "stations\|size" /opt/ims/log/2022/02/01/MeteogramAgent.log
+2022-02-01 02:01:00.632 UTC: NOTE: Read WRF as primary data from space, with number of stations: 9
+2022-02-01 02:01:00.632 UTC: NOTE: Read GFS as secondary data from space, with number of stations: 9
+2022-02-01 02:01:00.636 UTC: NOTE: Read GFS and WRF forecast data, with number of stations: 9
+2022-02-01 02:01:00.643 UTC: NOTE: Read GFS and WRF forecast data, with number of stations: 9
+2022-02-01 02:01:00.647 UTC: DEBUG (3) NOTE: Written into space: METEO/F/dataHourly of size 9
+2022-02-01 08:01:00.686 UTC: NOTE: Read WRF as primary data from space, with number of stations: 9
+2022-02-01 08:01:00.686 UTC: NOTE: Read GFS as secondary data from space, with number of stations: 9
+2022-02-01 08:01:00.690 UTC: NOTE: Read GFS and WRF forecast data, with number of stations: 9
+2022-02-01 08:01:00.698 UTC: NOTE: Read GFS and WRF forecast data, with number of stations: 9
+2022-02-01 08:01:00.702 UTC: DEBUG (3) NOTE: Written into space: METEO/F/dataHourly of size 9
+2022-02-01 09:34:55.348 UTC: DEBUG (1) NOTE: Load local locations and stations from: ../../ims/cfg/station/forecast/WRF_LocalLocations.xml
+2022-02-01 09:36:06.203 UTC: NOTE: Read WRF as primary data from space, with number of stations: 9
+2022-02-01 09:36:06.203 UTC: NOTE: Read GFS and WRF forecast data, with number of stations: 9
+2022-02-01 09:36:06.203 UTC: NOTE: Read GFS and WRF forecast data, with number of stations: 9
+2022-02-01 09:36:06.207 UTC: DEBUG (3) NOTE: Written into space: METEO/F/dataHourly of size 9
+
+See the log:
+c:\Projects\949_uprava_Azet-u_pre_Belehrad\Testing\Retrieval_ActualData_agent_GFS_off_1.2.2022.txt
+We try also GFS on to execute whole processing
+but without reaching the GFS data.
+And then also having GFS available as backup.
+
+Memomory check on 1.2.2022 over night - GFS on, MOS off in MeteogramAgent.
+Does not look good - steady growth. Snapshots stored here:
+/c/Projects/949_uprava_Azet-u_pre_Belehrad/Testing/ForecastModule_memory_usage_1.2.2022.log
+/c/Projects/949_uprava_Azet-u_pre_Belehrad/Testing/ForecastModule_memory_usage_1.2.2022_java.log
 

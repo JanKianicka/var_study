@@ -1066,25 +1066,27 @@ no crontab for sim1_upl
 
 
 # Strucure and content of the documentation for both projects
-First read the content of the wiki page for 665 carefully, print the graph and try to understand whole concept
-including in-out data.
-Only then proceed to the documentation, samples and then to the source code.
-Meanwhile study background - try once again VirtualVM connection and other stuff which is neccessary to study.
+First read the content of the wiki page for 665 carefully, print the
+graph and try to understand whole concept including in-out data.
+Only then proceed to the documentation, samples and then to the source
+code.
+Meanwhile study background - try once again VirtualVM connection and
+other stuff which is neccessary to study.
 - finished ssh tunneling to the database, and
   reading of wiki until 'Stahovanie Synopov a Metarov'
   Do not have access to wiki2 where Belehrad contract is managed - to be arranged.
-Accomplished reading of wiki, now we look at the video and will
-read the Belehrad specificaiton and collect the tree of
-documentation for Azet and Belehrad.
-Accomplish yet documentation collection for 665 and 994 Management
-and colllect and print the essentials - particularly the documents for Russian branch, make order in
-our local project tree.
+Accomplished reading of wiki, now we look at the video and will read
+the Belehrad specificaiton and collect the tree of documentation for
+Azet and Belehrad.
+Accomplish yet documentation collection for 665 and 994 Management and
+colllect and print the essentials - particularly the documents for
+Russian branch, make order in our local project tree.
 Studied all specifications and recorded questions.
-Studied more in detail also Beograd (higher resolution nowcasting) specifications.
+Studied more in detail also Beograd (higher resolution nowcasting)
+specifications.
 - interpolation and bias corrections based on NN method.
 Tomorrow we will continue - familiarization with MOS methodology.
-Record progress report and
-start on deploymnent diagrams.
+Record progress report and start on deploymnent diagrams.
 
 
 Yet, write FYI email about diagrams and then harvest structure of the documentaiton for the new project
@@ -1094,9 +1096,12 @@ and start with study of agents = try to achieve three things:
 - investigate how whole processing can be ran in batch mode on the dev machine
 - now investigate which agents are in use, second triggers and outputs - either file, or blocks
 
-(as a test)
-
-(Tomorrow)
+# 28.1.2022 - read Tomas Diploma Theses presentation
+Essential records
+Nothing really new in the presentation.
+May be these two terms:
+1. Predicant - value from the forecast
+2. Predictor - value measured
 
 # Meetings
 ## Meeting with Patrik Synek on 16.8.2021
@@ -1452,7 +1457,133 @@ And what about content of CLDB tables and these SQL scripts?
 m:\Zakazky\665_SK_Azet_predpovede\Misc\SQL\
 This is to be discussed with Mata Petrovicova.
 
+# 2.2.2022 - other round of questions after wading through the code
+and commencting of integration of WRF grib1 data.
 
+21. Merging of WRF to GFS:
+What were the requirements and circumstances
+about MOS corrected variables in:
+ cfg/station/forecast/MOS/ForecastMOSFilterCfg.xml
+ Example record:
+ configVariableName="TempDry" variableName="Temp.Dry" variableId="78" predictorGFS="temperature_2_lvl_105" correctionMOS="Y"  actualise="Y" interpolate="Y" output="Y" src="../cfg/station/forecast/MOS/filters/%s_%02d/MOS_%s_%02d_Tmp_Dry%s.xml"
+
+ configVariableName (TempDry) is used internally and in communicaiton with e.g. R script - space kriging interpolation
+ variableName - used e.g. in retrival of current data, mapping of variables to numbers kays in the data and on many other places
+                on many places names of derived variables are in use, e.g.:
+		IndexCalculation - "BoydenIndex" with number: 5000
+		                 - "TotalsIndex" with number: 5001 etc.
+				 
+ variableId - snapshot of integer numbers from CDLB, but used in mutual pair
+              with variableName and storing the data internally in hashmaps
+              By reading current data we by configuration match
+	      'variableName' to variableId - this is then used for correction
+
+ predictorGFS - is the name of variable in grib1 files from GFS and WRF too.
+                When data are retrived from grib, we use this identifier
+		in the data as keys.
+		In MOS the corrected data are translated to variableId.
+		List of variables retrieved from grib
+		are configured as well in:
+		cfg/station/forecast/WRF_getForecastCfg.xml - WRF
+		cfg/station/forecast/getForecastCfg.xml - GFS
+		e.g.
+		<x title="temperature_2_lvl_105" parameter="temperature" level="105" levelValue1="2"  destUnit="degC" />
+		(Converted to destUnit during grib reading)
+
+From the input WRF grib only the list of variables configured in
+ForecastMOSFilterCfg.xml are translated to further data processing.
+For Azet configuration it is 31 variables, not all from the input WRF.
+
+This list also determines which variables are
+used for merging MOS corrected WRF to GFS (actualise="Y").
+Which values are interpolated.
+Which values are output.
+
+So this configuration drives whole data processing, not just
+MOS correction.
+I had to implement translation based on this configuration,
+to be capable to correctly skip the MOS processing.
+What is the general circumstance, requirement about these variable identifications?
+
+22. Merging WRF to GFS again -
+For Azet there is logic that GFS is primary,
+and WRF based on configuration of MOS is just merged into GFS
+forecast.
+This common output is then processed further.
+E.g first extended by derived variables:
+CLOUDS_AMOUNT_ID="21"
+WINDDIR="110"
+WINDSPEED="116"
+(Further mapped to WINDSPEED, "Wind.Speed" during output).
+When we consider WRF to be primary, what I do,
+is that if a station record is missing for WRF,
+we just copy over all variables from GFS to WRF
+data.
+But this may be inconsitent, while
+both models can contain different variables in grib1 itself.
+And GFS grib1 reading might be configured differently, which
+is the case also for Azet installation.
+Also then based on temporal, spatial data availability,
+we may have quite different content for each station.
+What might be requirements, limitations
+for merging these two models GFS/WRF?
+
+23. Spatial interpolatin - vs. WRF reading
+WRF model data are interpolated
+
+Add also print screens and data samples
+
+24. MOS filters, their corrections.
+Why just for some Azet stations exists the filters
+and actually they really execute the code
+in the MOS computation.
+
+25. MOS filtering and different GFS, WRF runs?
+
+26. WRF runs and manual correction intervals?
+We have now two, based on GFS integration,
+but what if primary source will be WRF with four runs a day?
+
+27. There is really strange process in the ActualData
+-> getCountingActualValues(), -> getActualValForVariable()
+which is actually from actualy measured data on stations
+filling in in a very strange way deriving start/end time
+into the already merged forecast data, values from measurements.
+As I undersdand in case of having WRF available it is from
+'strat of forecast' until now.
+Particularly these are transfered:
+WEATHERICON="10000"
+and then
+WINDU_ID="1101"
+WINDV_ID="1102"
+PRESS_STATION="46"
+CLOUDS_AMOUNT_ID="21"
+and the rest of MOS filtering variables
+which have 'actualise=Y'.
+
+This happens in-spite whether we have for the
+particular station the forecast data or not.
+Step is wired to hour.
+But this would mean, that continually as
+current data are comming, the forecast is replaced for the time period
+available.
+This happens continually, so we have modified
+data even e.g. when operators are working with the WebGUI.
+(In the space - because the screens are just over Agent space).
+
+For me the issue was that, zombie stations started to occur
+because these values were derived continually and other forecast
+data were missing (lead to unstable system), but fixed by
+check, that the station record must exist from WRF grib reading.
+
+28. When zombie station with merged actual data were created, further
+recalculation agent already started to e.g. interpolate12h() step, and
+inserted further false records into the forecast data.  This has
+modified GFS as well as WRF forcast data.  I put protection of having
+forecast data from grib everywhere.  But what about actual time
+interval being replaced and interpolated, in Azet for example?
+
+ 
 Open issues:
 1. On the first glance there is a lot of script code and R code in the
 configuration - this is not good, not code mingled with configuration
