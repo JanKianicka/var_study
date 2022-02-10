@@ -624,3 +624,350 @@ Does not look good - steady growth. Snapshots stored here:
 /c/Projects/949_uprava_Azet-u_pre_Belehrad/Testing/ForecastModule_memory_usage_1.2.2022.log
 /c/Projects/949_uprava_Azet-u_pre_Belehrad/Testing/ForecastModule_memory_usage_1.2.2022_java.log
 
+Memory check from 2 - 7.2.2022,
+GFS reading enabled (but not implemented yet),
+MOS correction disabled for GFS, WRF reading enabled,
+MOS correction for WRF enabled.
+Whole Virtual Machine was down, probably memory was exhausted
+and machine has terminated without any message in OS messages.
+# Samples from scheduler within three days
+2022-02-02 12:34:00.001 UTC: NOTE: Heap: free 137469 kb, total 1000888 kb, max 6257408 kb.
+2022-02-02 12:35:00.006 UTC: NOTE: Heap: free 374052 kb, total 1017936 kb, max 6257408 kb.
+2022-02-02 12:36:00.001 UTC: NOTE: Heap: free 102209 kb, total 1019136 kb, max 6257408 kb.
+...
+
+2022-02-02 23:55:00.000 UTC: NOTE: Heap: free 745597 kb, total 1589900 kb, max 6257408 kb.
+2022-02-02 23:56:00.000 UTC: NOTE: Heap: free 687635 kb, total 1589900 kb, max 6257408 kb.
+2022-02-02 23:57:00.000 UTC: NOTE: Heap: free 572022 kb, total 1589900 kb, max 6257408 kb.
+2022-02-02 23:58:00.000 UTC: NOTE: Heap: free 677113 kb, total 1589900 kb, max 6257408 kb.
+2022-02-02 23:59:00.001 UTC: NOTE: Heap: free 533694 kb, total 1589900 kb, max 6257408 kb.
+...
+2022-02-03 00:00:00.000 UTC: NOTE: Heap: free 644999 kb, total 1589900 kb, max 6257408 kb.
+2022-02-03 00:01:00.000 UTC: NOTE: Heap: free 483305 kb, total 1589900 kb, max 6257408 kb.
+2022-02-03 00:02:00.000 UTC: NOTE: Heap: free 707141 kb, total 1589900 kb, max 6257408 kb.
+2022-02-03 00:03:00.004 UTC: NOTE: Heap: free 786081 kb, total 1589900 kb, max 6257408 kb.
+
+2022-02-03 23:53:00.006 UTC: NOTE: Heap: free 969509 kb, total 3688560 kb, max 6257408 kb.
+2022-02-03 23:54:00.002 UTC: NOTE: Heap: free 658735 kb, total 3688560 kb, max 6257408 kb.
+2022-02-03 23:55:00.003 UTC: NOTE: Heap: free 3092489 kb, total 3688560 kb, max 6257408 kb.
+2022-02-03 23:56:00.000 UTC: NOTE: Heap: free 2753271 kb, total 3688560 kb, max 6257408 kb.
+2022-02-03 23:57:00.002 UTC: NOTE: Heap: free 2613764 kb, total 3688560 kb, max 6257408 kb.
+2022-02-03 23:58:00.001 UTC: NOTE: Heap: free 2728649 kb, total 3688560 kb, max 6257408 kb.
+2022-02-03 23:59:00.000 UTC: NOTE: Heap: free 2592588 kb, total 3688560 kb, max 6257408 kb.
+
+2022-02-04 00:00:00.003 UTC: NOTE: Heap: free 2691398 kb, total 3688560 kb, max 6257408 kb.
+
+
+2022-02-04 15:15:00.009 UTC: NOTE: Heap: free 1062032 kb, total 4271264 kb, max 6257408 kb.
+
+
+From ForecastModule_memory_usage_2-7.2.2022_java.log
+---
+  PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND
+17897 root      20   0 9997.5m   1.5g  25464 S 211.3  9.8 289:34.65 java
+17897 root      20   0 9997.5m   1.5g  25464 S 212.1  9.8 291:42.06 java
+17897 root      20   0 9997.5m   1.5g  25464 S 214.1  9.8 293:50.65 java
+17897 root      20   0 9997.5m   1.5g  25464 S  96.2  9.8 294:48.37 java
+17897 root      20   0 9997.5m   1.5g  25464 S   4.7  9.8 294:51.17 java
+17897 root      20   0 9997.5m   1.5g  25464 S   4.5  9.8 294:53.86 java
+17897 root      20   0 9997.5m   1.5g  25464 S   4.5  9.8 294:56.54 java
+17897 root      20   0 9997.5m   1.5g  25464 S  94.8  9.8 295:53.47 java
+17897 root      20   0 9997.5m   1.5g  25464 S 210.6  9.8 297:59.86 java
+17897 root      20   0 9997.5m   1.5g  25464 S  42.7  9.8 298:25.52 java
+17897 root      20   0 9997.5m   1.5g  25464 S   4.8  9.8 298:28.40 java
+17897 root      20   0 9997.5m   1.5g  25464 S   4.3  9.8 298:30.96 java
+...
+
+17897 root      20   0 9997.7m   1.9g  25444 S 213.6 12.2   1102:33 java
+17897 root      20   0 9997.7m   1.9g  25444 S 209.4 12.2   1104:39 java
+17897 root      20   0 9997.7m   1.9g  25444 S 202.7 12.2   1106:40 java
+17897 root      20   0 9997.7m   1.9g  25408 S 173.0 12.2   1108:24 java
+17897 root      20   0 9997.7m   1.9g  25408 S 209.6 12.2   1110:30 java
+17897 root      20   0 9997.7m   1.9g  25408 S 210.2 12.2   1112:36 java
+17897 root      20   0 9997.7m   1.9g  25408 S 214.2 12.2   1114:45 java
+17897 root      20   0 9997.7m   1.9g  25408 S 213.3 12.2   1116:53 java
+17897 root      20   0 9997.7m   1.9g  25408 S 210.7 12.2   1119:00 java
+17897 root      20   0 9997.7m   1.9g  25408 S 213.5 12.2   1121:08 java
+...
+17897 root      20   0 9999.1m   2.5g  22820 S 183.0 16.0   1717:54 java
+17897 root      20   0 9999.1m   2.5g  22820 S  41.1 16.0   1718:19 java
+17897 root      20   0 9999.1m   2.5g  22820 S  32.4 16.0   1718:39 java
+17897 root      20   0 9999.1m   2.5g  22820 S   3.7 16.0   1718:41 java
+17897 root      20   0 9999.1m   2.5g  22820 S   3.9 16.0   1718:43 java
+17897 root      20   0 9999.1m   2.5g  22820 S   3.8 16.0   1718:45 java
+17897 root      20   0 9999.1m   2.5g  22820 S  40.4 16.0   1719:10 java
+17897 root      20   0 9999.1m   2.5g  22820 S 207.9 16.0   1721:15 java
+17897 root      20   0 9999.1m   2.5g  22820 S  88.8 16.0   1722:08 java
+17897 root      20   0 9999.1m   2.5g  22820 S   4.2 16.0   1722:10 java
+17897 root      20   0 9999.1m   2.5g  22820 S   4.1 16.0   1722:13 java
+17897 root      20   0 9999.1m   2.5g  22820 S  22.9 16.0   1722:27 java
+17897 root      20   0 9999.1m   2.5g  22820 S 208.3 16.0   1724:32 java
+...
+17897 root      20   0 9999.1m   4.5g   8664 S 216.3 29.2   5330:00 java
+17897 root      20   0 9999.1m   4.5g   8664 S 212.2 29.2   5332:08 java
+17897 root      20   0 9999.1m   4.5g   8664 S 209.8 29.2   5334:14 java
+17897 root      20   0 9999.1m   4.5g   8664 S 211.9 29.2   5336:21 java
+17897 root      20   0 9999.1m   4.5g   8664 S 211.0 29.2   5338:28 java
+17897 root      20   0 9999.1m   4.5g   8664 S 209.0 29.2   5340:33 java
+17897 root      20   0 9999.1m   4.5g   8664 S 212.2 29.2   5342:41 java
+17897 root      20   0 9999.1m   4.5g   8664 S 212.0 29.2   5344:48 java
+17897 root      20   0 9999.1m   4.5g   8664 S 212.9 29.2   5346:56 java
+17897 root      20   0 9999.1m   4.5g   8664 S 213.6 29.2   5349:04 java
+17897 root      20   0 9999.1m   4.5g   8664 S 201.2 29.2   5351:05 java
+17897 root      20   0 9999.1m   4.5g   8664 S 212.0 29.2   5353:12 java
+17897 root      20   0 9999.1m   4.5g   8664 S 211.0 29.2   5355:19 java
+17897 root      20   0 9999.1m   4.5g   8664 S 212.8 29.2   5357:27 java
+...
+
+Detail diagnostics implemented for essentiual data maps.
+--
+CurrentDataReaderAgent:
+-----------------------
+2022-02-04 15:15:40.162 UTC: NOTE: Status of current data reading:
+2022-02-04 15:15:40.162 UTC: NOTE: Source: S, configured stations: 105, present: 0, missing: 105
+2022-02-04 15:15:40.162 UTC: NOTE: Source: M, configured stations: 36, present: 28, missing: 8
+2022-02-04 15:15:40.162 UTC: NOTE: Source: C, configured stations: 105, present: 5, missing: 100
+2022-02-04 15:15:40.162 UTC: NOTE: Configured stations: 246, accumulated present of all sources: 33
+2022-02-04 15:15:40.162 UTC: DEBUG (3) NOTE: cfg.printDiagnosticsStationsVars on, priting details of retrieved data:.
+2022-02-04 15:15:40.162 UTC: DEBUG (3) NOTE:   Stations of source: C
+2022-02-04 15:15:40.162 UTC: DEBUG (3) NOTE:   Stations[numberOfVars]:  00001[10], 00002[10], 00003[10], 00004[10], 00005[10],
+2022-02-04 15:15:40.162 UTC: DEBUG (3) NOTE:   Number of time slots of the first station/variable: 1
+2022-02-04 15:15:40.162 UTC: DEBUG (3) NOTE: cfg.printDiagnosticsStationsVars on, priting details of retrieved data:.
+2022-02-04 15:15:40.162 UTC: DEBUG (3) NOTE:   Stations of source: M
+2022-02-04 15:15:40.162 UTC: DEBUG (3) NOTE:   Stations[numberOfVars]:  LBBG[8], LBPD[7], LBSF[8], LBWN[8], LDDU[8], LDOS[8], LDPL[9], LDRI[10], LDZA[8], LDZD[9], LHBP[8], LHDC[8], LHPP[8], LQBK[8], LQMO[7], LQSA[7], LQTZ[7], LRCL[8], LRCV[8], LRIA[8], LROP[8], LRTR[8], LWSK[8], LYBE[8], LYNI[8], LYPG[8], LYTV[7], LYVR[8],
+2022-02-04 15:15:40.162 UTC: DEBUG (3) NOTE:   Number of time slots of the first station/variable: 2
+2022-02-04 15:15:40.162 UTC: NOTE: Successfully finished.
+
+ActualData agent:
+-----------------
+2022-02-04 15:15:07.321 UTC: DEBUG (3) NOTE: Call of actualiseDataFromSelect
+2022-02-04 15:15:07.321 UTC: DEBUG (3) WARNING: Forectime GFS start is null - setting forecast start time to current hour.
+2022-02-04 15:15:07.364 UTC: DEBUG (3) NOTE: hourValues map, stations: 9
+2022-02-04 15:15:07.364 UTC: DEBUG (3) NOTE: actualDataValues map, stations: 28
+2022-02-04 15:15:07.365 UTC: DEBUG (3) NOTE: cfg.printDiagnosticsStationsVars on, printing details of actualDataValues.
+2022-02-04 15:15:07.365 UTC: DEBUG (3) NOTE:   Stations[numberOfVars]:  89[10], 92[8], 93[8], 94[8], 110[10], 113[8], 116[10], 117[10], 236[10], 238[8], 376[10], 381[10], 383[11], 385[11], 391[11], 394[10], 397[10], 400[10], 403[10], 536[10], 538[10], 540[10], 542[10], 547[10], 548[10], 550[10], 1045[10], 5005[10],
+2022-02-04 15:15:07.365 UTC: DEBUG (3) NOTE:   Number of time slots of the first station/variable: 1
+2022-02-04 15:15:07.365 UTC: DEBUG (3) NOTE: Rewritting in space also hourValues in block: METEO/F/dataHourly
+
+MeteogramWRFAgent:
+------------------
+2022-02-04 15:15:05.294 UTC: NOTE:  --- Start process starCreate WRF Meteogram ---
+2022-02-04 15:15:05.294 UTC: DEBUG (3) NOTE: cfg.printDiagnosticsStationsVars on, printing details of gribValues.
+2022-02-04 15:15:05.294 UTC: DEBUG (3) NOTE:   gribValues - stations[numberOfVars]:  548[31], 549[31], 5004[31], 5009[31], 6001[31], 6002[31], 6003[31], 6004[31], 6005[31],
+2022-02-04 15:15:05.294 UTC: DEBUG (3) NOTE:   gribValues - number of time slots of the first station/variable: 49
+2022-02-04 15:15:05.294 UTC: DEBUG (3) NOTE: cfg.printDiagnosticsStationsVars on, printing details of correctMOSgribValues.
+2022-02-04 15:15:05.294 UTC: DEBUG (3) NOTE:   correctMOSgribValues - stations[numberOfVars]:  548[34], 549[34], 5004[34], 5009[34], 6001[34], 6002[34], 6003[34], 6004[34], 6005[34],
+2022-02-04 15:15:05.294 UTC: DEBUG (3) NOTE:   correctMOSgribValues - number of time slots of the first station/variable: 49
+
+MeteogramAgent:
+---------------
+2022-02-04 15:13:02.472 UTC: NOTE: --- Start process starCreateMeteogram ---
+2022-02-04 15:13:02.472 UTC: DEBUG (3) NOTE: cfg.printDiagnosticsStationsVars on, printing details of correctMOSgribValues.
+2022-02-04 15:13:02.473 UTC: DEBUG (3) NOTE:   correctMOSgribValues - stations[numberOfVars]:  548[34], 549[34], 5004[34], 5009[34], 6001[34], 6002[34], 6003[34], 6004[34], 6005[34],
+2022-02-04 15:13:02.473 UTC: DEBUG (3) NOTE:   correctMOSgribValues - number of time slots of the first station/variable: 49
+
+# 8.2.2022 - details of collected memory usage in the agents
+1703524
+1703524
+1703524
+1703532
+1795072 - at 8:22 UTC
+1793840 - at 8:28 UTC
+1841232 - at 8:36 
+1841468 - 8:37
+1841468 - 8:38
+1841468 - 8:39
+1841528 - 8:41
+1841528 - 8:42
+1841528 - 8:43
+1842164 - 8:44
+# test with bunch processing of SYNOP messaghes - a lot
+1835780 - 8:45
+1835780 - 8:46
+1835780 - 8:47
+1835780 - 8:48
+1836120 - 8:49
+1836120 - 8:50
+1836132 - 8:57
+1836132 - 8:59
+1836132 - 9:01
+1836132 - 9:03
+1836236 - 9:15
+- no increase, even decrease in memory consumption
+-> means that CurrentDataReaderAget is not a culprit
+
+1895332 - 9:35
+1895700 - 10:16
+1984440 - 13:57
+
+Investigation of size of the object options.  One of the options is to
+use instrumentation package= part of Java standard edition, but
+requires extension of environment of the instrumentation agent.
+https://www.baeldung.com/java-size-of-object
+
+Other option is to use OpndJDK JOL pakcage.
+This dependency is missing in our environment.
+Described here:
+https://www.baeldung.com/jvm-measuring-object-sizes
+
+We have decided finally to use VisualVM sampler and thread dumps
+investigation and investigation of static shared hashmaps
+using measuring X2O outputs.
+
+Using VisualVM investigations,
+collectede snaphosts from the Sampler.
+And memory head.
+Very high memory consumption is in the FileInsertTerminal,
+but it seems the memory is also reclaimed correctly.
+Because we have conducted already stand-alone test of
+the CurrentDataReaderAgent.
+Very likelly the issue is in ingestion of WRF genuine data source
+into the Module and its parametrization.
+
+Records of using VisualVM.
+
+Using Eclipse - Memory Analyzer.
+Production of the 'Leak suspect report', which identified
+again the FileInsertTerminals.
+I have analyzed the main hash maps in continuous
+running system, but the differences in the retain size
+are subtle.
+Retain size is the size of the objects after running
+the garbage collector.
+But still the FileInsertTerminals grow.
+Captured screens and figures, all corresponds to limited installation
+of four agents:
+ Top_memory_consumers_8.2.2022_15.54_afterWRFreading.png
+  - showing that the FileInsertTerminal is the biggest memory
+  consumer in whole system. Together it occupies
+  more than 95% of the memory.
+ 4agents_HeapDump_LeakSuspectReport_EclipseMemoryAnalyzer_9.2.2022_14.09.png
+  - Eclipse Memory Analyzer shows that there is suspicious
+  component in the FileInsertTerminal.
+ 4agents_HeapDump_CurrentDataReaderAgent_diff_9.2.2022-11.00_14.09.png
+ 4agents_HeapDump_ActualDataReaderAgent_diff_9.2.2022-11.00_14.09.png
+ 4agents_HeapDump_MeteogramWRFAgent_diff_9.2.2022-11.00_14.09.png
+ 4agents_HeapDump_MeteogramAgent_diff_9.2.2022-11.00_14.09.png
+  - Deeper investigation of the retain size of static shared HashMaps
+    containing data in the four agents under investigation shows that
+    there are really just subtle differences between two snasphosts
+    captured on continuosly running system with circa same data
+    processed and retained in the memory.
+    CurrentDataReaderAgent.currentData (ConurrentHashMap)
+      625 296 bytes -> 682 394 bytes
+    ActualDataAgent.actualDataValues (HashMap)
+      285 668 bytes -> 299 346 bytes
+    ActualDataAgent.modifiedValues (Synchronized Map)
+      1 513 418 bytes -> 1 513 274 bytes
+    MeteogramWRFAgent.correctMOSgribValues (Synchronized Map)
+      1 513 418 bytes -> 1 513 274 bytes (seems like pointer to ActualDataAgent modifiedValues!)
+    MeteogramWRFAgent.gribValues (HashMap)
+      684 bytes -> 684 bytes
+    MeteogramAgent.correctMOSgribValues (Synchronized Map)
+      1 513 418 bytes -> 1 513 274 bytes (seems like pointer to ActualDataAgent modifiedValues - the same pointer!)
+    MeteogramWRFAgent.gribValues (object)
+      null -> null
+
+   4agents_HeapDump_LeakSuspect_FileInsertTerminal_inserterVector.png
+   4agents_HeapDump_LeakSuspect_FileInsertTerminal_inserterVector_decoder9.2.2022-11.00.png
+   4agents_HeapDump_LeakSuspect_FileInsertTerminal_inserterVector_decoder9.2.2022-14.09.png
+    - FileInsertTerminal.inserterVector raised the retained size significantly.
+      49 197 826 bytes -> 52 752 670 bytes
+      Just this one collection object holds ~50 times more data than
+      the agents which read WRF grib files.
+      And withing one hour the size increased by ~3 MegaBytes.
+     - Investigation which inner object has changed the size showed that the culprit
+      is inserterVector[i].decoder which did not release the allocated memory.
+      650 185 bytes -> 3 171 333 bytes
+      But no inner object of the decoder was increased.
+      Seems like deallocation of the 'jep' instance might be the issue?
+
+Conducted one more integration test with turning off all
+ForecastModule agents, having flow of just current data through
+terminals and inserters.
+Achieved by disabling all agents in the cfg/station/cfg/progs.xml
+leaving just the CurrentDataReaderAgent running, and even this one was
+disbled by its configuraition.
+
+Investigation of PhysicalMemory size of the IMS4 java system process:
+RSS    UTC time
+1593320 16:00
+1613396 17:00
+1614476 18:00
+1628080 19:00
+1651264 20:00
+1652772 21:00
+1663156 22:00
+1663980 23:00
+1672124 00:00
+1679888 01:00
+...
+1701312 05:00
+...
+1720448 08:00
+...
+1735004 09:37
+
+
+Investigation of HeapDumps of this process
+Feb  9 17:26 heapdump-9.2.2022-17.26.hprof
+Feb 10 08:38 heapdump-10.2.2022-08.38.hprof
+
+The difference are much more subtle in this case and in several places
+of the inserterVector.
+Communication_only_FileInsertTerminals_9.2-10.2.2022_volatile_totalBytesTotalInstances_increase.png
+ - Size of the biggest objects did not increase so significantly this time over
+ the night. Two morning snapshots 8:38 and 10:28 shows even drop in size.
+ Retained Size of the biggest object FileInsertTerminal#4 was this:
+   52 779 818 bytes
+   52 802 106 bytes
+   52 781 176 bytes
+ But, we see in the summary statistics:
+   Total bytes   Total Classes   Total Instances
+   559 455 259   11 379          8 134 307
+   569 895 304   11 349          8 334 790
+   587 122 858   11 330          8 583 305
+ We see steady increase in total bytes allocated - which
+ corresponds to memory leak and stady increase of RRS on system level.
+ And we see steady increase of class instances.
+ 
+
+10.2.2022 10:51 turned off all FileInsertTerminals.
+So from communicaiton left just
+ingesiton of Metar and Synop into the MessageDatabase.
+RSS     UTC time
+1734708 09:52
+...
+1404212 11:16
+...
+1418016 12:21
+...
+1418084 13:01
+
+Memory does not increase anymore and after running of Garbace
+Collector, the RSS allocation has dropped.
+Also monitoring shows there are no new orphan object instances.
+This points that very likelly problematic are
+the file insert terminals.
+This issue was not detected in autumn, so we check
+what has changed in dependent components.
+com.microstepmis.communication2.modules.FileInsertTerminal
+ - changed last 3 years ago
+com.microstepmis.communication2.modules
+ - development on IWXXM and Ices terminal
+com.microstepmis.envidb.insert.AbstractInserter
+com.microstepmis.envidb.insert.Inserter
+com.microstepmis.envidb.insert.InserterResult
+ - no change in last 4-5 months.
+   In the package it self changed several things
+   seems like not related.
+com.microstepmis.envidb.util.CurrentDataExportAgent
+ - no change in last year
+No change in Coder and significant change in
+envidb/inserters
+
+Over weekend we turn on just METAR insertion and observe the
+behavior.
+
+
+
