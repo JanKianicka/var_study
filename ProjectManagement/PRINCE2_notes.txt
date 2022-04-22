@@ -1,0 +1,84 @@
+# PRINCE2 (PRojects IN Controlled Environments)
+is a structured project management method.
+PRINCE2 emphasises dividing projects into manageable and controllable
+stages.
+
+  7 Themes
+  7 Principles
+
+The principles are the foundations upon which everything else in the
+methodology is based.
+
+  1. Continued business justification
+     Benefits tolerance - he mandate should identify the threshold of
+     profit that determines the viability of the business case.
+     Update stage-by-stage - broken down into stages, for ease of
+     manageability.
+     Checking ongoing viability - by each stage.
+     Premature closure
+     Benefits are not always financial
+
+  2. Learn from experience
+     Remain alert to lessons
+     Project manager’s responsibility - identify, document and
+     disseminate lessons.
+     Lessons log - lessons learned from previous projects.
+     Auditing - proof that steps have been taken to avoid repeating
+     previous mistakes.
+     Hiring based upon lessons
+     Lessons repository
+
+  3. Defined roles and responsibilities
+     A lack of clear leadership is a common cause of project failure.
+     Levels of management - three levels.
+     Project board
+     Stakeholders - three stakeholder interests: business, user and
+     supplier.
+
+  4. Manage by stages
+     Each stage of a project must be properly planned, monitored, and
+     controlled.
+     Minimum of two stages.
+     Initiation stage
+     Project initiation documentation (PID)
+     Planning horizon
+     Go/no go
+     Stages are a control for the project board
+
+  5. Manage by exception
+     Tolerances are established for each project objective (time,
+     cost, quality, scope, benefits and risk).
+     Highlight reports - regular highlight reports keep the project
+     board informed about progress.
+     Only if a tolerance level is forecast to be exceeded (known as an
+     ‘exception’ in PRINCE2), does the project board address the issue
+     through the assessment of an exception report.
+     Project tolerances
+     Stage tolerances
+     Work package tolerances
+     Benefits of "managing by exception" - he project board ‘manages
+     by exception’ i.e. only gets involved when key decisions need to
+     be taken.
+
+  6. Focus on products
+     Product-based planning - Product-based planning is a crucial
+     aspect of the PRINCE2 approach to managing projects.
+     Product descriptions - The agreed products define the project’s
+     scope, as well as providing a foundation for planning and control
+     activities.
+
+  7. Tailor to suit the project
+     Tailoring whilst remaining compliant
+     Even on a small project, you will need to address risk, quality
+     and change control. If the method is changed too much, you will
+     be in danger of running a ‘PINO’ (that’s ‘PRINCE2 In Name Only’)
+     project.
+     Tailoring goals
+
+The simple test whether the project is applying all 7 of the PRINCE2
+principles and whether the project is applying the minimum
+requirements of the 7 themes proves that the project is managed by the
+PRINCE2 methodology.
+
+     
+  
