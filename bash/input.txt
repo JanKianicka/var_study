@@ -1,0 +1,5 @@
+# Pipeline configuration
+1 pipelineScript1.sh pipelineScript1.conf pipelineScriptToken1.txt
+2 pipelineScript2.sh pipelineScript2.conf pipelineScriptToken2.txt
+3 pipelineScript3.sh pipelineScript3.conf pipelineScriptToken3.txt
+4 pipelineScript4.sh pipelineScript4.conf pipelineScriptToken4.txt
