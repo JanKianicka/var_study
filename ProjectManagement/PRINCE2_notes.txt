@@ -80,5 +80,57 @@ principles and whether the project is applying the minimum
 requirements of the 7 themes proves that the project is managed by the
 PRINCE2 methodology.
 
+Retrieved from this web site:
+https://www.knowledgetrain.co.uk/project-management/prince2/prince-2-course/prince2-principles
+
+------
+Prince 2 Themes:
+
+There are 7 PRINCE 2 Themes:
+
+  1. Business Case
+     The purpose of this theme is to put in place mechanisms which
+     assists the senior decision makers to decide whether the project
+     is (and remains) a worthwhile investment. It is the theme which
+     primarily implements the ‘continued business justification’
+     principle.
+     - Customer-supplier environment
+     - Executive
+     - Outline business case
+     - Outputs, outcomes and benefits
+     - Senior user
+     - Benefits management approach
+     - Minimum requirements
+  2. Organization
+     The purpose of this theme is to define and set up a project
+     management team structure which defines who is accountable and
+     responsible on the project.
+     - Customer organization
+     - Supplier organization
+     - Project board role
+       - executive (from customer)
+       - senior user (from customer)
+       - senior supplier (from supplier organization)
+     - Project assurance role
+     - Project manager role
+     - Team manager role
+     - Change authority role
+     - Project support role
+     Sharing roles, Combining roles
+     Stakeholders: All of the above roles form the project management
+       team and they are all stakeholders on the project.
+     Communication management approach - written down
+
+     Minimum requirements:
+     You must define your project's organization structure and roles
+     (by ensuring all responsibilities in PRINCE2’s role descriptions
+     are fulfilled). You must define your project's approach to
+     communicating and engaging with stakeholders and you must produce
+     and maintain the project initiation documentation (PID), and a
+     communication management approach.
      
-  
+From this URL:
+https://www.knowledgetrain.co.uk/project-management/prince2/prince-2-course/prince2-themes
+
+
+
