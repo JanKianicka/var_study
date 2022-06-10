@@ -85,6 +85,46 @@ Fixed by:
 to configuration files and reconfigured)
 
 
+# 16.2.2022 - Deployment of just Forecast Module classes because we
+investigate the memory leak in the FileInserters.
+
+Successfully configured, but the following issues were detected:
+Null pointer exception in MeteogramAgent, already fixed.
+
+And in MeteogramWRFAgent this issue appeared:
+2022-02-17 01:01:07.921 UTC: ERROR: Failed to process core stations WRF-variable 21 in METEO/Fwrf/WRFdataH at 2022-02-16 14:00:00.000: ../cfg/envidb/mapanalysis/globe.dat (No such file or directory)
+
+On Azet DEV machine is missing this directory:
+cfg/envidb/mapanalysis/
+We have to turn on also this parameter:
+IMS_ENVIDB_MAPS during upgrade.
+
+# Upgrade along with upgrade of 949 Belgrade DEV machine
+# 6.4.2022 - upgraded, due to dependency issues in the CLDB Loader
+had to enalble also:
+IMS_LIGHTNING_BIRAL=y
+upgrade_ims_log_6.4.2022_1.log
+
+Erros during upgrade coming just from the missing orafce extension in
+the PostgreSQL server.
+
+Found issue, two Forecast Data Entry screens, the one in the customer
+folder azet_665 remained there.
+Issue reported and created the ticket:
+#29551: Forecast Module QuickWin WRF for Belgrade - WebGUI - remove obsolete code in the cusomer azet_665 folder
+
+# 25.4.2022 - addressing issue with obsolete code
+Succesfully upgraded and tested the removal of the obsolete code.
+Yet store new upgrade configuration to git - Done.
+
+
+
+
+
+
+
+
+
 
 
 

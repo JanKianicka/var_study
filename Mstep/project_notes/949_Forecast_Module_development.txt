@@ -932,7 +932,7 @@ Communication_only_FileInsertTerminals_9.2-10.2.2022_volatile_totalBytesTotalIns
  And we see steady increase of class instances.
  
 
-10.2.2022 10:51 turned off all FileInsertTerminals.
+10.2.2022 10:51 Test with turned off all FileInsertTerminals.
 So from communicaiton left just
 ingesiton of Metar and Synop into the MessageDatabase.
 RSS     UTC time
@@ -943,12 +943,58 @@ RSS     UTC time
 1418016 12:21
 ...
 1418084 13:01
+...
+1417812 20:00
+...
+1418024 23:00
+...
+1418096 02:00
+...
+1418096 03:00
+...
+1414508 05:00
+...
+1414732 08:00
+...
+1414732 09:00
 
-Memory does not increase anymore and after running of Garbace
+
+Now I check also the scheduler monitoring
+and create another heap dump.
+---
+2022-02-10 17:16:00.002 UTC: NOTE: Heap: free 624098 kb, total 867856 kb, max 6257408 kb.
+2022-02-10 18:00:00.001 UTC: NOTE: Heap: free 670651 kb, total 867856 kb, max 6257408 kb.
+2022-02-10 19:00:00.000 UTC: NOTE: Heap: free 609488 kb, total 867856 kb, max 6257408 kb.
+2022-02-10 20:00:00.000 UTC: NOTE: Heap: free 581261 kb, total 867856 kb, max 6257408 kb.
+2022-02-10 21:00:00.000 UTC: NOTE: Heap: free 598256 kb, total 867856 kb, max 6257408 kb.
+2022-02-10 22:00:00.000 UTC: NOTE: Heap: free 642817 kb, total 867856 kb, max 6257408 kb.
+2022-02-10 23:00:00.004 UTC: NOTE: Heap: free 517058 kb, total 867856 kb, max 6257408 kb.
+2022-02-11 00:00:00.002 UTC: NOTE: Heap: free 569046 kb, total 867856 kb, max 6257408 kb.
+2022-02-11 01:00:00.000 UTC: NOTE: Heap: free 459443 kb, total 867856 kb, max 6257408 kb.
+2022-02-11 02:00:00.000 UTC: NOTE: Heap: free 491843 kb, total 867856 kb, max 6257408 kb.
+2022-02-11 03:00:00.000 UTC: NOTE: Heap: free 591674 kb, total 867856 kb, max 6257408 kb.
+2022-02-11 04:00:00.001 UTC: NOTE: Heap: free 632519 kb, total 867856 kb, max 6257408 kb.
+2022-02-11 05:00:00.000 UTC: NOTE: Heap: free 515208 kb, total 867856 kb, max 6257408 kb.
+2022-02-11 06:00:00.002 UTC: NOTE: Heap: free 618020 kb, total 867856 kb, max 6257408 kb.
+2022-02-11 07:00:00.000 UTC: NOTE: Heap: free 531436 kb, total 867856 kb, max 6257408 kb.
+2022-02-11 08:00:00.003 UTC: NOTE: Heap: free 494692 kb, total 867856 kb, max 6257408 kb.
+2022-02-11 09:00:00.002 UTC: NOTE: Heap: free 546692 kb, total 867856 kb, max 6257408 kb.
+
+Two heamp dumps retrived over night
+Communication_only_ingestion_FileInsertOff_10.2_11.2.2022.png
+ - shows subtle difference.
+   GC was not called, when was called the
+   physical memory usage dropped.
+   Total bytes   Total Classes    Total instances
+   86 463 441    11 343           1 063 912
+   88 077 706    11 350           1 075 106
+
+Memory does not increase anymore and after running of Garbage
 Collector, the RSS allocation has dropped.
 Also monitoring shows there are no new orphan object instances.
 This points that very likelly problematic are
 the file insert terminals.
+
 This issue was not detected in autumn, so we check
 what has changed in dependent components.
 com.microstepmis.communication2.modules.FileInsertTerminal
@@ -963,11 +1009,1464 @@ com.microstepmis.envidb.insert.InserterResult
    seems like not related.
 com.microstepmis.envidb.util.CurrentDataExportAgent
  - no change in last year
-No change in Coder and significant change in
-envidb/inserters
+No change in Coder and no significant change in
+envidb/inserters.
 
-Over weekend we turn on just METAR insertion and observe the
-behavior.
+# 11.2.2022 - Over weekend we turned on just METAR
+insertion and observe the behavior.
+11.2022 15:38 CET - Monitoring Figures
+  Heap:
+  Size: 522 190 848B   Used: 406 699 176B   Max: 6 407 585 792B
+
+  Metaspace:
+  Size: 62 521 344B   Used: 60 800 600B     Max: -1B
+
+  Classes:
+  Total loaded: 9 563   Total unloaded: 197
+
+after continual running of just METAR inserter plus
+ingestion of METAR/SYNOP as tested before
+14.2.2022 09:49 CET - Monitoring Figures
+  Heap:
+  Size: 599 801 856B  Used: 370 478 888B  Max: 6 407 585 792B
+
+  Metaspace:
+  Size: 62 521 344B   Used: 60 884 744B   Max: -1B
+
+  Classes:
+  Total loaded: 9 572  Total unloaded: 256
+
+There is practically no increase of memory usage detected by the
+Monitoring tool of VisualVM.
+
+From the scheduler:
+2022-02-11 20:00:00.001 UTC: NOTE: Heap: free 171592 kb, total 582144 kb, max 6257408 kb.
+2022-02-12 01:00:00.000 UTC: NOTE: Heap: free 207135 kb, total 582144 kb, max 6257408 kb.
+2022-02-12 12:00:00.001 UTC: NOTE: Heap: free 235698 kb, total 582144 kb, max 6257408 kb.
+2022-02-12 20:00:00.000 UTC: NOTE: Heap: free 164535 kb, total 582144 kb, max 6257408 kb.
+2022-02-12 23:00:00.003 UTC: NOTE: Heap: free 232992 kb, total 582144 kb, max 6257408 kb.
+2022-02-13 01:00:00.002 UTC: NOTE: Heap: free 247676 kb, total 583440 kb, max 6257408 kb.
+2022-02-13 12:00:00.001 UTC: NOTE: Heap: free 207720 kb, total 583440 kb, max 6257408 kb.
+2022-02-13 20:00:00.001 UTC: NOTE: Heap: free 290385 kb, total 583440 kb, max 6257408 kb.
+2022-02-13 23:00:00.000 UTC: NOTE: Heap: free 197443 kb, total 583440 kb, max 6257408 kb.
+2022-02-13 23:59:00.000 UTC: NOTE: Heap: free 210484 kb, total 583440 kb, max 6257408 kb.
+2022-02-14 01:00:00.000 UTC: NOTE: Heap: free 289460 kb, total 583440 kb, max 6257408 kb.
+2022-02-14 08:00:00.000 UTC: NOTE: Heap: free 288154 kb, total 585744 kb, max 6257408 kb.
+From the scheduler we do not observe the memory leak, probably because
+the increase due to two METAR file inserter is small.
+
+
+From ps:
+RSS     UTC
+1001300 12:00 - 11.2.2022
+1138688 23:00 - 11.2.2022 
+1139148 00:00 - 12.2.2022
+1140856 12:00 - 12.2.2022
+1141032 22:00 - 12.2.2022
+1141100 00:00 - 13.2.2022
+1141684 12:00 - 13.2.2022
+1141816 22:00 - 13.2.2022
+1141752 00:00 - 14.2.2022
+1141948 08:46 - 14.2.2022
+1144952 10:37 - 14.2.2022
+1129524 15:12 - 14.2.2022
+But observing the physical memory of the whole IMS4 java process
+clearly shows steady increase in memory.
+
+Investigation of size and behavior of
+com.microstepmis.xplatform.X2O.builderFarm
+of type:
+ConcurrentLinkedQueue<SAXBuilder>
+
+Seems like as the FileInserter and the Communication runs, it
+generates always more nodes containing another ->next
+ConcurrentLinkedQueues.  During the METAR inserter test this weeked
+were added 3 more nodes not present before and also the retained size
+has riased.
+
+Just_Metar_11.2-14.2.2022_X2OConcurrentLinkedQueueSize_ArrayPointers.png
+ConcurrentLinkedQueue in X2O has raised over night
+from:
+   22 495 770 Bytes -> 41 390 698 Bytes
+
+But checking the same object in previous tests, this hypotheses was
+not confirmed.
+Just_Metar_11.2-14.2.2022_X2OConcurrentLinkedQueueSize_ArrayPointers.png
+   39 394 281B -> 39 205 522 B -> 22 712 646 B
+
+# 14-15.2022 running just Synop FileInserter
+Size from scheduler:
+2022-02-14 20:00:00.000 UTC: NOTE: Heap: free 210059 kb, total 364256 kb, max 6257408 kb.
+2022-02-14 21:00:00.000 UTC: NOTE: Heap: free 151842 kb, total 364256 kb, max 6257408 kb.
+2022-02-14 22:00:00.000 UTC: NOTE: Heap: free 112449 kb, total 364256 kb, max 6257408 kb.
+2022-02-14 23:00:00.001 UTC: NOTE: Heap: free 94773 kb, total 364256 kb, max 6257408 kb.
+2022-02-15 00:00:00.002 UTC: NOTE: Heap: free 128456 kb, total 364256 kb, max 6257408 kb.
+2022-02-15 01:00:00.002 UTC: NOTE: Heap: free 162954 kb, total 364256 kb, max 6257408 kb.
+2022-02-15 02:00:00.000 UTC: NOTE: Heap: free 102902 kb, total 364256 kb, max 6257408 kb.
+2022-02-15 03:00:00.001 UTC: NOTE: Heap: free 74311 kb, total 364256 kb, max 6257408 kb.
+2022-02-15 04:00:00.002 UTC: NOTE: Heap: free 187140 kb, total 366692 kb, max 6257408 kb.
+2022-02-15 05:00:00.000 UTC: NOTE: Heap: free 79709 kb, total 366692 kb, max 6257408 kb.
+2022-02-15 06:00:00.000 UTC: NOTE: Heap: free 100610 kb, total 366692 kb, max 6257408 kb.
+2022-02-15 07:00:00.000 UTC: NOTE: Heap: free 98839 kb, total 366692 kb, max 6257408 kb.
+2022-02-15 08:00:00.001 UTC: NOTE: Heap: free 97953 kb, total 366692 kb, max 6257408 kb.
+
+From ps:
+RSS     UTC
+705936  20:00 - 14.2.2022
+753772  21:00 - 14.2.2022
+749916  22:00 - 14.2.2022
+750756  23:00 - 14.2.2022
+761044  00:00 - 15.2.2022
+766464  01:00 - 15.2.2022
+766948  02:00 - 15.2.2022
+768844  03:00 - 15.2.2022
+770588  04:00 - 15.2.2022
+771140  05:00 - 15.2.2022
+771692  06:00 - 15.2.2022
+772120  07:00 - 15.2.2022
+773160  08:00 - 15.2.2022
+The memory leak is present also for SYNYOP ingestion
+using FileInsertTerminal.
+
+Just_Synop_14.2-15.2.2022_FileInsertTerminal.png
+FileInsertTerminal size:
+   52 790 042B -> 52 800 830B -> 51 891 400B
+
+But Eclipse Memory Analyzer shows these suspicious stack traces.
+FileInsertTerminal_justMetar_14.2.2022_potentialMemoryLeak_details_EclipseMA.png
+FileInsertTerminal_justMetar_14.2.2022_potentialMemoryLeak_threadStack_EclipseMA.png
+FileInsertTerminal_justSynop_15.2.2022_potentialMemoryLeak_details_EclipseMA.png
+FileInsertTerminal_justSynop_15.2.2022_potentialMemoryLeak_threadStack_EclipseMA.png
+Might be that the culprit could be reset of the Coder?
+
+May be related issue might be abundance of errors (warnings) in not
+matching pheader and very often change in the channel status which
+leads to abundance of rewritings in the Comminication or channel
+configuration, which might lead to very often update of the
+configuration via X2O in space and disk.
+
+949_Belehrad-IMS-ims:~ # grep "Status changed to WARNING" /opt/ims/log/2022/02/14/errors.log |wc -l
+2559
+949_Belehrad-IMS-ims:~ # grep "Status changed to WARNING" /opt/ims/log/2022/02/13/errors.log |wc -l
+2441
+949_Belehrad-IMS-ims:~ # grep "Status changed to WARNING" /opt/ims/log/2022/02/12/errors.log |wc -l
+2370
+
+For SYNOP as well we have a lot of parsing errors for many messages:
+949_Belehrad-IMS-ims:/opt/ims/tomcat/temp # grep "syntax error" /opt/ims/log/2022/02/15/com.SYNOP_FILE_INSERTER.log |wc -l
+21108
+
+
+We may test turning off the pheader check and change of the channel
+status.
+But this version including the many not matching pheaders is already
+deployed to Benestra for Azet and works well.  Meaning this may have
+yet other more serious circumstance.
+
+Collection of figures using YourKit memory analyses reports:
+YourKit_4agents_8.2.2022-15.30_Inspection_figures.png
+  Possible leaks:
+    Objects retained by inner class back reference: 314
+       most abundat is Pattern$BitClass
+    Thread local variables:                         258
+
+YourKit_4agents_9.2.2022-14.00_Inspection_figures.png
+  Possible leaks:
+    Objects retained by inner class back reference: 296
+       most abundat is Pattern$BitClass
+    Thread local variables:                         344
+
+YourKit_4agents_8.2-9.2.2022_Comparision_classes.png
+YourKit_justMetar_8.2-9.2.2022_Comparision_PackagesClasses.png
+   HashMap$Node  +77 717
+   MessageDatabase$CacheItem  +8 650
+   Grib.Table2Item   +2 417
+
+YourKit_justMetar_11.2.2022-15.41_Inspection_figures.png
+  Possible leaks:
+    Objects retained by inner class back reference: 87
+       most abundat is Pattern$BitClass
+    Thread local variables:                         359
+
+YourKit_justMetar_14.2.2022-09.55_Inspection_figures.png
+  Possible leaks:
+    Objects retained by inner class back reference: 92
+       most abundat is Pattern$BitClass
+    Thread local variables:                         360
+
+YourKit_justMetar_11.2-14.2.2022_Comparision_classes.png
+YourKit_justMetar_11.2-14.2.2022_Comparision_PackagesClasses.png
+    org.jdom  +31 136
+    
+YourKit_justSynop_14.2.2022-17.19_Inspection_figures.png
+  Possible leaks:
+    Objects retained by inner class back reference: 84
+       most abundat is Pattern$BitClass
+    Thread local variables:                         230
+
+YourKit_justSynop_15.2.2022-11.17_Inspection_figures.png
+  Possible leaks:
+    Objects retained by inner class back reference: 86
+       the biggest is communication2.DataPacket
+    Thread local variables:                         231
+
+YourKit_justSynop_14.2-15.2.2022_Comparision_classes.png
+YourKit_justSynop_14.2-15.2.2022_Comparision_PackagesClasses.png
+    msgdatabase.HeaderQueueItem  +1000
+
+Conclusion from YourKit investigations.
+There was nothing new observed other than already observed
+by VisualVM and Eclipse Memory Analyzer.
+Also potential memory leaks did not reveal
+something obvious.
+
+# 15.2.2022 - running of the system until it fails with the memory leak.
+Other day checking of RRS memory:
+RSS       UTC
+2257764 - 14:00 - 15.2.2022
+2723940 - 20:00 - 15.2.2022
+2729192 - 23:00 - 15.2.2022
+2731288 - 04:00 - 16.2.2022
+2732248 - 08:00 - 16.2.2022
+..
+3176316 - 04:00 - 17.2.2022
+3241668 - 09:44 - 17.2.2022
+..
+3614636 - 04:00 - 18.2.2022
+3730376 - 09:00 - 18.2.2022
+... approximatelly after creating heap dump on Friday - the memory was released
+3159320 - 10:00 - 18.2.2022
+3163112 - 11:00 - 18.2.2022
+3173680 - 12:00 - 18.2.2022
+3174032 - 13:00 - 18.2.2022
+3186280 - 14:00 - 18.2.2022
+3186280 - 15:00 - 18.2.2022
+3225620 - 16:00 - 18.2.2022
+3233884 - 17:00 - 18.2.2022
+3239152 - 18:00 - 18.2.2022
+3271272 - 19:00 - 18.2.2022
+3287260 - 20:00 - 18.2.2022
+3324840 - 21:00 - 18.2.2022
+3335272 - 22:00 - 18.2.2022
+3384476 - 23:00 - 18.2.2022
+3396172 - 00:00 - 19.2.2022
+3464420 - 01:00 - 19.2.2022
+3464624 - 02:00 - 19.2.2022
+...
+3820580 - 00:00 - 20.2.2022
+3896100 - 01:00 - 20.2.2022
+3896108 - 02:00 - 20.2.2022
+3913088 - 03:00 - 20.2.2022
+3926140 - 04:00 - 20.2.2022
+3926112 - 05:00 - 20.2.2022
+3926112 - 06:00 - 20.2.2022
+3963116 - 07:00 - 20.2.2022
+3997916 - 08:00 - 20.2.2022
+... again when I was creating the 'live' Heap Dump memory was dealocated
+2267572 - 09:00 - 20.2.2022
+2290572 - 10:00 - 20.2.2022
+2316268 - 11:00 - 20.2.2022
+2352204 - 12:00 - 20.2.2022
+2377800 - 13:00 - 20.2.2022
+2377800 - 14:00 - 20.2.2022
+...
+2458144 - 17:00 - 20.2.2022
+...
+Seems like the 'live' heap dump dealocates the memory of the process.
+Full HeapDomp does not do it.
+...
+2585008 - 08:37 - 22.2.2022
+...
+3077292 - 09:56 - 23.2.2022
+...
+3533956 - 09:32 - 24.2.2022
+...
+5175788 - 08:33 - 28.2.2022
+...
+5384256 - 08:33 - 01.3.2022
+...
+/opt/ims/java/bin/jmap -dump:format=b,file=/opt/ims/tomcat/temp/heapdump-01.3.2022-08.33-4agents.hprof 22729                                        Dumping heap to /opt/apache-tomcat-9.0.16/temp/heapdump-01.3.2022-08.33-4agents.hprof ...
+Exception in thread "main" java.io.IOException: Premature EOF
+        at sun.tools.attach.HotSpotVirtualMachine.readInt(HotSpotVirtualMachine.java:292)
+        at sun.tools.attach.LinuxVirtualMachine.execute(LinuxVirtualMachine.java:199)
+        at sun.tools.attach.HotSpotVirtualMachine.executeCommand(HotSpotVirtualMachine.java:261)
+        at sun.tools.attach.HotSpotVirtualMachine.dumpHeap(HotSpotVirtualMachine.java:224)
+        at sun.tools.jmap.JMap.dump(JMap.java:247)
+        at sun.tools.jmap.JMap.main(JMap.java:142)
+
+And the system was restarted.
+
+
+Drop of Heap Memory allocation drop in the scheduler log file:
+2022-02-20 08:14:00.001 UTC: NOTE: Heap: free 1330045 kb, total 3518772 kb, max 6257408 kb.
+2022-02-20 08:15:00.001 UTC: NOTE: Heap: free 637864 kb, total 3518772 kb, max 6257408 kb.
+2022-02-20 08:15:00.001 UTC: NOTE: Process 17 LogDeleter started.
+2022-02-20 08:15:00.020 UTC: NOTE: Process 17 LogDeleter initialized.
+2022-02-20 08:15:00.138 UTC: NOTE: Process 17 LogDeleter finished the execution.
+2022-02-20 08:16:00.083 UTC: NOTE: Heap: free 2260533 kb, total 3518772 kb, max 6257408 kb.
+2022-02-20 08:17:00.058 UTC: NOTE: Heap: free 1420313 kb, total 3518772 kb, max 6257408 kb.
+2022-02-20 08:18:00.002 UTC: NOTE: Heap: free 569081 kb, total 3518772 kb, max 6257408 kb.
+2022-02-20 08:19:00.003 UTC: NOTE: Heap: free 2119851 kb, total 3518772 kb, max 6257408 kb.
+2022-02-20 08:20:00.001 UTC: NOTE: Heap: free 1128074 kb, total 3518772 kb, max 6257408 kb.
+2022-02-20 08:21:00.001 UTC: NOTE: Heap: free 2700730 kb, total 3518772 kb, max 6257408 kb.
+2022-02-20 08:22:00.000 UTC: NOTE: Heap: free 1668953 kb, total 3518772 kb, max 6257408 kb.
+2022-02-20 08:23:00.002 UTC: NOTE: Heap: free 789971 kb, total 3518772 kb, max 6257408 kb.
+2022-02-20 08:24:00.000 UTC: NOTE: Heap: free 2396005 kb, total 3518772 kb, max 6257408 kb.
+2022-02-20 08:25:00.000 UTC: NOTE: Heap: free 1616209 kb, total 3518772 kb, max 6257408 kb.
+2022-02-20 08:26:00.042 UTC: NOTE: Heap: free 605412 kb, total 3518772 kb, max 6257408 kb.
+2022-02-20 08:27:00.000 UTC: NOTE: Heap: free 2078112 kb, total 3518772 kb, max 6257408 kb.
+2022-02-20 08:27:25.698 UTC: WARNING: time difference too big: 4698 milliseconds.
+2022-02-20 08:27:25.699 UTC: WARNING: time difference too big: 3699 milliseconds.
+2022-02-20 08:27:25.699 UTC: WARNING: time difference too big: 2699 milliseconds.
+2022-02-20 08:28:00.001 UTC: NOTE: Heap: free 738981 kb, total 1794276 kb, max 6257408 kb.
+2022-02-20 08:29:00.001 UTC: NOTE: Heap: free 647575 kb, total 1794276 kb, max 6257408 kb.
+2022-02-20 08:30:00.001 UTC: NOTE: Heap: free 565886 kb, total 1794276 kb, max 6257408 kb.
+2022-02-20 08:31:00.005 UTC: NOTE: Heap: free 584266 kb, total 1794276 kb, max 6257408 kb.
+2022-02-20 08:32:00.000 UTC: NOTE: Heap: free 322136 kb, total 1794276 kb, max 6257408 kb.
+2022-02-20 08:33:00.001 UTC: NOTE: Heap: free 483991 kb, total 1794276 kb, max 6257408 kb.
+2022-02-20 08:34:00.050 UTC: NOTE: Heap: free 454006 kb, total 1794276 kb, max 6257408 kb.
+
+Creating Heap Dumps using jmap utility:
+/opt/ims/java/bin/jmap -dump:format=b,file=/opt/ims/tomcat/temp/heapdump-16.2.2022-09.40-4agents.hprof 22729
+(This includes all objects, even the ones to be garbage collected)
+/opt/ims/java/bin/jmap -dump:live,format=b,file=/opt/ims/tomcat/temp/heapdump-16.2.2022-09.44-4agents.hprof
+(Only the 'live' objects are dumped - much smaller file)
+
+Monitoring scripts:
+PS:
+for i in {1..20000}; do echo "Measure: $i"; date -u >> ForecastModule_PsJava_4agents_15.2.2022.log; ps aux |grep java >> ForecastModule_PsJava_4agents_15.2.2022.log; sleep 60; done
+
+TOP:
+top -n 10000 -b -d 60 >> ForecastModule_Top_4agents_15.2.2022.log
+
+We have two snapshot Heap Dumps after running 4 agents system over night:
+518M /opt/ims/tomcat/temp/heapdump-16.2.2022-09.44-4agents.hprof
+1.7G /opt/ims/tomcat/temp/heapdump-16.2.2022-09.40-4agents.hprof
+
+Other heap dumps:
+949_Belehrad-IMS-ims:~ # ls -lth /opt/ims/tomcat/temp/
+total 9.8G
+-rw------- 1 root root 2.2G Feb 21 11:17 heapdump-21.2.2022-11.17-full-4agents.hprof
+-rw------- 1 root root 550M Feb 21 09:59 heapdump-21.2.2022-09.58-live-4agents.hprof
+-rw------- 1 root root 2.0G Feb 21 09:58 heapdump-21.2.2022-09.58-full-4agents.hprof
+-rw------- 1 root root 582M Feb 20 09:27 heapdump-20.2.2022-09.27-4agents.hprof
+-rw------- 1 root root 589M Feb 18 10:03 heapdump-18.2.2022-10.02-4agents.hprof
+
+# Checking of DEV Azet machine - memory allocation
+RSS     UTC
+1147124 - 17:00 - 16.2.2022
+1195132 - 20:00 - 16.2.2022
+1203024 - 23:00 - 16.2.2022
+1204036 - 00:00 - 17.2.2022
+1243444 - 03:00 - 17.2.2022
+1245320 - 05:00 - 17.2.2022
+1232824 - 08:00 - 17.2.2022
+1243544 - 09:54 - 17.2.2022
+.. - after restart
+1120568 - 20:00 - 17.2.2022
+1165116 - 00:00 - 18.2.2022
+1201344 - 05:00 - 18.2.2022
+1211080 - 08:00 - 18.2.2022
+1217184 - 09:00 - 18.2.2022
+.. - over weekend without restart
+1212316 - 00:00 - 19.2.2022
+1247740 - 05:00 - 19.2.2022
+1270764 - 12:00 - 19.2.2022
+1278832 - 17:00 - 19.2.2022
+1320812 - 23:00 - 19.2.2022
+1327200 - 00:00 - 20.2.2022
+1341380 - 05:00 - 20.2.2022
+1358728 - 12:00 - 20.2.2022
+1359588 - 17:00 - 20.2.2022
+1367396 - 23:00 - 20.2.2022
+1370120 - 02:00 - 21.2.2022
+1385044 - 10:00 - 21.2.2022
+1375712 - 10:41 - 21.2.2022
+
+
+Seems like on Azet machine, even though we have the same software,
+this memory leak is not present.
+The difference is older PostgreSQL database with missing Oracle
+extension.
+psql (9.2.15) (on Belgrade machine we have psql (10.2))
+There is also older Java:
+/opt/ims/../java -> jdk1.8.0_102
+
+Comparision of two HeapDumps using YourKit after finding out the
+memory leak is not present on 665 Azet machine.
+https://stackoverflow.com/questions/25489639/unreachable-objects-are-not-garbage-collected-from-heap
+https://support.oracle.com/knowledge/Middleware/2645380_1.html
+
+# 2.3.2022 - commenced investigations of the environment
+- switched version of the PostgreSQL.
+on 949 Belgrade machine
+psql (12.10)
+/opt/ims/lib/jar/postgresql-42.2.14.jar
+
+verification of the RSS physical memory of the processes
+RSS        UTC
+1639836 - 22:00 - 3.3.2022
+...
+1644624 - 00:00 - 4.3.2022
+...
+1664352 - 12:00 - 4.3.2022
+...
+1685044 - 22:00 - 4.3.2022
+...
+1692380 - 00:00 - 5.3.2022
+...
+1710852 - 12:00 - 5.3.2022
+...
+1729888 - 22:00 - 5.3.2022
+...
+1733372 - 00:00 - 6.3.2022
+...
+1745864 - 12:00 - 6.3.2022
+...
+1757920 - 22:00 - 6.3.2022
+...
+1775752 - 09:10 - 7.3.2022
+
+# 11.3.2022 - investigation of different Java
+- copy older java from DEV Azet (10.111.1.5)
+scp -r root@10.111.1.5:/opt/jdk1.8.0_102/ .
+cd /opt
+rm java
+ln -s /opt/jdk1.8.0_102 java
+restart ims
+Do not forget to start the File Inserters which were stopped.
+RSS  UTC
+1550152 - 22:00 - 11.3.2022
+...
+1626856 - 00:00 - 12.3.2022
+...
+1734632 - 12:00 - 12.3.2022
+...
+1794952 - 18:00 - 12.3.2022
+...
+1829216 - 00:00 - 13.3.2022
+...
+1927380 - 12:00 - 13.3.2022
+...
+2067052 - 22:00 - 13.3.2022
+...
+2089768 - 00:00 - 14.3.2022
+...
+2219872 - 10:00 - 14.3.2022
+
+The memory leak is stil there, meaning that
+the java version is not the culpript.
+
+Next will be try to bridge the IMS4 system from
+949 Belgrade DEV machine, to 665 Azet DEV machine
+and to test using the old PostgreSQL installation
+on 10.111.1.5.
+When even this will not allocate the issue, we will have to step deep
+into GC and java configurations.
+
+# 18.3.2022 - memory leak, we do the last test
+switch the Java back to the newer one, official
+/opt/ims/cfg/station/EnviDBConnectionCfg.xml
+...
+<serverName>10.111.1.5</serverName>
+...
+
+Running.
+1554808 - 20:00 - 18.3.2022
+...
+1571836 - 00:00 - 19.3.2022
+...
+1655976 - 12:00 - 19.3.2022
+...
+1700508 - 20:00 - 19.3.2022
+...
+1727164 - 00:00 - 20.3.2022
+...
+1835448 - 12:00 - 20.3.2022
+...
+1910480 - 20:00 - 20.3.2022
+...
+1940496 - 00:00 - 21.3.2022
+...
+2049428 - 09:08 - 21.3.2022
+
+The memory leak is still there.
+
+# 30.5.2022
+  We will read details about GC configuration
+  compare the cmd of Java in both machines
+  and discuss with Miro before reassigning to
+  Martina.
+  (And creating the presentation.)
+
+Java Commands:
 
 
 
+
+
+
+  
+
+# Towards the apendix - refactoring of the space blocks
+Factoring out all space blocks into the constant SpaceBlocksConstants class.
+
+Successfully generated CSV files:
+---
+/opt/ims/data/forecast/outputForecast/2022/03/15/WRD_locations/fcst_hourly/5009#Beograd2_R18H.csv
+/opt/ims/data/forecast/outputForecast/2022/03/15/WRD_locations/fcst_hourly/548#Belgrade_R18H.csv
+/opt/ims/data/forecast/outputForecast/2022/03/15/WRD_locations/fcst_hourly/5004#BanatskiKarlovac_R18H.csv
+/opt/ims/data/forecast/outputForecast/2022/03/15/WRD_locations/fcst_hourly/6001#NBgd_R18H.csv
+/opt/ims/data/forecast/outputForecast/2022/03/15/BG_locations/fcst_hourly/6005#Cerak_R18H.csv
+/opt/ims/data/forecast/outputForecast/2022/03/15/BG_locations/fcst_hourly/6003#Konjarnik_R18H.csv
+/opt/ims/data/forecast/outputForecast/2022/03/15/BG_locations/fcst_hourly/5009#Beograd2_R18H.csv
+/opt/ims/data/forecast/outputForecast/2022/03/15/BG_locations/fcst_hourly/6004#Vozdovac_R18H.csv
+/opt/ims/data/forecast/outputForecast/2022/03/15/BG_locations/fcst_hourly/548#Belgrade_R18H.csv
+/opt/ims/data/forecast/outputForecast/2022/03/15/BG_locations/fcst_hourly/5004#BanatskiKarlovac_R18H.csv
+/opt/ims/data/forecast/outputForecast/2022/03/15/BG_locations/fcst_hourly/6001#NBgd_R18H.csv
+/opt/ims/data/forecast/outputForecast/2022/03/15/BG_locations/fcst_hourly/6002#Dunav_R18H.csv
+
+.. tested over weekend, the WRF data were ingested already:
+1647711022.3114910470 Sat 19 Mar 2022 06:30:22 PM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/19/WRD_locations/fcst_hourly/548#Belgrade_R06H.csv
+1647711022.3164912270 Sat 19 Mar 2022 06:30:22 PM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/19/WRD_locations/fcst_hourly/5004#BanatskiKarlovac_R06H.csv
+1647711022.3394920550 Sat 19 Mar 2022 06:30:22 PM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/19/WRD_locations/fcst_hourly/5009#Beograd2_R06H.csv
+1647711022.3444922360 Sat 19 Mar 2022 06:30:22 PM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/19/BG_locations/fcst_hourly/548#Belgrade_R06H.csv
+1647711022.3484923800 Sat 19 Mar 2022 06:30:22 PM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/19/BG_locations/fcst_hourly/5004#BanatskiKarlovac_R06H.csv
+1647711022.3624928840 Sat 19 Mar 2022 06:30:22 PM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/19/BG_locations/fcst_hourly/5009#Beograd2_R06H.csv
+1647711022.3764933880 Sat 19 Mar 2022 06:30:22 PM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/19/BG_locations/fcst_hourly/6001#NBgd_R06H.csv
+1647711022.3804935320 Sat 19 Mar 2022 06:30:22 PM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/19/BG_locations/fcst_hourly/6002#Dunav_R06H.csv
+1647711022.3944940360 Sat 19 Mar 2022 06:30:22 PM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/19/BG_locations/fcst_hourly/6003#Konjarnik_R06H.csv
+1647711022.3984941800 Sat 19 Mar 2022 06:30:22 PM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/19/BG_locations/fcst_hourly/6004#Vozdovac_R06H.csv
+1647711022.4124946840 Sat 19 Mar 2022 06:30:22 PM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/19/BG_locations/fcst_hourly/6005#Cerak_R06H.csv
+1647732623.4624481340 Sun 20 Mar 2022 12:30:23 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/19/WRD_locations/fcst_hourly/548#Belgrade_R12H.csv
+1647732623.4684483500 Sun 20 Mar 2022 12:30:23 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/19/WRD_locations/fcst_hourly/5004#BanatskiKarlovac_R12H.csv
+1647732623.5084497880 Sun 20 Mar 2022 12:30:23 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/19/WRD_locations/fcst_hourly/5009#Beograd2_R12H.csv
+1647732623.5134499680 Sun 20 Mar 2022 12:30:23 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/19/BG_locations/fcst_hourly/548#Belgrade_R12H.csv
+1647732623.5184501480 Sun 20 Mar 2022 12:30:23 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/19/BG_locations/fcst_hourly/5004#BanatskiKarlovac_R12H.csv
+1647732623.5214502560 Sun 20 Mar 2022 12:30:23 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/19/BG_locations/fcst_hourly/5009#Beograd2_R12H.csv
+1647732623.5244503640 Sun 20 Mar 2022 12:30:23 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/19/BG_locations/fcst_hourly/6001#NBgd_R12H.csv
+1647732623.5284505080 Sun 20 Mar 2022 12:30:23 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/19/BG_locations/fcst_hourly/6002#Dunav_R12H.csv
+1647732623.5314506160 Sun 20 Mar 2022 12:30:23 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/19/BG_locations/fcst_hourly/6003#Konjarnik_R12H.csv
+1647732623.5354507590 Sun 20 Mar 2022 12:30:23 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/19/BG_locations/fcst_hourly/6004#Vozdovac_R12H.csv
+1647732623.5384508670 Sun 20 Mar 2022 12:30:23 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/19/BG_locations/fcst_hourly/6005#Cerak_R12H.csv
+1647751525.2152066420 Sun 20 Mar 2022 05:45:25 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/19/WRD_locations/fcst_hourly/548#Belgrade_R18H.csv
+1647751525.2202068230 Sun 20 Mar 2022 05:45:25 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/19/WRD_locations/fcst_hourly/5004#BanatskiKarlovac_R18H.csv
+1647751525.2262070390 Sun 20 Mar 2022 05:45:25 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/19/WRD_locations/fcst_hourly/5009#Beograd2_R18H.csv
+1647751525.2312072190 Sun 20 Mar 2022 05:45:25 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/19/BG_locations/fcst_hourly/548#Belgrade_R18H.csv
+1647751525.2352073630 Sun 20 Mar 2022 05:45:25 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/19/BG_locations/fcst_hourly/5004#BanatskiKarlovac_R18H.csv
+1647751525.2392075070 Sun 20 Mar 2022 05:45:25 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/19/BG_locations/fcst_hourly/5009#Beograd2_R18H.csv
+1647751525.2432076510 Sun 20 Mar 2022 05:45:25 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/19/BG_locations/fcst_hourly/6001#NBgd_R18H.csv
+1647751525.2472077950 Sun 20 Mar 2022 05:45:25 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/19/BG_locations/fcst_hourly/6002#Dunav_R18H.csv
+1647751525.2522079750 Sun 20 Mar 2022 05:45:25 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/19/BG_locations/fcst_hourly/6003#Konjarnik_R18H.csv
+1647751525.2562081190 Sun 20 Mar 2022 05:45:25 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/19/BG_locations/fcst_hourly/6004#Vozdovac_R18H.csv
+1647751525.2602082630 Sun 20 Mar 2022 05:45:25 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/19/BG_locations/fcst_hourly/6005#Cerak_R18H.csv
+1647793825.4030260650 Sun 20 Mar 2022 05:30:25 PM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/20/WRD_locations/fcst_hourly/548#Belgrade_R06H.csv
+1647793825.4070262090 Sun 20 Mar 2022 05:30:25 PM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/20/WRD_locations/fcst_hourly/5004#BanatskiKarlovac_R06H.csv
+1647793825.4120263890 Sun 20 Mar 2022 05:30:25 PM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/20/WRD_locations/fcst_hourly/5009#Beograd2_R06H.csv
+1647793825.4180266040 Sun 20 Mar 2022 05:30:25 PM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/20/BG_locations/fcst_hourly/548#Belgrade_R06H.csv
+1647793825.4220267480 Sun 20 Mar 2022 05:30:25 PM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/20/BG_locations/fcst_hourly/5004#BanatskiKarlovac_R06H.csv
+1647793825.4270269280 Sun 20 Mar 2022 05:30:25 PM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/20/BG_locations/fcst_hourly/5009#Beograd2_R06H.csv
+1647793825.4320271080 Sun 20 Mar 2022 05:30:25 PM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/20/BG_locations/fcst_hourly/6001#NBgd_R06H.csv
+1647793825.4360272520 Sun 20 Mar 2022 05:30:25 PM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/20/BG_locations/fcst_hourly/6002#Dunav_R06H.csv
+1647793825.4510277910 Sun 20 Mar 2022 05:30:25 PM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/20/BG_locations/fcst_hourly/6003#Konjarnik_R06H.csv
+1647793825.4550279350 Sun 20 Mar 2022 05:30:25 PM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/20/BG_locations/fcst_hourly/6004#Vozdovac_R06H.csv
+1647793825.4590280790 Sun 20 Mar 2022 05:30:25 PM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/20/BG_locations/fcst_hourly/6005#Cerak_R06H.csv
+1647819925.3954013160 Mon 21 Mar 2022 12:45:25 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/20/WRD_locations/fcst_hourly/548#Belgrade_R12H.csv
+1647819925.3994014600 Mon 21 Mar 2022 12:45:25 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/20/WRD_locations/fcst_hourly/5004#BanatskiKarlovac_R12H.csv
+1647819925.4034016040 Mon 21 Mar 2022 12:45:25 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/20/WRD_locations/fcst_hourly/5009#Beograd2_R12H.csv
+1647819925.4084017840 Mon 21 Mar 2022 12:45:25 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/20/BG_locations/fcst_hourly/548#Belgrade_R12H.csv
+1647819925.4124019270 Mon 21 Mar 2022 12:45:25 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/20/BG_locations/fcst_hourly/5004#BanatskiKarlovac_R12H.csv
+1647819925.4154020350 Mon 21 Mar 2022 12:45:25 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/20/BG_locations/fcst_hourly/5009#Beograd2_R12H.csv
+1647819925.4194021790 Mon 21 Mar 2022 12:45:25 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/20/BG_locations/fcst_hourly/6001#NBgd_R12H.csv
+1647819925.4224022870 Mon 21 Mar 2022 12:45:25 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/20/BG_locations/fcst_hourly/6002#Dunav_R12H.csv
+1647819925.4264024310 Mon 21 Mar 2022 12:45:25 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/20/BG_locations/fcst_hourly/6003#Konjarnik_R12H.csv
+1647819925.4294025390 Mon 21 Mar 2022 12:45:25 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/20/BG_locations/fcst_hourly/6004#Vozdovac_R12H.csv
+1647819925.4364027900 Mon 21 Mar 2022 12:45:25 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/20/BG_locations/fcst_hourly/6005#Cerak_R12H.csv
+1647838826.2767170630 Mon 21 Mar 2022 06:00:26 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/20/WRD_locations/fcst_hourly/548#Belgrade_R18H.csv
+1647838826.2797171710 Mon 21 Mar 2022 06:00:26 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/20/WRD_locations/fcst_hourly/5004#BanatskiKarlovac_R18H.csv
+1647838826.2837173140 Mon 21 Mar 2022 06:00:26 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/20/WRD_locations/fcst_hourly/5009#Beograd2_R18H.csv
+1647838826.2867174220 Mon 21 Mar 2022 06:00:26 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/20/BG_locations/fcst_hourly/548#Belgrade_R18H.csv
+1647838826.2897175300 Mon 21 Mar 2022 06:00:26 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/20/BG_locations/fcst_hourly/5004#BanatskiKarlovac_R18H.csv
+1647838826.2927176380 Mon 21 Mar 2022 06:00:26 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/20/BG_locations/fcst_hourly/5009#Beograd2_R18H.csv
+1647838826.2967177820 Mon 21 Mar 2022 06:00:26 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/20/BG_locations/fcst_hourly/6001#NBgd_R18H.csv
+1647838826.2997178900 Mon 21 Mar 2022 06:00:26 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/20/BG_locations/fcst_hourly/6002#Dunav_R18H.csv
+1647838826.3027179970 Mon 21 Mar 2022 06:00:26 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/20/BG_locations/fcst_hourly/6003#Konjarnik_R18H.csv
+1647838826.3057181050 Mon 21 Mar 2022 06:00:26 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/20/BG_locations/fcst_hourly/6004#Vozdovac_R18H.csv
+1647838826.3097182490 Mon 21 Mar 2022 06:00:26 AM CET /opt/ims/data/forecast/outputWRFMeteograms/2022/03/20/BG_locations/fcst_hourly/6005#Cerak_R18H.csv
+---
+
+- Implement using GFS/WRF runs from the agents. - Done
+- Configure processing of local vs. local/world outputs. - Done
+- zipping - Done
+- turn on/off bite block publication - Done
+- using overriden local output dir - Done
+- Check Azet.id usage and its possibility to reconfigure it. - Done
+- storing the results also to the copy dir - Done
+
+# Meeting with Peter Sisan - small upgrade of the WRF pushing
+
+Many times during the development happend, that the VM was not available
+and then the transfer script behaved like it had successfully pushed the data
+but and could not be executed again - may be a lock existed, but I could not re-run it.
+Usually I had to generate artificial run on the target server.
+
+Would be good if transferData.sh would have e.g. option:
+$./transferData.sh -f  (--force for force re-pushing the last run)
+
+Second, then running it the standard default behavior is:
+$./transferData.sh
+rm: cannot remove ‘/home/wrf_upl/tmp/*’: No such file or directory
+
+What about:
+$./transferData.sh
+"Run 20220322/00 has been already pushed. If you wish to re-push it, remove lock <path_to_lock> or use -f."
+
+If some essential command has failed for ever reason, I would recommend to
+exit on error and use trapping of error. Thus when there is e.g. network issue
+https://medium.com/@dirk.avery/the-bash-trap-trap-ce6083f36700
+exit with error on exit, and then when the target machine will be
+available again, the missing data will be pushed at last - currently the run is actually skipped.
+
+Extract configuraiton from the code:
+We probably will not have the shared code repository for the scientific scripts,
+but we should at least split it in our ims4-configuration repo.
+E.g.
+$./transferData.sh -f -c transferData.conf
+Using bash 'source' command, reading:
+https://linuxize.com/post/bash-source-command/
+
+In order to prepare for high density MOS, we should have faster
+
+data ingestion.
+15 min crontab entry is too row - would suggest 3 minute
+(plus three minutes for the MeteogramWRFAgent check interval makes 6 minutes maximal delay)
+
+Store it to git - using feature branch from my feature branch in ims4-configuraiton.
+ims4-configuration - my branch: janki_949_Serbia_NWP
+
+Proposed structure:
+./cfg_main_dev
+./cfg_main_dev/cfg_DEV
+./cfg_main_dev/cfg_INT
+./cfg_main_dev/cfg_OPS
+./cfg_main_dev/conf_DEV
+./cfg_QuickWin_WRF
+./cfg_QuickWin_WRF/cfg_DEV
+./cfg_QuickWin_WRF/cfg_INT
+./cfg_QuickWin_WRF/cfg_OPS
+./downloadGFS
+./downloadSynop
+./downloadSynop/obsolete
+./downloadUVindex
+./pushWRF
+
+- to strip the deployment specific configuration into
+deployment specific file
+cfg_QuickWin_WRF/transferData_949DEV.conf
+
+Also move crontab to the cfg_QuickWin_WRF directory and
+document new transferData.sh in the
+pushWRF/README.md
+using markdown language compatible with gitlab.
+
+----
+- consider implementing unit test over the Output Creator
+
+- document the extension in java doc and deploy also to 665 DEV Azet - Done
+
+Issue with cfgAllf.xml - found e.g. in this ims4-configuration commit object:
+---
+commit 8e1c84c056d52fbae75569bcb761cb9b43faae19
+Merge: a9efa0439 311ce4093
+Author: Milan Kupka <milan.kupka@microstep-mis.com>
+Date:   Wed Nov 3 12:10:01 2021 +0000
+
+    Merge branch 'milank_991_dorovnanie031121' into 'master_991_Moldova_IMSASAN'
+
+    Aktualny stav z produkcie
+
+    See merge request mis/sw/ims/ims4/ims4-configurations!789
+
+as well as issue with BiralGUIConfig.xml - which comes from here.
+Then we have one more error:
+2022-03-28 13:11:01.783 UTC: NOTE: alerts.log (Alert messages log): 2022-03-28 13:11:01.783 UTC: ERROR: Published ERROR: loaderLoadFailed at 2022-03-28 13:11:01.783: [Failed to load configuration file ../cfg/station/BiralGUIConfig.xml for blockname c/envidb/lighning/biral/GUIConfig and its backup ../cfg/station/BiralGUIConfig.xml~
+                com.microstepmis.xplatform.XException: java.lang.ClassNotFoundException: com.microstepmis.envidb.lightning.biral.GUIConfig Path=[x]
+                java.io.FileNotFoundException: ../cfg/station/BiralGUIConfig.xml~ (No such file or directory)]
+
+
+Seems like we have to enable due to this new unresolved dependency
+also this module:
+IMS_LIGHTNING_BIRAL=y
+we test that as well.
+Works now without the loading errors.
+
+# Deployment procedure of the ForecastModule QuicWin solution v1.0.1
+
+Configuration assessment - which configurations are essential for the QuickWin solution
+Others are general IMS4 or valid only for the full 665 Azet installaiton or just included by
+IMS4 development (like Loader dependencies):
+ cfg_QuickWin_WRF/cfg_DEV/station/alerts.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/ArchivesCfg.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/backupCfg.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/BiralGUIConfig.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/bite.xml                    - check of status
+ cfg_QuickWin_WRF/cfg_DEV/station/biteConstants.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/CalculateAnalysis/Maps.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/CalculateAnalysis.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/cfg/progs.xml               - enable just two agents
+ cfg_QuickWin_WRF/cfg_DEV/station/cfgAllf.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/cfgAwd.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/CfgCssStyle.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/CfgEnviDB2CommunicationMonitorAgent.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/cfgFormulas.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/cfgFormulasDefault.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/CfgOracleTableSpaceMonitorAgent.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/cfgPageFramework.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/cfgR.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/CfgSites.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/cfgStyle.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/ClimatSettings.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/ColorGradient.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/Communication.xml            - channel routing emails
+ cfg_QuickWin_WRF/cfg_DEV/station/CSVConvertorCfg.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/CurrentDataAgentCfg.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/CurrentDataCsvAgentCfg.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/CurrentDataReaderAgentCfg.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/datalogExport.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/DBConnectionCfg.xml           - running message database
+ cfg_QuickWin_WRF/cfg_DEV/station/DBCreateCfg_local.xml        
+ cfg_QuickWin_WRF/cfg_DEV/station/DBPoolConnectionCfg.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/DeleterCfg.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/Distribution.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/EnviDBConnectionCfg.xml       - local PostgreSQL connection
+ cfg_QuickWin_WRF/cfg_DEV/station/FileArchiverConfig.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/FileArchiverTypes.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/fileCountCheck.xml            - checking published meteograms
+ cfg_QuickWin_WRF/cfg_DEV/station/FileInserterCfg.xml           - obsolete for QuickWin v1.0.1
+ cfg_QuickWin_WRF/cfg_DEV/station/FileInserterCfg_Metar.xml     - obsolete for QuickWin v1.0.1
+ cfg_QuickWin_WRF/cfg_DEV/station/FileInserterCfg_Synop.xml     - obsolete for QuickWin v1.0.1
+ cfg_QuickWin_WRF/cfg_DEV/station/FoldersCfg.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/ActualDataAgentCfg.xml        - obsolete for QuickWin v1.0.1
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/coreStationsProcessor.xml     - obsolete for QuickWin v1.0.1
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/coreStationsProcessorWRF.xml  - obsolete for QuickWin v1.0.1
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/getForecastCfg.xml            - used on several places for merging WRF to the result
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/InterpolationRAgentCfg.xml    - obsolete for QuickWin v1.0.1
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/ManageDataCfg.xml             - used for configuratin of RPC method
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MeteogramAgentCfg.xml         - used for running MeteogramAgent - merging WRF data into result
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MeteogramDailyAgentCfg.xml    - obsolete for QuickWin v1.0.1
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MeteogramQcCfg.xml            - obsolete for QuickWin v1.0.1
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MeteogramUVIndexAgentCfg.xml  - obsolete for QuickWin v1.0.1
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MeteogramWRFAgentCfg.xml      - used for running MeteogramWRFAgent - reading WRG grib files
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/GFS_00/MOS_GFS_00_Cld_0_Amt_Part_1.xml    - obsolete for QuickWin v1.0.1
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/GFS_00/MOS_GFS_00_Prec_YesNo_Part_1.xml   - obsolete for QuickWin v1.0.1
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/GFS_00/MOS_GFS_00_Rel_Hum_Part_1.xml      - obsolete for QuickWin v1.0.1
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/GFS_00/MOS_GFS_00_Tmp_Dry_Part_1.xml      - obsolete for QuickWin v1.0.1
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/GFS_00/MOS_GFS_00_Tmp_Dry_Part_2.xml      - obsolete for QuickWin v1.0.1
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/GFS_00/MOS_GFS_00_Wind_UU_Part_1.xml      - obsolete for QuickWin v1.0.1
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/GFS_00/MOS_GFS_00_Wind_VV_Part_1.xml      - obsolete for QuickWin v1.0.1
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/GFS_06/MOS_GFS_06_Cld_0_Amt_Part_1.xml    - obsolete for QuickWin v1.0.1
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/GFS_06/MOS_GFS_06_Prec_YesNo_Part_1.xml   - obsolete for QuickWin v1.0.1
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/GFS_06/MOS_GFS_06_Rel_Hum_Part_1.xml      - obsolete for QuickWin v1.0.1
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/GFS_06/MOS_GFS_06_Tmp_Dry_Part_1.xml      - obsolete for QuickWin v1.0.1
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/GFS_06/MOS_GFS_06_Tmp_Dry_Part_2.xml      - obsolete for QuickWin v1.0.1 - whole MOS off
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/GFS_06/MOS_GFS_06_Wind_UU_Part_1.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/GFS_06/MOS_GFS_06_Wind_VV_Part_1.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/GFS_12/MOS_GFS_12_Cld_0_Amt_Part_1.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/GFS_12/MOS_GFS_12_Prec_YesNo_Part_1.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/GFS_12/MOS_GFS_12_Rel_Hum_Part_1.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/GFS_12/MOS_GFS_12_Tmp_Dry_Part_1.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/GFS_12/MOS_GFS_12_Tmp_Dry_Part_2.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/GFS_12/MOS_GFS_12_Wind_UU_Part_1.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/GFS_12/MOS_GFS_12_Wind_VV_Part_1.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/GFS_18/MOS_GFS_18_Cld_0_Amt_Part_1.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/GFS_18/MOS_GFS_18_Prec_YesNo_Part_1.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/GFS_18/MOS_GFS_18_Rel_Hum_Part_1.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/GFS_18/MOS_GFS_18_Tmp_Dry_Part_1.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/GFS_18/MOS_GFS_18_Tmp_Dry_Part_2.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/GFS_18/MOS_GFS_18_Wind_UU_Part_1.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/GFS_18/MOS_GFS_18_Wind_VV_Part_1.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/WRF_00/MOS_WRF_00_Cld_0_Amt.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/WRF_00/MOS_WRF_00_Prec_YesNo.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/WRF_00/MOS_WRF_00_Rel_Hum.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/WRF_00/MOS_WRF_00_Tmp_Dry.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/WRF_00/MOS_WRF_00_Wind_UU.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/WRF_00/MOS_WRF_00_Wind_VV.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/WRF_12/MOS_WRF_12_Cld_0_Amt.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/WRF_12/MOS_WRF_12_Prec_YesNo.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/WRF_12/MOS_WRF_12_Rel_Hum.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/WRF_12/MOS_WRF_12_Tmp_Dry.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/WRF_12/MOS_WRF_12_Wind_UU.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/filters/WRF_12/MOS_WRF_12_Wind_VV.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/MOS/ForecastMOSFilterCfg.xml     - used for mapping variables IDs and for publishing of the meteogram
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/OutputCreatorCfg.xml             - used for generation of outputs    
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/ReCalculationAgentCfg.xml        - obsolete for QuickWin v1.0.1
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/UV_getForecastCfg.xml            - obsolete for QuickWin v1.0.1
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/WorldLocalLocations.xml          - obsolete for QuickWin v1.0.1 - used more representative list of locations, not desired in the quick win solution, but valid for development of the whole Azet module on different customer
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/WorldLocalLocations_reduced.xml  - used but contains just one station for testing - might be empty for Live installation
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/worldSkLocations.xml             - obsolete for QuickWin v1.0.1 - Sk Azet location, could be removed, but used for testing
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/WRF_getForecastCfg.xml           - used - defines reading of the WRF grib1 files
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/WRF_LocalLocations.xml           - obsolete for QuickWin v1.0.1 - - used more representative list of locations, not desired in the quick win solution, but valid for development of the whole Azet module on different customer
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/WRF_LocalLocations_reduced.xml   - used and actually contain our 5 Belgrade stations
+ cfg_QuickWin_WRF/cfg_DEV/station/forecast/WRF_SKLocations.xml              - obsolete for QuickWin v1.0.1 - Azet configuration, usefull for testing
+ cfg_QuickWin_WRF/cfg_DEV/station/formulas.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/ha.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/HitCounter.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/htmlgui/index_WRF_GFS.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/i18n.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/limits.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/MaintenanceConfig.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/MessageBriefingCfg.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/MessageRouterCfg.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/MessageTemplateCfg.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/msgOthers.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/node.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/PhenomenaConfig.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/PhenomenaManualCodesCfg.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/reports/reportSetsCfg.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/rvr.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/security.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/simulationCfg.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/sites.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/snmpd.local.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/station.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/stations.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/TimeZones.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/userManagement.xml
+ cfg_QuickWin_WRF/cfg_DEV/station/WindRoseCfg.xml
+
+
+<x xclass="com.microstepmis.forecast.customization.MeteogramWRFAgent$Config"
+        logLevel="3"
+        scanInterval="60000"                - how often the input directory is checked 
+        waitTime="3600000"                  - waitint time in case manual edit is enabled (not valid for QuickWin v1.0.1)
+        wrfGribFileMask="WRFPRS_d03.%02d"   - file mask of WRF grib1 files
+        forecastSource="WRF"                - source identificator, used in various places 
+        mailRoutingFolder="MAIL"            - Message Routing folder for routing of into/alerting emails
+        customerIdentifier="BG_EL"          - identifier of the 'local' customer, used in various places
+        deleteWRFGribAndPrecIndFiles="true" - configuration of the deleter  
+        hoursToRetainInInputDir="48"
+        wrfFilesIncludePatternForDeletion=".*"
+        hoursToRetainInPrecInd="48"
+        precIndFilesIncludePatternForDeletion=".*"
+        readPrecipitationIndicators="false"   - reading also WRF precipitation indicators (not valid for QuickWin v1.0.1)
+        performCoreStationProcessing="false"  - performing core station extrapolation (not valid for QuickWin v1.0.1)
+        performMOSCorrection="false"          - actually performs the MOS correction (not valid for QuickWin v1.0.1)
+        enableManualCorrection="false"        - enable manual correction, thus waiting for certain period of time (not valid for QuickWin v1.0.1)
+        enableWRFOnly="true"                  - agent has capabilities to merge various variables from GFS (not valid for QuickWin v1.0.1)
+        useAlsoWorldStations="true"           - by default in Azet WRF were retrieved just for local staitons, now we can read also the world stations 
+        printDiagnosticsStationsVars="true"   - debugging information about content of the data in the memory
+        cropWRFForecastDataToLastWRFrun="true" - Azet had capability to fill in actual data or merge missing GFS data, this is to avoid side effects
+        sendInfoAlertingEmails="true"         - we may turn on/off sending of the emails
+        localLocationsPath="../../ims/cfg/station/forecast/WRF_LocalLocations_reduced.xml" - local domain station/location list
+        worldLocalLocationsPath="../../ims/cfg/station/forecast/WorldLocalLocations_reduced.xml" - world domain staiton/location list
+        pathToWRFGetForecastCfg="../../ims/cfg/station/forecast/WRF_getForecastCfg.xml"  - path to essential configuration, how WRF grib1 data are read
+        pathToWRFCoreStationProcessorCfg="../../ims/cfg/station/forecast/coreStationsProcessorWRF.xml" - not valid for QuickWin v1.0.1, but required to launch the agent
+        precipitationIndicatorDataDir="../../ims/data/precIndicators/WRF" - directory where WRF precipitation indicators are published (not valid for QuickWin v1.0.1)
+        precipitationIndicatorFileMask="wrf_%02d"
+        >
+        - RUNs configuration, for 949 Belgrade installation we processs 4 WRF runs, there is the run ID used in many places,
+	- there is UTC hours interval when we expect to have the WRF data available
+	- and we have the data validity, when WRF run is read, we retain the forecast data in space only for this period
+	- for 8 hours, then they expire and we must have another run comming, or the forecast from WRF is not available anymore
+        <runsConfig xclass="com.microstepmis.forecast.customization.MeteogramWRFAgent$RUNsConfig" dataValidityHours="8.0">
+            <runs>
+                <x run="0" startDayHourMinute="08:00" endDayHourMinute="14:00" usePreviousDay="false" />
+                <x run="6" startDayHourMinute="14:00" endDayHourMinute="20:00" usePreviousDay="false" />
+                <x run="12" startDayHourMinute="20:00" endDayHourMinute="02:00" usePreviousDay="false" />
+                <x run="18" startDayHourMinute="02:00" endDayHourMinute="08:00" usePreviousDay="true" />
+            </runs>
+        </runsConfig>
+</x>
+
+<x xclass="com.microstepmis.forecast.customization.MeteogramAgentCfg"
+        logLevel="3"
+        scanInterval="480000"
+        enabled="1.0"    -  historically some forecast module agents have switch to disbale processing of data
+        sourcePath="../../ims/data/forecastGrib/inputForecastGFS" - path to GFS grib1 files, not used in QuickWin v1.0.1 solution, we have just WRF
+        gfsGribFileMask="gfs.t%02dz.pgrb2.0p25.f%03d.grib1"
+        gfsFilesPrefixForDeletion="gfs.t%02dz"
+        enableWholeGFSProcessing="false"  - if false GFS is disabled fully, in QuickWin v1.0.1 not adapted to Serbian requerements and not extended to e.g. 4 runs, but could be left true because the interface does not correspond yet to different time tree and data are not retrieved.
+        primaryIsGFS="false"     - for Belgrade we use GFS as backup, contrary to Azet where it is the primary source of forecast
+        enablePrimaryOnly="true"  - when we enable WRF as primary source, GFS could be used as backup, in QuickWin v1.0.1 we deliver just WRF
+        deleteGFSGribAndPrecIndFiles="false" - configuration of the internal deleter in the agent
+        hoursToRetainInInputDir="72"
+        gfsFilesIncludePatternForDeletion=".*"
+        hoursToRetainInPrecInd="72"
+        precIndFilesIncludePatternForDeletion=".*"
+        readPrecipitationIndicators="false"   - reading of GFS precipitation indicators, not available for the QuickWin v1.0.1
+        performMOSCorrection="false"          - performing MOS correction on GFS data, not available for the QuickWin v1.0.1
+        useAlsoLocalStationsForMergingSecondary="true"  - originally for reading GFS data only the world stations were used, was extended to enable also local staton/location domain orignally used just for WRF
+        printDiagnosticsStationsVars="true"    - diagnostics of the forecast data held in the memory
+        cleanOldDataBasedOnTimeNotJustGFSgrib="false"  - the agent merges into one output two forecast models, prforms MOS and derivation of variables and also fills in actual data - this is valid full funcionality for Azet, in case GFS is missing we can remove old data from the resulting meteogram also by time by each run
+        startGFSOlderThan="48"   - complies with the previous configuration, checking GFS run, and 'forgets' old values even if very old GFS run was available
+        sendGFSAlertingEmails="false" - GFS has its own alerting mechanizm used in Azet, we turn it off for Belgrade
+        worldLocalLocationsPath="../../ims/cfg/station/forecast/WorldLocalLocations_reduced.xml"
+        localLocationsPath="../../ims/cfg/station/forecast/WRF_LocalLocations_reduced.xml"
+        pathToGFSgetForecastCfg="../../ims/cfg/station/forecast/getForecastCfg.xml"  - essential confiuration how GFS grib files are read, used in various places also for merging grib values from WRF
+        pathToGFSPrecIndicators="../../ims/data/precIndicators/GFS" - path to derived GFS precipitation indicators
+        >   - configuration of actual QuickWin v1.0.1 delivery, short cut here to publish the merged forecast space data into CSV files using OutputCreator and MOS configuration as in Azet in ReCalculation agent
+        <shortCutOutApendixConfig xclass="com.microstepmis.forecast.customization.MeteogramAgentCfg$ShortCutOutApendixConfig"
+            enableShurtCutOutResultPublication="true"
+            shortCutOutputDir="../../ims/data/forecast/outputWRFMeteograms"  - alternative output directory
+            useWRFrunIdInsteadOfGFS="true"     - GFS, WRF may have different runs configuration and availability, CSV files are indicated by RUN number, we use the one from WRF
+            publishAlsoLocalStations="true"    - originally in Azet only the stations configured world stations list were published, we extended the interface
+            zippOutputs="true"  - outputs could be zipped (and thus published also to the 'copyDir' to FTP), or published as plain ASCII CSV files
+        >
+        </shortCutOutApendixConfig>
+</x>
+
+
+
+Adjustements for life deployment:
+Make check interval longer after having testing accomplished:
+ scanInterval="480000"
+
+
+Essential parts of /opt/ims/log/<year>/<month>/<day>/MeteogramWRFAgent.log
+---
+2022-03-31 04:59:32.222 UTC: DEBUG (3) NOTE: Accomplished starCreateMeteogram() - turning firstRun to false.
+2022-03-31 05:00:32.222 UTC: DEBUG (3) NOTE: Received proxyTimer - launching starCreateMeteogram()
+2022-03-31 05:00:32.222 UTC: NOTE:  --- Start process starCreate WRF Meteogram ---
+2022-03-31 05:00:32.222 UTC: DEBUG (3) NOTE: Print diagnostics stations vars on, printing details of gribValues.
+2022-03-31 05:00:32.222 UTC: DEBUG (3) NOTE:   Stations[numberOfVars]:  548[31], 6001[31], 6002[31], 6003[31], 6004[31], 6005[31],
+2022-03-31 05:00:32.222 UTC: DEBUG (3) NOTE:   Number of time slots of the first station/variable: 60
+2022-03-31 05:00:32.222 UTC: DEBUG (3) NOTE: Print diagnostics stations vars on, printing details of correctMOSgribValues.
+2022-03-31 05:00:32.222 UTC: DEBUG (3) NOTE:   Stations[numberOfVars]:  548[35], 6001[35], 6002[35], 6003[35], 6004[35], 6005[35],
+2022-03-31 05:00:32.222 UTC: DEBUG (3) NOTE:   Number of time slots of the first station/variable: 60
+2022-03-31 05:00:32.222 UTC: DEBUG (1) NOTE: Reference time, current UTC, in [ms]: 1648702832222 , 2022-03-31 05:00:32.222
+2022-03-31 05:00:32.222 UTC: NOTE: RUN 18
+2022-03-31 05:00:32.222 UTC: DEBUG (3) NOTE: Input WRF data dir ../../ims/data/inputWRF/20220330/18/d03_pp
+2022-03-31 05:00:32.222 UTC: DEBUG (3) NOTE: Tags dir: WRF_20220330/18/d03_pp_RUN_18
+2022-03-31 05:00:32.223 UTC: DEBUG (1) NOTE: Data needed for run:
+2022-03-31 05:00:32.223 UTC: DEBUG (3) NOTE: File found: WRFPRS_d03.00
+2022-03-31 05:00:32.223 UTC: DEBUG (3) NOTE: File found: WRFPRS_d03.01
+2022-03-31 05:00:32.223 UTC: DEBUG (3) NOTE: File found: WRFPRS_d03.02
+...
+2022-03-31 05:00:32.223 UTC: DEBUG (3) WARNING: Missing file WRFPRS_d03.59, exiting
+2022-03-31 05:00:32.223 UTC: DEBUG (2) NOTE: Load data from wrf: WRFPRS_d03.00
+2022-03-31 05:00:32.248 UTC: DEBUG (3) NOTE: Finished reading of file: WRFPRS_d03.00
+2022-03-31 05:00:32.248 UTC: DEBUG (3) NOTE: Number of stations in gribValues: 6
+2022-03-31 05:00:32.248 UTC: DEBUG (3) NOTE:   Read stations: [548, 6001, 6002, 6003, 6004, 6005]
+2022-03-31 05:00:32.248 UTC: DEBUG (3) NOTE:   Number of varIDs: 23
+2022-03-31 05:00:32.248 UTC: DEBUG (3) NOTE:   Number of time slots: 1
+2022-03-31 05:00:32.249 UTC: DEBUG (3) NOTE:   Number of time slots: 1
+...
+2022-03-31 05:00:33.928 UTC: DEBUG (2) NOTE: Load data from wrf: WRFPRS_d03.58
+2022-03-31 05:00:33.951 UTC: DEBUG (3) NOTE: Finished reading of file: WRFPRS_d03.58
+2022-03-31 05:00:33.951 UTC: DEBUG (3) NOTE: Number of stations in gribValues: 6
+2022-03-31 05:00:33.951 UTC: DEBUG (3) NOTE:   Read stations: [548, 6001, 6002, 6003, 6004, 6005]
+2022-03-31 05:00:33.951 UTC: DEBUG (3) NOTE:   Number of varIDs: 23
+2022-03-31 05:00:33.952 UTC: DEBUG (3) NOTE:   Number of time slots: 59
+2022-03-31 05:00:33.952 UTC: DEBUG (3) NOTE:   Number of time slots: 59
+...
+2022-03-31 05:00:33.963 UTC: ERROR: gfs file: WRFPRS_d03.59 missing !!Process continue
+2022-03-31 05:00:33.963 UTC: DEBUG (3) NOTE: All WRF data at directory ../../ims/data/inputWRF/20220330/18/d03_pp present, load finished in 1741ms
+2022-03-31 05:00:33.963 UTC: DEBUG (3) NOTE: Start create indeces.
+2022-03-31 05:00:33.982 UTC: DEBUG (1) NOTE: Create indeces finished.
+2022-03-31 05:00:33.982 UTC: NOTE: MOS correction for WRF forecast disabled and skipped.
+2022-03-31 05:00:33.982 UTC: DEBUG (3) NOTE: gribValues size before deepClone: 6
+2022-03-31 05:00:33.984 UTC: DEBUG (3) NOTE: Written mapped MOS variables correctMOSgribValues into space with size: 6
+2022-03-31 05:00:33.985 UTC: DEBUG (3) NOTE: Croping correctMOSgribValues to the exted, gribValuesMinTime: 1648663200000, gribValuesMaxTime: 1648872000000, hoursBack: 58
+2022-03-31 05:00:33.987 UTC: DEBUG (3) NOTE: Retrieved correctMOSgribValues from space with size: 6
+2022-03-31 05:00:33.987 UTC: DEBUG (3) NOTE: Launching correction of Cumulus precipitation
+2022-03-31 05:00:33.989 UTC: DEBUG (3) NOTE: Finished correction of Cumulus precipitation - size of correctMOSgribValues: 6
+2022-03-31 05:00:33.989 UTC: DEBUG (3) NOTE: Accomplished processing of: WRF_20220330/18/d03_pp_RUN_18
+2022-03-31 05:00:33.990 UTC: NOTE: Launch of recalculateValues
+2022-03-31 05:00:33.990 UTC: DEBUG (3) NOTE: Print diagnostics stations vars on, printing details of gribValues.
+2022-03-31 05:00:33.990 UTC: DEBUG (3) NOTE:   Stations[numberOfVars]:  548[31], 6001[31], 6002[31], 6003[31], 6004[31], 6005[31],
+2022-03-31 05:00:33.990 UTC: DEBUG (3) NOTE:   Number of time slots of the first station/variable: 59
+2022-03-31 05:00:33.990 UTC: DEBUG (3) NOTE: Print diagnostics stations vars on, printing details of correctMOSgribValues.
+2022-03-31 05:00:33.990 UTC: DEBUG (3) NOTE:   Stations[numberOfVars]:  548[22], 6001[22], 6002[22], 6003[22], 6004[22], 6005[22],
+2022-03-31 05:00:33.990 UTC: DEBUG (3) NOTE:   Number of time slots of the first station/variable: 59
+2022-03-31 05:00:33.990 UTC: DEBUG (3) NOTE: Recalcuation of all indeces
+2022-03-31 05:00:34.012 UTC: DEBUG (3) NOTE: preCalcuation of icons
+2022-03-31 05:00:34.012 UTC: DEBUG (1) NOTE: preCalculateIcons
+...
+2022-03-31 05:00:34.030 UTC: DEBUG (3) NOTE: Finished second ReCalculationAgent.calculateIcons - size of correctMOSgribValues: 6
+2022-03-31 05:00:34.032 UTC: DEBUG (3) NOTE: Croping correctMOSgribValues to the exted, gribValuesMinTime: 1648663200000, gribValuesMaxTime: 1648872000000, hoursBack: 58
+2022-03-31 05:00:34.035 UTC: DEBUG (3) NOTE: correctMOSgribValues written into the space at last, block: METEO/Fwrf/WRFdataH
+2022-03-31 05:00:34.035 UTC: DEBUG (3) NOTE: notifyToEndProcessNewRun by sending space block METEO/F/startIntegrate with value 1648702834035,18
+2022-03-31 05:00:34.035 UTC: DEBUG (3) NOTE: Accomplished delayProcessToManualManageData
+2022-03-31 05:00:34.035 UTC: DEBUG (3) NOTE: Setting firstRun to false
+2022-03-31 05:00:34.035 UTC: NOTE: Accomplished recalculateValues()
+2022-03-31 05:00:34.035 UTC: NOTE: Successfully accomplished starCreate WRF Meteogram
+---
+
+When data are read already - checking for another run has this loop:
+---
+2022-03-31 05:06:32.223 UTC: DEBUG (3) NOTE: Received proxyTimer - launching starCreateMeteogram()
+2022-03-31 05:06:32.223 UTC: NOTE:  --- Start process starCreate WRF Meteogram ---
+2022-03-31 05:06:32.223 UTC: DEBUG (3) NOTE: Print diagnostics stations vars on, printing details of gribValues.
+2022-03-31 05:06:32.223 UTC: DEBUG (3) NOTE:   Stations[numberOfVars]:  548[31], 6001[31], 6002[31], 6003[31], 6004[31], 6005[31],
+2022-03-31 05:06:32.223 UTC: DEBUG (3) NOTE:   Number of time slots of the first station/variable: 59
+2022-03-31 05:06:32.223 UTC: DEBUG (3) NOTE: Print diagnostics stations vars on, printing details of correctMOSgribValues.
+2022-03-31 05:06:32.223 UTC: DEBUG (3) NOTE:   Stations[numberOfVars]:  548[35], 6001[35], 6002[35], 6003[35], 6004[35], 6005[35],
+2022-03-31 05:06:32.223 UTC: DEBUG (3) NOTE:   Number of time slots of the first station/variable: 59
+2022-03-31 05:06:32.223 UTC: DEBUG (1) NOTE: Reference time, current UTC, in [ms]: 1648703192223 , 2022-03-31 05:06:32.223
+2022-03-31 05:06:32.223 UTC: NOTE: RUN 18
+2022-03-31 05:06:32.223 UTC: DEBUG (3) NOTE: Input WRF data dir ../../ims/data/inputWRF/20220330/18/d03_pp
+2022-03-31 05:06:32.224 UTC: DEBUG (3) NOTE: Tags dir: WRF_20220330/18/d03_pp_RUN_18
+2022-03-31 05:06:32.224 UTC: DEBUG (3) NOTE: Source data: WRF_20220330/18/d03_pp_RUN_18 has already been processed - terminating meteogram creation
+2022-03-31 05:06:32.224 UTC: DEBUG (3) NOTE: Accomplished starCreateMeteogram() - turning firstRun to false.
+---
+
+Indicates that according configuration of the WRF runs, the grib files should have been ingested already,
+but they are missing.
+---
+2022-03-31 00:03:32.176 UTC: NOTE:  --- Start process starCreate WRF Meteogram ---
+2022-03-31 00:03:32.176 UTC: DEBUG (3) NOTE: Print diagnostics stations vars on, printing details of gribValues.
+2022-03-31 00:03:32.176 UTC: DEBUG (3) NOTE:   Stations[numberOfVars]:  548[31], 6001[31], 6002[31], 6003[31], 6004[31], 6005[31],
+2022-03-31 00:03:32.176 UTC: DEBUG (3) NOTE:   Number of time slots of the first station/variable: 60
+2022-03-31 00:03:32.176 UTC: DEBUG (3) NOTE: Print diagnostics stations vars on, printing details of correctMOSgribValues.
+2022-03-31 00:03:32.176 UTC: DEBUG (3) NOTE:   Stations[numberOfVars]:  548[35], 6001[35], 6002[35], 6003[35], 6004[35], 6005[35],
+2022-03-31 00:03:32.176 UTC: DEBUG (3) NOTE:   Number of time slots of the first station/variable: 60
+2022-03-31 00:03:32.177 UTC: DEBUG (1) NOTE: Reference time, current UTC, in [ms]: 1648685012177 , 2022-03-31 00:03:32.177
+2022-03-31 00:03:32.177 UTC: NOTE: RUN 12
+2022-03-31 00:03:32.177 UTC: DEBUG (3) NOTE: Input WRF data dir ../../ims/data/inputWRF/20220331/12/d03_pp
+2022-03-31 00:03:32.177 UTC: ERROR: Cannot find WRF data. Dir /opt/ims/bin/../../ims/data/inputWRF/20220331/12/d03_pp does not exist - terminating meteogram creation
+2022-03-31 00:03:32.177 UTC: DEBUG (3) NOTE: Accomplished starCreateMeteogram() - turning firstRun to false.
+---
+
+Essential parts of /opt/ims/log/<year>/<month>/<day>/MeteogramAgent.log
+---
+Merging of WRF into the merged forecast data and applying short cut, publishing of
+the CSV outputs directly from the MeteogramAgent.
+---
+2022-03-31 09:33:20.555 UTC: NOTE: Received proxyIntegrateTimer - block: METEO/F/startIntegrate
+2022-03-31 09:33:20.555 UTC: NOTE: Launching integation of secondary forecast data based on cfg.primaryIsGFS: false
+2022-03-31 09:33:20.555 UTC: NOTE: Launching starIntegrateWRFToMeteogram
+2022-03-31 09:33:20.555 UTC: DEBUG (3) NOTE: Retrieved from space info about WRF run number: 0
+2022-03-31 09:33:20.555 UTC: NOTE: Read WRF as primary data from space, with number of stations: 6
+2022-03-31 09:33:20.555 UTC: NOTE: Enabled Primary only, in this case the primary data are published without merging with the secondary data
+2022-03-31 09:33:20.555 UTC: DEBUG (3) NOTE: Launched callSpaceTrigger
+2022-03-31 09:33:20.558 UTC: DEBUG (3) NOTE: Written into space: METEO/F/firstForecastTime, 1648663200000
+2022-03-31 09:33:20.558 UTC: DEBUG (3) NOTE: Written into space: METEO/F/dataHourly of size 6
+2022-03-31 09:33:20.558 UTC: DEBUG (3) NOTE: Written into space: METEO/F/newRunProcess, true with validity: 10800000
+2022-03-31 09:33:20.558 UTC: DEBUG (3) NOTE: Written into space: METEO/F/processedH, 1648719200558
+2022-03-31 09:33:20.559 UTC: NOTE: Shortcut publication of results enabled - commencing publishing of correctMOSgribValues (last WRF run) to output files.
+2022-03-31 09:33:20.716 UTC: NOTE: Shortcut publication of results successfuly accomplished.
+2022-03-31 09:33:20.716 UTC: DEBUG (3) NOTE: Finished callSpaceTrigger
+2022-03-31 09:33:20.716 UTC: NOTE: Finish Processing. correctMOSgribValues 6
+2022-03-31 09:33:20.716 UTC: NOTE: Integration accomplished.
+---
+
+Standard check of incomming GFS data (this is for the QuickWin v1.0.1 version
+not enabled nor implemented - correct integration of GFS backup was not included).
+---
+2022-03-31 13:08:18.096 UTC: NOTE: --- Start process starCreateMeteogram ---
+2022-03-31 13:08:18.096 UTC: DEBUG (3) NOTE: Print diagnostics stations vars on, printing details of correctMOSgribValues.
+2022-03-31 13:08:18.096 UTC: DEBUG (3) NOTE:   Stations[numberOfVars]:  548[35], 6001[35], 6002[35], 6003[35], 6004[35], 6005[35],
+2022-03-31 13:08:18.096 UTC: DEBUG (3) NOTE:   Number of time slots of the first station/variable: 59
+2022-03-31 13:08:18.096 UTC: DEBUG (1) NOTE: calendar hour 1
+2022-03-31 13:08:18.096 UTC: DEBUG (1) NOTE: jtime hour 8
+2022-03-31 13:08:18.096 UTC: DEBUG (1) NOTE: cal mil 1648732098096
+2022-03-31 13:08:18.096 UTC: DEBUG (1) NOTE: milis 1648714098096
+2022-03-31 13:08:18.096 UTC: NOTE: RUN 6
+2022-03-31 13:08:18.096 UTC: NOTE: Run 06 Disabled..Using run 00
+2022-03-31 13:08:18.097 UTC: DEBUG (1) ERROR: Cannot find GRIB data. Dir /opt/ims/bin/../../ims/data/inputGFS/2022/03/31 does not exist
+---
+
+For your interest is reasonable to check also these log files:
+/opt/ims/log/<year>/<month>/<day>/OutputCreator.log
+/opt/ims/log/<year>/<month>/<day>/fileCountCheck.log
+/opt/ims/log/<year>/<month>/<day>/errors.log
+
+'''TestCase 1''': Check whether WRF data are ingested into the input data directory:
+---
+$ TZ=utc ls -l /opt/ims/data/inputWRF/20220330
+total 16
+drwxrwxr-x 3 sim1_upl sim1_upl 4096 Mar 30 11:00 00
+drwxrwxr-x 3 sim1_upl sim1_upl 4096 Mar 30 14:38 06
+drwxrwxr-x 3 sim1_upl sim1_upl 4096 Mar 30 18:00 12
+drwxrwxr-x 3 sim1_upl sim1_upl 4096 Mar 31 05:00 18
+
+Should contain four WRF RUNs matching the expected timing.
+---
+
+Check generation of CSV meteograms - CSV outputs, in the output directory, and in the published FTP user home directory
+---
+$ find /opt/ims/data/forecast/outputWRFMeteograms/ -name "*.zip" -mmin -1440
+/opt/ims/data/forecast/outputWRFMeteograms/2022/03/29/06/BG_fcst_hourly.zip
+/opt/ims/data/forecast/outputWRFMeteograms/2022/03/29/06/world_fcst_hourly.zip
+/opt/ims/data/forecast/outputWRFMeteograms/2022/03/30/18/BG_fcst_hourly.zip
+/opt/ims/data/forecast/outputWRFMeteograms/2022/03/30/18/world_fcst_hourly.zip
+/opt/ims/data/forecast/outputWRFMeteograms/2022/03/30/00/BG_fcst_hourly.zip
+/opt/ims/data/forecast/outputWRFMeteograms/2022/03/30/00/world_fcst_hourly.zip
+
+$ find /home/forecast/ -name "*.zip" -mmin -1440
+/home/forecast/WRD_locations/world_fcst_hourly.zip
+/home/forecast/BG_locations/BG_fcst_hourly.zip
+
+---
+
+Check content of last WRF meteogram using Forecast Data Entry screen
+https://10.111.5.171:8443/ims/html2/forecaster/dataEntryForecastData.html
+(Or for INT, OPS different IP address)
+
+Check WRF meteograms for chosen stations, and Merged Hourly data.
+In QuickWin v1.0.1 delivery, WRF and Hourly is seamless, other data types are not available.
+You could choose also Graph Edit to check content of the various variables.
+
+Test Case 4 Check error.log which should not contain any errors
+
+When the system is configured well, the WRF grib files are ingested timelly and
+errors.log should not contain any errors comming from the Forecast Module agents.
+Possible issues are:
+# delayed WRF ingestion
+# incomplete WRF data which cause various errors also in derivation of the derived variables
+
+Test Case 5 Verify receiving info email about successful WRF runs
+
+Add your email address to the SEND_MAIL channel.
+You should receive four info emails a day each corresponding to the successful
+processing of the WRF data, also with indicator that manual correction is disabled, and the data are
+published without review of the meteorologist.
+
+Test Case 6 Verify quality check emails of missing data
+
+For testing purpose add a testing station into:
+cfg/station/forecast/WorldLocalLocations_reduced.xml
+e.g. Prizren in Kosovo - this is out of WRF grib extend
+<x stationId="5026" customerId="" stationNameASCII="Prizren" stationName="Prizren" countryCode="RS" gpsLat="42.2166" gpsLong="20.7333" elevation="402" interpolated="N"
+ TZid="Europe/Belgrade" UTCoffset="+01:00" UTCDSToffset="+02:00" CCCC="" WMOIndex="13477" coastDistance="80" geoBlock="96" outputStation="Y" />
+
+You should receive the alerting email alerting that
+there is station with missing forecast data. The report is on the level of variables in the XML hash map format
+(as designed for Azet).
+ForecastModuleQuicWin_v.1.0.1_receivedMissingDataAlertingEmails
+
+Test Case 7 Availability of WRF runs
+
+Four WRF meteograms must be avaiable a day corresponding to the input WRF data.
+1. Check input data:
+$ TZ=utc ls -l /opt/ims/data/inputWRF/<YYYMMDD>
+total 16
+drwxrwxr-x 3 sim1_upl sim1_upl 4096 Mar 30 11:00 00
+drwxrwxr-x 3 sim1_upl sim1_upl 4096 Mar 30 14:38 06
+drwxrwxr-x 3 sim1_upl sim1_upl 4096 Mar 30 18:00 12
+drwxrwxr-x 3 sim1_upl sim1_upl 4096 Mar 31 05:00 18
+
+2. Check that always 60 time slots is available:
+find /opt/ims/data/inputWRF/<YYYYMMDD>/00/d03_pp/ -name "WRFPRS_d03*" |wc -l
+find /opt/ims/data/inputWRF/<YYYYMMDD>/06/d03_pp/ -name "WRFPRS_d03*" |wc -l
+find /opt/ims/data/inputWRF/<YYYYMMDD>/12/d03_pp/ -name "WRFPRS_d03*" |wc -l
+find /opt/ims/data/inputWRF/<YYYYMMDD>/18/d03_pp/ -name "WRFPRS_d03*" |wc -l
+
+(Reading of slots 00-59 is configured in cfg/station/forecast/WRF_getForecastCfg.xml,
+ startForecastTime/maxForecastTime. Number of WRF slots has to be clarified and adjusted
+ with Data Science department yet, because todays check
+ showed that we have 61 slots for 00 and only 19 for the run 12)
+
+3. Check existence of the world as well as local domain output meteograms.
+/opt/ims/data/forecast/outputWRFMeteograms/<YYYY>/<MM>/03/00/BG_fcst_hourly.zip
+/opt/ims/data/forecast/outputWRFMeteograms/<YYYY>/<MM>/03/00/world_fcst_hourly.zip
+/opt/ims/data/forecast/outputWRFMeteograms/<YYYY>/<MM>/03/06/BG_fcst_hourly.zip
+/opt/ims/data/forecast/outputWRFMeteograms/<YYYY>/<MM>/03/06/world_fcst_hourly.zip
+/opt/ims/data/forecast/outputWRFMeteograms/<YYYY>/<MM>/03/12/BG_fcst_hourly.zip
+/opt/ims/data/forecast/outputWRFMeteograms/<YYYY>/<MM>/03/12/world_fcst_hourly.zip
+/opt/ims/data/forecast/outputWRFMeteograms/<YYYY>/<MM>/03/18/BG_fcst_hourly.zip
+/opt/ims/data/forecast/outputWRFMeteograms/<YYYY>/<MM>/03/18/world_fcst_hourly.zip
+
+Test Case 8 Check data availabily of the output on FTP user account
+
+Connect to the machine as the end user's FTP user (forecast).
+And check whether there is the last meteogram in these two zip archives:
+ WRD_locations/world_fcst_hourly.zip
+ BG_locations/BG_fcst_hourly.zip
+
+Test Case 9 Check content of the CSV meteogram files
+
+Download and unzip the last BG_fcst_hourly.zip.
+It should contain the meteogram files corresponding to the local domain stations configured in
+cfg/station/forecast/WRF_LocalLocations_reduced.xml
+(For the current reduced configuration it is:
+548#Belgrade_R00H.csv
+6001#NBgd_R00H.csv
+6002#Dunav_R00H.csv
+6003#Konjarnik_R00H.csv
+6004#Vozdovac_R00H.csv
+6005#Cerak_R00H.csv)
+Where the name is concatenated from: <StationID>#<StationName>_R<WRF_RUN_ID><H_for_hourly_data>.csv
+
+Open one, e.g.: 6001#NBgd_R00H.csv (New Belgrade)
+
+Date.UTC;Time.UTC;Customer.Id;Temp.Dry;Clouds.Amount;RelHumidity;Wind.Dir;Wind.Speed;Prec;Temp.DewPoint;Press.Station;Temp.Feel;Icon;Date.LT;Time.LT
+2022-04-04;00;;1.1;0;82.57;W;2.5;0;-1.58;1015;-1.75;33;2022-04-04;02
+2022-04-04;01;;1.9;0;86.53;WSW;3.9;0;-0.14;1012.5;-1.85;33;2022-04-04;03
+2022-04-04;02;;1.5;0;88.56;WSW;4.1;0;-0.17;1012.8;-2.46;33;2022-04-04;04
+2022-04-04;03;;1.6;0;87.8;WSW;4.4;0;-0.26;1013;-2.62;33;2022-04-04;05
+2022-04-04;04;;1.4;0;88.21;WSW;3.6;0;-0.4;1013.1;-2.36;33;2022-04-04;06
+2022-04-04;05;;1.5;0;85.58;WSW;2.6;0;-0.71;1013.3;-1.38;1;2022-04-04;07
+2022-04-04;06;;1.9;0;81.47;WSW;2.3;0;-0.97;1013.7;-0.57;1;2022-04-04;08
+2022-04-04;07;;3;0;75.15;WSW;1.4;0;-1.04;1014;1.77;1;2022-04-04;09
+2022-04-04;08;;4.2;0;60.85;SSW;0.6;0;-2.69;1014.1;4.21;1;2022-04-04;10
+2022-04-04;09;;5.4;5;47.15;WSW;0.7;0;-4.96;1013.8;3.26;1;2022-04-04;11
+2022-04-04;10;;6.3;4;45.08;SW;0.9;0;-4.76;1013;4.15;1;2022-04-04;12
+2022-04-04;11;;7.4;6;41.43;WSW;0.8;0;-4.85;1012;5.3;1;2022-04-04;13
+2022-04-04;12;;8.4;0;39.43;W;0.6;0;-4.58;1011.1;6.38;1;2022-04-04;14
+2022-04-04;13;;9;0;38.9;SW;1;0;-4.24;1010.3;7;1;2022-04-04;15
+2022-04-04;14;;9.7;0;39.6;E;0.2;0;-3.43;1009.4;7.72;1;2022-04-04;16
+2022-04-04;15;;10.2;0;38.15;WNW;0.7;0;-3.48;1008.7;8.24;1;2022-04-04;17
+2022-04-04;16;;10.5;0;37.95;WSW;1;0;-3.23;1008.1;8.63;1;2022-04-04;18
+2022-04-04;17;;10.4;0;42.48;SE;3.6;0;-1.85;1007.9;8.58;1;2022-04-04;19
+2022-04-04;18;;10.3;0;42.29;SSE;3.5;0;-2;1007.9;8.46;33;2022-04-04;20
+2022-04-04;19;;9.2;0;48.45;SSE;4.9;0;-1.08;1007.8;6.7;33;2022-04-04;21
+2022-04-04;20;;9;0;50.81;SSE;6.1;0;-0.63;1007.5;6;33;2022-04-04;22
+2022-04-04;21;;9.3;0;51.75;SSE;6;0;-0.13;1007.1;6.35;33;2022-04-04;23
+2022-04-04;22;;9.4;0;53.24;SSE;6.3;0;0.36;1006.7;6.41;33;2022-04-05;00
+2022-04-04;23;;9.4;0;54.78;S;5.4;0;0.71;1006.3;6.63;33;2022-04-05;01
+2022-04-05;00;;8.5;0;59.21;SSW;5.3;0;1.01;1006;5.63;33;2022-04-05;02
+2022-04-05;01;;7.7;0;64.96;SSW;5.6;0;1.47;1005.9;4.43;33;2022-04-05;03
+2022-04-05;02;;7.3;0;69.55;SSW;5.4;0;2.04;1005.6;3.99;33;2022-04-05;04
+2022-04-05;03;;6.9;0;72.68;SSW;5;0;2.32;1005.3;3.73;33;2022-04-05;05
+2022-04-05;04;;6.8;0;72.6;SSW;4.9;0;2.21;1005;3.64;33;2022-04-05;06
+2022-04-05;05;;6.8;0;71.59;SSW;4.8;0;2;1005.2;3.68;1;2022-04-05;07
+2022-04-05;06;;7.2;0;70.46;SW;3.6;0;2.12;1005.5;4.72;1;2022-04-05;08
+2022-04-05;07;;8;0;65.56;SW;2.7;0;1.92;1005.6;6.3;1;2022-04-05;09
+2022-04-05;08;;9;0;60.89;SW;2.1;0;1.83;1005.6;7.55;1;2022-04-05;10
+2022-04-05;09;;10.2;0;54.63;WSW;1.8;0;1.49;1005.2;8.76;1;2022-04-05;11
+2022-04-05;10;;11.6;0;49.47;WSW;2.4;0;1.38;1004.6;10.14;1;2022-04-05;12
+2022-04-05;11;;12.6;0;52.01;WSW;2.2;0;2.99;1003.8;11.3;1;2022-04-05;13
+2022-04-05;12;;12.8;0;64.49;WSW;1.8;0;6.24;1003.2;11.86;1;2022-04-05;14
+2022-04-05;13;;13.3;0;61.86;WSW;1.7;0;6.09;1002.6;12.33;1;2022-04-05;15
+2022-04-05;14;;13.8;0;56.87;WSW;1.3;0;5.36;1002.1;12.75;1;2022-04-05;16
+2022-04-05;15;;14.1;0;54.78;SW;1.2;0;5.09;1001.7;13.01;1;2022-04-05;17
+2022-04-05;16;;14.4;0;50.78;SSE;0.7;0;4.29;1001.7;13.24;1;2022-04-05;18
+2022-04-05;17;;14.6;0;48.12;SE;0.5;0;3.71;1002;13.38;1;2022-04-05;19
+2022-04-05;18;;13.8;0;60.97;NNE;2.3;0;6.34;1002.5;12.82;33;2022-04-05;20
+2022-04-05;19;;13.3;0;63.98;ENE;2.4;0;6.56;1003.2;12.34;33;2022-04-05;21
+2022-04-05;20;;13;0;63.11;ENE;2.4;0;6.11;1003.5;12.03;33;2022-04-05;22
+2022-04-05;21;;12.8;0;61.6;ENE;2.3;0;5.53;1003.8;11.7;33;2022-04-05;23
+2022-04-05;22;;12.8;0;57.14;ESE;3.1;0;4.47;1004.1;11.6;33;2022-04-06;00
+2022-04-05;23;;12.7;0;53.88;ESE;3.2;0;3.57;1004.3;11.43;33;2022-04-06;01
+2022-04-06;00;;12.6;0;50.37;ESE;3.7;0;2.56;1004.2;11.26;33;2022-04-06;02
+2022-04-06;01;;12.8;0;55.65;ESE;3.7;0;4.13;1004.1;11.6;33;2022-04-06;03
+2022-04-06;02;;10.6;0;56.07;NNE;3.1;0;2.15;1004.3;9.15;33;2022-04-06;04
+2022-04-06;03;;9.2;0;69.31;NE;3.3;0;3.8;1004.3;7.31;33;2022-04-06;05
+2022-04-06;04;;9.4;0;62.8;NE;3.4;0;2.6;1004.3;7.5;33;2022-04-06;06
+2022-04-06;05;;10.6;0;53.27;E;1.7;0;1.48;1004.5;9.13;1;2022-04-06;07
+2022-04-06;06;;10.2;0;63.28;SW;1.1;0;3.49;1004.8;8.92;1;2022-04-06;08
+2022-04-06;07;;11.1;0;55.75;SW;0.3;0;2.58;1004.8;9.74;1;2022-04-06;09
+2022-04-06;08;;12.9;0;66.01;SE;0.6;0;6.66;1004.5;11.98;1;2022-04-06;10
+2022-04-06;09;;14.1;0;65.28;SE;2.7;0;7.59;1004;13.24;1;2022-04-06;11
+2022-04-06;10;;14.7;0;62.02;SE;3;0;7.43;1003.4;13.84;1;2022-04-06;12 
+
+Check whether all input WRF grib time slots are present, briefly check
+time coordinates, header and values.
+
+Test Case 10 Check whether BITE is green after start and during operations
+
+Test Case 11 Check of the forecast - essential meteogram parameters
+Choose one of the sites and compare chosen time slots and variables with
+indepent source:
+https://www.ventusky.com/belgrade
+Check essential variables for today's forecast:
+# Temperature
+# Precipitation
+# Clouds Amount
+# Direction and strenght of the wind
+
+
+# Deep verification
+
+Reading of the grib files and comparision for the essential
+variables:
+
+WRF forecast data:
+06.04.2022 00:00
+----------------
+Should be from the file: 949_uprava_Azet-u_pre_Belehrad\dataSamples_Belehrad\Azet_Belehrad_comparision\WRF_Belehrad_sample\WRFPRS_d03.24_6.4.2022_00.grib
+
+Temp Dry:
+Reading from grib in Belgrade is about 283 K - termic island,
+converted to degrees of Celsius is about 9.85 degress which
+approximatelly corresponds to the retrieved termperature.
+Also CSV export is OK.
+
+Relative humidity:
+Reading from grib - % from the variable:
+Relative_humidity_height_above_ground Again over Belgrade is dry
+island with values about 42-42% which corresponds to read 42.63 % in
+the meteogram and exported CSV file.
+
+Wind U/V components:
+Wind direction South, V component 2.09 m/s U component 0.1 m/s which
+also correponds to the value 2.1 wind speed in the output CSV.
+Approximatelly corresponds to the read grib variable:
+  u-component_of_wind_height_above_ground
+  v-component_of_wind_height_above_ground
+
+'Positive wind is from south'
+However, we do not have clear mapping between output of
+wgrib:
+21:229586:D=2022040500:UGRD:10 m above gnd:kpds=33,105,10:24hr fcst:winds in grid direction:"u wind [m/s]
+22:241288:D=2022040500:VGRD:10 m above gnd:kpds=34,105,10:24hr fcst:winds in grid direction:"v wind [m/s]
+to the variables seen by Panoply or other software.
+And we can not see these two variables using Panoply, but they are very likelly read:
+10:100858:D=2022040500:UGRD:850 mb:kpds=33,100,850:24hr fcst:winds in grid direction:"u wind [m/s]
+11:112560:D=2022040500:VGRD:850 mb:kpds=34,100,850:24hr fcst:winds in grid direction:"v wind [m/s]
+Question/issue?
+
+Pressure at the station Belgrade:
+Seems like highest pressure at that time is in the value of Danube
+where is about 100509 Pa, by teperature 9.5 Deg the result would be no
+more than 99350 Pa which far below resulting 1001.6.  But we report
+the pressure at sea level to be comparable.
+
+
+DewPoint temperature:
+Seems correct, retrieved from the grib variable:
+Dewpoint_temperature_height_above_ground In the input grib we have
+about 271 K which approximatelly corresponds to the published -2.61
+Degrees Celsius.
+
+Cloud cover, and precipitation we use:
+949_uprava_Azet-u_pre_Belehrad\dataSamples_Belehrad\Azet_Belehrad_comparision\WRF_Belehrad_sample\WRFPRS_d03.42_6.4.2022_00.grib
+
+Temp Dry:
+Reading grom grib, we have maximum temparature:
+291.2 which coverted to C degress is:
+291.2 - 273.15 = 18.05
+In the meteogram we have:
+18.1121184878729
+CSV export: 18.1
+There seems to be issue with some sort of rounding, processing
+during reading of temperature (eventually other values).
+Small issue.
+
+Clouds amount:
+Reading of the grib variable: Total_cloud_cover_entire_atmosphere
+seems that the middle of the WRF content, there is particulary amount
+about 20 % of comming front and precipitation from the North-West.
+Meteogram and CSV export has 22%.
+Wind for this slot looks correct - negative significant u component
+corresponds to the E (east wind).
+
+Try yet with highest precipitations:
+949_uprava_Azet-u_pre_Belehrad\dataSamples_Belehrad\Azet_Belehrad_comparision\WRF_Belehrad_sample\WRFPRS_d03.54_6.4.2022_00.grib
+
+Relative humidity:
+Retrieved from the grib variable: Relative_humidity_height_above_ground
+Which for Belgrade spot varies between
+86 to 90%
+which corresponds to the published
+97.93 %
+
+Precipitation:
+Very likely retrieved from the grib variable: Total_precipitation_surface_54_Hour_Accumulation
+23:252990:D=2022040500:CPRAT:sfc:kpds=214,1,0:24hr fcst:winds in grid direction:"Convective precip. rate [kg/m^2/s]
+Which has unit kg m^2.
+Which would be for that slot about 10 [kg/m^2].
+
+There must be algorithm, which remembers all revious slots and
+calculated the cumulative precipitation and then substracts the
+previous amount.  This approximatelly corresponds to the accumulated
+values converted from mm to dm^3 on 1 square meter, which correponds
+to the accumlated kg.  And this approximatelly correponds to the
+values in area of Belgrade for grib files.
+
+mm	Mm^3 on 1 m^2	This should correspond to the kg/m^2	
+0.007823845145218	7823.84514521779	0.007823845145218	SUM of two times with precipitation
+0.145156953030295	145156.953030295	0.145156953030295	0.152980798175513
+1.24698679134354	1246986.79134354	1.24698679134354	
+4.93056232662695	4930562.32662695	4.93056232662695	
+1.83070248704269	1830702.48704269	1.83070248704269	
+0.328939661661312	328939.661661312	0.328939661661312	
+2.33823647389339	2338236.47389339	2.33823647389339	
+3.4201006048661	        3420100.6048661	        3.4201006048661	
+SUM	1424.85091436095	14.2485091436095	10.8284085387434
+			                                -previous
+Pressure:
+Also here for the slot 54 there is highest
+pressure in the valey of Danube
+99521 Pa
+which is after altitude correction
+98285 Pa
+and we have in the CSV export:
+991.6 hPa
+which is very likelly not altitude corrected,
+but this is OK.
+
+Dew point:
+Also seems correct for the slot 54.
+But the variable: Dewpoint_temperature_surface
+has very low values, about 220 K - which is about -44 Degrees Celsius
+which is rather suspicious.
+Issue 2.
+
+# And now upgrade 949 from the night build
+- extend the info and alerting emails of RUN identificaiton - this is very vital - create ticket
+
+# Inspiration for meteogram publishing
+https://gitlab.mstep/mis/sw/ims/ims4/ims4-configurations/-/blob/martina_777_26982_fix_precalcu/UDCS_CLDB/meteogram.xml
+
+https://wiki2.mstep/index.php/617_UAE_DM_Central_Server_Consolidation_and_Update
+com.microstepmis.graph.meteogram.Meteogram.draw(Value[][][], MeteogramData, long).data
+
+# automation of deployment of the scripts
+https://dev.to/p0oker/automatic-deployment-from-github-to-your-server-with-no-third-party-app-3f5j
+https://www.npmjs.com/package/pm2
+https://stackoverflow.com/questions/561245/virtual-memory-usage-from-java-under-linux-too-much-memory-used
+
+# 5.5.2022 - creating the Live Deployment Machine - Hetzner
+Assessment:
+- IMS4 installation (binaries, java, tomcat, backups, logs) - up to 5 GB
+- data - WRF gribs - 10 days retained - up to 1GB (gribs are reduced and small - just vicinity of Belgrade)
+ Thus the disk is not needed so much.
+ 60 GB should be enough for v1.0.1.
+- Azet PostgreSQL database is of size about 7 GB. 
+- Memory - there is quite high caching of JVM - I would recommend to obey
+  the tested available and provide ~15GB of RAM
+- CPU - for OPS installation I would recommend to have
+  tested 4 cpu cores of simillar power and architecture as in our DEV/INT VMs.
+
+Reserve for future potential releases:
+- GFS data of the whole world as disseminated for Azet:
+  du -sh /opt/ims/data/inputGFS/20220321/*
+  11G     /opt/ims/data/inputGFS/20220321/00
+  11G     /opt/ims/data/inputGFS/20220321/06
+  11G     /opt/ims/data/inputGFS/20220321/12
+  11G     /opt/ims/data/inputGFS/20220321/18
+  One day of GFS grib files is about 41GB - retained
+  10 days means ~500GB just for this data resource.
+  METAR/SYNOP and Custom M00XX logger messages:
+  3 hours of messages, about 400 MB
+  with reserve we could estimate 10GB.
+  
+  And ingestion of messages into CLDB is pretty intensive on Hardware.
+  (recommend extend the disk to ~250 GB and eventually add CPU cores)
+
+# 23.5.2022 - Customer presentation for the Forecast Module v1.0.1 -
+  Quick Win - WRF and CSV meteogram only.
+
+  Structure of the presentation:
+  For:
+  Electrical Powerplants of Belgrade and COMING Computer Engineering Serbia
+  
+  1.Introduction
+    Assessing customer needs - what has been promissed.
+    Delivery of the stations and CLDB Light software
+    Deployment diagram of NWP - Hetzner Cloud
+
+  2.Local high resolution Weather Research and Forecasting Module (WRF)
+    Description of the components
+    Output in Grib binary files
+    
+  3.IMS4 Forecast Module - v1.0.1 WRF Meteograms
+    System overview - two agents
+    Meteogram visualization
+    Output on FTP account - how it looks like - CSV outputs
+    (Configurable)
+
+  4.What could be included in next release
+    - integration with other systems using XML meteograms
+      -> specification is needed
+    - addedd additional compontent in MS4
+      visualization of Meteograms directly in IMS4 WebGUI portal
+    - integration of 1/10 minutes data and
+      implementation of 15 MOS corrected temperatures
+      (not included in the current delivery
+       due to capability of our current MOS
+       solution process data only
+       in hourly resolution
+       - we will need extend the design)

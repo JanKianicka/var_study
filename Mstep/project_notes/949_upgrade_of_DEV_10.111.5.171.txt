@@ -1,0 +1,20 @@
+# Detail notes of upgrade of 949 10.111.5.171 upgrades
+
+# Upgrade after PostgreSQL upgrade - 7.3.2022
+./upgrade.sh |tee 2>&1 /opt/log/upgrade_ims_log_7.3.2022_1.log
+
+- missing orafce
+
+- deployment of deleted Forecast data entry:
+-----
+mkdir -p /opt/ims/tomcat/webapps/ims/css2/fragments/customer/azet_665/
+scp root@10.111.1.5:/opt/ims/tomcat/webapps/ims/css2/fragments/customer/azet_665/dataEntryForecastData.css /opt/ims/tomcat/webapps/ims/css2/fragments/customer/azet_665/.
+mkdir -p /opt/ims/tomcat/webapps/ims/html2/fragments/customer/azet_665/
+scp root@10.111.1.5:/opt/ims/tomcat/webapps/ims/html2/fragments/customer/azet_665/dataEntryForecastData.html /opt/ims/tomcat/webapps/ims/html2/fragments/customer/azet_665/.
+mkdir -p /opt/ims/tomcat/webapps/ims/js2/fragments/customer/azet_665/
+scp root@10.111.1.5:/opt/ims/tomcat/webapps/ims/js2/fragments/customer/azet_665/dataEntryForecastData.js /opt/ims/tomcat/webapps/ims/js2/fragments/customer/azet_665/.
+
+Other day successful and without major issues:
+./upgrade.sh |tee 2>&1 /opt/log/upgrade_ims_log_8.3.2022_1.log
+
+

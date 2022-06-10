@@ -1458,7 +1458,7 @@ m:\Zakazky\665_SK_Azet_predpovede\Misc\SQL\
 This is to be discussed with Mata Petrovicova.
 
 # 2.2.2022 - other round of questions after wading through the code
-and commencting of integration of WRF grib1 data.
+and commencting of integration of Serbain WRF grib1 data.
 
 21. Merging of WRF to GFS:
 What were the requirements and circumstances
@@ -1505,6 +1505,28 @@ I had to implement translation based on this configuration,
 to be capable to correctly skip the MOS processing.
 What is the general circumstance, requirement about these variable identifications?
 
+Show:
+cfg/station/CurrentDataReaderAgentCfg.xml (variableName)
+cfg/station/forecast/getForecastCfg.xml - (predictiorGFS, title)
+cfg/station/forecast/WRF_getForecastCfg.xml
+cfg/station/forecast/MOS/ForecastMOSFilterCfg.xml - complete mapping
+cfg/station/Rscripts/Variables.csv - QC for spatial interpolation
+ls /opt/ims/data/forecastGrib/RData/2022/02/24/11/ActualData/
+Grid.csv                                        Input_21_1645700400000_1645700400000_AA.csv
+Input_10000_Informative.csv                     Input_50_1645700400000_1645700400000_AA.csv
+Input_10003_1645700400000_1645700400000_AA.csv  Input_77_1645700400000_1645700400000_AA.csv
+Input_1044_1645700400000_1645700400000_AA.csv   Input_78_1645700400000_1645700400000_AA.csv
+Input_1046_1645700400000_1645700400000_AA.csv   Input_89_1645700400000_1645700400000_AA.csv
+Input_1101_1645700400000_1645700400000_AA.csv   out
+Input_1102_1645700400000_1645700400000_AA.csv
+
+Communicaiton with the external process via the variableId.
+Grid.csv contains metadata about the stations and
+uses the unique stationID.
+
+In output CSV files we have the 'CustomerId' in the name and
+'variableName' inside.
+
 22. Merging WRF to GFS again -
 For Azet there is logic that GFS is primary,
 and WRF based on configuration of MOS is just merged into GFS
@@ -1529,20 +1551,141 @@ What might be requirements, limitations
 for merging these two models GFS/WRF?
 
 23. Spatial interpolatin - vs. WRF reading
-WRF model data are interpolated
+WRF model data are interpolated.
+In the MeteogramWRFAgent we see this code:
 
-Add also print screens and data samples
+-> getGribValue()
+if(cfgSkStations.stations[i].interpolated.equals("Y")){
+/* Data also from WRF model are read only for non-interpolated stations */
+	continue;
+
+But also for Azet installation we have just few stations with
+incomming data (METAR/SYNOP).
+See e.g. temperature on surface from today:
+Temperature_surface_in_WRFPRS_d03_ll.04.png
+Total_cloud_cover_entire_atm_in_WRFPRS_d03_ll.04.png
+
+Thus only 21 points are retrieved from WRF grib.
+See:
+Position_of_non_interpolated_points_forWRFAzet.png
+As well as from GFS grib files.
+In MeteogramAgent the function:
+-> getGribValue
+   if(cfgWorldStations.stations[i].interpolated.equals("Y")){continue;}
+
+This corresponds that also for Slovak territory only the displayed 21
+points are retrieved.
+Are we not loosing by this approach a lot of precious data?
+Why it does not work such, that actual data for MOS correction
+are extrapolated to the locations without measurements, and
+WRF/GFS are retrieved for all locations, stations configured for WRF reading,
+and only then MOS corrected?
+
 
 24. MOS filters, their corrections.
 Why just for some Azet stations exists the filters
 and actually they really execute the code
 in the MOS computation.
 
-25. MOS filtering and different GFS, WRF runs?
+e.g. cfg/station/forecast/MOS/filters/GFS_00/MOS_GFS_00_Tmp_Dry_Part_1.xml
+                <stationId>1145</stationId>
+                <stationPredictors>
+                        <x predictorNum="0" predictorKoef="-7.0" predictorVariable="" />
+                        <x predictorNum="1" predictorKoef="1" predictorVariable="GFS#temperature_2_lvl_105" />
+                </stationPredictors>
+        </x>
 
-26. WRF runs and manual correction intervals?
-We have now two, based on GFS integration,
-but what if primary source will be WRF with four runs a day?
+        <x  xclass="com.microstepmis.forecast.mos.corrections.MOSFilterVariable$Item" >
+                <stationId>1153</stationId>
+                <stationPredictors>
+                        <x predictorNum="0" predictorKoef="-9.0" predictorVariable="" />
+                        <x predictorNum="1" predictorKoef="1" predictorVariable="GFS#temperature_2_lvl_105" />
+                </stationPredictors>
+        </x>
+
+        <x  xclass="com.microstepmis.forecast.mos.corrections.MOSFilterVariable$Item" >
+                <stationId>1157</stationId>
+                <stationPredictors>
+                        <x predictorNum="0" predictorKoef="-4.0" predictorVariable="" />
+                        <x predictorNum="1" predictorKoef="1" predictorVariable="GFS#temperature_2_lvl_105" />
+                </stationPredictors>
+        </x>
+
+We see that the filters are available
+just for the stations:
+1145
+1153
+1157
+which might not exist in other installation.
+
+Also the filters are configured just for chosen
+variables:
+cfg/station/forecast/MOS/filters/GFS_00
+cfg/station/forecast/MOS/filters/GFS_00/MOS_GFS_00_Cld_0_Amt_Part_1.xml
+cfg/station/forecast/MOS/filters/GFS_00/MOS_GFS_00_Prec_YesNo_Part_1.xml
+cfg/station/forecast/MOS/filters/GFS_00/MOS_GFS_00_Rel_Hum_Part_1.xml
+cfg/station/forecast/MOS/filters/GFS_00/MOS_GFS_00_Tmp_Dry_Part_1.xml
+cfg/station/forecast/MOS/filters/GFS_00/MOS_GFS_00_Tmp_Dry_Part_2.xml
+cfg/station/forecast/MOS/filters/GFS_00/MOS_GFS_00_Wind_UU_Part_1.xml
+cfg/station/forecast/MOS/filters/GFS_00/MOS_GFS_00_Wind_VV_Part_1.xml
+
+This might correspond to the
+MOS correction being applited in
+the configuration:
+cfg/station/forecast/MOS/ForecastMOSFilterCfg.xml
+
+But there is only one variable on which the MOS
+is actually applied.
+<x configVariableName="TempDry" variableName="Temp.Dry" variableId="78" predictorGFS="temperature_2_lvl_105" correctionMOS="Y"  actualise="Y" interpolate="Y" output="Y" src="../cfg/station/forecast/MOS/filters/%s_%02d/MOS_%s_%02d_Tmp_Dry%s.xml" />
+
+This corresponds to the operational Azet Deployment
+seeng the log files.
+/opt/ims/log/2022/02/24/MainForecastMOSFilterThread-GFS.log
+/opt/ims/log/2022/02/24/MainForecastMOSFilterThread-WRF.log
+/opt/ims/log/2022/02/24/MOSThread-TempDry_GFS.log
+/opt/ims/log/2022/02/24/MOSThread-TempDry_WRF.log
+
+What is the general concept about a generic MOS corrections.
+How to configure it? How the filters are going to be developped and maintained.
+Why is just TemDry MOS corrected for Azet?
+
+25. MOS filtering and different GFS, WRF runs?
+Also regarding the MOS filters.
+For Azet we have just two GFS and only two WRF runs a day.
+Why?
+MeteogramAgent was initially prepared for 4 GFS runs,
+but this was not implemented.
+Yet, GFS is for Azet installation primary source.
+So if GFS is not available, no forecast is produced.
+
+But here are the MOS filters configurations:
+cfg/station/forecast/MOS/filters/GFS_00
+cfg/station/forecast/MOS/filters/GFS_06
+cfg/station/forecast/MOS/filters/GFS_12
+cfg/station/forecast/MOS/filters/GFS_18
+cfg/station/forecast/MOS/filters/longPeriod
+cfg/station/forecast/MOS/filters/shortPeriod
+cfg/station/forecast/MOS/filters/WRF_00
+cfg/station/forecast/MOS/filters/WRF_12
+
+Long period and short period are empty.
+
+And what actually mean the terms: LONG SHORT for Azet then?
+I see that waiting times in the agents are different for each - 1hour,
+40 minutes respectivelly.
+But we have actually just two corresponding runs for GFS as well as
+for WRF and WRF is driving here MeteogramWRFAgent send alerting emails
+and awaits.
+
+26. WRF runs and manual correction intervals?  We have now two, based
+on GFS integration, but what if primary source will be WRF with four
+runs a day?
+For Serbian and also for other installations might be primary data WRF
+which suplies 4 runs a day. How will manual correction work?
+Shall we have 4 slots based on runs - as now corrections are directly
+tight to supply of WRF data?
+Or could we have manual correction completelly independent
+say also just twice a day?
 
 27. There is really strange process in the ActualData
 -> getCountingActualValues(), -> getActualValForVariable()
@@ -1583,7 +1726,7 @@ modified GFS as well as WRF forcast data.  I put protection of having
 forecast data from grib everywhere.  But what about actual time
 interval being replaced and interpolated, in Azet for example?
 
- 
+
 Open issues:
 1. On the first glance there is a lot of script code and R code in the
 configuration - this is not good, not code mingled with configuration
@@ -1602,7 +1745,3 @@ brought different permissions schema - Linux users 'infls_dwnl',
 https://10.111.1.5:8443/ims/html2/customer/azet_665/dataEntryForecastData.html
 works only for the WRF data, other have error 'Server operation fail' or
 the loading get stuck in the infinite loop.
-
-
-
-

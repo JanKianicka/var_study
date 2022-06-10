@@ -1587,7 +1587,28 @@ New errors during upgrade - shall be reported to Mata.
 Was reported.
 And already fixed by Mata Petrovicova.
 
+# Upgrade 28.3.2022 - successfull
 
+# 6.4.2022 Upgrade already delivered QuickWin v1.0.1 solution to the integrator Jaro Drozd
+for instalation on the INT machine.
 
+Tag: R20220404_183605
+object 4f25c821d68652bd37d3e2090e166da61a94c746
+type commit
+tag R20220404_183605
+tagger jenkins <devops@microstep-mis.com> 1649118097 +0200
 
+Build release version: R20220404_183605, Nightly build ID: 3684
+(But meanwhile there is already another tag:
+ Merge branch 'gyorgyt_grib_aggregation_check' into 'master'
+ Tag: R20220405_183542
+ object b2d26ccf1cceaeffd0c5e3bf48c8af89829615be
+ type commit
+ tag R20220405_183542
+ tagger jenkins <devops@microstep-mis.com> 1649204399 +0200
+ Build release version: R20220405_183542, Nightly build ID: 3685 )
 
+Successfully upgraded without errors:
+upgrade_ims_log_6.4.2022_1.log
+
+---
