@@ -85,6 +85,8 @@ https://www.knowledgetrain.co.uk/project-management/prince2/prince-2-course/prin
 
 ------
 Prince 2 Themes:
+From this URL:
+https://www.knowledgetrain.co.uk/project-management/prince2/prince-2-course/prince2-themes
 
 There are 7 PRINCE 2 Themes:
 
@@ -101,6 +103,7 @@ There are 7 PRINCE 2 Themes:
      - Senior user
      - Benefits management approach
      - Minimum requirements
+     
   2. Organization
      The purpose of this theme is to define and set up a project
      management team structure which defines who is accountable and
@@ -129,8 +132,169 @@ There are 7 PRINCE 2 Themes:
      and maintain the project initiation documentation (PID), and a
      communication management approach.
      
+   3. Quality
+     PRINCE2 defines it as 'fit for purpose'.
+     Documented in the quality management approach.
+     QMS - quality management system
+     QA - quality assurance
+     Quality Control
+     Baseline - once the product is approved by the quality control, it became a
+                baseline (version) and change only via a 'request for
+                change'.
+     Quality planning - customer's quality expectations - part of high level
+                        business requirements
+     Acceptance methods - creted acceptance records by different stakeholders.
+     Quality register - where quality records are maintained.
+
+     Minimum requirements:
+     -> quality management approach
+     You must specify explicit quality criteria for products and
+     maintain appropriate quality records.
+     -> quality register
+     The customer’s quality expectations and prioritized acceptance
+     criteria must be specified in a project product description and
+     you must use lessons to inform quality planning on the project.
+     
+   4. Plans
+     The purpose of this theme is to define how, when, for how much,
+     by whom and where the project will deliver products.
+     Levels of plan
+     
+      1. project plan - project board - containing project levels
+                        costs, timescales and control points
+      2. stage plan - roject manager - for day-to-day management of the project
+      3. team plan - team manager – covers all the work done by a team
+     Exception plans
+     Budgets - 1. fund to cover the product
+               2. risk budget
+	       3. change budget
+	       4. cost tolerance
+     Product-based planning:
+               1. Writing a project product description
+	       2. Creating a product breakdown structure
+	       3. Writing product descriptions
+	       4. Creating a product flow diagram
+     Planning stages:
+     - the planning horizon, delivery steps, level of risk
+
+     Minimum requirements:
+     You must have at least two management stages.
+     You must produce and maintain a project plan and stage plan.
+     You must use product-based planning when creating all plans.
+     You must create and maintain a
+         project product description,
+	 product description for each product
+	 product breakdown structure
+
+   5. Risk
+     Risk is defined as an uncertain event, which (if it occurs) will
+     have an effect (either negative or positive) on the project’s
+     objectives.
+     If and when a risk does actually occur then it becomes a project
+     issue.
+     Two sort: THREAD or OPPORTUNITY
+
+     Risk appetite -
+     Risk budget -
+     Risk tolerance -
+     Risk management procedure - risk register,
+                                 risk management approach - 5 steps:
+				    1. Identify
+				    2. Assess
+				    3. Plan
+				    4. Implement
+				    5. Communicate
+     Risk responses:
+        Threads:
+	   1. Avoid
+	   2. Reduce
+	   3. Accept
+	   4. Transfer
+	   5. Share
+	   6. Prepare contingent plans
+	Opportunities:
+	   1. Exploit
+	   2. Enhance
+	   3. Reject
+	   4. Transfer
+	   5. Share
+	   6. Prepare contingent plans
+
+      Minimum requirements:
+      You must define a risk management approach.
+      You must maintain some form of risk register.
+
+   6. Change
+     The purpose is to identify, analyse and control any potential and
+     approved changes to baseline products.
+
+     Baseline:
+     A baseline refers to a product which has undergone its quality
+     controls, has been deemed ‘fit for purpose’ and has been approved
+     by those with authority.
+     Project issues:
+      - Request for Change (RFC)
+      - Off-specification
+      - Problems/concerns
+     Exceptions
+     Managing issues - e.g. issues get recorded in the daily log
+     Change control procedure:
+        1. Capture
+	2. Examine
+	3. Propose
+	4. Decide
+	5. Implement
+     Change authority
+     Configuration item records - used to identify version of the product.
+
+     Minimum requirements:
+     You must define a change control approach.
+     The approach will also define how product baselines are created,
+     maintained and controlled.
+     You must maintain some form of issue register.
+     
+   7. Progress
+     The purpose is to put in place mechanisms (controls) to monitor
+     and compare what has actually happened on the project against
+     what should have happened.
+
+     Progress control:
+       - delegating authority from one level of management to the level below
+       - dividing the project into management stages
+       - time-driven and event-driven progress
+       - raising exceptions  
+     The project’s controls should be documented in the project
+     initiation documentation (PID).
+
+     Tolerances
+     Escalate if beyond tolerance
+     Types of progress control:
+        Time-driven controls
+	Event-driven controls
+     Examples of event-driven controls:
+        Work package
+	Lessons log
+	Lessons report
+	End stage report
+	End project report
+     Project manager controls:
+        Baselines: project plan, stage plan, exception plan, work package
+	Reviewing progress: issue register, risk register, quality
+	   register, product status account, daily log
+	Capturing/reporting lessons: lessons log, lessons report
+	Reporting progress: checkpoint report, highlight report, end
+	   stage report, end project report
+
+     Minimum requirements:
+     You must define your project's approach to controlling progress
+     in the project initiation documentation (PID).
+     You must manage by stages, set tolerances and manage by exception
+     against these tolerances.
+     You must review the business justification when exceptions are
+     raised and learn lessons throughout the project.
+
+----
+PRINCE2 Processes
 From this URL:
-https://www.knowledgetrain.co.uk/project-management/prince2/prince-2-course/prince2-themes
-
-
+https://www.knowledgetrain.co.uk/project-management/prince2/prince-2-course/prince2-processes
 
