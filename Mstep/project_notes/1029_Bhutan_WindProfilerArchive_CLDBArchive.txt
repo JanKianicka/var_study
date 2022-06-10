@@ -1,0 +1,243 @@
+# 1.6.2022 after accomplishment of Forecast Module v1.0.1 for Belgrade
+Power Plants Company, I was switched to the big and very nasty and
+dreadful project 1029 CLDB Bhutan.
+
+My task is to redirect WindProfiler data to CLDB installation
+and to accomodate Wind Profile RPC methods to be capable to
+read from the ProductDB2.
+
+Nothing is configured/implemented yet.
+
+Top level task is this one:
+https://its.microstep-mis.com/issues/30325 1029 - archivacia RWP dat z Paro AWOS
+
+AWOS machine shall be used the DEV machine from the contract num. 775.
+10.111.4.31
+https://10.111.4.31:8443/ims/html2/index.html
+
+INT machine with the same AWOS deployed:
+10.111.4.33
+https://10.111.4.31:8443/ims/html2/index.html
+(for security reasons turned off)
+
+Reading about the ProductDB2 from Mata:
+https://wiki2.mstep/index.php/ProductDB2_How_To
+
+Debugging and using the ProcutDB2 RPC methods:
+https://10.111.5.161:8443/ims/html2/productdb/productDB2.html?dbName=com.microstepmis.ims.data.productdb2.customer.pagasa_563.MapAnalysisDB
+
+Terminal used for dumping of Space data through communication:
+msgCrcXml
+- I have not found how it works - obviously, you have to deeply debug
+and troubleshoot any small piece of shit of this system.  Seems like
+reading and attaching trigger is missing, and may be even in terminal
+it is not possible to trigger something on event of the new space
+block - I will yet test the writing possibility just to learn about.
+
+# 6.6.2022 - continuation of troubleshooting and
+resolving issues related to AWOS -> CLDB data transfer.
+
+msgCrcXml prepared termianl started to work
+only after setting these configuration parameters:
+
+     	   	       <terminalA xclass="com.microstepmis.communication2.PreparedTerminal$Config" preparedId="msgCrcXml">
+				<preparedParams>
+					<x id="blockName" stringValue="DESIGNATOR/CHANNEL0" />
+					<x id="msgId" stringValue="DESIGNATOR/CHANNEL0" />
+					<x id="sendPeriod" longValue="60000" />
+					<x id="sendOffset" longValue="10000" />
+				</preparedParams>
+			</terminalA>
+sendPeriod, sendOffset - defaults did not work.
+However, seems like this terminal is not capable to
+react on trigger from space, but only regularly stores
+XML dumps from the space.
+Moreover, seems like special characters are
+put in the front and back sides of the ASCII files.
+Example:
+Testing/1654587610012-_r_WindProfile_MET_x_xcla
+
+(Investigated possibility to extend the msgCrcXML Prepared Terminal of
+other features of the PollProtocol but have not continued this way)
+
+Other option is to use SpaceCopy Terminal.
+Configured channel:
+RWindProfile_MET_SpaceCopy_Exp
+which dumps these output files e.g.:
+Testing/1654587930182_rWindProfiler_MET_2022_06_07_07.xml
+
+which are of type:
+com.microstepmis.agentspace.BlockStatus[]
+of blocks: r/WindProfile/MET
+
+This might be the otherside interface to
+the ProductDB2.
+However, open issue remains, that observation time (measure - 'meas'
+time is the commincation timestamp and we have not resolved how to
+publish windprofile.WindData - date variable.
+
+Other issue of File Write Terminal.
+Documented formatings:
+%8$s_%9$s_%10$s.xml - are not functional
+---
++ "%8$s MINUTE \n"
++ "%9$s messageHeader \n"
++ "%10$s fileName \n"
+---
+
+And also the auxilliary thumbnail when you hover over the description
+is not rendered properly.
+
+
+Q1. In the productDB we must use the observation time from the
+exported block to be stored as reference observation time, not the
+timestamp from the communication.  This will resolve also failover or
+delayed processing.
+
+# 7.6.2022 - study and document ProductDB2, debug and investigate
+the integration possibilities.
+
+com.microstepmis.ims.data.productdb2.ProductDB2RPC
+com.microstepmis.ims.data.productdb2.customer.bhutan_1029.SatelliteDB
+
+no unit tests.
+
+Configuration of the ProductDB2 server side configuration:
+
+
+
+AWOS installation:
+------------------
+- store functional configuration snapshots to ims4-configuration
+repository - into a feature branch already.
+- Prepare for deployment.
+
+---
+1. change configuration of the SpaceCopy channel - Done
+2. accomplish CD of ProductDB with emphasis on RPC methods
+
+The interface is implemented in several java script implementations.
+Implementation in the ProductDB2.js, which is standard on
+the machine:
+https://10.111.5.161:8443/ims/html2/productdb/productDB2.html
+has the following sequence of calls:
+
+-> loadProductsByGroups()
+   -> 		RPCCall(
+			null,
+			'com.microstepmis.ims.data.productdb2.ProductDB2RPC',
+			'getListOfProdGroups',
+			null,
+			handleGetGroups,
+			dbNameUri
+		);
+   Where:
+   dbNameUri: 'com.microstepmis.ims.data.productdb2.customer.pagasa_563.MapAnalysisDB'
+   function handleGetGroups is just handler.
+
+   Simillar java call may be found in CompoundRadarProductDB.
+   prodGroups.addAll(ProductDB2RPC.getListOfProdGroups(RadarProductDB.class.getName()));
+   
+   The follows retrieving products:
+   ->		RPCCall(
+					null,
+					'com.microstepmis.ims.data.productdb2.ProductDB2RPC',
+					'getGroupOfProducts',
+					null,
+					handleGetProducts,
+					dbNameUri,
+					productGroup,
+					date.dateFrom,
+					date.dateTo
+		);
+  where again:
+  dbNameUri: 'com.microstepmis.ims.data.productdb2.customer.pagasa_563.MapAnalysisDB'
+  productGroup: "Map Analysis profiles"
+
+  I have not found how the list of files is retrieved because the RPC
+  call of getKeys*() is not executed in the ProductDB2.js.
+
+  With help of Marcel found the call and wrapper - using search in Network Communication:
+  search 'getKeys' and input Request is:
+     <x xclass="com.microstepmis.xplatform.rpc.RPCRequest" className="com.microstepmis.ims.data.productdb2.ProductDB2RPC" methodName="getKeys">
+	<arguments>
+		<x xclass="String">com.microstepmis.ims.data.productdb2.customer.pagasa_563.MapAnalysisDB</x>
+		<x xclass="Long">1654725600000</x>
+		<x xclass="Long">1654812000000</x>
+		<x xclass="String">MSL_3H_SYNOP</x>
+		<x xclass="Integer">9999</x>
+	</arguments>
+     </x>
+  with Response:
+  
+       __x=new com_microstepmis_xplatform_rpc_RPCResponse();
+       __x.result=__x2=new Array();
+       __x2[0]=__x3=new com_microstepmis_ims_data_productdb2_Key();
+       __x3.prodName="MSL_3H_SYNOP";
+       __x3.partNumber=1;
+       __x3.timestamp=1654732800000;
+       __x3.fileName="ObjectiveAnalysis_productDB_msl3_20220609000000.grb";
+       __x3.rcvtime=1654733520144;
+       __x2[1]=__x3=new com_microstepmis_ims_data_productdb2_Key();
+       __x3.prodName="MSL_3H_SYNOP";
+       __x3.partNumber=1;
+       __x3.timestamp=1654743600000;
+       __x3.fileName="ObjectiveAnalysis_productDB_msl3_20220609030000.grb";
+       __x3.rcvtime=1654744110105;
+       __x2[2]=__x3=new com_microstepmis_ims_data_productdb2_Key();
+       __x3.prodName="MSL_3H_SYNOP";
+       __x3.partNumber=1;
+       __x3.timestamp=1654754400000;
+       __x3.fileName="ObjectiveAnalysis_productDB_msl3_20220609060000.grb";
+       __x3.rcvtime=1654754925019;
+       __x2.xclass="java.util.ArrayList";
+       __x;
+  From the stacktrace we see:
+     core.ProductExportManager.js
+      	this.getKeysByProduct = function(dbName, dateFrom, dateTo, prodName, maxEntries) {
+		return remoteClass.call(
+			'getKeys',
+			X2O.createInstance('String', dbName),
+			X2O.createInstance('long', dateFrom),
+			X2O.createInstance('long', dateTo),
+			X2O.createInstance('String', prodName),
+			X2O.createInstance('Integer', maxEntries)
+		);
+	}
+  
+  But again used e.g. in the CompoundRadarProductDB:
+  ProductDB2RPC.getKeys(RadarProductDB.class.getName(), from, to, prodName)
+
+  But there is call of:
+  -> getFileLocation()
+          location = RPCCall.createRequestBodyUrl(
+			null,
+			'com.microstepmis.ims.data.productdb2.ProductDB2RPC',
+			'getFile     ',
+			null,
+			function () {},
+			dbNameUri,
+			key
+		);
+
+   Where:
+   dbNameUri: 'com.microstepmis.ims.data.productdb2.customer.pagasa_563.MapAnalysisDB'
+   key:
+      fileName: "ObjectiveAnalysis_productDB_msl3_20220608150000.grb"
+      partNumber: 1
+      prodName: "MSL_3H_SYNOP"
+      rcvtime: 1654700910061
+      timestamp: 1654700400000
+   
+
+- debug and study the configuration on both machines and
+  implementation of particular productBD2 instances
+  - propose design of the new generic one for BlockStatuses
+  - propose design of the interface for
+    the particular calls and layer
+  
+- unit tests of the partial components
+
+
+On Friday start with backups and cleaning of emails.
+
