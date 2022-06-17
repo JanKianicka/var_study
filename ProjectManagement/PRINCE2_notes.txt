@@ -298,3 +298,122 @@ PRINCE2 Processes
 From this URL:
 https://www.knowledgetrain.co.uk/project-management/prince2/prince-2-course/prince2-processes
 
+There are 7 processes in PRINCE2:
+
+   1. Starting up a project
+      “is the project viable and worthwhile?”
+      - to appoint right personel
+      - to ensure there is plan
+      - ensure initiation phase has reasonable scope, timescales,
+        acceptance criteria and constraints
+
+      The process is about filtering out the badly-conceived projects
+      from the good ones.
+      The project trigger - corporate management
+      Allocation of people and definition of roles.
+      The executive is responsible to outline the business case.
+
+      Two main outputs:
+      - project brief
+      - initiation stage plan
+
+   2. Directing a project
+      The purpose is to enable the project board to make key
+      decisions and exercising overall control over the project.
+      Objectives:
+      - there is authority to initiate the project, deliver the project’s products, and to close the project
+      - management direction and control are provided throughout the project’s life
+        the project remains viable
+      - corporate management has an interface to the project
+      - plans for realizing the post-project benefits are managed and reviewed
+
+      "The executive is the decision maker, project board is NOT a
+      democracy"
+      The senior supplier and senior user roles on the project board
+      will help and support the executive to take sensible decisions.
+
+      No need for regular meetings:
+      'the project board ‘manages by exception’ (another of the principles).'
+      
+      The Project Board performs 5 activities:
+      1. Authorize initiation – ensure that the project investment is worthwhile and notify corporate management
+      2. Authorize the project – approve the project initiation documentation (PID)
+      3. Authorize a stage or exception plan – review the performance
+         of the current stage and approve the next stage plan (or
+         exception plan)
+      4. Give ad-hoc direction – review highlight reports, issue reports and exception reports
+      5. Authorize project closure – review and approve the end project report (and lessons report)
+
+   3. Initiating a project
+      The purpose is to put in place the solid foundations for the management and control of the project.
+
+      Objectives:
+      To ensure there’s a common understanding of:
+      - the reasons, timescales, costs, scope, major products, expected benefits, and risks
+      - the quality requirements and standards
+      - how baseline products will be controlled
+      - the communication needs of stakeholders
+
+      Outputs:
+      Project Initiation Documenation (PID)
+      - project plan
+      - detailed business case
+      - Communication management approach - (wih stakeholders)
+      - Risk management approach
+      - Quality management approach
+      - Change control approach
+      - Project controls
+      - Tailoring
+
+   4. Controling a stage
+      The purpose is to assign work to teams, monitor the work, manage issues and risks.
+
+      Objectives
+      To ensure that:
+      - the project management team is focused on delivery within the tolerances
+      - risks and issues are kept under control
+      - the business case is kept under review
+      - the agreed products are delivered to the stated quality standards, within agreed cost, effort, time constraints
+      - progress is reported to the project board (highlight reports)
+      - tolerance threats escalated via exception reports
+
+      Covers the day to day project manager’s work
+      Focusing on delivery:
+         The process focuses on the delivery of the stage’s products.
+         The project manager allocates work to teams (managed by a team manager) via work packages.
+      Monitoring the team’s work:
+         Once the work is under way, the team manager sends regular
+         checkpoint reports to the project manager.
+      Reporting progress
+         Throughout the stage, the project manager sends regular
+         highlight reports to the project board.
+      Managing issues and risks
+         For any proposed requests for change the project manager
+         considers the impact the change will have on the project plan.
+
+   5. Managing product delivery
+      The purpose is to control the link between the customer and
+      supplier by placing formal requirements on the team manager for
+      the work to be done.
+
+      Objectives
+      To ensure that:
+      - work on products allocated to the team is authorized and agreed
+      - team managers and suppliers are clear as to what is to be
+        produced and what is the expected effort, cost or timescales
+      - the planned products are delivered to expectations and within tolerance
+      - accurate progress information is provided to the project
+        manager at an agreed frequency to ensure that expectations are
+        managed.
+
+      Team manager
+      Work packages
+      Reporting progress
+      Escalation - project issue or exception report
+
+   6. Managing a stage boundary
+      The purpose is to provide the project board with an updated view
+      of the project so it can review the achievements of the current
+      stage.
+
+      
