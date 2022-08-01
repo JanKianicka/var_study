@@ -416,4 +416,59 @@ There are 7 processes in PRINCE2:
       of the project so it can review the achievements of the current
       stage.
 
+      Objectives
+      - To assure the project board that all products in the current
+        stage plan have been completed and approved
+      - to prepare the next stage plan
+      - to review and, if necessary, update the PID
+      - to provide the information needed for the project board to
+        assess the continuing viability of the project
+      - to record any information or lessons that can help later
+        stages of this project and/or other projects
+      - to request authorization to start the next stage
+      - in an exception situation to prepare an exception plan and
+        seek approval to replace the project plan or stage plan for
+        the current stage with the exception plan
+
+      End stage assesment
+      Updates
+       -> business case
+       -> project plan
+       -> risk register
+       -> exception plan
+       -> exception report
+       -> lessons report
+
+   7. Closing a project
+      The purpose is to provide a fixed point at which it is confirmed
+      that acceptance for the project product has been obtained.
+
+      Objectives
+      - to verify user acceptance of the project’s products has been
+        obtained - this requires that the project’s acceptance
+        criteria have been met
+      - to ensure the host site(s) is able to support the products
+        when they go operational
+      - to review project’s performance against its baselines
+      - to assess any benefits already been realized, update the
+        forecast for the remaining benefits, and plan for a review of
+        all unrealized benefits
+      - to ensure provision has been made to address all open issues
+        and risks with follow-on action recommendations
+
+      Handover prodcuts
+      Benefits of formal closure
+      Follow-on actions     
+       -> It is common to find at the end of a project a number or
+          things which perhaps were never completed – e.g. requests
+          for change which never got implemented, or there might be
+          operational risks.
+          -> end project report
+
+      Lessons
+      Notification to stakeholders -> project closure notification
+      Moving into operational use
+      Post project -> benefits management approach
+
+
       
