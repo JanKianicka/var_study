@@ -18,3 +18,9 @@ Other day successful and without major issues:
 ./upgrade.sh |tee 2>&1 /opt/log/upgrade_ims_log_8.3.2022_1.log
 
 
+# 11.8.2022 - extended the installation to be only CLDB machine
+ - cfg/station/station.xml - interface- "ENVIDB"
+ - cfg/station/profile.conf - IMS_STATION_TYPE="ENVIDB"
+                            - IMS_MODEL_SUITE=y
+./upgrade.sh |tee 2>&1 /opt/log/upgrade_ims_cldb_log_12.8.2022_1.log
+ 

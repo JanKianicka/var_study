@@ -1,0 +1,159 @@
+# 3.8.2022 - slowly commence work on 'resuscitation' of the POVAPSYS verification module.
+
+https://its.microstep-mis.com/issues/30506 Forecast Module QuickWin WRF for Belgrade – follow up – storing current (CLDB) and forecast, meteogram data in the database
+
+Description:
+-----------
+There is general idea to store and archive current meteorological data
+and forecast data, grib files or generated point-wise meteograms into
+the database.
+
+Would be good to assess the details:
+- formats of current data and forecast data
+- components of IMS4 or other (scripts) needed to host such a database
+- where such database would be operated and how. Could one central
+  database serve several projects and installations? Or we would need
+  a new genuine production server for each installation, each WRF
+  model?
+- who and how will upgrade, maintain, configure such machines?
+
+Odpovede na otazky vyssie:
+-------------------------
+- current data = standadne CLDB data ulozene vo VALUES_F
+- forecast data = com.microstepmis.ims.data.ModelForecast objekty, ulozene v MODELS, MODELRUNS, MODELVALUES
+- components of IMS4 to hsot database: standardny IMS4 release s ENVIDB
+- could one central database host several projects and installations: ano - vid nizsie
+- who and how will upgrade, maintain, configure such machines? integratori standardnymi postupmi (je to nasadene na zakazkach 598, 620, 756)
+
+Prosim nevytvarat podulohy (alebo v krajnom pripade 1-2, nie vela).
+Konzultovat sa da s Martinom Gazakom.
+
+Ukladanie predpovedi ako casovych radov dat do databazy existuje a je
+nasadene v ramci zakazky 598 na SHMU - 5 rokov na tom bezal POVAPSYS
+predpovedny system.
+
+Treba si pozriet prilozene PPT
+
+Na 10.111.5.171 resp. 10.111.5.172 je treba najskor vytvorit prislusne tabulky v ramci ulohy https://its.microstep-mis.com/issues/30511.
+
+Nasledne je potrebne z WRF vystupov vytvarat objekty triedy
+https://gitlab.mstep/mis/sw/ims/ims4/ims4/-/blob/master/Jlib/src/main/java/com/microstepmis/ims/data/ModelForecast.java:
+
+- runTime: z WRF modelu
+- processName: WRF_BELGRADE
+- processDescription: WRF_BELGRADE
+- ensemble: 0 - DETERMINISTIC_FORECAST
+- varName: Temp.Dry potazmo dalsie
+- station: belehradske stanice
+- unit: Cel (resp. podla premennej)
+- modelrunid: nevyplna sa
+- complete: FORECAST_COMPLETE
+- elevation: nevyplnat
+- items[] - vyplnit po hodinach
+
+API k tabulkam je v https://gitlab.mstep/mis/sw/ims/ims4/ims4/-/blob/master/Jlib/src/main/java/com/microstepmis/envidb/modeldata/DBModelData.java, konkretne DBModelData.insertModelValues( ModelForecast )
+
+Co sa tyka architektury, tak by som to riesil tak, ze:
+- na WRF stroji by som robil IMS4 XML-ka s ModelForecast objektami a
+  nejakym FPckom alebo cim posielal na 10.111.5.171 resp. 10.111.5.172
+- oddedit com.microstepmis.model.AbstractModel do triedy
+  ModelForecastImporter alebo nieco take, ktory bude len periodicky
+  prezerat na 10.111.5.171 resp. 10.111.5.172 nejaky adresar a hladat
+  tam XML subory a tie vkladat do databazy
+
+ModelSuiteAgent je kod, co vznikol pod POVAPSYS stresom. Prosim
+neprerabat teraz, aj ked si prerabku zasluzi. Prerabku ked tak
+spravime v ramci kuvajtskej zakazky MDP2G, ak sa bude
+realizovat. ModelSuiteAgent je nasadeni 2 x Singapure (CALPUFF) a na
+POVAPSYSe.
+
+# On 11.8.2022 - reorganized ITS tickets and created this ticket to cover my developmnent
+https://its.microstep-mis.com/issues/30506 949 Store current and forecast data into CLDB IMS Model Suite
+
+We organize meeting with Mato Cajagi about CLDB metadata export/import.
+And due to complete lack of Jaro Drozd and Milan Kupka availability,
+I try to connection to Belgrade CLDB machine OPS machine on my own.
+(In order to retrieve CLDB metadata)
+Can not establish the connection due to lack of VPN password
+on wiki for the VPN user: meteost.razakov
+
+Then I try to upgrade 949 DEV machine on my own.
+(store snapshot of the configuration to git - create new branch)
+I will do it on my own - after snapshot.
+
+1. Created VM snapshot
+2. Upgrade according instructions in https://its.microstep-mis.com/issues/30511
+3. Import of CLDB metadata
+
+# 15.8.2022 - preparing the meeeting with Martin Cajagy - agenda
+1. Explain and import the CLDB metadata from live deployment of another CLDB installation from the
+   Belgrade contract num. 884 - see attached metadata XML file:
+   cfg_884_CLDB_Belgrad/884_liveCLDBmetaExp.xml
+
+2. Exaplain me please general architecture of the CLDB sub-system.
+   Particularly which agents and components are the core CLDB components.
+   See attached:
+   ForecastModulePlusCLDBIMSModelSuite_WebGUI_after_upgrade_15.8.2022.png
+   ForecastModulePlusCLDBIMSModelSuite_sin_after_upgrade_15.8.2022.png
+
+3. How CLDB data could be routed from 884 Live to 949 DEV machine?
+
+4. How CLDB data could be simulated - which are ingestion terminals,
+   how to use MessageDataBase etc.
+   I have 1 month data dump from the 884 installation.
+
+5. Do you have any knowledge about POVAPSYS project
+   and about IMS Model Suite itself?
+   Wiki pages documents etc.
+
+6. Do you have any knowldge about displaying of the
+   forecast data stored in IMS Model Suite?
+
+Time spent please log into this sub-ticket:
+   https://its.microstep-mis.com/issues/30511 Forecast to IMS Model Suite - upgrade DEV machine to be a CLDB machine
+
+######
+Collection of the documentation:
+https://wiki2.mstep/index.php/598_SHMU_Povapsys_IKT
+https://wiki2.mstep/index.php/Ponuka_ModelSuite
+P:\ims\docs\IMS_ModelSuite - downloaded to:
+c:\Projects\949_uprava_Azet-u_pre_Belehrad\doc_598_ModelSuite_Povapsys\
+ModelSuite.pptx
+20150712_HBV_HEC-HMS_kalibracia_v9.doc
+
+Interesting links from the project:
+m:\Zakazky\598_SHMU_Povapsys_IKT\
+m:\Zakazky\598_SHMU_Povapsys_IKT\Acceptance\FAT&SAT-gui-testy\ - test case reports and 
+m:\Zakazky\598_SHMU_Povapsys_IKT\Acceptance\HBV\ - seems like configurations of the districts and sites
+m:\Zakazky\598_SHMU_Povapsys_IKT\Acceptance\HEC-HMS_kalibracia_20150827\HEC-HMS\ - calibration toolbox implemented for Windows
+(let us try to launch it) - it has about 600 MB just this software
+
+m:\Zakazky\598_SHMU_Povapsys_IKT\Acceptance\MstepPicts\TODO\image022.png
+- Graph of the input data, displayed Aladin forecast - have we that implemented and where.
+
+m:\Zakazky\598_SHMU_Povapsys_IKT\Acceptance\SAT\
+m:\Zakazky\598_SHMU_Povapsys_IKT\Acceptance\TestCases\
+m:\Zakazky\598_SHMU_Povapsys_IKT\Analysis\modely\
+m:\Zakazky\598_SHMU_Povapsys_IKT\Documentation\
+m:\Zakazky\598_SHMU_Povapsys_IKT\Documentation\PriecneProfily\
+m:\Zakazky\598_SHMU_Povapsys_IKT\Documentation\20160311_singapore_povapsys_2.pptx
+m:\Zakazky\598_SHMU_Povapsys_IKT\Product\Final_PP0304\
+m:\Zakazky\598_SHMU_Povapsys_IKT\Report\skolenie shmu HEC-HMS-RAS\
+m:\Zakazky\598_SHMU_Povapsys_IKT\Report\Skolenie_HBV\
+m:\Zakazky\598_SHMU_Povapsys_IKT\Specification\
+m:\Zakazky\598_SHMU_Povapsys_IKT\Specification\PVS_deployment_USERS.xls
+m:\Zakazky\598_SHMU_Povapsys_IKT\Specification\Analyza_modelov.doc
+m:\Zakazky\598_SHMU_Povapsys_IKT\Modely_databaza_obrazovky.pdf - see slide n.3-4 with
+amounts of data into the IMS Model Suite component and its Java interfaces.
+m:\Zakazky\598_SHMU_Povapsys_IKT\waterml.pdf - as contact persion Mato Cajagi
+https://www.ogc.org/standards/waterml - WaterML 2.0 is a standard
+information model for the representation of water observations data.
+
+
+
+
+
+
+
+
+

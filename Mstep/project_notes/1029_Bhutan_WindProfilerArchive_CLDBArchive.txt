@@ -237,7 +237,332 @@ has the following sequence of calls:
     the particular calls and layer
   
 - unit tests of the partial components
-
+  Add there unit tests for data conversion functions
+  and implement integration test for one of the
+  database.
+  
 
 On Friday start with backups and cleaning of emails.
+
+# ITS tickets work-breakdown
+(If I have enough power and capabilities to conduct such work at all.)
+
+- document design decisions and templates you were looking at - and configurations of other
+  ProductDB instances
+
+The new ProductDB implementation is in:
+com/microstepmis/ims/data/productdb2/SpaceBlocksProductDB.java
+
+Inspired by the two implementations by Gyorgy from here:
+com.microstepmis.ims.data.productdb2.customer.bhutan_1029.BhutanGribDB
+com.microstepmis.ims.data.productdb2.customer.bhutan_1029.SatelliteDB
+
+A very interesting implementation where also productName is comming from
+the configuration is this one:
+com.microstepmis.ims.data.productdb2.customer.moldova_991.ExternalRadarProductDB
+with this configuration:
+https://gitlab.mstep/mis/sw/ims/ims4/ims4-configurations/-/blob/master_991_Moldova_IMSASAN/Briefing/ExternalRadarProductDBCfg.xml
+
+After configurating the new ProductDB into:
+/opt/ims/cfg/station/ProductDB2Cfg.xml
+/opt/ims/cfg/station/DeleterProductDb.xml
+/opt/ims/cfg/station/SpaceBlocksDBCfg.xml
+and restarting of the IMS system, the new tables were created:
+  /opt/ims/log/2022/06/16/ProductDB2Factory.log
+  2022-06-16 11:30:25.136 UTC: NOTE: trying com.microstepmis.ims.data.productdb2.SpaceBlocksProductDB
+  2022-06-16 11:30:25.141 UTC: NOTE: SpaceBlocksProductDB initialization
+  2022-06-16 11:30:25.158 UTC: NOTE: creating table SPACEBLOCKSDBPRODS
+  2022-06-16 11:30:25.530 UTC: NOTE: creating table SPACEBLOCKSDBDATA
+  2022-06-16 11:30:25.808 UTC: NOTE: done com.microstepmis.ims.data.productdb2.SpaceBlocksProductDB
+
+With the following content:
+ims=# \d spaceblocksdbprods
+                                      Table "public.spaceblocksdbprods"
+   Column    |          Type          | Collation | Nullable |                    Default
+-------------+------------------------+-----------+----------+-----------------------------------------------
+ id          | numeric(5,0)           |           | not null | nextval('spaceblocksdbprodsid_seq'::regclass)
+ name        | character varying(255) |           |          |
+ contenttype | character varying(255) |           |          |
+ prodgroup   | character varying(255) |           |          |
+ dispname    | character varying(255) |           |          |
+Indexes:
+    "pk_spaceblocksdbprods" PRIMARY KEY, btree (id)
+    "uq_spaceblocksdbprods_name" UNIQUE CONSTRAINT, btree (name)
+Referenced by:
+    TABLE "spaceblocksdbdata" CONSTRAINT "fk_spaceblocksdbdata_prodid" FOREIGN KEY (productid) REFERENCES spaceblocksdbprods(id)
+
+ims=# select * from spaceblocksdbprods;
+ id |     name      |   contenttype   | prodgroup |   dispname
+----+---------------+-----------------+-----------+---------------
+  1 | rWindProfiler | application/XML | MET       | rWindProfiler
+(1 row)
+
+
+ims=# \d spaceblocksdbdata
+                     Table "public.spaceblocksdbdata"
+   Column   |            Type             | Collation | Nullable | Default
+------------+-----------------------------+-----------+----------+---------
+ productid  | numeric(5,0)                |           | not null |
+ meastime   | timestamp without time zone |           | not null |
+ partnumber | numeric(5,0)                |           | not null |
+ filename   | character varying(255)      |           |          |
+ rcvtime    | timestamp without time zone |           |          |
+Indexes:
+    "pk_spaceblocksdbdata" PRIMARY KEY, btree (productid, meastime, partnumber)
+Foreign-key constraints:
+    "fk_spaceblocksdbdata_prodid" FOREIGN KEY (productid) REFERENCES spaceblocksdbprods(id)
+
+ims=# select * from spaceblocksdbdata;
+ productid |        meastime         | partnumber |              filename               |         rcvtime
+-----------+-------------------------+------------+-------------------------------------+-------------------------
+         1 | 2022-06-11 13:25:30.199 |          0 | rWindProfiler_MET_1654953930199.xml | 2022-06-16 11:40:48.067
+         1 | 2022-06-09 16:31:15.205 |          0 | rWindProfiler_MET_1654792275205.xml | 2022-06-16 11:40:48.106
+         1 | 2022-06-09 23:01:30.189 |          0 | rWindProfiler_MET_1654815690189.xml | 2022-06-16 11:40:48.168
+         1 | 2022-06-10 20:25:45.256 |          0 | rWindProfiler_MET_1654892745256.xml | 2022-06-16 11:40:51.198
+         1 | 2022-06-09 02:45:30.149 |          0 | rWindProfiler_MET_1654742730149.xml | 2022-06-16 11:40:51.21
+         1 | 2022-06-11 12:50:30.212 |          0 | rWindProfiler_MET_1654951830212.xml | 2022-06-16 11:40:51.219
+         1 | 2022-06-11 12:25:30.269 |          0 | rWindProfiler_MET_1654950330269.xml | 2022-06-16 11:40:51.361
+         1 | 2022-06-11 10:40:30.235 |          0 | rWindProfiler_MET_1654944030235.xml | 2022-06-16 11:40:51.372
+         1 | 2022-06-08 21:20:45.167 |          0 | rWindProfiler_MET_1654723245167.xml | 2022-06-16 11:40:51.381
+         1 | 2022-06-09 03:55:45.167 |          0 | rWindProfiler_MET_1654746945167.xml | 2022-06-16 11:40:54.393
+         1 | 2022-06-11 07:38:00.261 |          0 | rWindProfiler_MET_1654933080261.xml | 2022-06-16 11:40:54.402
+         1 | 2022-06-11 20:25:45.165 |          0 | rWindProfiler_MET_1654979145165.xml | 2022-06-16 11:40:54.41
+         1 | 2022-06-09 16:40:30.198 |          0 | rWindProfiler_MET_1654792830198.xml | 2022-06-16 11:40:54.418
+         1 | 2022-06-11 04:20:30.199 |          0 | rWindProfiler_MET_1654921230199.xml | 2022-06-16 11:40:54.426
+
+Thus we see that the 'rcvtime' is filled in during isertion in the ProductDB terminal.
+
+It is already possible to browse the records in the ProductDB2 Web portal
+(it is needed yet to create an icon)
+https://10.111.6.71:8443/ims/html2/productdb/productDB2.html?dbName=com.microstepmis.ims.data.productdb2.SpaceBlocksProductDB
+
+The observed issue:
+- via web there is only 144 records visible.
+Now when I browse using just single days and really having time span from 00:00 to 23:59
+the correct number of files is retrieved.
+
+But counting the records in the data table:
+ims=# select count(*) from spaceblocksdbdata;
+ count
+-------
+  1441
+(1 row)
+
+and files stored:
+1029-IMS-Bhutan-DEV-ims:~ # ls -lt /opt/ims/data/SpaceBlocksDB2022/06/09/rWindProfiler |wc -l
+281
+- this is just one day, there is time tree
+
+1029-IMS-Bhutan-DEV-ims:~ # find /opt/ims/data/SpaceBlocksDB2022/06/ -name "rWindProfiler_MET*" -type f |wc -l
+1441
+
+QuestionToProductDB:
+1. How receive time is set? - A. By default it is set by the ProductDB Terminal.
+
+rWindProfiler
+1654725690165L,
+1654726230214L,
+prodName,
+
+
+String prodName = "rWindProfiler";
+
+Essential design decision - SpaceCopy terminal is returning BlockStatus[]
+- with possibility to have several valid blocks at once.
+
+We probably will in the SpaceBlockProductDB assume there is only one
+record in the array adjacent to the Key.
+
+But we should test it, and raise warning.
+And later on test the batch processing once again after having this
+integration done, using the Batch processing.
+
+Mapping to DBTimeAndValue - how in AWOS
+from/to during retrieval from the database is
+actually deviced.
+
+Actually during retrieval from the AWOS DB, timeTo
+remains empty.
+See:
+com.microstepmis.database.DBXMLConnection.selectBlockFromTo(Timestamp, Timestamp, String, String, String, String, boolean)
+
+Interesting pattern which I should use as well.
+
+TreeMap<Timestamp,DBTimeAndValue> v=new TreeMap<Timestamp,DBTimeAndValue>();
+ -> Timestamp date=dbCorrectTimestamp(rs.getTimestamp(1));
+ -> v.put(date,new DBTimeAndValue(date,o));
+ -> vv=v.values().toArray(vv);
+ and this is returned
+
+I could use UTC [ms] epoch time as time tree and
+then just return the array.
+
+For testing removed the old temporal products and today on 21.6.2022
+ingested new set of data for development:
+
+---
+com.microstepmis.ims.data.productdb2.SpaceBlocksProductDBRPC
+selectBlocksFromToAsDBTimeAndValueRPC
+rWindProfilerMET
+1655762475197
+1655763030236
+
+# Design of the 'bridge' - study also of design pattern of Lukas Urbanik
+---
+tu je MR: https://gitlab.mstep/mis/sw/ims/ims4/ims4/-/commit/00eb820e74c6643f8cf984706d1e151658735558
+ide o interface OBACSDataSource a jeho implementacie NAVBLUEDataSource a OBACSHistoryDataSource a to ktora instancia sa vytvori je v configu OBACSConfig.xml
+---
+
+# 27.6.2022 - configuration of AWOS->CLDB data transfer
+775 AWOS:
+- configured channels:
+  RWindProfile_MET_SpaceCopy_Exp: SpaceCopy Terminal -> File Write Terminal into the temporal folder
+  RWindProfile_MET_FTP_Exp Configure: File Read Terminal -> File Write Terminal to FTP to 1029 CLDB
+
+1029 CLDB:
+- configured channels:
+  RWP_SPACEBLOCKS_INSERTER: File Read Terminal directly from FTP directory -> ProductDB2 SpaceBlocksProductDB Terminal
+
+- configuration snapshots stored into git into ims4-configuration repo, feature branches of 775 and 1029
+Now:
+-> clean product DB of the obsolete products - Done
+-> ingest block of the older files - Done
+-> consult with Marcel and design better core configuration
+   Document here the results:
+   - we decided not to use <include> in the station configuration but
+   to use simple file with a comment.
+   - we used the loader agent to handle the configuration block and to
+   refresh the configuration by each run.  This allows us to change
+   the connection without IMS4 resart.
+  
+-> continue with preparation of simulated data
+   for batch processing and overall integration test
+   by having a recent snapshot of WindProfiler logger and stored it into files.
+
+   28.6.2022 - in the evening
+   Test of batch processing:
+   Did not work - empty files generated
+   - change also input to read directly from the logger - but it is so.
+
+   During the batch processing of input LAP3000 logger data
+   WindShearAgent worked well.
+   Half hourly sample data with 1 hour validity in the blocks
+   were merged with the new Bhutan data in AWOS.
+   Testing\Merged_batch_processed_HalfHourData_AWOS.png
+
+   But the SpaceCopy terminal when originally had splitting to single
+   blocks to false (Default) generated either empty records, or files
+   with several BlockStatus records - array with size bigger than 1.
+
+   When reconfigured to
+   "Split to single blocks"
+   there have been to each valid block status, generated also an empty
+   block status.
+   ---
+   1029-IMS-Bhutan-DEV-ims:~ # cat /opt/ims/data/SpaceBlocksDB2022/06/28/rWindProfileMET/rWindProfileMET_MET_1656436367954.xml
+   <x xclass="com.microstepmis.agentspace.BlockStatus" name="r/WindProfile/MET" validFrom="1656419048000" validTo="1656422648000" priority="0.0" />
+   ---
+   However, this switch has changed the input interface,
+   fromo array [] of BlockStatuses to single Block status.
+   We have to decide, but seems better to use this interface.
+   We extended reading to support both verisons.
+
+   Currently if there land null pointers,
+   there is this unhandled error and was implemented
+   error in SpaceBlocksProductDBRPC log.
+   (New exception could not be thrown, due to issue with WebGUI
+    wrapping - all exceptions wrapped to 'No data' alert
+    (missleading).)
+
+   When null BlockStatuses are stored into the SpaceBlocksProductDB
+   we have this behavior:
+   Null_pointers_during_batchProcessingIn_SpaceBlocksProductDB.png
+
+   Fixed by the new parameter:
+   "Send null pointer blocks:" - set to false
+
+   When set to false, even though the batch processing tries to create
+   empty data packets, it it is removed from the proxy list of blocks.
+   
+   Together with already available parameter:
+   'Split to single blocks:' - set to true
+   We can correctly publish the blocks.
+
+   Fixed also couple of ill behaving scenarios
+   in WindDataRPC.
+   1. When incorrect data are stored in the database we have
+   the following behavior:
+   - there is so far unhandled error - Null pointer exception
+     (this is left like this because all ProductDB and DB exceptions are
+      wraped with 'Missing data message')
+   - but in the log file is reported that incorrect data are stored
+     in the SpaceBlocksProductDB database.
+     ---
+     /opt/ims/log/2022/07/01/SpaceBlocksProductDBRPC.log
+     ...
+     2022-07-01 08:13:53.707 UTC: NOTE: getting value from BlockStatuses
+     2022-07-01 08:13:53.707 UTC: NOTE: Lenght: 1
+     2022-07-01 08:13:53.707 UTC: NOTE: getting value from BlockStatuses
+     2022-07-01 08:13:53.707 UTC: NOTE: Lenght: 1
+     2022-07-01 08:13:53.707 UTC: ERROR: Retrived block staus is empty, value is NULL - incorrect data stored in the database.
+     2022-07-01 08:13:53.707 UTC: NOTE: getting value from BlockStatuses
+     2022-07-01 08:13:53.707 UTC: NOTE: Lenght: 1
+     ---
+   2. Fixed also scenario when there are missing data in the ProductDB
+      So far there was again unhandled Null pointer exception,
+      now throw handled DBException it is translated
+      into correct message:
+      Testing/Correctly_hanled_missing_data.png
+
+   Closing this tricky issue as resolved.
+     
+
+
+   <?include name="x" href="../cfg/station/coder/SynopDecoder555.xml" xpath="/x/var/*" defaultDiscard="true"?>
+						
+   //String valObj = X2O.mapToXML(bs);
+   Date d = (Date) XAccess.getObject( bs, "value/date");
+	JTime jt = JTime.getDefault();
+   log.note("l(1)", " Measure time retrived is: %s",
+	  jt.format(d));
+						  
+   com.microstepmis.util.JTime.parse(String)
+   long measTimeMs = jt.parse(jt.format(d))
+
+# 7.7.2022 - delivering the solution
+- merge snapshots of 775 and 1029 configurations - Done
+- create merge requests: ims4 and two times ims4-configurations - Done
+- document on wiki - deployment and test cases - Done
+
+
+# 3.8.2022 - almost accomplished implementation of
+the integration test for SpaceBlocksProductDB
+
+when running locally via Maven release plugin, this command was used:
+> mvn -f Parent/pom.xml clean release:clean release:prepare release:perform -PDisableMavenToolchains "-DpreparationGoals=clean test-compile javadoc:aggregate javadoc:test-aggregate" -DscmCommentPrefix=[release] -DdevelopmentVersion=R20220802-SNAPSHOT -DreleaseVersion=R20220802 -Dtag=temp_R20220802 -DpushChanges=false "-Dgoals=deploy site site:stage" -DlocalCheckout=true -DconnectionUrl=scm:git:git@gitlab.mstep:mis/sw/ims/ims4/ims4.git -DreleaseProfiles=IntegrationTests "-Darguments= -DoracleDbName='(DESCRIPTION=(LOAD_BALANCE=on)(ADDRESS=(PROTOCOL=TCP)(HOST=orcl-scan.mstep)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=orcl)))'   -DoracleUserName=junit_janki   -DoraclePassword=junit_janki   -DoracleServerName=OracleRAC   -DpostgresDbName=ims   -DpostgresUserName=ims   -DpostgresPassword=network   -DpostgresServerName=localhost:5432 " 2>&1 |tee integration_tests_2.8.2022_1.log
+
+However, two issues have occurred.
+Integration test were executed twice:
+[INFO] [ERROR] Tests run: 7498, Failures: 36, Errors: 8, Skipped: 27, Time elapsed: 14,338.53 s <<< FAILURE! - in com.microstepmis.ItSuite
+[INFO] [ERROR] Tests run: 8314, Failures: 36, Errors: 8, Skipped: 27
+[INFO] [ERROR] Tests run: 7505, Failures: 17, Errors: 5, Skipped: 27, Time elapsed: 12,473.176 s <<< FAILURE! - in com.microstepmis.ItSuite
+[INFO] [ERROR] Tests run: 8321, Failures: 17, Errors: 5, Skipped: 27
+
+And our ProductDBIt test on the second run has failed:
+[INFO] TEST Starting display name: testSpaceBlocksProductDBStore(com.microstepmis.ims.data.productdb2.ProductDBIt) tests count: 1
+[INFO] TEST Finished display name: testSpaceBlocksProductDBStore(com.microstepmis.ims.data.productdb2.ProductDBIt) tests count: 1
+[INFO] TEST Starting display name: testSpaceBlocksProductDBStore(com.microstepmis.ims.data.productdb2.ProductDBIt) tests count: 1
+[INFO] TEST Finished display name: testSpaceBlocksProductDBStore(com.microstepmis.ims.data.productdb2.ProductDBIt) tests count: 1
+[INFO] [ERROR] testSpaceBlocksProductDBStore(com.microstepmis.ims.data.productdb2.ProductDBIt)  Time elapsed: 55.104 s  <<< FAILURE!
+[INFO]  at com.microstepmis.ims.data.productdb2.ProductDBIt.testSpaceBlocksProductDBStore(ProductDBIt.java:151)
+[INFO] [ERROR]   ProductDBIt.testSpaceBlocksProductDBStore:151 expected:<33> but was:<0>
+
+
+We will compare the command with Jenkins.
+Check whether the tests are not executed also on Jenkins twice by
+means of comparing log files of the night build.
+And accomplish the implementation.
+
+Command to run just the particular test:
+> mvn test -Dtest=ProductDBIt -DoracleDbName='(DESCRIPTION=(LOAD_BALANCE=on)(ADDRESS=(PROTOCOL=TCP)(HOST=orcl-scan.mstep)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=orcl)))' -DoracleUserName=junit_janki  -DoraclePassword=junit_janki -DoracleServerName=OracleRAC -DpostgresDbName=ims -DpostgresUserName=ims -DpostgresPassword=network -DpostgresServerName=localhost:5432
 
