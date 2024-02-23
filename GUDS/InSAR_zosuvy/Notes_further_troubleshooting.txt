@@ -1,0 +1,60 @@
+# This is driving document how I proceed
+# with troubleshoooting of the "zosuvy" system.
+
+Today - we try to launch web server and connect.
+- then I try to launch Go server with correct DB connection for my credentials.
+  Did not work because there was missing schema prefix in first DB call.
+
+It did work, and I could launch the portal with empty data.
+
+  > cd /home/kianicka/repo/zosuvy/zosuvy // launches also dist in subdir ../www/dist
+  > ./server --db-host="192.168.0.16" --db-name="dionysos" --db-port="5432" --db-user="ig_cmsgf_zosuvy_test" --db-password="ZosuvY72"
+  >
+
+19.2.2024: Today I test the inicialization script.
+- database is down on DIONYSOS, I will read the document and then set
+  up my local postgreSQL on ContoOS VM machine
+  
+  > psql -h 192.168.0.16 -p 5432 -d dionysos -U ig_cmsgf_zosuvy_test -a -f create.sql
+
+
+
+Transformation of X, Y, Z coordinates:
+Read and apply this:
+https://www.geoportal.sk/sk/geodeticke-zaklady/geodeticke-systemy-transformacie/
+
+Transformation from
+S-JTSK (JTSK) 	S-JTSK (JTSK03) 	EPSG::8364
+https://epsg.io/8364
+accurancy 0.05 m
+
+
+Tested transformations on PostGIS on DIONYSOS and it works
+
+select  st_astext(ST_Transform(ST_SetSRID(ST_Point( 17.1139474 , 48.1303466),4326),8353));
+select  st_astext(ST_Transform(ST_SetSRID(ST_Point( -520892.578 , -1255941.66), 8353), 4326));
+
+Gave correct output:
+POINT(17.784028850965864 48.41264061141995)
+
+If database is not in use, then there is issue
+in some rendering library, might be even in
+the java script code.
+No, the transformations are in db package of 'zosuvy' repository and
+are using PostGIS functions.
+
+Usefull SQL statements from work with Peter Ondrejka today - about the
+'lokality' table.
+
+select * from ig_csmgf_zosuvy.ku_0 where nm5 like "Bratisl%";
+SELECT nm3, nm4, nm5 FROM ig_cmsgf_zosuvy.ku_0 where nm4 like 'Abrah%';
+
+SELECT * FROM ig_register_sd.gm10_svahove_deformacie WHERE monit_cis is not NULL;
+SELECT * FROM ig_register_sd.gm10_svahove_deformacie WHERE lokalita='Dubová';
+
+SELECT monit_cis FROM ig_register_sd.gm10_svahove_deformacie WHERE lokalita='Dubová';
+
+
+SELECT monit_cis, lokalita FROM ig_register_sd.gm10_svahove_deformacie WHERE lokalita in (SELECT lokalita FROM ig_register_sd.gm10_svahove_deformacie group by lokalita HAVING count(*) > 1);
+
+

@@ -1,0 +1,261 @@
+# Notes about continuation in programming in GUDS Ingineering Geology
+# 2.2.2024
+
+
+GO:
+---
+
+https://go.dev
+https://go.dev/learn/
+
+https://en.wikipedia.org/wiki/Go_(programming_language)
+
+There are two major implementations:
+
+    1. Google's self-hosting[16] "gc" compiler toolchain, targeting
+       multiple operating systems and WebAssembly.[17]
+    
+    2. gofrontend, a frontend to other compilers, with the libgo
+       library. With GCC the combination is gccgo;[18] with LLVM the
+       combination is gollvm.[19][a]
+
+A third-party source-to-source compiler, GopherJS,[21] compiles Go to JavaScript for front-end web development. 
+
+A syntax and environment adopting patterns more common in dynamic languages:[49]
+
+    Optional concise  variable declaration and  initialization through
+    type inference (x := 0 instead of var x int = 0; or var x = 0;)
+    Fast compilation[50]
+    Remote package management (go get)[51] and online package
+    documentation[52]
+    
+Distinctive approaches to particular problems:
+
+    Built-in concurrency primitives: light-weight processes
+    (goroutines), channels, and the select statement
+    
+    An interface system in place of virtual inheritance, and type
+    embedding instead of non-virtual inheritance
+    
+    A toolchain that, by default, produces statically linked native
+    binaries without external Go dependencies
+    
+    A desire to keep the language specification simple enough to hold
+    in a programmer's head,[53] in part by omitting features that are
+    common in similar languages.
+
+Documnetation:
+--------------
+https://go.dev/doc/
+
+
+Installation:
+-------------
+
+Eclipse with Go Support or other IDEs:
+https://www.mindinventory.com/blog/golang-ide-tools-for-go-development/
+Tried GoClipse but could not install it into the standard Eclipse in the Mint Linux.
+
+The next time was installed but required Go SDK, even eclipse could
+not start correctly without having Go binaries on place.
+
+Finally I had to install two go installations:
+/home/kianicka/Software/go/bin/go version
+    go version go1.22.0 linux/amd64
+
+/usr/bin/go version
+    go version go1.13.8 linux/amd64
+
+And three third party auxilliary utillities - required by GoClipse:
+/usr/bin/gocode
+/usr/share/terminfo/g/guru (this does not work - probably it is different guru than required by Golang)
+/home/kianicka/go/bin/godef
+
+
+Tutorial - learning programming:
+--------------------------------
+After having accomplished resources from go.dev have a look on
+https://www.tutorialspoint.com/go/index.htm
+
+https://go.dev/doc/tutorial/getting-started
+
+    > go mod init example/hello // initiate the local package
+    > vim hello.go // write basic main function
+    > go run . // compiles and runs the main function
+    > go build . // builds static binary hello, like in C
+
+Create a module:
+---------------
+https://go.dev/doc/tutorial/create-module
+
+    1. Create a module -- Write a small module with functions you can
+       call from another module.
+    2. Call your code from another module -- Import and use your new
+       module.
+    3. Return and handle an error -- Add simple error handling.
+    4. Return a random greeting -- Handle data in slices (Go's
+       dynamically-sized arrays).
+    5. Return greetings for multiple people -- Store key/value pairs
+       in a map.
+    6. Add a test -- Use Go's built-in unit testing features to test
+       your code.
+    7. Compile and install the application -- Compile and install your
+       code locally.
+
+    > mkdir greetings && cd greetings
+    > go mod init example.com/greetings
+    > vim greetings.go
+
+In Go, a function whose name starts with a capital letter can be
+called by a function not in the same package. This is known in Go as
+an exported name.
+
+In Go, the := operator is a shortcut for declaring and initializing a
+variable in one line. Long way:
+    var message string
+    message = fmt.Sprintf("Hi, %v. Welcome!", name)
+
+Call from another module:
+-------------------------
+https://go.dev/doc/tutorial/call-module-code
+
+    > mkdir hello && cd hello
+    > go mod init example.com/hello
+    > vim hello.go
+
+
+For production use, you’d publish the example.com/greetings module
+from its repository (with a module path that reflected its published
+location), where Go tools could find it to download it. For now,
+because you haven't published the module yet, you need to adapt the
+example.com/hello module so it can find the example.com/greetings code
+on your local file system.
+
+    > go mod edit -replace example.com/greetings=../greetings
+    go.mod now contains 'replace example.com/greetings => ../greetings'
+    > go mod tidy
+    go.mod now contains 'require example.com/greetings v0.0.0-00010101000000-000000000000'
+
+    > go run .
+    > go build .
+
+Return and handle an error:
+---------------------------
+https://go.dev/doc/tutorial/call-module-code
+
+    1. Extend greetings of one more argument, err
+    2. Extend hello of logging and error handling
+    3. Simulate the error
+    
+    > vim greetings.go
+    > vim hello.go
+
+
+Continue in returning random greetings.
+
+More deeper study of Go:
+https://go.dev/doc/modules/developing
+https://go.dev/doc/modules/managing-dependencies#naming_module
+https://go.dev/doc/modules/version-numbers
+https://go.dev/doc/effective_go#multiple-returns
+https://pkg.go.dev/log
+
+
+
+We switch for a while, in order to be able to continue in 'zosuvy'
+code study, to try something with the Web Server.
+
+Web Server - from zosuvy repo:
+------------------------------
+
+Looks like web part of the system is not implemented in Go, but
+using:
+VUE CLI - https://cli.vuejs.org/
+which depends on
+https://nodejs.org/en
+
+In the README file is used:
+https://yarnpkg.com/
+which depends on
+https://yarnpkg.com/corepack
+
+Installed Node.js locally using the package manager
+and successfully tested using this procedure:
+https://linuxhint.com/install-nodejs-linux-mint/
+Now listening on port 3000.
+
+In the tutorial of GO there are lessons based on
+https://shell.cloud.google.com and its online terminal.
+I sought for local installation of GoGin and found this nice
+routine:
+https://gin-gonic.com/docs/quickstart/
+
+Installation did not work with system based Go, but with the newer
+local one. As following:
+
+    > kianicka@PP-HPZ2-Linux:~/Software/goGin
+    > cd ~/Software/go
+    > export GOROOT=`pwd`
+    > cd -
+    > export GOPATH=$GOROOT/bin/
+    > /home/kianicka/Software/go/bin/go mod init "example/gogin"
+    > /home/kianicka/Software/go/bin/go get -u github.com/gin-gonic/gin
+    > curl https://raw.githubusercontent.com/gin-gonic/examples/master/basic/main.go > main.go
+    > /home/kianicka/Software/go/bin/go run main.go
+    > vim example.go // and example of the ping() function from the tutorial
+    > /home/kianicka/Software/go/bin/go run example.go
+
+And test the local installation by providing this URL:
+http://localhost:8080/ping
+Reply is:
+    message	"pong"
+
+
+Local installations into local Node.js server:
+First via the package manager installed 'Yarnpkb' version 1.22.4-2
+root>
+    > export PATH="$PATH:/usr/share/nodejs/yarn/bin"
+    > which yarn
+    /usr/share/nodejs/yarn/bin/yarn
+    
+Via package manager installed npm version 6.14.4.
+    > npm install -g @vue/cli
+    I did not find vue binary anywhere in the system.
+    Only vue.js on two places.
+
+Via package manager installed package Node-serve - static file server module, version 1.14.1.
+    did not work so as root>
+    > npm install -g serve
+
+
+Trying to run the web service, but did not work - seems like connection issue or some processing is missing "node:process".
+    > serve -s dist
+    /usr/local/lib/node_modules/serve/build/main.js:4
+import { cwd as getPwd, exit, env as env2, stdout } from "node:process";
+       ^
+
+SyntaxError: Unexpected token {
+    at Module._compile (internal/modules/cjs/loader.js:723:23)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:789:10)
+    at Module.load (internal/modules/cjs/loader.js:653:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:593:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:585:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:831:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:623:3)
+   
+This is the error of serve itself and probable incompatibility with node version.
+There were warnings:
+---
+npm WARN notsup Unsupported engine for boxen@7.0.0: wanted: {"node":">=14.16"} (current: {"node":"10.19.0","npm":"6.14.4"})
+npm WARN notsup Not compatible with your version of node/npm: boxen@7.0.0
+---
+Read this: https://www.npmjs.com/package/serve
+and installed older version:
+    > npm install -g serve@13.0.4
+
+Successfully launched the portal:
+kianicka@PP-HPZ2-Linux:~/repo/zosuvy/www$ serve -s dist
+On address: http://localhost:3000/#/private/
+
+During launch there were 25 exceptions in the java script code.

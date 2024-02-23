@@ -1,0 +1,205 @@
+# Otazky po odoslani zdrojoveho kodu a zacati sa zoznamovani s prostredim GO
+
+1. Aku verziu a aky typ instalacie jazyka Go sa vyuziva - je to platformne nezavisla instalacia od Google,
+   "gc" kompilator, alebo su nejake zavislosti na Linuxe a gcc kompilatore.
+
+2. Su nejake dalsie zavislosti na knizniciach tretich stran?
+   Ak ano na akych a v akych verziach?
+
+3. Aky aplikacny, webovy server je vyuzity?
+
+4. Ake vyvojove prostredie pouzivate?
+   Je system kompatibilny s Linuxom? (Skusam Eclipse s pluginom GoClipse)
+
+5. Je mozny remote debbuging na serveri?
+   Je potrebny nejaky specialny build celeho systemu?
+
+5. Tiez vidim zavislost na PostgreSQL a PostGIS,
+   aka verzia databazy bola pouzita?
+   Su tam nejake obmedzenia na samotnu databazu? Na driver?
+
+6. Akym sposobom system loguje.
+   Je mozne nastavit DEBUG a INFO level?
+   Ma data processing v Go a Web server oddelene logy?
+   Maju log subory zabezpecenu rotaciu a odmazavanie?
+
+7. Vidim, ze v README.md ku webovym castiam kodu
+   je spomenuty prikaz 'yarn'.
+   Ide o installacny balicek pre JavaScript dalej zavisly
+   na frameworkoch Corepack a ten na Node.js.
+   Vsetky tieto vyzeraju, ze su open source so svojimi
+   verziami, zavislostami a bugmi.
+   Ake su presne verziu pouzite a otestovane?
+   Mozete prosim presne definovat instalaciu
+   tychto zavislosti a frameworkov od prazdneho OS?
+   (Produkcny system by mal mat na toto instalacne scripty)
+   (Idealne je tiez mat zavislosti virtualizovane napr. v Dockeri)
+
+8. Tiez v README.md je spomenute, ze
+   konfiguracie je mozne menit podla tohto navodu.
+   https://cli.vuejs.org/config/
+   To ale znamena, ze webove casti su implementovane
+   vo VUE CLI frameworku.
+   Teda dalsi open-source framework, ktory ma svoj zivot
+   a svoje zavislosti a bugy.
+   V akej verziu bol teda otestovany?
+   Su tam este nejake dalsie zavislosti?
+   Ako ho nainstalujeme?
+
+9. Go tutorialy su zalozene na implementovani
+   WebServisov a web casti systemu pomocou
+   kombinacie Go a Gin Web Framework.
+   Vyzera to tak, ze ste tento framework nepouzili.
+   Aky bol dovod?
+
+10. V zosuvy/www/package.json su vymenovane zavislosti pre
+    'dependencies' a 'devDependencies'
+    aj s verziami.
+    Je ich tam tak do 30.
+    Subor zosuvy/www/package-lock.json vypada tak, ako keby
+    to bol vystup, log z instalacie, kde
+    boli stiahnute vsetky zavislosti z internetu.
+    Je ich tam az:
+    grep resolved package-lock.json |wc -l
+    az 2602.
+    Chcem sa spytat, je garantovane, ze
+    pri dalsej instalaci systemu, pri poruche servera
+    sa vsetky tieto zavislosti korektne stiahnu v presnych verziach?
+    Da sa urobit nejaky 'failover' lokalny backup a
+    automatizovane pomocou skriptu vieme
+    zrekonstruovat server bez potreby pripojenia na internet?
+
+11. Podarilo sa mi skompilovat Go cast kodu.
+    Neviem ich ale spustit.
+    Chyby su v pripojeni na databazu.
+    Zda sa ze binarne subory hladaju subor app.config.
+    Server ale vytlacil do stderr tento riadok:
+    Init Const
+2024/02/12 14:49:41 app.config [admin-email:"admin@axonpro.sk" admin-name:"Administrator" admin-password:"Dionys1827" app-port:"1323" db-host:"localhost" db-name:"zosuvy" db-password:"secret" db-port:"5432" db-user:"zosuvy" static-path:"../www/dist"]
+    Aku user je 'Admin'.
+    Preco je do logu printovane jeho heslo?
+    Trosku chyba nejaky konfiguracny dokument.
+    Asi v prvej verzi mozu byt hesla ulozene priamo v konfiguracnych suboroch.
+    Co je static-path?
+
+
+# Dalsie otazky po stretnuti s kolegiami a odovzdani dokumentacie.
+
+12. Vidime, ze useri su ulozeni v databaze v tabulke "users" aj s
+    kryptovanymi heslami.  Plus je tam tabulka autid, kde sa vlastne
+    loguju vsetky aktivity.
+    Chcem sa opytat, aky framework bol pouzity na
+    tuto oblast - sprava userov a autid log.
+    Je to vsetko implementovane v java scriptoch
+    na Web Serveri?
+
+
+13. Skusil som spustis server lokalne ale
+    nemohol sa spustit pretoze pre neho
+    nebola viditelna schema "ig_cmsgf_zosuvy".
+    Vsetky SQL prikazy v Go kode su bez prefixu schemy.
+    V connection stringu - v parametrich
+    ktore sa daju menit pomocou argumentov alebo
+    environemnt variables ale schema nie je.
+    Akym sposobom vlastne je system nasadeny na
+    vasom testovacom serveri?
+
+    Odpoved: velmi pravdepodobne pouzivaju na pripojenie
+    priamo vlastnika schemy teda usera 'ig_cmsgf_zosuvy'.
+    Tym padom ale chyba support v celom kode pre
+    beh v inej scheme.
+
+14. Chyba inicializacny skript databazy.
+    Vytvranie objektov v spravnom poradi.
+    Mal by byt sucastou repozitara.
+    Je tych objektov a tabuliek viacero, takze musim podla diagramu
+    vytvorit takyto script, aby som mohol system nasadit pre
+    svoje integracne testy.
+
+15. Pohral som sa so svojou lokalnou instalaciou.
+    Vytvorili sme pre tento ucel novu testovaciu schemu na
+    DB serveri DIONYSOS.
+    Overil som pridavanie userov a audit log.
+    User Administrator je prvy user existujuci uz
+    v prazdnom systeme na urovdni zdrojoveho Go kodu.
+    Pri prvej aktivite sa automaticky ulozit do
+    databazy a zacne audutovat.
+    Ak vytvori novych userov, tak sa stale audit
+    zaznamy ukladaju pod jeho GID.
+    Ked ale vytvorim inych userov s Admin pravami,
+    tak audit sa zmeni a uz sa pouziva novy GID identifikator.
+    To ale znamena ze:
+    - beznych userov mozem vytvarat aj odstranovat
+    - administratorov mozem iba vytvorit, a potom
+      ho uz neodstranim pokial neodmazem jeho zaznamy
+      z audit logu.
+
+    Dobre vediet (dal by som to do Administratorskeho/Operacneho manualu)
+
+16. Nasadene stranky maju pri behu Java Sccriptov
+    rozne chyby.
+    Ked sa system naplni potrebnymi datami, tak
+    by tam Exceptions a rozne null pointre uz byt nemali.
+    (Dokonaly system by to nemal mat vobec ...
+     ale to by sme museli osetrit vsetky kombinacie a scenare)
+
+
+17. Zdrojovy kod ku akej verzii aplikacie
+    nam bol dodany.
+    V dokumentoch sa pise o finalnej dodanej verzii
+    1.9.1, zatial co nasadena aj dodany kod
+    maju verziu
+    1.17
+    V kode ho najdeme tu:
+    zosuvy/service/utils/constants.go
+    Preco su pouzivane rozne formaty verzionovania?
+
+Zacinam citat dodanu dokumentaciu od Petra Ondrejku,
+dve verzie pripomienok v rokoch 2020 a 2021
+a dodany dokument DatovaZakladna.pdf
+Otazky:
+
+18. V emali z Maja 2020 je aj DDL script create.sql
+    ktory dropne a inicializuje celu databazu
+    Planujem ho otestovat a udrzovat.
+    Asi pridam aj paramter schema ktory bude
+    obaleny dalsim skriptom a bude sa dat zmenit
+    pomocou argumentu.
+    (pripravit tuto cast kodu aby system mohol
+     byt rozsireny neskor a mohol bezat pod
+     inym DB userom a bol bezpecnejsi)
+    Je tam ja TODO - pridanie indexov.
+    Aj v pripomienkach som si vsimol ze niektore
+    operacie su pomale.
+    Boli tieto indexy priadne a otestovane nakoniec?
+    Mame nejake dalsie DDL scripty ktore toto
+    pokryvaju?
+
+
+19. Skusil som spustit script create.sql.
+    Skoncil s errormi pretoze nie je konzistetny.
+    Vytvraraju sa totiz cudzie kluce, pred tym
+    nez korespondujuce tabulky.
+    Musime to teraz prerobit aby vedel
+    inicializovat databazu.
+
+20. Scriptu chybaju niektore tabulky
+    napr. cela seria tabuliek administrativneho clenenia SR
+    Bez toho nie je mozne vytvorit
+    ani tabulku 'lokality'.
+    Bol vobec script otestovany?
+
+21. Na co sluzi tabulka properties
+    ktora tiez chybala v povodnom
+    DB modeli a na odovzdanom
+    serveri je prazdna?
+
+22. Administrativnym tabulkam ku_0,
+    obec_0, okres_0, kraj_0, sr_0,
+    chybaju cudzie kluce 1..N
+    garantujuce konzistenciu
+    tychto dat.
+
+
+    
+
