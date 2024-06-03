@@ -1,0 +1,7 @@
+# Open-source software to process the Sentinel-1 data
+
+https://step.esa.int/main/download/snap-download/
+
+https://bitbucket.org/memorid/gecoris/src/public/
+https://gecoris.readthedocs.io/en/latest/
+

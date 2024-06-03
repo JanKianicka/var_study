@@ -57,4 +57,366 @@ SELECT monit_cis FROM ig_register_sd.gm10_svahove_deformacie WHERE lokalita='Dub
 
 SELECT monit_cis, lokalita FROM ig_register_sd.gm10_svahove_deformacie WHERE lokalita in (SELECT lokalita FROM ig_register_sd.gm10_svahove_deformacie group by lokalita HAVING count(*) > 1);
 
+SELECT geom FROM ig_register_sd.gm10_svahove_deformacie WHERE lokalita='Banky';
 
+SELECT ST_Transform(geom, 8353) FROM ig_register_sd.gm10_svahove_deformacie WHERE lokalita='Banky';  
+
+
+Tato lokalita je duplicitna a nesplna definovane kriteria:
+SELECT monit_cis, lokalita, okres FROM ig_register_sd.gm10_svahove_deformacie WHERE lokalita='Podhorie';
+
+--------
+Na dalsi den sme sa rozhodli, ze preskocime dizajn lokalit a sam sa
+skusim pozriet na dalsie data v systeme.
+Ale este pred tym by som chcel naplnit lokality pomocou dumpov zo servera.
+
+Nemam ale moznost dumpovat na svojej masine, mam tuto chybu:
+kianicka@PP-HPZ2-Linux:~/projects/InSAR_system$ pg_dump --column-inserts --data-only --table='ig_cmsgf_zosuvy.sr_0' --host='192.168.0.16' --dbname='dionysos' --port=5432 --username='kianicka'
+Password: 
+pg_dump: error: server version: 14.11 (Ubuntu 14.11-1.pgdg20.04+1); pg_dump version: 12.17 (Ubuntu 12.17-0ubuntu0.20.04.1)
+pg_dump: error: aborting because of server version mismatch
+
+Nasiel som ale nasledovne dumpy metadat na OPS serveri:
+/home/zosuvy/install/zbgis.zip
+zbgis.dump
+zm10.dump
+zm50.dump
+
+Na uspesny import som pouzil nasledovne modifikacie:
+- odstranenie DROP a CREATE table na zaciatku SQL suboru
+- zmena schemy:
+  sed -i 's/public/ig_cmsgf_zosuvy_test/g' zm50.dump
+- a prepisanie posledneho riadku
+  SELECT SETVAL('"ig_cmsgf_zosuvy_test"."zm50_sjtsk_objectid_seq"', (SELECT MAX("objectid") + 1 FROM "ig_cmsgf_zosuvy_test"."zm50_sjtsk"));
+
+Zatial ulozene v:
+   /home/kianicka/projects/InSAR_system/SQL_dumps
+   treba zazalohovat
+   
+   zm10
+   sed -i 's/public/ig_cmsgf_zosuvy_test/g' zm10.dump
+   >> SELECT SETVAL('"ig_cmsgf_zosuvy_test"."zm10_sjtsk_objectid_seq"', (SELECT MAX("objectid") + 1 FROM "ig_cmsgf_zosuvy_test"."zm10_sjtsk"));
+
+   zbgis.dump naplna tabulky sr_0, kraj_0, okres_0, obec_0, ku_0
+   - najskor rucne odstranit vsetky CRAETE table a prepisat reset sekvencerov
+   - potom prepisat schemu
+   sed -i 's/public/ig_cmsgf_zosuvy_test/g' zbgis.dump
+   SELECT SETVAL('"ig_cmsgf_zosuvy_test"."ku_0_objectid_seq"', (SELECT MAX("objectid") + 1 FROM "ig_cmsgf_zosuvy_test"."ku_0"));
+   SELECT SETVAL('"ig_cmsgf_zosuvy_test"."obec_0_objectid_seq"', (SELECT MAX("objectid") + 1 FROM "ig_cmsgf_zosuvy_test"."obec_0"));
+   SELECT SETVAL('"ig_cmsgf_zosuvy_test"."okres_0_objectid_seq"', (SELECT MAX("objectid") + 1 FROM "ig_cmsgf_zosuvy_test"."okres_0"));
+   SELECT SETVAL('"ig_cmsgf_zosuvy_test"."kraj_0_objectid_seq"', (SELECT MAX("objectid") + 1 FROM "ig_cmsgf_zosuvy_test"."kraj_0"));
+   SELECT SETVAL('"ig_cmsgf_zosuvy_test"."sr_0_objectid_seq"', (SELECT MAX("objectid") + 1 FROM "ig_cmsgf_zosuvy_test"."sr_0"));
+   psql -h 192.168.0.16 -p 5432 -d dionysos -U ig_cmsgf_zosuvy_test -a -f zbgis.dump
+
+   Uspesne. Velkost tabulky ku_0 - 25MB, okolo 3500 riadkov s geometriou.
+
+
+Import Lokalit pomocou 'importer':
+
+   1. Export lokalít z registra svahových deformácii
+      Export_lokality_from_gm10_svahove_deformacie.sh -u
+      Výstup je Export_lokality_from_gm10_svahove_deformacie.csv
+
+   2. Konverzia do MSExcel tak aby IDLokality bol string a nie číslo
+
+   3. Import pomocou malej aplikácie importer
+      importer -h
+      importer -db-host 192.168.0.16 -db-name dionysos -db-password $PGPASSWORD -db-port 5432 -db-user ig_cmsgf_zosuvy -import-file Export_lokality_from_gm10_svahove_deformacie.xlsx -import-type lokality
+
+Import polygónov pomocou "importPolygons":
+
+   1. Vytvoriť konfiguračný súbor config.properties:
+      # Target
+      zosuvy.user=ig_cmsgf_zosuvy
+      zosuvy.name=dionysos
+      zosuvy.password=XXX
+      zosuvy.port=5432
+      zosuvy.host=192.168.0.16
+
+      # Source
+      dio.user=ig_cmsgf_zosuvy
+      dio.name=dionysos
+      dio.password=XXX
+      dio.port=5432
+      dio.host=192.168.0.16
+
+      dio.source_table_plygons=ig_register_sd.gm10_svahove_deformacie
+
+   2. Potom spustiť import:
+      ./importPolygons -config-file <path_to>/config.properties
+
+   Je potrebné skompilovať tieto nástroje aj pre Windows.
+   Postup je takýto:
+      export GOOS=windows
+      go build ./cmd/importPolygons/importPolygons.go
+      go build ./cmd/importPolygons/importer.go
+
+Import bodov tých ktoré majú zodpovedajúce lok_id a lokality_id:
+
+   1. Export pomocou scriptu:
+      export PGPASSWORD=<password>
+      ./Export_body_from_ig_cmsgf_body_lok_id.sh -h 192.168.0.16 -p 5432 -d dionysos -U ig_cmsgf_zosuvy
+
+   2. Konverzia do MSExcel tak aby ID_Lokality a ID_MB bol string a nie číslo
+
+   3. Import pomocou importera
+      importer -h
+      ./importer -db-host 192.168.0.16 -db-name dionysos -db-password $PGPASSWORD -db-port 5432 -db-user ig_cmsgf_zosuvy -import-file Export_body_from_ig_cmsgf_body_lok_id.xlsx -import-type body
+
+
+Import bodov, tých ktoré majú iné lok_id, využijeme lokality.name
+a vyjmeme tie, ktoré už boli naimportované cez lok_id.
+
+    1. Export pomocou scriptu:
+      export PGPASSWORD=<password>
+      ./Export_body_from_ig_cmsgf_body_lok_name_only_missing.sh -h 192.168.0.16 -p 5432 -d dionysos -U ig_cmsgf_zosuvy
+
+
+
+Quic Win riešenie kde v stave ako je teraz skúsime naplniť bežiaci systém na
+https://zosuvy.geology.sk
+
+export PGPASSWORD='XXX'
+cd ~/repo/zosuvy
+./zosuvy/importer -db-host 192.168.0.16 -db-name dionysos -db-password $PGPASSWORD -db-port 5432 -db-user ig_cmsgf_zosuvy -import-file Export_lokality_from_gm10_svahove_deformacie.xlsx -import-type lokality
+./zosuvy/importer -db-host 192.168.0.16 -db-name dionysos -db-password $PGPASSWORD -db-port 5432 -db-user ig_cmsgf_zosuvy -import-file /home/kianicka/repo/zosuvy/Export_body_from_ig_cmsgf_body_lok_id_quick_win_April2024.xlsx -import-type body
+./zosuvy/importer -db-host 192.168.0.16 -db-name dionysos -db-password $PGPASSWORD -db-port 5432 -db-user ig_cmsgf_zosuvy -import-file /home/kianicka/repo/zosuvy/Export_body_from_ig_cmsgf_body_lok_name_only_missing_quick_win_April2024.xlsx -import-type body
+./zosuvy/importPolygons -config-file ./zosuvy/cmd/importPolygons/config.properties_quickWin
+
+SQL
+delete from lokality_lit;
+
+./zosuvy/importer -db-host 192.168.0.16 -db-name dionysos -db-password $PGPASSWORD -db-port 5432 -db-user ig_cmsgf_zosuvy -import-file /home/kianicka/projects/InSAR_system/New_imports/mer_geo_upr27.3.2024.xlsx -import-type geodezia
+./zosuvy/importer -db-host 192.168.0.16 -db-name dionysos -db-password $PGPASSWORD -db-port 5432 -db-user ig_cmsgf_zosuvy -import-file /home/kianicka/projects/InSAR_system/New_imports/mb_hpv_paznica.xlsx -import-type mbhpv
+./zosuvy/importer -db-host 192.168.0.16 -db-name dionysos -db-password $PGPASSWORD -db-port 5432 -db-user ig_cmsgf_zosuvy -import-file /home/kianicka/projects/InSAR_system/New_imports/mb_hpv_pistala.xlsx -import-type mbhpv
+./zosuvy/importer -db-host 192.168.0.16 -db-name dionysos -db-password $PGPASSWORD -db-port 5432 -db-user ig_cmsgf_zosuvy -import-file /home/kianicka/projects/InSAR_system/New_imports/mer_hpv.xlsx -import-type hpv
+./zosuvy/importer -db-host 192.168.0.16 -db-name dionysos -db-password $PGPASSWORD -db-port 5432 -db-user ig_cmsgf_zosuvy -import-file /home/kianicka/projects/InSAR_system/New_imports/mb_ink.xlsx -import-type mbink
+./zosuvy/importer -db-host 192.168.0.16 -db-name dionysos -db-password $PGPASSWORD -db-port 5432 -db-user ig_cmsgf_zosuvy -import-file /home/kianicka/projects/InSAR_system/New_imports/mer_inks.xlsx -import-type inks
+./zosuvy/importer -db-host 192.168.0.16 -db-name dionysos -db-password $PGPASSWORD -db-port 5432 -db-user ig_cmsgf_zosuvy -import-file /home/kianicka/projects/InSAR_system/New_imports/mer_dilat_5.4.2024.xlsx -import-type dilat
+./zosuvy/importer -db-host 192.168.0.16 -db-name dionysos -db-password $PGPASSWORD -db-port 5432 -db-user ig_cmsgf_zosuvy -import-file /home/kianicka/projects/InSAR_system/New_imports/mb_pt.xlsx -import-type mbpt
+./zosuvy/importer -db-host 192.168.0.16 -db-name dionysos -db-password $PGPASSWORD -db-port 5432 -db-user ig_cmsgf_zosuvy -import-file /home/kianicka/projects/InSAR_system/New_imports/mer_pt.xlsx -import-type pt
+./zosuvy/importer -db-host 192.168.0.16 -db-name dionysos -db-password $PGPASSWORD -db-port 5432 -db-user ig_cmsgf_zosuvy -import-file /home/kianicka/projects/InSAR_system/New_imports/mer_peep.xlsx -import-type peep
+./zosuvy/importer -db-host 192.168.0.16 -db-name dionysos -db-password $PGPASSWORD -db-port 5432 -db-user ig_cmsgf_zosuvy -import-file /home/kianicka/projects/InSAR_system/New_imports/mer_pees.xlsx -import-type pees
+./zosuvy/importer -db-host 192.168.0.16 -db-name dionysos -db-password $PGPASSWORD -db-port 5432 -db-user ig_cmsgf_zosuvy -import-file /home/kianicka/projects/InSAR_system/New_imports/mer_prn.xlsx -import-type prna
+./zosuvy/importer -db-host 192.168.0.16 -db-name dionysos -db-password $PGPASSWORD -db-port 5432 -db-user ig_cmsgf_zosuvy -import-file /home/kianicka/projects/InSAR_system/New_imports/mer_q.xlsx -import-type hpvq
+./zosuvy/importer -db-host 192.168.0.16 -db-name dionysos -db-password $PGPASSWORD -db-port 5432 -db-user ig_cmsgf_zosuvy -import-file /home/kianicka/projects/InSAR_system/New_imports/mb_potrub.xlsx -import-type mbpotrub
+./zosuvy/importer -db-host 192.168.0.16 -db-name dionysos -db-password $PGPASSWORD -db-port 5432 -db-user ig_cmsgf_zosuvy -import-file /home/kianicka/projects/InSAR_system/New_imports/mer_potrub.xlsx -import-type potrub
+./zosuvy/importer -db-host 192.168.0.16 -db-name dionysos -db-password $PGPASSWORD -db-port 5432 -db-user ig_cmsgf_zosuvy -import-file /home/kianicka/projects/InSAR_system/New_imports/mb_mikroniv.xlsx -import-type mbmikroniv
+./zosuvy/importer -db-host 192.168.0.16 -db-name dionysos -db-password $PGPASSWORD -db-port 5432 -db-user ig_cmsgf_zosuvy -import-file /home/kianicka/projects/InSAR_system/New_imports/mer_mikroniv.xlsx -import-type mikroniv
+./zosuvy/importer -db-host 192.168.0.16 -db-name dionysos -db-password $PGPASSWORD -db-port 5432 -db-user ig_cmsgf_zosuvy -import-file /home/kianicka/projects/InSAR_system/New_imports/mb_stabskal.xls -import-type mbstabskal
+./zosuvy/importer -db-host 192.168.0.16 -db-name dionysos -db-password $PGPASSWORD -db-port 5432 -db-user ig_cmsgf_zosuvy -import-file /home/kianicka/projects/InSAR_system/New_imports/mer_stabskal.xlsx -import-type stabskal
+./zosuvy/importer -db-host 192.168.0.16 -db-name dionysos -db-password $PGPASSWORD -db-port 5432 -db-user ig_cmsgf_zosuvy -import-file /home/kianicka/projects/InSAR_system/New_imports/2020112_stanice_shmu_quick_Win.xlsx -import-type stanice
+./zosuvy/importer -db-host 192.168.0.16 -db-name dionysos -db-password $PGPASSWORD -db-port 5432 -db-user ig_cmsgf_zosuvy -import-file /home/kianicka/projects/InSAR_system/New_imports/zrazky_d.xlsx -import-type zrazky
+./zosuvy/importer -db-host 192.168.0.16 -db-name dionysos -db-password $PGPASSWORD -db-port 5432 -db-user ig_cmsgf_zosuvy -import-file /home/kianicka/projects/InSAR_system/New_imports/zrazky_m.xlsx -import-type zrazky
+./zosuvy/importer -db-host 192.168.0.16 -db-name dionysos -db-password $PGPASSWORD -db-port 5432 -db-user ig_cmsgf_zosuvy -import-file /home/kianicka/projects/InSAR_system/New_imports/zrazky_d_2021_exp.xlsx -import-type zrazky
+./zosuvy/importer -db-host 192.168.0.16 -db-name dionysos -db-password $PGPASSWORD -db-port 5432 -db-user ig_cmsgf_zosuvy -import-file /home/kianicka/projects/InSAR_system/New_imports/zrazky_m_2021_exp.xlsx -import-type zrazky
+./zosuvy/importer -db-host 192.168.0.16 -db-name dionysos -db-password $PGPASSWORD -db-port 5432 -db-user ig_cmsgf_zosuvy -import-file /home/kianicka/projects/InSAR_system/New_imports/teploty_dD_exp.xlsx -import-type zrazky
+
+
+Publikovanie vybraných lokalít 4.4.2024
+   - uprav dátum od, dátum do a cez psql alebo pgAdmin spusti pomocný SQL scriptík:
+     Publish_lokality.sql
+
+Mazanie z databázy aby sme mohli začať od nuly.
+delete from mer_hpv; delete from mb_hpv; delete from mer_geo; delete from body; delete from lokality;
+
+Problém s duplicitnými záznamami v ig_cmsgf.body
+SELECT gid, lokalita_id, lokalita, idmb, znmb, geo, ink, pee, prn, hpv FROM ig_cmsgf.body WHERE znmb in (SELECT znmb FROM ig_cmsgf.body group by lokalita_id, znmb HAVING count(*) > 1 order by lokalita_id) order by lokalita_id, znmb;
+250 záznamov
+
+Problém s chýbajúcimi bodmi pre potrubia - bude potrebné ich vložiť do tabuľky ig_cmsgf.body, dummy pre Handlova SN:
+insert into body values (nextval('zosuvy_seq'), 012306111, 1172485, 62, '1L', '1001-01-01', '1001-01-01',  1228423.52, 447487.31, 493.916, '', ST_SetSRID(ST_MakePoint(1228423.52, 447487.31),  8353), NULL, TRUE);
+insert into body values (nextval('zosuvy_seq'), 012306112, 1172485, 63, '2L', '1001-01-01', '1001-01-01',  1225423.52, 448487.31, 493.916, '', ST_SetSRID(ST_MakePoint(1225423.52, 448487.31),  8353), NULL, TRUE);
+insert into body values (nextval('zosuvy_seq'), 012306113, 1172485, 64, '3L', '1001-01-01', '1001-01-01',  1224423.52, 449487.31, 493.916, '', ST_SetSRID(ST_MakePoint(1224423.52, 449487.31),  8353), NULL, TRUE);
+insert into body values (nextval('zosuvy_seq'), 012306114, 1172485, 65, '4L', '1001-01-01', '1001-01-01',  1222423.52, 440487.31, 493.916, '', ST_SetSRID(ST_MakePoint(1222423.52, 440487.31),  8353), NULL, TRUE);
+
+Mikronivelácia - ide o lokality ktore nie su zosuvnymi uzemiami.
+Potrebujeme si vytvoriť aj dummy lokality aj dummy body kým sa nevložia do zdrojovej tabuľky ig_cmsgf.body.
+insert into body values (nextval('zosuvy_seq'), 012306115, 1172485, 66, 'MN-2', '1001-01-01', '1001-01-01',  1224423.52, 444487.31, 493.916, '', ST_SetSRID(ST_MakePoint(1224423.52, 444487.31),  8353), NULL, TRUE);
+insert into body values (nextval('zosuvy_seq'), 012306116, 1172485, 67, 'MN-3', '1001-01-01', '1001-01-01',  1225423.52, 445487.31, 493.916, '', ST_SetSRID(ST_MakePoint(1225423.52, 445487.31),  8353), NULL, TRUE);
+insert into body values (nextval('zosuvy_seq'), 012306117, 1172485, 68, 'MN-4', '1001-01-01', '1001-01-01',  1226423.52, 446487.31, 493.916, '', ST_SetSRID(ST_MakePoint(1226423.52, 446487.31),  8353), NULL, TRUE);
+insert into body values (nextval('zosuvy_seq'), 012306118, 1172485, 69, 'MN-5', '1001-01-01', '1001-01-01',  1227423.52, 447887.31, 493.916, '', ST_SetSRID(ST_MakePoint(1227423.52, 447887.31),  8353), NULL, TRUE);
+
+Stabilita skál tiež bude potrebovať dummy body a lokality:
+insert into body values (nextval('zosuvy_seq'), 012306119, 1172485, 70, '1/B1-B2', '1001-01-01', '1001-01-01',  1238423.52, 447487.31, 493.916, '', ST_SetSRID(ST_MakePoint(1238423.52, 447487.31),  8353), NULL, TRUE);
+insert into body values (nextval('zosuvy_seq'), 012306120, 1172485, 71, '1/B1-B3', '1001-01-01', '1001-01-01',  1235423.52, 448487.31, 493.916, '', ST_SetSRID(ST_MakePoint(1235423.52, 448487.31),  8353), NULL, TRUE);
+insert into body values (nextval('zosuvy_seq'), 012306121, 1172485, 72, '1/B2-B3', '1001-01-01', '1001-01-01',  1234423.52, 449487.31, 493.916, '', ST_SetSRID(ST_MakePoint(1234423.52, 449487.31),  8353), NULL, TRUE);
+insert into body values (nextval('zosuvy_seq'), 012306122, 1172485, 73, '2/B4-B5', '1001-01-01', '1001-01-01',  1232423.52, 440487.31, 493.916, '', ST_SetSRID(ST_MakePoint(1232423.52, 440487.31),  8353), NULL, TRUE);
+
+Pre import SHMU staníc nám chýbali vo vstupnom exceli poznámky a súradnice.
+Takže sme ich pridali, ale import vykonáme priamo v databáze z tabuľky ig_cmsgf.shmu_stanice kvôli diskrepanciám v názvoch staníc, a pomocou indikatívu.
+select o.indik, o.stanica, o.x, i.indikativ_st, i.nazov_st, i.x_jtsk, i.y_jtsk, i.z_bpv from ig_cmsgf.shmu_stanice as i INNER JOIN ig_cmsgf_zosuvy_test.shmu_stanice as o ON i.indikativ_st = to_number(o.indik, '99999')
+update:
+update ig_cmsgf_zosuvy_test.shmu_stanice as inn set x=cast(x_jtsk as real), y=cast(y_jtsk as real), z = cast(z_bpv as real) from
+(
+    select o.indik, o.stanica, o.x, i.indikativ_st, i.nazov_st, i.x_jtsk, i.y_jtsk, i.z_bpv 
+	from ig_cmsgf.shmu_stanice as i 
+	INNER JOIN ig_cmsgf_zosuvy_test.shmu_stanice as o 
+	ON i.indikativ_st = to_number(o.indik, '99999')
+) as sq
+where inn.indik = sq.indik;
+(Pozor je tam konverzia z numeric na real, kde pre y súradnicu to zaokrúhli na jedno desatinné miesto, teda na [dm].)
+a spätne skopírovať do vstupného excelu - zatiaľ pre QuickWin - otočiť znamienka.
+select stanica, -y as "x", -x as "y", z from ig_cmsgf_zosuvy_test.shmu_stanice order by stanica;
+
+
+Práca na performance pri HPV importe a pri importe inklinometrie.
+===============
+mer_hpv_01.xlsx
+Chyby a správy zapísané do súboru hpv.messages.txt
+Messages: 314125
+Erros: 676374
+Elapsed Time: 2912 seconds
+(skoro hodina)
+
+potom mer_hpv_02.xlsx
+Chyby a správy zapísané do súboru hpv.messages.txt
+Messages: 655775
+Erros: 389454
+Elapsed Time: 4764 seconds
+
+rovnaký počet záznamov a skoro dvojnásobok času.
+
+mer_hpv_02.xlsx - po indexovani
+Chyby a správy zapísané do súboru hpv.messages.txt
+Messages: 655775
+Erros: 389454
+Elapsed Time: 5259 seconds
+
+ešte oveľa väčší čas.
+
+BRIN indexy na dátumy - ešte dlhší čas.
+Chyby a správy zapísané do súboru hpv.messages.txt
+Messages: 655775
+Erros: 389454
+Elapsed Time: 5313 seconds
+
+
+mer_hpv.xlsx - pred indexovaním
+Messages: 99222
+Erros: 39957
+Elapsed Time: 572 seconds
+
+mer_hpv.xlsx - po indexovani
+Messages: 99222
+Erros: 39957
+Elapsed Time: 576 seconds
+
+žiaden veľký rozdiel. 
+
+Inklinometria - po odstraneni zbytocneho printu
+MESSAGE: Počet riadkov v súbore: 88962
+MESSAGE: Počet nových záznamov: 0
+MESSAGE: Počet aktualizovaných záznamov: 74069
+
+Messages: 74069
+Erros: 0
+Elapsed Time: 4259 seconds - 1.18 hod
+
+Po optimalizacii a redukci Selektov:
+MESSAGE: Počet riadkov v súbore: 88962
+MESSAGE: Počet nových záznamov: 73733
+MESSAGE: Počet aktualizovaných záznamov: 336
+------------------------------------------ Import Súboru
+Chyby a správy zapísané do súboru inkp.messages.txt
+Messages: 74069
+Erros: 0
+Elapsed Time: 3340 seconds - 0.92 hod
+
+- nakoniec som tieto zmeny nekomitol.
+
+
+Import zrážok je veľmi pomalý. Súbor zrazky_d_2021_exp.xlsx trval 2.17 hod.
+
+MESSAGE: Počet riadkov v súbore: 275487
+MESSAGE: Počet nových záznamov: 266205
+MESSAGE: Počet aktualizovaných záznamov: 730
+------------------------------------------ Import Súboru
+Chyby a správy zapísané do súboru zrazky.messages.txt
+Messages: 266831
+Erros: 208
+Elapsed Time: 7846 seconds
+
+Mesačné zrážky, súbor: zrazky_m_2021_exp.xlsx
+MESSAGE: Počet riadkov v súbore: 9048
+MESSAGE: Počet nových záznamov: 2
+MESSAGE: Počet aktualizovaných záznamov: 8765
+------------------------------------------ Import Súboru
+Chyby a správy zapísané do súboru zrazky.messages.txt
+Messages: 8767
+Erros: 0
+Elapsed Time: 780 seconds
+
+Dalsi den
+MESSAGE: Počet riadkov v súbore: 9048
+MESSAGE: Počet nových záznamov: 48
+MESSAGE: Počet aktualizovaných záznamov: 8719
+------------------------------------------ Import Súboru
+Chyby a správy zapísané do súboru zrazky.messages.txt
+Messages: 8767
+Erros: 0
+Elapsed Time: 792 seconds
+
+Odstranene indexy na stanici_id a datume.
+ESSAGE: Počet riadkov v súbore: 9048
+MESSAGE: Počet nových záznamov: 0
+MESSAGE: Počet aktualizovaných záznamov: 8767
+------------------------------------------ Import Súboru
+Chyby a správy zapísané do súboru zrazky.messages.txt
+Messages: 8767
+Erros: 0
+Elapsed Time: 1009 seconds
+
+Indexy znovu vytvorene, plus optimalizacia pri hladani stanice:
+MESSAGE: Počet riadkov v súbore: 9048
+MESSAGE: Počet nových záznamov: 0
+MESSAGE: Počet aktualizovaných záznamov: 8767
+------------------------------------------ Import Súboru
+Chyby a správy zapísané do súboru zrazky.messages.txt
+Messages: 8767
+Erros: 0
+Elapsed Time: 766 seconds
+
+Implementacia zuzenia na typ a vyhladavanie na stanicu a indikativ:
+MESSAGE: Počet riadkov v súbore: 9048
+MESSAGE: Počet nových záznamov: 0
+MESSAGE: Počet aktualizovaných záznamov: 8503
+------------------------------------------ Import Súboru
+Chyby a správy zapísané do súboru zrazky.messages.txt
+Messages: 8503
+Erros: 0
+Elapsed Time: 101 seconds
+
+===
+
+Denné teploty zo súboru teploty_dD_exp.xlsx
+MESSAGE: Počet riadkov v súbore: 147166
+MESSAGE: Počet nových záznamov: 146189
+MESSAGE: Počet aktualizovaných záznamov: 825
+------------------------------------------ Import Súboru
+Chyby a správy zapísané do súboru zrazky.messages.txt
+Messages: 146561
+Erros: 979
+Elapsed Time: 7229 seconds
+
+
+Zase denné teploty po implementácii zmient a využívaní typu:
+MESSAGE: Počet riadkov v súbore: 147166
+MESSAGE: Počet nových záznamov: 465
+MESSAGE: Počet aktualizovaných záznamov: 146549
+------------------------------------------ Import Súboru
+Chyby a správy zapísané do súboru zrazky.messages.txt
+Messages: 146561
+Erros: 979
+Elapsed Time: 23517 seconds
+- to je 6.5 hod - asi skúsime dať ešte index na typ - pustíme v noci.
+
+Po vytvoreni ešte jedného indexu aj s typo_v:
+MESSAGE: Počet riadkov v súbore: 147166
+MESSAGE: Počet nových záznamov: 453
+MESSAGE: Počet aktualizovaných záznamov: 146561
+------------------------------------------ Import Súboru
+Chyby a správy zapísané do súboru zrazky.messages.txt
+Messages: 146561
+Erros: 979
+Elapsed Time: 23569 seconds

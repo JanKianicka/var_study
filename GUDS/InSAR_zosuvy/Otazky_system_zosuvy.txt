@@ -200,6 +200,44 @@ Otazky:
     garantujuce konzistenciu
     tychto dat.
 
+Zacal som naplnat tabulku 'lokality' podla
+mapovania zo stretnutia a zapisu:
+Stretnutie_PeterOndrejka_mapovanieLolalit_21.2.2024.docx
 
-    
+23. Zdrojovy kluc, nazov lokality nie je jednoznacny.
+    Napr. lokalita 'Podhorie'
+    je v zdrojovej tabulke dva krat, a jedna z nich je uz monitorovana.
+    Jedna je okrese Senica, jedna v okrese Banska Stiavnica.
+
+24. Hned po importe prakticky vsetky atributy
+    tabulky 'lokality' su povinne.
+    Nie je mozne zobrazit zaznamy bez vyplnenia nejakeho deafult.
+    To ale znamena, ze napr. aj objemy, nadmorske vysky, plochy.
+    Ale aj datumy od/do musia byt predvyplnene pri
+    importe, a nasledne musia byt upravene manualne.
+
+25. Po importe vsetkych udajov sa system dostal
+    do nekonzistetneho stavu plneho chyb.
+    Mapove okno vyzadovalo neexistujuci atribut
+    geomlines, a ked som ho pridal, alebo premenoval
+    povodny atribut geometry tak sa zase dostal
+    do nekonzistetneho stavu aj zoznam lokalit.
+
+26. Ukladanie literatury k lokalitam nefunguje.
+
+27. Import z tabulky gm50_register_sd je velmi problematicky.
+    V tejto tabulke je tiez 'kluc' nazov lokality.
+    Ale je pisany rozne - s diakritikou, bez diakritiky,
+    velkymi pismenami a pod.
+    Za pouzita matchovania ILIKE - teda 'case insensitive'
+    sa mi podarilo napimportovat iba 16 zaznamov zo
+    ~170 lokalit z tabulky gm10_svahove_deformacie.
+    Atribut 'igrajon' je uplne prazny.
+
+Čítanie kódu importPolygons
+
+28. Používajú sa už neexistujúce tabuľky z neexistujúcich DB schém.
+    Vyzerá to tak, že tabuľky boli pri migrácii na nový server
+    premenované. Nečudo, že importy boli nefunkčné.  Skúsim tieto veci
+    vytiahnuť ako parametre do konfiguračného súboru.
 
