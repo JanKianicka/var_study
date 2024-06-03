@@ -19,7 +19,8 @@ There are two major implementations:
        library. With GCC the combination is gccgo;[18] with LLVM the
        combination is gollvm.[19][a]
 
-A third-party source-to-source compiler, GopherJS,[21] compiles Go to JavaScript for front-end web development. 
+A third-party source-to-source compiler, GopherJS,[21] compiles Go to
+JavaScript for front-end web development.
 
 A syntax and environment adopting patterns more common in dynamic languages:[49]
 
@@ -44,7 +45,60 @@ Distinctive approaches to particular problems:
     in a programmer's head,[53] in part by omitting features that are
     common in similar languages.
 
-Documnetation:
+Concurrency: goroutines and channels:
+
+    Full concurrency support simillar like in Erlang. The primary
+    concurrency construct is the goroutine, a type of green thread.
+
+    Structures are: go routines, channels, blocking and messaging
+    between channels, actor-model style design.
+
+    Go does not provide any built-in notion of safe or verifiable
+    concurrency.
+
+    This means that mutable objects and pointers can be shared between
+    goroutines.
+
+    Suitability for parallel programming:
+    Although Go's concurrency features are not aimed primarily at
+    parallel processing, they can be used to program shared-memory
+    multi-processor machines.
+
+    Lack of data race safety:
+    Go's approach to concurrency can be summarized as "don't
+    communicate by sharing memory; share memory by
+    communicating". There are no restrictions on how goroutines
+    access shared data, making data races possible.
+
+Binaries:
+    The linker in the gc toolchain creates statically linked binaries
+    by default; therefore all Go binaries include the Go runtime.
+
+Omissions:
+    Go deliberately omits certain features common in other languages,
+    including (implementation) inheritance, assertions,pointer
+    arithmetic, implicit type conversions, untagged unions, and tagged
+    unions. The designers added only those facilities that all three
+    agreed on.
+
+Tools:
+    The main Go distribution includes tools for building, testing, and analyzing code:
+
+    go build, which builds Go binaries using only information in the source files themselves, no separate makefiles
+    go test, for unit testing and microbenchmarks as well as fuzzing
+    go fmt, for formatting code
+    go install, for retrieving and installing remote packages
+    go vet, a static analyzer looking for potential errors in code
+    go run, a shortcut for building and executing code
+    godoc, for displaying documentation or serving it via HTTP
+    gorename, for renaming variables, functions, and so on in a type-safe way
+    go generate, a standard way to invoke code generators
+    go mod, for creating a new module, adding dependencies, upgrading dependencies, etc.
+
+
+    
+
+Documentation:
 --------------
 https://go.dev/doc/
 
@@ -70,6 +124,13 @@ And three third party auxilliary utillities - required by GoClipse:
 /usr/bin/gocode
 /usr/share/terminfo/g/guru (this does not work - probably it is different guru than required by Golang)
 /home/kianicka/go/bin/godef
+
+Trying VSCode:
+https://code.visualstudio.com/docs/?dv=linux64_deb
+Installed and executed with
+    > code  
+But very complicated IDE tool. Could not build nor launch the
+binaries.
 
 
 Tutorial - learning programming:
