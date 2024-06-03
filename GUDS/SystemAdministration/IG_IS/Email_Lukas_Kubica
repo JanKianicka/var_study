@@ -1,0 +1,24 @@
+p.
+
+-----Original Message-----
+From: "Ing. Lukáš Kubica" <lukas.kubica@stuba.sk>
+Sent: Sunday, September 17, 2023 7:07 PM
+To: Milos Gregor <milos.gregor@hydrooffice.org>
+Cc: Peter Ondrejka <peter.ondrejka@geology.sk>; Peter Ondrus <peter.ondrus@geology.sk>; Juraj Papčo <juraj.papco@stuba.sk>
+Subject: InSAR data
+
+Zdravím Vás,
+vopred sa ospravedlňujeme za oneskorenie ale poslednú dobu sme mali toho trošku viacej (začiatok semestra, konferencie, projekty…) a navyše som ja osobne na tie dáta prizabudol...
+
+V prílohe nájdete dáta z meraní InSAR pre oblasti HN, KE a PO, ktoré sú orezané pre oblasti A3 definované polygónmi. Hlavička CSV súborov sa mierne zmenila a to najmä kvôli implementácii GIS vizualizačnej platformy na našej strane. V takejto podobe by mala hlavička ostať aj v budúcnosti.
+
+Milošovi sa ospravedlňujeme za prípadné technické problémy spojené so zmenou hlavičky.
+
+Ak by ste mali akékoľvek otázky alebo pripomienky pokojne volajte.
+
+Ďakujem Vám za pochopenie a prajem úspešný začiatok pracovného týždňa.
+
+S pozdravom
+
+--
+Ing. Lukáš Kubica

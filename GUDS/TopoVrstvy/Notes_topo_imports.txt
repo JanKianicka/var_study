@@ -1,0 +1,25 @@
+# On 6.3.2024 I have received Shapefile of Military Topographic Maps
+1:10 000 from Peter Paudits.
+
+The requirement was to import it as is into PostGIS database into the
+table: topo_podklady.tvm10_listoklad
+
+1. First was to create the target table based on already existing
+table topo_podklady.tvm25_listoklad
+
+    > vim Tvm10_listoklad_createTable.sql
+    > export PGPASSWORD=<password>
+    > psql -h 192.168.0.16 -p 5432 -d dionysos -U kianicka_admin -a -f Tvm10_listoklad_createTable.sql; echo $?
+
+2. Import shapefile using QGIS ogr2ogr utility.
+
+    > cd <path_to_shapefile>
+    > ogr2ogr -nln topo_podklady.tvm10_listoklad -append -lco GEOMETRY_NAME=geom -lco FID=gid -lco PRECISION=NO Pg:"dbname=dionysos host=192.168.0.16 user=kianicka_admin port=5432" tvm10_listoklad.shp; echo $?
+
+   Important is that the shapefile already contains gid but in DOUBLE data format.
+   This is supported by PostGIS, that is why we used it and mapped
+   source gid to target gid.
+
+
+   
+

@@ -1,0 +1,287 @@
+# Task is to assess the sofware and hardware resources
+# on the machine:
+
+SUPER-MICRO
+DESKTOP-RAT995S (192.168.0.76)
+------------
+Názov zariadenia	DESKTOP-RAT995S
+Procesor	        Intel(R) Xeon(R) Gold 6154 CPU @ 3.00GHz   3.00 GHz  (počet procesorov: 2)
+Nainštalovaná pamäť RAM	512 GB (použiteľná pamäť: 511 GB)
+ID zariadenia	    36D49E8D-6539-4E70-9A16-08B31E0A4CA0
+Kód Product ID	    00330-71290-00002-AAOEM
+Typ systému	    64-bitový operačný systém, procesor typu x64
+
+Vydanie	Windows 11 Pro
+Verzia	                        23H2
+Dátum inštalácie                7.11.2022
+Zostava operačného systému	22631.3155
+Rozhranie	                Windows Feature Experience Pack 1000.22684.1000.0
+
+-----
+Silná workstation s veľa pamäťou a dvoma silnými procesormi.
+72 logických jadier CPU.
+
+Disky su ale dosť plné:
+C: systémový disk iba asi 40% voľného (641 GB z 1.74 TB)
+D: Datový disk, voľná asi polovica (810GB z 1.74 TB)
+   12G     Juraj
+   28G     Marek
+   933G    Zjak
+
+E: Dátový disk "TerraByte 10" (3.7 TB voľných z 8.64 TB)
+   6.6G    A1_ZalohyZaloh
+   8.4G    CorineLandCover_ESA
+   0       IGDataDokBody
+   1.6T    LIDAR - druhý najväčší
+   30G     MBTILES_podklady
+   8.9G    OFM_IACS(2000)
+   220G    Ortofotomozaika(2018-2020)
+   3.0T    SNT1 - najväčší
+   10G     SRDEM20SK
+   418M    Trimble_GNSS_Data
+   6.6G    ZM10
+   35G     install
+
+jan.kianicka@DESKTOP-RAT995S MINGW64 ~
+$ df -h //192.168.0.2/data
+Filesystem      Size  Used Avail Use% Mounted on
+-               5.3T  2.7T  2.6T  51% //192.168.0.2/data
+
+jan.kianicka@DESKTOP-RAT995S MINGW64 ~
+$ df -h //192.168.4.201/Pracovna_zlozka
+Filesystem      Size  Used Avail Use% Mounted on
+-                32T  927G   31T   3% //192.168.4.201/Pracovna_zlozka
+
+Software of interest:
+- there is whole set of MS Office and then
+Adobe
+Agisoft
+Applanix
+'Aquaveo License Service'
+CodeMeter
+'Common Files'
+DHI
+ESET
+Fine
+'GMS 10.8 64-bit'
+Google
+'GreenValley Suite'
+HPPrintScanDoctor
+'Internet Explorer'
+IrfanView
+LibreOffice
+MATLAB
+MSBuild
+MapInfo
+'Microsoft Office'
+'Microsoft Office 15'
+'Microsoft SQL Server'
+'Microsoft SQL Server Compact Edition'
+'Microsoft Synchronization Services'
+'Microsoft Update Health Tools'
+ModifiableWindowsApps
+'NVIDIA Corporation'
+'PEST Utilities'
+PuTTY
+'QGIS 3.10'
+'QGIS 3.22.5'
+R
+'Reference Assemblies'
+SimActive
+'SiteVision AR Exporter'
+'Sitech Construction Systems'
+TeamViewer
+Trimble
+'Trimble Solutions'
+'Uninstall Information'
+WIBU-SYSTEMS
+'Windows Defender'
+'Windows Defender Advanced Threat Protection'
+'Windows Mail'
+'Windows Media Player'
+'Windows NT'
+'Windows Photo Viewer'
+'Windows Sidebar'
+WindowsApps
+WindowsPowerShell
+desktop.ini
+dotnet
+'pgAdmin 4'
+psqlODBC
+totalcmd
+totalcmd_1
+
+
+Correlator3D je v:
+/c/Program Files/SimActive/Correlator3D/Correlator3D.exe
+Manuály a vzorové dáta
+Cesium Quickstart Guide.pdf
+Correlator3D Distributed Processing Quickstart Guide.pdf
+Correlator3D LiDAR Workflow Quickstart Guide.pdf
+Correlator3D Quickstart Guide.pdf
+Correlator3D User Manual.pdf
+/c/Program Files/SimActive/Correlator3D/Sample Files/
+- zdá sa, že sa dajú vytvoriť len projekty pre UAV nie je pre leteckú
+fotogrametriu a spracovanie satelitných dát.
+
+MATLAB už nemá platnú licenciu
+Nikde som nenašiel software "PeriZ SARPROZ Flexi", ktorý je implementovaný v Matlabe.
+https://www.sarproz.com/
+
+Trimble Business Center
+Funguje a umožňuje riešenie rôznych úloh.
+Nemá už predĺženú licenciu, takže sa nedá upgradovať.
+
+MapInfo (Pro) - inštalované ale chýba mu licenicia,
+takže sa nedá spustiť.
+
+Agisoft Viewer - funguje, vyzerá ako malá aplikácia na
+vizualizáciu rôznych Geo dát.
+
+DHI - vyzerá to ako sada malých aplikácii na konverziu
+napr. dxftoasc.exe
+
+Fine - adresár obsahuje sady Geotechnického Sofvéru
+of firmy fine, celkovo sa nazýva GEO5
+https://www.fine.cz/geotechnicky-software/
+Vyzerá že funguje, ale nie všetko je licencované.
+
+Google Earth - funguje, ale nie veľmi dobre cez moje Linux Mint remote desktop
+(grafika DirectX)
+
+R - funguje, ale nie je v ceste na spúštanie.
+
+Plus sú tam open-source QGIS 3.22.5 a GRASS GIS 7.8.7
+
+A to je asi všetko.
+
+----------------
+Otázky:
+
+1. Aké úlohy sa na workstation vlastne vykonávali, a ako ho udržíme v
+   chode?
+   Lokálne disky sú na spracovanie Lidar dát dosť malé.  Skúsil som
+   otvoriť DMR5 v softvéri Correlation3D a ten ho rozbalil a previedol
+   do nekomprimovaného formátu ktorý v mojom User privátnom adresári
+   zaplnil celý disk C: Toto de-facto znemožňuje akúkoľvek paralelnú
+   prácu na Workstation.
+   Aj teraz je stav diskov takýto - viď prílohu:
+   SuperMicro_zaplnenieLokalnychDiskov_13.5.2024.jpg
+   Bolo by možné dať Userom nejaké kvoty?  Alebo skôr naštudovať ten
+   softvér, a umožniť len zdieľané kešovanie - neviem.  Teraz sa na
+   Workstation pracovať nedá.
+
+2. Asi by som odstránil softvér, ktorému už vypršala licencia aby sa
+   uvoľnilo miesto na disku C.
+   S kým všetkým to mám konzultovať?
+   Vyzerá to tak, že táto workstation naozaj bola využívaná
+   externistami z STU - katedry Geodézie.  Čo také MapInfo - potrebuje
+   ho niekto?  Alebo už nefunkčný Matlab.
+
+3. Môj vedúci RNDr. Pavol Liščák mi povedal, že ku Workstation
+   SuperMicro bolo zakúpené aj diskové pole o veľkosti 80TB.  Nie je
+   ale priamo namontované ako lokálny disk.
+   Pozrel som prístupné zdieľané disky na ktorých pracujeme.
+   (Viď aj hore)
+   192.168.4.201/Pracovna_zlozka má 32TB voľného.
+   Je toto súčasťou toho diskového poľa?
+   Keď budeme spracúvať nové LIDAR Loty, máme si ukladať dáta tam?
+   Sú tam ale aj iné projektové dáta. Kde je zvyšných 50TB diskového
+   poľa?
+
+4. Na Workstation je pripojený 10TB lokálny
+   disk TeraByte10 E:.
+   
+   Je dosť zaplnený rôznymi staršími dátami.  Napr. adresár LIDAR má
+   1.54 TB a sú tam LOT-y z našich záujmových území.  Myslím, že som
+   podobné dáta videl uložené na rôznych iných lokálnych diskoch.
+   A aj tu:
+   192.168.0.2/LiDAR
+   Vyzerá to tak, že tvoríme duplicity veľkých dát.  Bolo by dobré
+   toto nejako upratať aby sme mohli na SuperMicro efektívne spracúvať
+   merania.  Hlavne ukladať výsledky ako chránené "Rad-only" dáta na
+   jednom zdieľanom mieste.
+
+5. Chcel som pozrieť aké veľké sú domovské adresáre jednotlivých
+   Userov, ale na to má právo iba "admin" systému.
+
+6. Na efektívnu prácu s 3D grafickým softvérom by bolo dobre sedieť
+   priamo pri Workstation kvôli 3D akcelerácii grafickej karty a
+   drahému softvéru, ktorý toto využíva.
+   Je toto možné?
+   Remote Desktop to spomaľuje kvôli sieťovému prenosu.  A môj
+   Linuxový klient to nepodporuje.
+
+Ďalšie skúmanie mašiny - príliš plný C disk
+------------
+jan.kianicka@DESKTOP-RAT995S MINGW64 /c
+$ du -sh *
+34G     $Recycle.Bin
+1.1G    $WinREAgent
+1.0K    67D00AF06191
+36K     Config.Msi
+0       Documents and Settings
+12K     DumpStack.log.tmp
+4.0K    OneDriveTemp
+0       PerfLogs
+79G     Program Files
+8.6G    Program Files (x86)
+17G     ProgramData
+4.0K    Recovery
+18G     System Volume Information
+0       Trimble Synchronizer Data
+1.4T    Users
+7.3G    ViewPower2.13SP1
+34G     Windows
+1.0K    cerr.txt
+1.0K    lang.ini
+6.9M    pcodes
+6.6M    pcodes2
+1.0K    silent.txt
+256M    swapfile.sys
+768K    temp
+0       tmp
+12M     wsession
+
+Odstranil som dosť veľký hiberfil.sys.
+A vypol kešovanie session aby sa už viacej tento súbor nevytváral.
+powercfg -h off
+
+Users:
+28G     jaromir.svasta
+  7.6G    /c/Users/jaromir.svasta/Documents/PEST
+  17G     /c/Users/jaromir.svasta/Documents/install
+  - zatiaľ neodmazané
+  
+56G     marek.frastia
+  - odmazané temp súbory Correlation3D
+  
+147G    matej.guzik
+  - odmazané Temp súbory
+  
+1.1T    robert.zjak
+
+jan.kianicka@DESKTOP-RAT995S MINGW64 /c/Users/robert.zjak/Documents
+$ du -sh *
+4.0K     - zoom_level=12.aux.xml
+4.0K     - zoom_level=8.aux.xml
+0       GIS DataBase
+78M     GNSS Projects
+0       My Music
+0       My Pictures
+0       My Videos
+100K    Simactive
+0       Trimble Business Center
+1.1T    ZJAK
+1.0K    desktop.ini
+
+   $ cp Male_Karpaty_LiDAR_25cm.mbtiles //192.168.4.201/podklady/MBTILES_podklady_copy -v
+   'Male_Karpaty_LiDAR_25cm.mbtiles' -> '//192.168.4.201/podklady/MBTILES_podklady_copy/Male_Karpaty_LiDAR_25cm.mbtiles'
+   4693a880010be215c6f40c3dc0453c37 *Male_Karpaty_LiDAR_25cm.mbtiles
+   4693a880010be215c6f40c3dc0453c37 *//192.168.4.201/podklady/MBTILES_podklady_copy/Male_Karpaty_LiDAR_25cm.mbtiles
+   - odmazané
+   
+129G    /c/Users/matej.guzik/AppData/Local/Temp
+   - odmazané 13.9.2024 ráno
+
+

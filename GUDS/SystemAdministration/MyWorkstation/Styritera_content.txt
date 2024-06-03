@@ -1,0 +1,52 @@
+kianicka@PP-HPZ2-Linux:/mnt/c2a8b4c6-398b-42bb-979b-324b42ff709d$ tree -L 1
+.
+├── arcgis10-functionality-matrix.pdf
+├── AtlasKrajiny2004
+├── Brehy_f269(1936).jpg
+├── CLC_SKS
+├── DMR5_0_cela_SR
+├── Europa
+├── georeferencing
+├── GM50_GUDS
+├── grassdata
+├── hectare_grid_etrs.rar
+├── hektarove_krize_etrs.rar
+├── hektarove_krize_jtsk1.rar
+├── hektarove_krize_jtsk2.rar
+├── hustenie_bicykla_trek.jpg
+├── IMK_Esprit
+├── install
+├── legendy
+├── listoklady
+├── MapovyKlucTVM10
+├── MapovyKlucZM10
+├── OpenStreetMap
+├── poslanci_2023.jpg
+├── Pramene(SGUDS)
+├── QGIS_Templates
+├── qry
+├── r1a_l260_world_population.png
+├── Skladky(SGUDS)
+├── sk_siet_dialnic.jpg
+├── SRDEM20SK
+├── StratTab_SK_1987.jpg
+├── StratTabSK_20230423.jpg
+├── SVM50
+├── timeshift
+├── tm245-288.jpg
+├── Transpetrol_2001
+├── Transpetrol_2020
+├── VUVH-Pramene
+├── Zbornik_IG_2022
+├── ZM10_Rastre
+├── 2011-06-03_P6024776_Zlato-BielyVrch.JPG
+└── 2012-08-25_Zlato-Pukanec(Solo)_JanoFotil.jpg
+
+
++------+---------+-------+
+|dsdsds| dsdsd   |dsdsd  |
++------+---------+-------+
+|      |  dsds   |    dsd|
++------+---------+-------+
+|      |    dsdsd|       |
++------+---------+-------+

@@ -1,0 +1,44 @@
+Drobné úlohy na prípravu projektu.
+
+Chcem prispieť tým, že by sme v rámci projektu vybudovali postupne
+systém, ktorý bude schopný sprácúvať nové aj archívne dáta DPZ - z
+programu Copernicus.  Jednak pre InSAR a PS InSAR v spoluprácu s
+Jurajom Papčom, a tiež pre ďalšie odvodené parametre, ako napr. soil
+moisture, zrážky, indikátory sucha pomocou sledovania NDVI a zdravia
+vegetácie.
+Druhým vstupom bude spracovanie dát z LIDARu.
+S analýza digitálneho modelu reliefu.
+
+1. Odhad IT výpočtovej kapacity.
+  - odhad jedného diferenčného interefogramu
+  - odhad potrebných orbít
+  - odhad pre PS InSAR near-real time processing
+  - ukladanie výsledkov do netCDF4 súborov a ich archivácia
+  - možnosť ich prezerania a ukladania poznámok a výrezov
+  - sťahovanie a spracovanie dát Sentinel-2
+    akých dát pre NDVI, je možné sťahovať aj NDVI
+    už ako produkt?
+  - spracovanie archivných snímok a vytvorenie nejakého modelu
+  Vymenovanie produktov a vytvorenie architektonického grafu.
+  
+
+2. Odhad pre spracovanie LIDAR dát - SuperMicro
+  - strednutie s Gabrielou Bystrickou
+  - otázky pre Jura
+  
+Otázky - aj Karol Fazekaš, pán Chudý.
+
+Otázky na Jura Papča:
+1. Prejsť sofvér a kapacity na mašine SuperMicro,
+   vyčistenie lokálnych diskov,
+   aký softvér tam je a ako ho používali.
+   Tiež dáta ktoré tam sú úložené - napr. archív SN1 a ich spracovanie v SARPROZ.
+
+2. Môžeme spracúvať dáta z Dronu a z Lidaru na SuperMicro?
+   Aké potrebujeme diskové rezervy a či je možné ich spracúvať
+   aj paralelne viacerými používateľmi Workstation.
+   Chceme sa to naučiť?
+   Aká bude spolupráca, hranice v tejto oblasti.
+
+3. 
+
