@@ -1,0 +1,43 @@
+https://sentinels.copernicus.eu/web/sentinel/technical-guides/sentinel-1-sar/products-algorithms/level-1-algorithms/topsar-processing
+
+TOPSAR Processing
+
+The Terrain Observation with Progressive Scans SAR (TOPSAR) technique
+is a form of ScanSAR imaging, where data is acquired in bursts by
+cyclically switching the antenna beam between multiple adjacent
+sub-swaths. TOPSAR acquisitions can provide large swath widths and
+enhanced radiometric performance by reducing the scalloping
+effect. TOPSAR is used in SENTINEL-1's Interferometric Wide swath and
+Extra Wide swath modes.
+
+ 
+
+With the TOPSAR technique, in addition to steering the beam in range
+as in ScanSAR, the beam is also electronically steered from backward
+to forward in the azimuth direction for each burst, avoiding
+scalloping and resulting in homogeneous image quality throughout the
+swath. [1]
+
+ 
+
+TOPSAR mode is intended to replace the conventional ScanSAR mode,
+achieving the same coverage and resolution as ScanSAR, but with a
+nearly uniform Signal-to-Noise Ratio (SNR) and Distributed Target
+Ambiguity Ratio (DTAR).
+
+ 
+Azimuth resolution is reduced compared to SM due to the shorter target
+illumination time of the burst. Using the sweeping azimuth pattern,
+each target is seen under the same antenna pattern, independently from
+its azimuth position in the burst image. By shrinking the azimuth
+antenna pattern, as seen by a target on the ground, scalloping effects
+on the image can be reduced. Bursts are synchronised from pass to pass
+to ensure the alignment of interferometric pairs.
+
+
+For TOPSAR, the processing must handle the antenna steering rate and
+the DC rate due to the steering. The azimuth pre and post-processing
+of the data must include de-ramping of the data prior to base-band DC
+estimation, azimuth ambiguity estimation and GRD azimuth
+processing. Please see the technical note COPE-GSEG-EOPG-TN-14-0025
+for details on how deramping is performed by the IPF.

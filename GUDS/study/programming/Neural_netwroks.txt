@@ -1,0 +1,7 @@
+https://en.wikipedia.org/wiki/Neural_network
+https://en.wikipedia.org/wiki/Artificial_neuron
+https://colab.research.google.com/#scrollTo=OwuxHmxllTwN
+https://colab.research.google.com/github/tensorflow/docs/blob/master/site/en/tutorials/quickstart/beginner.ipynb#scrollTo=04QgGZc9bF5D
+
+Similar project like we indent to solve:
+https://eurocc.nscc.sk/implementacia-metody-ciastocne-riadeneho-ucenia-uni-match-do-metody-frame-field-learning-pre-ulohu-extrakcie-budov-z-leteckych-snimok/

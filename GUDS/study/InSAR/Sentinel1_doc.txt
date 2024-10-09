@@ -1,0 +1,161 @@
+# Records about Sentinel 1 satellites
+
+https://www.esa.int/Applications/Observing_the_Earth/Copernicus/Sentinel-1
+
+The launch
+Date: Sentinel-1A - 03 April 2014 
+      Sentinel-1B - 25 April 2016 
+      Sentinel-1C - 2024
+
+The Sentinel-1 mission is designed as a constellation of two
+satellites orbiting 180° apart, which can image the entire Earth every
+six days.
+The mission ended for Sentinel-1B in 2022.
+
+Orbit: Polar, Sun-synchronous at an altitude of 693 km.
+Satellite: 2.8 m long, 2.5 m wide, 4 m high with 2×10 m-long solar
+arrays and a 12 m-long radar antenna
+Mass: 2300 kg (including 130 kg fuel)
+Instrument: C-band synthetic aperture radar (SAR) at 5.405 GHz
+
+Operational modes:
+ - IW - Interferometric wide-swath mode at 250 km and 5×20 m resolution
+ - WV - Wave-mode images of 20×20 km and 5×5 m resolution (at 100 km intervals)
+ - SM - Strip map mode at 80 km swath and 5×5 m resolution
+ - EW - Extra wide-swath mode of 400 km and 20×40 m resolution
+
+Prime contractors: Thales Alenia Space, Italy for the satellite;
+Airbus Defence and Space, Germany for the SAR instrument
+
+Data access: sentinels.copernicus.eu
+In detail it is very complex:
+https://dataspace.copernicus.eu/analyse/apis
+https://dataspace.copernicus.eu/analyse/apis/sentinel-hub
+https://documentation.dataspace.copernicus.eu/APIs/OpenSearch.html
+https://documentation.dataspace.copernicus.eu/APIs/OData.html
+https://dataspace.copernicus.eu/explore-data
+https://browser.dataspace.copernicus.eu
+https://dataspace.copernicus.eu/explore-data/data-collections/sentinel-data/sentinel-1
+New services:
+https://documentation.dataspace.copernicus.eu/Applications.html
+https://documentation.dataspace.copernicus.eu/Applications/QGIS.html
+https://shapps.dataspace.copernicus.eu/requests-builder/
+https://documentation.dataspace.copernicus.eu/Quotas.html
+https://documentation.dataspace.copernicus.eu/ResearchNetwork.html
+https://documentation.dataspace.copernicus.eu/Usecase.html
+
+
+https://documentation.dataspace.copernicus.eu/Data/SentinelMissions/Sentinel1.html#sentinel-1-level-1-single-look-complex-slc
+https://medium.com/rotten-grapes/download-sentinel-data-using-python-from-copernicus-9ec0a789e470
+
+Try to process these data, whereas sample data from sci hub do not work:
+https://www.esa.int/Applications/Observing_the_Earth/Satellites_support_impact_assessment_after_Tuerkiye_Syria_earthquakes
+https://step.esa.int/main/doc/tutorials/
+http://step.esa.int/docs/tutorials/command_line_inSAR_processing.pdf
+http://step.esa.int/docs/tutorials/SNAP_CommandLine_Tutorial.pdf
+https://senbox.atlassian.net/wiki/spaces/SNAP/pages/70503475/Bulk+Processing+with+GPT
+https://senbox.atlassian.net/wiki/spaces/SNAP/pages/70503590/Creating+a+GPF+Graph
+
+
+-----------
+Very detail documentation about the mission can be found here:
+https://sentiwiki.copernicus.eu/web/document-library#DocumentLibrary-SENTINEL-1Documents
+
+Hand book probably after registration can be found here:
+https://www.scribd.com/doc/259520850/Sentinel-1-User-Handbook
+Online here:
+https://sentinel.esa.int/web/sentinel/user-guides/sentinel-1-sar
+
+Instrument:
+- Sentinel-1 carries a 12 m-long advanced synthetic aperture radar (SAR), working in C-band
+- Modes:
+
+  - Interferometric Wide swath mode .. Terrain Observation with
+    Progressive Scans SAR – or TOPSAR  
+  - Wave mode acquisitions - determine the direction, wavelength and
+    heights of waves on the open oceans (three different incidence
+    angles)
+  - Stripmap - continuity of ERS (80 km width)
+  - Extra Wide Swath - intended for maritime, ice and polar zone
+    operational services where wide coverage and short revisit times
+    are demanded (TOPSAR technique using five sub-swaths instead of
+    three)
+
+About the launch:
+- launched on Russian Soyuz rocket, which performed more than 1700 missions
+
+Data Flow:
+- The Sentinel-1 Flight Operations Control Centre is located at ESA's
+  ESOC establishment in Darmstadt, Germany, with telemetry and
+  commands managed via the ground station in Kiruna, Sweden.
+- data disseminated in X band, and over laser to geostationary
+  satellites and then by Ka-band
+- While the ground segment of each Sentinel mission includes specific
+  components, all the related facilities are united to form the
+  Copernicus Space Component Ground Segment.  In particular, access to
+  the Copernicus Space Component (CSC) data is coordinated through the
+  CSC Data Access System.
+
+Data products:
+- Four modes are yet combined with polarisation modes:
+  single polarisation (VV or HH) for WV.
+  For other modes dual polarisation scheme is available (VV+VH or
+  HH+HV) as well as single polarisation (HH or VV).
+  - Level-0: Compressed and unfocused raw data
+  - Level-1 Single Look Complex: Focused data, geo-referenced using
+    orbit and attitude data from the satellite, and provided in
+    slant-range geometry. These products have a typical size of 8GB
+    (in IW mode dual-polarisation) and 4 GB (in IW mode single
+    polarisation).
+  - Level-1 Ground Range Detected: focused data that has been
+    detected, multi-looked and projected to ground range using an
+    Earth ellipsoid model. Typical product size is 1GB (in IW mode).
+  - Level-2: Systematically distributed ocean products for wind, wave
+    and currents applications.
+  See: Sentinel-1_data_products_pillars.jpg
+
+Might be interesting to have a look also on:
+https://www.esa.int/Applications/Observing_the_Earth/Copernicus/Sentinel-2
+
+Installed SNAP and there
+File -> ProductLibrary to search and download Sentinel-1 data.
+
+After registration also connection and downloading the data through
+SNAP works. But only after upgrade of pluggins.  Now the first
+processing step after importing the data fails with Null pointer
+exception.
+
+https://github.com/RadarCODE/awesome-sar
+https://medium.com/@ozaydnesra/pre-processing-sentinel-1-slc-image-in-snap-56da33102632
+https://creodias.eu/pricing/cloudferro-pricing/
+https://data.ceda.ac.uk/neodc/esacci/soil_moisture/data/daily_files/break_adjusted_COMBINED/v07.1/2021
+https://data.ceda.ac.uk/neodc/esacci/soil_moisture/data/daily_files/ACTIVE/v08.1/2022
+
+https://www.teachinggreen.eu/wp-content/uploads/2021/01/1_retencna-schopnost-krajiny.pdf
+
+
+Sample data of ALOS-2 images
+https://www.eorc.jaxa.jp/ALOS-2/en/doc/sam_index.htm
+Other service related to Copernicus Data Ecosystem
+https://docs.terrascope.be/#/README
+
+Alternatives to SAPRPROZ:
+https://forum.step.esa.int/t/giant-mintpy-stamps-which-is-more-automated-and-user-friendly/31361
+https://github.com/insarlab/MintPy/wiki/SNAP-input-data
+https://github.com/dbekaert/StaMPS/tree/master
+https://homepages.see.leeds.ac.uk/~earahoo/stamps/
+https://xv.trilon.com/
+
+Experiment with Presov-Solivar with SNAP - multibaseline interferograms
+----------------------------------------------------------------------
+September 2024
+
+
+
+
+
+Verification of SARPROZ Linux compiled installation
+---------------------------------------------------
+September 2024
+
+

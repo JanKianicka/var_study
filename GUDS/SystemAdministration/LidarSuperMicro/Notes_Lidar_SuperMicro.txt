@@ -284,4 +284,155 @@ $ du -sh *
 129G    /c/Users/matej.guzik/AppData/Local/Temp
    - odmazané 13.9.2024 ráno
 
+----------------------------------------------------
+Installing and fixing the machine
+LP360 installed but there is missing correct connection to the Cloud.
 
+ERDAS Imagine
+https://supportsi.hexagon.com/s/article/ERDAS-IMAGINE-2022-Release-Announcement-v16-7-0-1145?language=en_US
+https://supportsi.hexagon.com/help/s/?language=en_US
+
+Requested account - awaiting for approval.
+
+
+UDSTREAM:
+https://www.euclideon.com/udstream.html
+Licence should have been delivered by email, but is not available in the
+package provided by Karol.
+
+Interesting open source software:
+https://github.com/potree/
+
+
+For overcomming issue with OpenGL 3.3 we will try
+Windows Virtual Machine.
+Guideline how to configure Free version of the Windows Server 2022:
+https://techcommunity.microsoft.com/t5/windows-server-insiders/windows-server-2022-product-key/m-p/2379600
+
+Licensing issues
+https://learn.microsoft.com/en-us/troubleshoot/windows-server/licensing-and-activation/troubleshoot-activation-error-codes
+
+---------------------------------------
+September 2024
+
+- LP360 successfully installed, Licensing Cloud account created
+- Installed, licensed and tested also SARPROZ on Windows
+- requested for Linux version for verification purpose
+
+Installed Oracle Virutal Machine and VM with Ubuntu 20:
+- the following changes had to take place
+
+https://forums.virtualbox.org/viewtopic.php?t=109787 Slow performance VM on Win10
+-> https://forums.virtualbox.org/viewtopic.php?f=25&t=99390 HMR3Init: Attempting fall back to NEM (Hyper-V is active)
+
+Turn off:
+Hypervisor protected Code Integrity (HVCI), also known as Memory Integrity (see fth0's post below)
+DeviceGuard (See InfoSecDr's post below)
+Memory Integrity (See fth0's post below)
+Secure Core (See Mpack's post below)
+CredentialGuard
+Windows Defender's Core Isolation
+Memory Protection (see Stickybit's and UliBär's posts below)
+
+cmd as Admin:
+    > bcdedit /set hypervisorlaunchtype off
+    > DISM /Online /Disable-Feature:Microsoft-Hyper-V
+    > shutdown -s -t 2
+
+Let the computer rest a little.
+Then it should work. No it did not work.
+
+Further:
+Added registry entry:
+Computer -> HKEY_local_machine -> system -> CurrentControlSet -> Control -> DeviceGuard
+-> EnableVirtualizationBaseSecurity -> put to 0
+
+And disabled memory integration in as:
+To turn off the Windows Memory Integrity security feature, on the Windows host navigate to Start > Settings > Update & Security > Windows Security > Device security > Core isolation > Memory integrity
+
+Now it finally works - Ubuntu Linux VM is 100-times faster.
+
+----------------------------------------
+Resolving issues of OpenGL availability:
+Open Graphics Library - developed since 1991 and is part of most powerful graphical drivers.
+Mesa 3D is open-source distribution of OpenGl and other graphical libraries.
+
+Seems like the software which is working through
+Remote desktop is having its own version of Mesa opengl32.dll library.
+Seems like when connected directly to the graphical card,
+the original NDVI driver with the commercial OpenGL is in use.
+It is very fast and performant.
+
+c:\Program Files\Agisoft\Metashape Pro\opengl32sw.dll
+c:\Program Files\Common Files\LP360\DataCopyTool\opengl32sw.dll
+c:\Program Files\GMS 10.8 64-bit\Mesa\opengl32.dll
+c:\Program Files\GMS 10.8 64-bit\Mesa\opengl32sw.dll
+c:\Program Files\GMS 10.8 64-bit\Mesa\python\Lib\site-packages\PySide2\opengl32sw.dll
+c:\Program Files\GMS 10.8 64-bit\opengl32sw.dll
+c:\Program Files\GMS 10.8 64-bit\python\Lib\site-packages\PySide2\opengl32sw.dll
+c:\Program Files\QGIS 3.10\apps\Qt5\bin\opengl32sw.dll
+
+There are two system opengl32.dll libraries, which are not possible to manipulate
+and whereas Trimble UASMaster reports issue with OpenGl v3.2 plan and report that only
+v1.1 is available, we assume that this is the version istalled in the system.
+
+c:\Windows\SysWOW64\opengl32.dll
+c:\Windows\System32\opengl32.dll
+
+Order in which the lobraries are loaded:
+    1. HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\KnownDLLs
+    2. Application Directory.
+    3. C:\Windows\System32.
+    4. C:\Windows\System.
+    5. C:\Windows.
+    6. Current Directory.
+    7. PATH variables directory.
+
+I have tried to download various versions of the opengl32.dll.
+And started to test its behavior using UAS Master version 
+E.g. from this web site:
+https://www.dll-files.com/opengl32.dll.html
+These versions were not recongnised - seems like
+the tribmle software release expects Mesa 3D version at this point.
+Copy from
+c:\Program Files\GMS 10.8 64-bit\Mesa\opengl32.dll
+already recognized the library.
+However, it it not help, it was still too old.
+
+Research on internet revealed there is GitHub repository with various
+compiled versions.
+https://github.com/pal1000/mesa-dist-win/releases?page=7
+
+First I have tried the newest one - it did not work.
+Then I have tried some others - and moved back to year 2022.
+
+The release of Mesa3D v22.1.6 64bit contained OpenGl library version
+4.6 and this one worked also for Trimble Business Center and for Fine
+GEO5 software.
+
+Therefore I have copied the three mutually dependent libraries:
+opengl32.dll
+libgallium_wgl.dll
+libglapi.dll
+
+to these softwares:
+c:\Program Files\Fine\GEO5 2023 64bit\
+c:\Program Files\Trimble\UASMaster 12.2\bin\
+c:\Program Files\Trimble\UASMaster 13.0\bin\
+c:\Program Files\Trimble\Trimble Business Center\
+
+UASMaster to be tested yet. Trimble Business Center stopped to have nill memory errors and
+is working now.
+Seems like GEO5 applications are functional too.
+I have tried various versions for Correlator3D but did not succeed.
+I do not know where OpenGl 3.3 comes from, which is not supported.
+
+Open source software - on SuperMicro even with openGl copied is unstable.
+https://cloudcompare.org/
+https://www.cloudcompare.org/doc/wiki/index.php?title=Plugins
+https://www.cloudcompare.org/doc/wiki/index.php/CANUPO_(plugin)
+https://www.cloudcompare.org/doc/wiki/index.php/FILE_I/O
+
+https://gisgeography.com/lidar-software-tools/
+https://rapidlasso.de/downloads/
+https://medium.com/p/e86cc4cd6112#bc91e

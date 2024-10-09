@@ -1,0 +1,68 @@
+
+https://forums.virtualbox.org/viewtopic.php?t=109787 Slow performance VM on Win10
+-> https://forums.virtualbox.org/viewtopic.php?f=25&t=99390 HMR3Init: Attempting fall back to NEM (Hyper-V is active)
+
+Turn off:
+Hypervisor protected Code Integrity (HVCI), also known as Memory Integrity (see fth0's post below)
+DeviceGuard (See InfoSecDr's post below)
+Memory Integrity (See fth0's post below)
+Secure Core (See Mpack's post below)
+CredentialGuard
+Windows Defender's Core Isolation
+Memory Protection (see Stickybit's and UliBär's posts below
+
+cmd as Admin:
+    > bcdedit /set hypervisorlaunchtype off
+    > DISM /Online /Disable-Feature:Microsoft-Hyper-V
+    > shutdown -s -t 2
+
+Let the computer rest a little.
+Then it should work.
+
+No it did not work.
+Further:
+Added registry entry:
+Computer -> HKEY_local_machine -> system -> CurrentControlSet -> Control -> DeviceGuard
+-> EnableVirtualizationBaseSecurity -> put to 0
+
+And disabled memory integration in as:
+To turn off the Windows Memory Integrity security feature, on the Windows host navigate to Start > Settings > Update & Security > Windows Security > Device security > Core isolation > Memory integrity
+
+
+Latter the machine was prepared on my Linux Workstation of version Ubuntu 20.04.6.
+And was imported successfully.
+Now we continue with Guest additions, ssh server and user for running SARPROZ.
+
+> apt install gcc
+> apt install openssh-server
+> systemctl restart sshd.service
+Created user for running sarproz
+> useradd -m sarproz
+> passwd sarproz (the same as user name)
+
+> add shared folder - 
+  Folder path E:\Jano\SARPROZ_PROC\InSAR\Sentinel1_test\Turkey_earthquake_2023\SLC
+  Mount point /home/sarproz/Turkey_earthquake_2023/SLC
+  Read-only, automount, permanent
+  Yet, in order to access the files we need to add the user to the 'vboxsf
+> sudo usermod -a -G vboxsf sarproz
+
+Installing SARPROZ
+As sarproz user:
+> mkdir sarproz_trial_august2024
+> copy the tar file there
+
+From https://www.mathworks.com/products/compiler/matlab-runtime.html download:
+    MCR_R2017a_glnxa64_installer.zip
+    MCR_R2017a_Update_3_glnxa64.sh
+> mkdir MCR2017a
+> mv MCR_R2017a_glnxa64_installer.zip MCR2017a
+> unzip
+> install (into /home/sarproz/sarproz_trial_august2024/MATLAB_Runtime)
+> bash MCR_R2017a_Update_3_glnxa64.sh with path /home/sarproz/sarproz_trial_august2024/MATLAB_Runtime/v92
+
+To run the SARPROZ software use this:
+> chmod 777 run_main.sh; chmod 777 main;
+> ./run_main.sh /home/sarproz/sarproz_trial_august2024/MATLAB_Runtime/v92
+
+
