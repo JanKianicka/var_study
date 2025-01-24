@@ -103,7 +103,9 @@ json = requests.get(ODATA_QUERY).json()
 productList = json['value']
 
 
-print("Number of found scenes to download: ", productList.__len__())
+print("Number of found scenes to download: ", len(productList))
+wStart = time.time()
+
 for scene in productList:
     sceneName = scene.get('Name')
     sceneId = scene.get('Id')
@@ -118,7 +120,7 @@ for scene in productList:
         print('Starting downloading product: ', sceneName)
         print(download_URL)
         token = getToken()
-        print("Generated authorization token with this start", token[:10])
+        print("Generated authorization token ", token[:10], '...', token[-10:])
         
         start = time.time()
         headers = {"Authorization": f"Bearer {token}"}
@@ -144,4 +146,5 @@ for scene in productList:
         session.close()
         end = time.time()
         print('Elapsed time', '%.2f'%((end - start)/60) + ' min')
-    
+wEnd = time.time()
+print('Successfully finished whole processing in ', '%.2f'%((wEnd - wStart)/60) + ' min')
