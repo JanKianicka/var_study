@@ -89,52 +89,59 @@ post_data = {
     "password": copernicus_password,
     "grant_type": "password",
 }
-r = requests.post(
+def getToken():
+    r = requests.post(
             ODATA_SERVICE_TOKEN_URL,
             data = post_data
         )
 
-token = r.json()['access_token']
+    token = r.json()['access_token']
+    return token
   
 print("Search data query: ", ODATA_QUERY)
 json = requests.get(ODATA_QUERY).json()
 productList = json['value']
 
-print("Generated authorization token with this start", token[:10])
+
 print("Number of found scenes to download: ", productList.__len__())
 for scene in productList:
     sceneName = scene.get('Name')
     sceneId = scene.get('Id')
-    download_URL = (ODATA_DOWNLOAD_SERVICE_URL%sceneId)
-    print('Small break')
-    time.sleep(30)
-    
-    print('Starting downloading product: ', sceneName)
-    print(download_URL)
-    
-    start = time.time()
-    
-    headers = {"Authorization": f"Bearer {token}"}
-
-    # Create a session and update headers
-    session = requests.Session()
-    session.headers.update(headers)
-
-    # Perform the GET request
-    response = session.get(download_URL, stream=True)
-
-    # Check if the request was successful
-    if response.status_code == 200:
-        with open(os.path.join(TARGET_BASE_DIR.strip('\''), sceneName.replace('SAFE', 'zip')), "wb") as file:
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:  # filter out keep-alive new chunks
-                    file.write(chunk)
+    targetFile = os.path.join(TARGET_BASE_DIR.strip('\''), sceneName.replace('SAFE', 'zip'))
+    if os.path.isfile(f"{targetFile}"):
+        print("%s exists"% targetFile)
     else:
-        print(f"Failed to download file. Status code: {response.status_code}")
-        print(response.text)
+        download_URL = (ODATA_DOWNLOAD_SERVICE_URL%sceneId)
+        print('Small break')
+        time.sleep(30)
+        
+        print('Starting downloading product: ', sceneName)
+        print(download_URL)
+        token = getToken()
+        print("Generated authorization token with this start", token[:10])
+        
+        start = time.time()
+        headers = {"Authorization": f"Bearer {token}"}
     
-    print(sceneName + " successfully downloaded")
-    session.close()
-    end = time.time()
-    print('Elapsed time', '%.2f'%((end - start)/60) + ' min')
+        # Create a session and update headers
+        session = requests.Session()
+        session.headers.update(headers)
+    
+        # Perform the GET request
+        response = session.get(download_URL, stream=True)
+    
+        # Check if the request was successful
+        if response.status_code == 200:
+            with open(targetFile, "wb") as file:
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:  # filter out keep-alive new chunks
+                        file.write(chunk)
+        else:
+            print(f"Failed to download file. Status code: {response.status_code}")
+            print(response.text)
+        
+        print(sceneName + " successfully downloaded")
+        session.close()
+        end = time.time()
+        print('Elapsed time', '%.2f'%((end - start)/60) + ' min')
     
