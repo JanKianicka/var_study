@@ -1,0 +1,17 @@
+# Links after meeting with Miro Kožuch on January 2025.
+
+https://www.mdpi.com/2072-4292/16/1/138
+https://isprs-archives.copernicus.org/articles/XXXIX-B5/157/2012/
+
+Detection of horizontal movements
+1. Pattern recognotion
+https://scikit-image.org/docs/stable/auto_examples/features_detection/plot_template.html
+https://docs.opencv.org/4.x/d4/dc6/tutorial_py_template_matching.html
+
+
+2. Signal cross-correlation
+http://mechanicalvibration.com/Using_cross_correlation_lin.html
+
+# Rendering of vector field
+https://mapserver.org/de/input/vector/vector_field.html
+https://florianrhiem.iffgit.fz-juelich.de/VFRendering/

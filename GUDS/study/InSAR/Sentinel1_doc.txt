@@ -17,6 +17,7 @@ Satellite: 2.8 m long, 2.5 m wide, 4 m high with 2×10 m-long solar
 arrays and a 12 m-long radar antenna
 Mass: 2300 kg (including 130 kg fuel)
 Instrument: C-band synthetic aperture radar (SAR) at 5.405 GHz
+            (waveleght 5.6 cm)
 
 Operational modes:
  - IW - Interferometric wide-swath mode at 250 km and 5×20 m resolution
@@ -136,6 +137,7 @@ https://www.teachinggreen.eu/wp-content/uploads/2021/01/1_retencna-schopnost-kra
 
 Sample data of ALOS-2 images
 https://www.eorc.jaxa.jp/ALOS-2/en/doc/sam_index.htm
+
 Other service related to Copernicus Data Ecosystem
 https://docs.terrascope.be/#/README
 
@@ -150,12 +152,108 @@ Experiment with Presov-Solivar with SNAP - multibaseline interferograms
 ----------------------------------------------------------------------
 September 2024
 
+The scenes were chosen based on climatological data
+- freezing winter days only.
 
+We will try to generated interferograms
+1. Adjacent
+2. Every second - appr. one year temp. baseline.
 
-
+    1. 1.2.2015-28.11.2015 - S1A, Tp ~20m, Tt 300d - lost of coherence on Solivar hill
+    2. 26.11.2015-3.1.2016 - S1A, Tp ~100m, Tt 36d - also lost coherence on Solivar hill,
+                             but detected different freezing of agricultural fields.
+    3. 9.1.2017-11.1.2019 - S1A, Tp ~27m, Tt 760d - lost of coherence on Solivar hill,
+                             in the city of Presov not big difference to the
+			     one year time lap.
+    4. S1A 5.1.2019-S1B 11.1.2019 - Tp
 
 Verification of SARPROZ Linux compiled installation
 ---------------------------------------------------
 September 2024
+Successfully processed Turkey earthquaqe but with strange errors in the log file.
+Probably related to Matlab Runtime environment.
 
+
+Links from prepartion of the monitoring project.
+------------------------------------------------
+Integration and extension of scope.
+https://github.com/ghtmtt/DataPlotly - displaying TimeSeries in QGIS
+
+
+What about ALOS and different sensors with L-band:
+https://www.eorc.jaxa.jp/ALOS/en/alos-4/a4_data_e.htm
+https://www.eorc.jaxa.jp/ALOS/en/alos-4/a4_about_e.htm
+https://forum.step.esa.int/t/alos-2-scansar-data-to-be-made-freely-available/19217/42
+https://www.eorc.jaxa.jp/ALOS/en/dataset/alos_open_and_free_e.htm
+https://urs.earthdata.nasa.gov/oauth/authorize?client_id=BO_n7nTIlMljdvU6kRRB3g&response_type=code&redirect_uri=https://cumulus.asf.alaska.edu/login&state=%2FL1.1%2FA3%2FALPSRP251450970-H1.1__A.zip
+https://search.asf.alaska.edu/#/?dataset=ALOS&zoom=12.000&center=21.298,48.659&polygon=POLYGON((21.1181%2048.8067,21.1195%2048.6531,21.4537%2048.6556,21.4386%2048.8154,21.1181%2048.8067))&searchType=Geographic%20Search&start=2010-04-30T22:00:00Z&end=2011-04-21T21:59:59Z&resultsLoaded=true&granule=ALPSRP248970960-L2.2
+
+TerraSAR-X links:
+https://www.dlr.de/en/research-and-transfer/projects-and-missions/terrasar-x/data-access-and-products
+https://earth.esa.int/eogateway/catalog/terrasar-x-esa-archive
+https://earth.esa.int/eogateway/catalog/terrasar-x-tandem-x-full-archive-and-tasking
+https://up42.com/marketplace/data/tasking/terra-sar-tasking
+https://up42.com/blog/introducing-terrasar-x-tasking-on-up42
+
+ROSE-L links:
+https://www.eoportal.org/satellite-missions/rose-l
+
+PAZ SAR:
+https://spacedata.copernicus.eu/web/guest/ordering
+https://www.eoportal.org/satellite-missions/paz
+https://earth.esa.int/eogateway/missions/paz
+https://earth.esa.int/eogateway/catalog/paz-full-archive-and-new-tasking
+
+L-band processing and results:
+https://www.researchgate.net/profile/Masanobu-Shimada
+
+
+ALOS-2 data processing:
+-----------------------
+
+Some links:
+https://www.eorc.jaxa.jp/ALOS-2/en/doc/sam_index.htm - sample data in various modes
+https://www.eorc.jaxa.jp/ALOS/en/alos-2/a2_sensor_e.htm - more verbose documentation
+
+ALOS-2 were made available - the main catalogue G-catalogue does not work now - to be resumed on April
+https://earth.jaxa.jp/gpr/Alternatives/page/ALOS-2.html#English
+https://www.tellusxdp.com/en-us/catalog/data/palsar-2_l1_1.html
+https://sorabatake.jp/en/5727/
+https://sorabatake.jp/en/11947/
+https://sorabatake.jp/en/12413/
+
+Yet other alternative:
+   Earth Observation Data Utilization Promotion Platform
+https://satpf.jp/spf_atl/?lang=en
+https://satpf.jp/spf/?lang=en
+https://alos-pasco.com/en/
+https://alos-pasco.com/en/offer/
+https://alos-pasco.com/en/alos-2/ - brief documentation
+
+AFS access to ALOS-2:
+https://forum.earthdata.nasa.gov/viewtopic.php?t=5664
+
+https://forum.step.esa.int/t/palsar-2-interferometry-in-snap/27078 - interesting discussion about the PALSAR 2 interferometry
+
+This company offers Viewer for ALOS-2 data.
+https://www.restec.or.jp/en/contact-alos2-viewer_inquiry.php
+
+Other interesting collected links - ALOS-2:
+https://github.com/isce-framework/isce2/blob/main/examples/input_files/alos2/alos2_tutorial.txt
+https://www.researchgate.net/post/ALOS-2-data-processing-software
+https://forum.step.esa.int/t/interferogram-from-alos-palsar-1-1-data/11021/55
+https://forum.step.esa.int/t/effect-of-polarization-on-interferometric-products/12630
+https://forum.step.esa.int/t/palsar-2-interferometry-in-snap/27078
+
+
+Copernicus Contribution Mission data are also available on OData API - ALOS is just marginal
+but there is e.g. PAZ, TerraSAR-X or Radarsat
+https://documentation.dataspace.copernicus.eu/Data/Others/CCM.html
+
+Euro Data Cube Public Collection publishes derived data, e.g DEM also from ALOS data:
+https://collections.eurodatacube.com/
+
+Earth Online ESA system simillar like Copernicus CDSE APIs offers old
+ALOS products, we should at least register and try to download some.
+https://collections.eurodatacube.com/
 

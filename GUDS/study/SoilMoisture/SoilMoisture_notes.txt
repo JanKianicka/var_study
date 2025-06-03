@@ -1,0 +1,61 @@
+# Notes after meeting with Prof. Minar on January 2025
+
+https://metergroup.com/education-guides/the-researchers-complete-guide-to-soil-moisture/
+https://custom-scripts.sentinel-hub.com/custom-scripts/sentinel-2/ndmi/
+https://www.sciencedirect.com/science/article/pii/S1569843224002413
+https://www.mdpi.com/2072-4292/16/11/1962
+https://www.mdpi.com/2073-4395/13/3/656
+
+# Links and referencies from Jaro Svasta
+Thornthwaite, C. W. (1948). An approach toward a rational classification of climate.
+Geographical Review, 38, 55–94.
+
+Penman-Monteith equation:
+-------------------------
+Evapotranspiration derived from MODIS using the equation as a free product:
+Running, S., Mu, Q., Zhao, M., Moreno, A. 2019: MOD16A2GF MODIS/Terra Net Evapotranspiration Gap-Filled 8-Day L4 Global 500 m SIN Grid V006. NASA EOSDIS Land Processes DAAC. https://doi.org/ 10. 5067/MODIS/MOD16A2GF.006.
+
+https://lpdaac.usgs.gov/products/myd16a3gfv061/
+
+Fick, S.E. and R.J. Hijmans 2017: WorldClim 2: new 1km spatial resolution climate surfaces for global land areas. International Journal of Climatology 37 (12): 4302-4315.
+
+https://geoera.eu/projects/tactic9/
+https://data.apps.fao.org/catalog/iso/0f594c49-58a2-4e65-85b9-1f23ce326001
+
+https://cds.climate.copernicus.eu/datasets/sis-agrometeorological-indicators?tab=overview
+
+--- old articles ---
+https://www.semanticscholar.org/paper/Microwave-Backscatter-Dependence-on-Surface-Soil-Ulaby-Batlivala/648dca439ca1e7ebd7f27e789ec3ddc4ea954928?sort=relevance
+
+Global satellite models:
+-----------------------
+https://gpm.nasa.gov/resources
+https://gpm.nasa.gov/data/sources
+https://gpm.nasa.gov/data/visualizations/precip-apps
+
+https://maps.nccs.nasa.gov/arcgis/apps/experiencebuilder/experience/?id=29bd25e78fff45f0a6dbfd0328b4d03e
+https://gpm.nasa.gov/landslides/guides/LHASAv1_training_GEE_Manual.pdf
+
+https://www.copernicus.eu/en/access-data
+https://www.copernicus.eu/en/access-data/copernicus-services-catalogue/daily-and-monthly-global-interpolated-rainfall-estimation
+https://cds.climate.copernicus.eu/datasets/satellite-precipitation-microwave-infrared?tab=download
+
+
+Published landslide assessment models:
+--------------------------------------
+https://gpm.nasa.gov/landslides/projects.html
+
+
+Time series regression and corelation:
+--------------------------------------
+https://techfirst.medium.com/correlation-analysis-in-time-series-7c18a88d27a9
+https://pangea.stanford.edu/research/Oceans/GES290/Ghil2001.pdf
+https://faculty.washington.edu/ezivot/econ584/notes/varModels.pdf
+https://www.reddit.com/r/datascience/comments/uu6sh0/how_to_approach_a_correlated_multiple_time_series/
+https://en.wikipedia.org/wiki/Singular_spectrum_analysis
+https://en.wikipedia.org/wiki/Vector_autoregression
+
+https://www.geeksforgeeks.org/vector-autoregression-var-for-multivariate-time-series/
+https://www.analyticsvidhya.com/blog/2021/08/vector-autoregressive-model-in-python/
+
+
