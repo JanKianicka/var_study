@@ -1,0 +1,201 @@
+<template version="2">
+  <layers>
+    <layerDb>
+      <id>dokumentacne_body_guds</id>
+      <label>dokumentacne_body_guds</label>
+      <alias></alias>
+      <geometry>MULTIPOINT</geometry>
+      <crs>4326</crs>
+      <encoding>UTF-8</encoding>
+      <attributes>
+        <attribute type="COORDINATE_X">
+          <id>easting</id>
+          <label>easting</label>
+          <alias></alias>
+          <status>EDITABLE</status>
+          <required>true</required>
+          <expression>round(X(ST_Transform(CastToXY(&quot;GEOMETRY&quot;), 4326)), 6)</expression>
+        </attribute>
+        <attribute type="COORDINATE_Y">
+          <id>northing</id>
+          <label>northing</label>
+          <alias></alias>
+          <status>EDITABLE</status>
+          <required>true</required>
+          <expression>round(Y(ST_Transform(CastToXY(&quot;GEOMETRY&quot;), 4326)), 6)</expression>
+        </attribute>
+        <attribute type="ACCURACY_HOR_AVG">
+          <id>presnost_02</id>
+          <label>presnost_suradnic</label>
+          <alias></alias>
+          <status>EDITABLE</status>
+          <required>false</required>
+        </attribute>
+        <attribute type="ENUM">
+          <id>zdroj_suradnic_id</id>
+          <label>zdroj_suradnic_id</label>
+          <alias></alias>
+          <status>EDITABLE</status>
+          <required>true</required>
+          <default>smartphone/tablet s Galileom</default>
+          <options_aliases>|||||||||||</options_aliases>
+          <options>neznámy|z mapy 1:50 000|z mapy 1:25 000|z mapy 1:10 000|google ortofotomapa|GIS ortofotomapa|Trimble TDC100|Trimble GEO7X|Trimble R2|Garmin|smartphone/tablet bez Galilea|smartphone/tablet s Galileom</options>
+          <multipleChoice>false</multipleChoice>
+        </attribute>
+        <attribute type="STRING">
+          <id>nazov_lokality</id>
+          <label>nazov_lokality</label>
+          <alias></alias>
+          <status>EDITABLE</status>
+          <required>true</required>
+          <default></default>
+        </attribute>
+        <attribute type="STRING">
+          <id>lokalizacia</id>
+          <label>lokalizacia</label>
+          <alias></alias>
+          <status>EDITABLE</status>
+          <required>false</required>
+          <default></default>
+        </attribute>
+        <attribute type="ENUM">
+          <id>autor</id>
+          <label>autor</label>
+          <alias></alias>
+          <status>EDITABLE</status>
+          <required>true</required>
+          <default>D. Štúr</default>
+          <options_aliases>|||||||||||||||||||||||||||||||||||||||||||</options_aliases>
+          <options>D. Štúr|P. Ondrus|R. Balážová|G. Bystrická|I. Dananaj|R. Demko|K. Fekete|K. Fordinál|Ľ. Gazdačko|D. Grega|M. Gužík|Ľ. Hraško|S. Jajčišinová|R. Jelínek|J. Kianička|B. Kronome|D. Laurinc|J. Lexa|P. Liščák|J. Maglay|E. Mašlár|I. Mašlárová|M. Mikudíková|J. Mikušová|M. Moravcová|A. Nagy|M. Olšavský|B. Ondrášiková|P. Ondrejka|K. Pačajová|P. Pauditš|O. Pelech|M. Štercz|M. Šalkovič|M. Surový|L. Šamajová|P. Šefčík|F. Teťák|K. Topoliová|L. Vitovič|I. Zeman|R. Zeman|M. Zlocha|R. Žjak</options>
+          <multipleChoice>false</multipleChoice>
+        </attribute>
+        <attribute type="DATE">
+          <id>datum</id>
+          <label>datum</label>
+          <alias></alias>
+          <status>EDITABLE</status>
+          <required>true</required>
+          <autoUpdate>false</autoUpdate>
+          <default>CURRENT_TIME</default>
+        </attribute>
+        <attribute type="STRING">
+          <id>cas</id>
+          <label>cas</label>
+          <alias></alias>
+          <status>EDITABLE</status>
+          <required>true</required>
+          <default></default>
+        </attribute>
+        <attribute type="STRING">
+          <id>hrubka_q</id>
+          <label>hrubka_q</label>
+          <alias></alias>
+          <status>EDITABLE</status>
+          <required>false</required>
+          <default></default>
+        </attribute>
+        <attribute type="STRING">
+          <id>ig_rajpod</id>
+          <label>ig_rajpod</label>
+          <alias></alias>
+          <status>EDITABLE</status>
+          <required>false</required>
+          <default></default>
+        </attribute>
+        <attribute type="ENUM">
+          <id>charakter_odkryvu</id>
+          <label>charakter_odkryvu</label>
+          <alias></alias>
+          <status>EDITABLE</status>
+          <required>true</required>
+          <default>zosuv</default>
+          <options_aliases>|||||||||||||||||||||||||||||||||||||||||||</options_aliases>
+          <options>blokové pole|breh potoka|breh rieky|budova, stavba|cintorín|erózna ryha|erózny breh rieky|halda (po ťažbe surovín)|hlinisko|hradisko|ihrisko, športový areál|jazero|kameňolom|kamenné more|les|lúka|menší kameňolom|milier, uhlisko|mokrina, bahnisko|mŕtve rameno|násyp|odkop vo svahu|osyp, suť|pole|porušená stavba|prameň|prameň v zosuve|prameň, mokrina|skalný výchoz|skalné bralo|skládka|štrkovisko, jama|tehelňa|úvalina|val (antropogénny)|vrt|výkop|vývrat stromu|zárez cesty|zárez lesnej cesty (úvoz)|zárez potoka|zárez vo svahu|zosuv|iný</options>
+          <multipleChoice>false</multipleChoice>
+        </attribute>
+        <attribute type="STRING">
+          <id>opis_lokality</id>
+          <label>opis_lokality</label>
+          <alias></alias>
+          <status>EDITABLE</status>
+          <required>true</required>
+          <default></default>
+        </attribute>
+        <attribute type="STRING">
+          <id>poznamka</id>
+          <label>poznamka</label>
+          <alias></alias>
+          <status>EDITABLE</status>
+          <required>false</required>
+          <default></default>
+        </attribute>
+        <attribute type="DOUBLE">
+          <id>presnost_suradnic</id>
+          <label>presnost_stara</label>
+          <alias></alias>
+          <status>EDITABLE</status>
+          <required>false</required>
+          <default></default>
+        </attribute>
+        <attribute type="STRING">
+          <id>attachments_item</id>
+          <label>attachments_item</label>
+          <alias></alias>
+          <status>EDITABLE</status>
+          <required>false</required>
+          <default></default>
+        </attribute>
+        <attribute type="STRING">
+          <id>lg_created</id>
+          <label>lg_created</label>
+          <alias></alias>
+          <status>EDITABLE</status>
+          <required>false</required>
+          <default></default>
+        </attribute>
+        <attribute type="BINARY">
+          <id>lg_locations</id>
+          <label>lg_locations</label>
+          <alias></alias>
+          <status>EDITABLE</status>
+          <required>false</required>
+          <default></default>
+        </attribute>
+        <attribute type="STRING">
+          <id>lg_notes</id>
+          <label>lg_notes</label>
+          <alias></alias>
+          <status>EDITABLE</status>
+          <required>false</required>
+          <default></default>
+        </attribute>
+      </attributes>
+      <attrPrimary>nazov_lokality</attrPrimary>
+      <attrSecondary></attrSecondary>
+      <deviceAutoSave>false</deviceAutoSave>
+      <geometryStyle>
+        <Rule>
+          <PointSymbolizer uom="http://www.opengeospatial.org/se/units/pixel">
+            <Graphic>
+              <Mark>
+                <WellKnownName>circle</WellKnownName>
+                <Fill>
+                  <CssParameter name="fill">#00FFFF</CssParameter>
+                  <CssParameter name="fill-opacity">0.69803923</CssParameter>
+                </Fill>
+                <Stroke>
+                  <CssParameter name="stroke">#0000D7</CssParameter>
+                  <CssParameter name="stroke-opacity">1.0</CssParameter>
+                  <CssParameter name="stroke-width">1.0</CssParameter>
+                </Stroke>
+              </Mark>
+              <Size>8.0</Size>
+              <Rotation>0.0</Rotation>
+              <Opacity>1.0</Opacity>
+            </Graphic>
+          </PointSymbolizer>
+        </Rule>
+      </geometryStyle>
+    </layerDb>
+  </layers>
+</template>

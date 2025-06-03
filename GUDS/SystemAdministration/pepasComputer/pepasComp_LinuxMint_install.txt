@@ -1,0 +1,197 @@
+# Installation and configuration of Linux Mint Cinammon 22.1 LTS 64bit
+# on Juraj Miskolczi computer.
+# Jan Kianicka - march 2025
+
+1. Downloading latest LTS ISO file and burning as Bootable disk on USB
+   stick 8GB with empty file system. linuxmint-22.1-cinnamon-64bit.iso
+   On my Linux Mint a special system utility was used for this purpose
+   (USB Bootable Image Creation).
+   
+2. Windows on the computer was protected against booting from USB
+   port.  The system disk had to be unmounted, BIOS was reset and the
+   SATA C: disk was formatted externaly.
+   
+3. In spite of that, the original order of booting could not be
+   changed due to password protection of the BIOS - not even removing
+   of battery, and thus resetting the BIOS did not help.
+   
+4. By sticking USB stick with the Linux Mint installation and pressing
+   F12 one could invoke loading agent and choose the USB stick for
+   booting.
+
+5. The operating system was installed following the standard
+   procedure on fast SSD disk /dev/sdb1. Partitioning did not work at first time.
+   I had to manually create elf vfat partition.
+   On main 2TB disk /dev/sda1 was earesed and formatted to ext4.
+   Mounted to /mnt/D under start/up user priviledges.
+
+6. Two super-users were created:
+       ppaudits
+       kianicka
+   Initial passwords shall be provided.
+
+7. Input methods were installed:
+       USA English(Default)
+       SK (QWERTY) second
+       
+8. Static network according previous Windows installation was configured:
+   IP: 192.168.0.125
+   Mask: 255.255.224.0
+   GW: 192.168.4.1
+   DNS: 192.168.0.1
+
+9. SSH server installed and configured:
+       apt install openssh-client
+       apt install openssh-server
+       systemctl restart ssh.service
+       systemctl status ssh.service
+       sshd -t -f /etc/ssh/sshd_config
+       systemctl enable ssh.service
+
+10. Configuration of Windows Remote Desktop server to connect from
+   different computers
+   Following these entries:
+   https://askubuntu.com/questions/592537/can-i-access-ubuntu-from-windows-remotely
+   https://askubuntu.com/questions/1404245/remote-desktop-from-windows-onto-ubuntu-22-04-takes-me-to-a-xrdp-login-then-a-bl
+   As user:
+       echo xfce4-session > ~/.xsession
+   As root:
+       apt install xrdp
+       apt install xfce4
+       vi /etc/xrdp/startwm.sh
+       -- and replace content with
+       #!/bin/sh
+
+       if [ -r /etc/default/locale ]; then
+            . /etc/default/locale
+            export LANG LANGUAGE
+    	    export GNOME_SHELL_SESSION_MODE=ubuntu
+    	    export XDG_CURRENT_DESKTOP=ubuntu:GNOME
+    	    export $(dbus-launch)	    
+	    
+       fi
+
+       startxfce4
+       --
+       service xrdp restart
+       service xrdp status
+       
+       And verify by connecting from Windows machine using IP address
+       and rdc protocol.
+       Successfully verified from my computer.
+
+11. Installation of packages using command line as root:
+       apt update
+       apt install mc
+       apt install vim
+       apt install emacs
+       apt install gimp
+       apt install inkscape
+       apt install krdc
+       -- missing compilers
+       apt install gfortran
+       apt install fort77
+       apt install cmake
+
+12. QGIS
+    Keys:
+    wget https://download.qgis.org/downloads/qgis-archive-keyring.gpg
+    gpg --no-default-keyring --keyring ./qgis-archive-keyring.gpg --export --output /etc/apt/trusted.gpg.d/qgis-archive-keyring.gpg
+    
+    Installation of QGIS from LTR repository
+    add-apt-repository "https://qgis.org/ubuntu-ltr"
+    apt update
+    apt-cache policy qgis
+    apt install qgis=1:3.40.4+40noble
+    
+    Removal of qgis of some version:
+    apt remove qgis
+    apt autoremove
+    apt purge qgis
+
+    Note, I have issue with installing version 3.34.15 due to cickling dependency on
+    newer package qgis-common.
+    
+    Interesting reading:
+    https://askubuntu.com/questions/732985/force-update-from-unsigned-repository
+    https://qgis.org/resources/installation-guide/#debian--ubuntu
+    https://launchpad.net/ubuntu/+source/qgis/3.34.15+dfsg-2/+build/30205344
+    https://gis.stackexchange.com/questions/462826/installing-qgis-public-key
+
+13. GRASS
+    apt-cache policy grass
+    grass:
+        Installed: (none)
+        Candidate: 8.3.2-1ubuntu2
+        Version table:
+        *** 8.3.2-1ubuntu2 500
+            500 http://archive.ubuntu.com/ubuntu noble/universe amd64 Packages
+            500 http://archive.ubuntu.com/ubuntu noble/universe i386 Packages
+            100 /var/lib/dpkg/status
+    apt install grass
+
+14. DBeaver
+    https://dbeaver.io/download/
+    Installation from Ubuntu PPA repository:
+    add-apt-repository ppa:serge-rider/dbeaver-ce
+    apt update
+    apt install dbeaver-ce
+
+15. PgAdmin
+    https://gcore.com/learning/how-to-install-pgadmin4-on-ubuntu/
+
+    apt-cache policy postgresql
+    apt install postgresql
+    curl https://www.pgadmin.org/static/packages_pgadmin_org.pub | apt-key add
+    sh -c 'echo "deb https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/focal/ pgadmin4 main" > /etc/apt/sources.list.d/pgadmin4.list && apt update'
+
+    -- for pgAdmin4 v9.1 there was missing python3.8, only python3.12 was available
+    https://askubuntu.com/questions/682869/how-do-i-install-a-different-python-version-using-apt-get
+    add-apt-repository ppa:deadsnakes/ppa
+    apt update
+    apt search python
+    apt install python3.8
+    apt install pgadmin4
+
+16. SAGA GIS
+    apt install saga
+    
+17. QCAD
+    Downloaded from the official Web Page a Professional Trial Version:
+    https://www.qcad.org/en/qcad-downloads-trial
+    This can be latter on purchased or switched to Free Edition.
+    See e.g. this discussion:
+    https://www.ribbonsoft.com/rsforum/viewtopic.php?t=6712
+
+    Installed by root into this directory, please make a
+    sym link to your home directory:
+    -rwxr-xr-x 1 root root 899 Mar 10 11:11 /opt/qcad-3.32.2-trial-linux-qt5.14-x86_64/qcad
+
+18. R
+    apt install r-base
+    -- verification
+    R
+    q()
+    For upgrade, installation of additional packages follow the
+    following tutorial:  
+    https://gcore.com/learning/how-to-install-r-on-ubuntu/
+
+19. Beekeeper Studio
+    Following this procedure:
+    https://linuxcapable.com/how-to-install-beekeeper-studio-on-ubuntu-linux/
+    apt install dirmngr software-properties-common apt-transport-https curl -y
+    curl -fSsL https://deb.beekeeperstudio.io/beekeeper.key | gpg --dearmor | tee /usr/share/keyrings/beekeeper.gpg > /dev/null
+    echo 'deb [signed-by=/usr/share/keyrings/beekeeper.gpg] https://deb.beekeeperstudio.io stable main' | tee /etc/apt/sources.list.d/beekeeper-studio-app.list
+    apt update
+    apt-cache policy beekeeper-studio
+    apt install beekeeper-studio
+
+19. SQLite Studio
+    Downloaded and installed from:
+    https://github.com/pawelsalawa/sqlitestudio/releases
+    Using universal Linux installer.
+    For all Linux users into 
+    /opt/SQLiteStudio/
+    One can create a symbolic link.
+
+

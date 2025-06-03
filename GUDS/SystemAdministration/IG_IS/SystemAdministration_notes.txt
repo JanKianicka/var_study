@@ -1,0 +1,96 @@
+# My PC - Samba mounts are here:
+/run/user/1001/gvfs/
+
+# Notes related to administration of DIONYSOS 2.
+
+There is another information system developed by Milos Gregor
+hydroffice.org.
+Platform is Shiny server and programming language R.
+http://192.168.4.72:3838/ig-portal/
+
+Here are questions to Milos based on the document Informacny System IG.doc:
+IG portal
+Databaza ma dizajn Star schemy.
+1. Ako presne funguje R runtime a akým mechanizmom sa 
+   stahujú dáta z Envitech-MySql databázy a INSAR data (z Cloudu - akého Cloudu)?
+
+1.1 Odklaľ tečú InSAR dáta?
+
+2. V akých batchových intervaloch sa stahujú tieto dáta?
+
+3. Aké sú objemy surových dát?
+
+4. Ako často a ako dlho bežia výpočty a agregácie 
+   z L0 do L1, L2 dát?
+
+5. Aké sú vlastníctva softvérových komponentov,
+   kto spravuje File Share a R-runtime?
+   Máme k dispozícii zdrojový kód na jeho prípadne fixovanie, optimalizáciu?
+
+6. Ako čítam dokument, tak vidím, že práve InSAR dáta batch
+   processing sa spúšťa v hodinových intervaloch:
+
+   "Takto pripravené dáta sa naraz uložia do vybraného adresára na
+    serveri 192.168.0.16 do adresára „gregor/home/R/insar_data“.  Po
+    ich uložení sa v hodinových intervaloch spúšťa ich proessing."
+
+7. Odkiaľ je zoznam lokalít a bodov?
+   Je to integrované do registra zosuvou v schéme ig_register_sd?
+   Našiel som, že názov lokality/zosuvného územia a reg_cis
+   sedia, ale zoznam bodov je už iný a nesúhlasí so zoznamov dovod
+   cez lokalita_id v tabuľke ig_cmfg.body.
+
+8. Zobrazovanie InSAR bodov nefunguje v schiny portáli,
+   a zoznam InSAR bodov je od 1..1004 .
+   Existuje niekde nejaká sada permanent scatterers?
+   Kto to pravidelne procesuje, akou technikou a
+   z akých senzorov?
+   Viem, že sú inštalované aj Corenr Reflectors
+   špeciálne dizajnované pre Copernicus Sentinel-1
+   senzory. Dajú sa nejako v tom zozname bodov odlíšiť?
+
+------------------
+Vytvorenie lokálneho GitLAB konta a uloženie R-kódu
+Informačného Systsému IG do Git.
+
+Mašina na ktorej beží R-runtime:
+rtprocess(192.168.4.72)
+
+Úspešne som sa prihlásil (heslo ako do predošlej mašiny).
+
+Tiež som zmenil heslo a prihlásil sa do GitLab-u.
+Uploadol som SSH kluc a projekt zosuvy.
+Ale len do svojho podadresara - musím poprosit
+pana Chudeho aby ich presunul.
+
+Stiahol som R kod z:
+/home/gregor/R
+
+do svojho adresara:
+IS_IG_Rscript
+
+čo bude aj názov nového projektu
+
+Všade boli hard-kodované heslá do databáz, takže je potrebné ich
+nahradiť pred tým ako sa kód uloží do Git-u.
+
+sed -i s/\"password\"/\"XXX\"/g IS_IG_Rscript/integration/run-envitech.R
+sed -i s/\"password\"/\"XXX\"/g IS_IG_Rscript/integration/run-envitech-bulk.R
+sed -i s/M1L0s7298/XXX/g IS_IG_Rscript/integration/run-insar.R
+sed -i s/M1L0s7298/XXX/g IS_IG_Rscript/integration/run-envitech.R
+sed -i s/M1L0s7298/XXX/g IS_IG_Rscript/integration/run-envitech-bulk.R 
+sed -i s/M1L0s7298/XXX/g IS_IG_Rscript/web_app/app/app.R
+sed -i s/M1L0s7298/XXX/g IS_IG_Rscript/web_app/shiny_app/app.R 
+sed -i s/M1L0s7298/XXX/g IS_IG_Rscript/web_app/shiny_app/server.R 
+sed -i s/M1L0s7298/XXX/g IS_IG_Rscript/temp_etap/etap_proc.R 
+sed -i s/M32oNm85/XXX/g IS_IG_Rscript/web_app/mez/mez/app.R
+
+Teraz je všade
+password= "XXX"
+
+Bolo by vhodné credentials referencovať s jedného chránaného miesta.
+
+
+
+
+

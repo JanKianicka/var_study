@@ -1,0 +1,147 @@
+# Installation and configuration of LinuxFX
+
+1. Downloading latest LTS ISO file and burning as Bootable disk on USB
+   stick 8GB with empty file system.  linuxfx-11.25.02-noble-lts.iso
+   On my Linux Mint a special system utility was used for this purpose
+   (USB Bootable Image Creation).
+   
+2. Windows on the computer was protected against booting from USB
+   port.  The system disk had to be unmounted, BIOS was reset and the
+   SATA C: disk was formatted externally.
+   
+3. In spite of that, the original order of booting could not be
+   changed due to password protection of the BIOS - not even removing
+   of battery, and thus resetting the BIOS did not help.
+   
+4. By sticking USB stick with the LinuxFX installation and pressing
+   F12 one could invoke loading agent and choose the USB stick for
+   booting.
+
+5. The operating system was installed following the standard
+   procedure.  On main 2TB disk /dev/sda1 formatted to ext4 was
+   installed system.  Another Hard Drive /dev/sdb1 was also formatted
+   to ext4 and mounted to /mnt/D.
+
+6. Two super-users were created:
+       ppaudits
+       kianicka
+   Initial passwords shall be provided.
+
+7. Input methods were installed:
+       USA English(Default)
+       SK (QWERTY) second
+       
+8. Static network according previous Windows installation was configured:
+   IP: 192.168.0.125
+   Mask: 255.255.224.0
+   GW: 192.168.4.1
+   DNS: 192.168.0.1
+
+9. Configuration of Windows Remote Desktop server to connect from
+   different computers
+   Following this entry:
+   https://askubuntu.com/questions/592537/can-i-access-ubuntu-from-windows-remotely
+   As user:
+       echo xfce4-session > ~/.xsession
+   As root:
+       apt-get install xrdp
+       apt-get install xfce4
+       vim /etc/xrdp/startwm.sh
+       -- and replace content with
+       #!/bin/sh
+
+       if [ -r /etc/default/locale ]; then
+            . /etc/default/locale
+            export LANG LANGUAGE
+       fi
+
+       startxfce4
+       --
+       service xrdp restart
+       service xrdp status
+       
+       And verify by connecting from Windows machine using IP address
+       and rdc protocol.
+       Successfully verified from my computer.
+
+10. Installation of packages using command line as root:
+       apt update
+       apt install mc
+       apt install vim
+       apt install firefox
+       apt install emacs
+       apt install gimp
+
+
+11. QGIS
+    The procedure described in:
+    https://gis.stackexchange.com/questions/393282/installing-qgis-ltr-instead-of-latest-version-on-ubuntu
+    or in QGIS page for Debian/Ubuntu does not work.
+    When downloading the QGIS installation, msi Windows file was downloaded by default.
+    This required another dependency:
+       Wine software
+    Downloaded and installed - locally.
+
+    Keys:
+    wget https://download.qgis.org/downloads/qgis-archive-keyring.gpg
+    gpg --no-default-keyring --keyring ./qgis-archive-keyring.gpg --export --output /etc/apt/trusted.gpg.d/qgis-archive-keyring.gpg
+    
+
+The default version installed using apt
+was 3.40 Bratislava.
+After playing arround and cleaning out the mass,
+the following procedure has worked:
+
+    add-apt-repository --remove "deb https://qgis.org/ubuntu $(lsb_release -c -s) main"
+    cleaned /etc/apt/sources.list
+    add-apt-repository "https://qgis.org/ubuntu-ltr"
+    apt update
+    apt-cache policy qgis
+    apt install qgis=1:3.34.15+40noble
+
+Removal of lattest unstable version
+    apt remove qgis
+    apt autoremove
+    apt purge qgis
+    
+TODO: to be cleaned and created special file for description of troubles.
+
+
+https://askubuntu.com/questions/732985/force-update-from-unsigned-repository
+https://qgis.org/resources/installation-guide/#debian--ubuntu
+https://launchpad.net/ubuntu/+source/qgis/3.34.15+dfsg-2/+build/30205344
+https://gis.stackexchange.com/questions/462826/installing-qgis-public-key
+
+Ign:60 https://ubuntu.qgis.org/ubuntu $(lsb_release/main all c-n-f Metadata
+Err:21 https://ubuntu.qgis.org/ubuntu $(lsb_release/-c i386 Packages
+  404  Not Found [IP: 144.76.174.102 443]
+Reading package lists... Done
+W: Skipping acquire of configured file 'InRelease/binary-amd64/Packages' as repository 'https://ubuntu.qgis.org/ubuntu-ltr noble InRelease' doesn't have the component 'InRelease' (component misspelt in sources.list?)
+W: Skipping acquire of configured file 'InRelease/binary-i386/Packages' as repository 'https://ubuntu.qgis.org/ubuntu-ltr noble InRelease' doesn't have the component 'InRelease' (component misspelt in sources.list?)
+W: Skipping acquire of configured file 'InRelease/i18n/Translation-en_US' as repository 'https://ubuntu.qgis.org/ubuntu-ltr noble InRelease' doesn't have the component 'InRelease' (component misspelt in sources.list?)
+W: Skipping acquire of configured file 'InRelease/i18n/Translation-en' as repository 'https://ubuntu.qgis.org/ubuntu-ltr noble InRelease' doesn't have the component 'InRelease' (component misspelt in sources.list?)
+W: Skipping acquire of configured file 'InRelease/dep11/Components-amd64.yml' as repository 'https://ubuntu.qgis.org/ubuntu-ltr noble InRelease' doesn't have the component 'InRelease' (component misspelt in sources.list?)
+W: Skipping acquire of configured file 'InRelease/dep11/icons-48x48.tar' as repository 'https://ubuntu.qgis.org/ubuntu-ltr noble InRelease' doesn't have the component 'InRelease' (component misspelt in sources.list?)
+W: Skipping acquire of configured file 'InRelease/dep11/icons-64x64.tar' as repository 'https://ubuntu.qgis.org/ubuntu-ltr noble InRelease' doesn't have the component 'InRelease' (component misspelt in sources.list?)
+W: Skipping acquire of configured file 'InRelease/dep11/icons-64x64@2.tar' as repository 'https://ubuntu.qgis.org/ubuntu-ltr noble InRelease' doesn't have the component 'InRelease' (component misspelt in sources.list?)
+W: Skipping acquire of configured file 'InRelease/dep11/icons-128x128.tar' as repository 'https://ubuntu.qgis.org/ubuntu-ltr noble InRelease' doesn't have the component 'InRelease' (component misspelt in sources.list?)
+W: Skipping acquire of configured file 'InRelease/cnf/Commands-amd64' as repository 'https://ubuntu.qgis.org/ubuntu-ltr noble InRelease' doesn't have the component 'InRelease' (component misspelt in sources.list?)
+N: Skipping acquire of configured file 'main/binary-i386/Packages' as repository 'https://qgis.org/ubuntu-ltr noble InRelease' doesn't support architecture 'i386'
+N: Skipping acquire of configured file 'main/binary-i386/Packages' as repository 'https://qgis.org/ubuntu noble InRelease' doesn't support architecture 'i386'
+E: Failed to fetch https://ubuntu.qgis.org/ubuntu/dists/$(lsb_release/-c/binary-i386/Packages  404  Not Found [IP: 144.76.174.102 443]
+E: Failed to fetch https://ubuntu.qgis.org/ubuntu/dists/$(lsb_release/-c/binary-amd64/Packages  404  Not Found [IP: 144.76.174.102 443]
+E: Failed to fetch https://ubuntu.qgis.org/ubuntu/dists/$(lsb_release/-c/binary-all/Packages  404  Not Found [IP: 144.76.174.102 443]
+E: Failed to fetch https://ubuntu.qgis.org/ubuntu/dists/$(lsb_release/-c/i18n/Translation-en_US  404  Not Found [IP: 144.76.174.102 443]
+E: Failed to fetch https://ubuntu.qgis.org/ubuntu/dists/$(lsb_release/-c/i18n/Translation-en  404  Not Found [IP: 144.76.174.102 443]
+E: Failed to fetch https://ubuntu.qgis.org/ubuntu/dists/$(lsb_release/-c/dep11/Components-all.yml  404  Not Found [IP: 144.76.174.102 443]
+E: Failed to fetch https://ubuntu.qgis.org/ubuntu/dists/$(lsb_release/-c/dep11/Components-amd64.yml  404  Not Found [IP: 144.76.174.102 443]
+E: Failed to fetch https://ubuntu.qgis.org/ubuntu/dists/$(lsb_release/-c/dep11/icons-48x48.tar  404  Not Found [IP: 144.76.174.102 443]
+E: Failed to fetch https://ubuntu.qgis.org/ubuntu/dists/$(lsb_release/-c/dep11/icons-64x64.tar  404  Not Found [IP: 144.76.174.102 443]
+E: Failed to fetch https://ubuntu.qgis.org/ubuntu/dists/$(lsb_release/-c/dep11/icons-64x64@2.tar  404  Not Found [IP: 144.76.174.102 443]
+E: Failed to fetch https://ubuntu.qgis.org/ubuntu/dists/$(lsb_release/-c/dep11/icons-128x128.tar  404  Not Found [IP: 144.76.174.102 443]
+E: Some index files failed to download. They have been ignored, or old ones used instead.
+
+
+
+       
+
