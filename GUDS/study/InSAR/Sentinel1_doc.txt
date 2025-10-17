@@ -257,3 +257,6 @@ Earth Online ESA system simillar like Copernicus CDSE APIs offers old
 ALOS products, we should at least register and try to download some.
 https://collections.eurodatacube.com/
 
+Interesting reading:
+https://detektia.com/en/insar/ps-insar-ds-insar/#Differences_between_PS-InSAR_and_DS-InSAR
+

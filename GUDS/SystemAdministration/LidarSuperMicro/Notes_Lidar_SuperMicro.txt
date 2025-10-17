@@ -436,3 +436,49 @@ https://www.cloudcompare.org/doc/wiki/index.php/FILE_I/O
 https://gisgeography.com/lidar-software-tools/
 https://rapidlasso.de/downloads/
 https://medium.com/p/e86cc4cd6112#bc91e
+
+Issue with OpenGL was finally resolved by disabling WDDS driver:
+https://learn.microsoft.com/en-us/answers/questions/185287/remotedesktop-loses-opengl-after-you-reconnect-you
+
+-----
+August 2025
+
+kvôli pripojeniu GNSS prístroja Trimble GEO7X sme na Supermicre
+prepísali registre podľa tohto návodu. Tým funguje práca prístroja s
+programom Trimble Pathfinder.
+
+https://geotronics.sk/riesenie-problemu-s-pripojenim-kontrolnej-jednotky-po-aktualizacii-windows-10/
+Problém spôsobila aktualizácia operačného systému Windows 10. Operačné systémy Windows 10 verzia 1703 a vyššia nemusia podporovať pripojenie zariadení cez Windows Mobile Device Center.
+
+Riešenie problému:
+1.) nainštalujte si najnovšiu verziu .NET Framework 3.5
+2.) nainštalujte si Windows Mobile Device Center 6.1
+
+3.) stiahnite, rozzipujte a spustite si tento súbor ako správca:
+    Nastavenie registrov
+
+    po stiahnutí súboru ho rozzipujte, otvorte ako administrátor (pravým tlačidlom na súbor – „spustiť ako správca“)
+    slúži na prepísanie nasledujúcich registrov:
+
+HKLM\SYSTEM\CurrentControlSet\Services\RapiMgr\SvcHostSplitDisable = 1
+HKLM\SYSTEM\CurrentControlSet\Services\WcesComm\SvcHostSplitDisable =1
+
+Po týchto krokoch a reštarte by sa malo zariadenie pripojiť a spustiť
+automaticky Windows Mobile Device Center.
+
+Servisný dokument (ENG) na stiahnutie
+
+V prípade problém kontaktujte servis a podporu:
+
+Ing. Matej Oros
+podpora zákazníkom
++421 918 579 733
+oros@geotronics.sk
+
+Stored in:
+e:\install\Trimble_PathFinder_Fix_aug2025\
+
+
+
+
+

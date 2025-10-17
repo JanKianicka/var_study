@@ -1,0 +1,48 @@
+Quick notes from introduction training held by HPC SAV (Hopero) -
+running comutations of Devana Supercomputer
+
+Date 14.10.2025, Jan Kianicka
+
+Links:
+https://ood.devana.nscc.sk/pun/sys/dashboard/
+https://userdocs.hpc.sav.sk/devana/job_submission/
+
+MPI - message parsing interface (commands are sent via network - we
+have 1000dns of CPUs)
+Second option available is using GPU threads.
+
+Most of the software available directly in Devana is for
+quantum-chemical computations.
+
+SLURM - (Simple Linux Utility for Resource Management) scheduler for
+dostributed computations on a super-computer
+https://slurm.schedmd.com/documentation.html
+
+Singularity - container platform which e.g. overcomes security issues
+of Docker.
+https://docs.sylabs.io/guides/3.5/user-guide/introduction.html
+
+Practical commands of SLURM:
+    sinfo
+    squeue
+    srun
+    sbatch
+Details in downloaded documentation.
+
+Enviroment:
+Very usefull and simple to use are "modules":
+    module av - lists all available installed modules
+    module load <name> - loads whole module including env change (PATH)
+    module spider <name> - gives very detail info about the module
+
+Docker:
+    We use Singularity:
+    module load singularity
+    singularity pull docker://<name> - will donwload and install public Docker image.
+
+Like this one can download and install whole PyTorch including CUDA.
+It is recommended to install packages published by NVIDIA because
+Devana is using NVIDIA GPUs.
+
+There is also HelpDesk in HPC with support.
+
